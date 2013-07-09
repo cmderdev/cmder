@@ -1,6 +1,6 @@
 
 ## Those files should be taken from their repositary
 
-lib/*
-!lib/*.md
-!lib/*.bat
+vendor/*
+!vendor/*.md
+!vendor/*.bat
