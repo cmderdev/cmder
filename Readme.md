@@ -17,7 +17,7 @@ The main advantage of Cmder is portablibity. It is designed to be totally self-c
 1. (optional) Place files into `bin` folder, it will be injected into your PATH.
 1. Run cmder
 
-*(There will a version with installer)*
+*(There will be a version with installer)*
 
 ## Keyboard shortcuts
 
@@ -40,13 +40,8 @@ The main advantage of Cmder is portablibity. It is designed to be totally self-c
 ## Features
 
 ### Aliases
-You can define simple aliases with
-
-    alias=command
-
-For example there is one defined for you
-
-    e.=explorer .
+You can define simple aliases with command `alias name=command`.
+For example there is one defined for you `alias e.=explorer .`
 
 All aliases will be saved in `/config/aliases` file
 
