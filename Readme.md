@@ -8,7 +8,7 @@ Cmder is a package created out of pure frustration over absence of usable consol
 
 ## Why use it
 
-The main advantage of Cmder is portablibity. It is designed to be totaly self-container. With no external dependencies. That makes is great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portablibity. It is designed to be totally self-container. With no external dependencies. That makes is great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Keyboard shortcuts
 
@@ -22,7 +22,7 @@ The main advantage of Cmder is portablibity. It is designed to be totaly self-co
 ### Shell
 
 * `Shift + Up` : Traverse up in directory structure (lovely feature!)
-* `End, Home, ctrl` : Traversing text wih as ususal on Windows
+* `End, Home, ctrl` : Traversing text with as usual on Windows
 * `Ctrl + r` : History search
 * `Shift + mouse` : Select and copy text from buffer
 
