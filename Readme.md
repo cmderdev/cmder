@@ -41,6 +41,7 @@ The main advantage of Cmder is portablibity. It is designed to be totally self-c
 
 ### Aliases
 You can define simple aliases with command `alias name=command`.
+
 For example there is one defined for you `alias e.=explorer .`
 
 All aliases will be saved in `/config/aliases` file
