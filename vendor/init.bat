@@ -11,7 +11,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 )
 
 :: Run clink
-lib\clink\clink_x%architecture%.exe inject --quiet --profile usr
+vendor\clink\clink_x%architecture%.exe inject --quiet --profile config
 
 :: Enhance Path
 PATH=%PATH%;%CD%\bin
