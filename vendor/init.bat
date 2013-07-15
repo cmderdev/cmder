@@ -13,8 +13,13 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 :: Run clink
 vendor\clink\clink_x%architecture%.exe inject --quiet --profile config
 
+set rootDir=%CD%
+
 :: Enhance Path
-PATH=%PATH%;%CD%\bin
+PATH=%PATH%;%rootDir%\bin
+
+:: Add aliases
+doskey /macrofile=%rootDir%\config\aliases
 
 :: cd into users homedir
 cd /d "%userprofile%"

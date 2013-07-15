@@ -1,2 +1,2 @@
 @echo off
-echo %* >> ../usr/aliases
+echo %* >> ../config/aliases
