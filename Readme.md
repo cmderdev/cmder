@@ -2,13 +2,22 @@
 
 **Yes, you can [download latest release](https://github.com/bliker/cmder/releases)**
 
-Cmder is a package created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://code.google.com/p/conemu-maximus5/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://code.google.com/p/clink/) and custom prompt layout.
+Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://code.google.com/p/conemu-maximus5/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://code.google.com/p/clink/) and custom prompt layout.
 
 ![Cmder Screenshot](http://i.imgur.com/g1nNf0I.png)
 
 ## Why use it
 
 The main advantage of Cmder is portablibity. It is designed to be totally self-container. With no external dependencies. That makes is great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+
+## Installation
+
+1. Download the latest release
+1. Extract
+1. (optional) Place files into `bin` folder, it will be injected into your PATH.
+1. Run cmder
+
+*(There will a version with installer)*
 
 ## Keyboard shortcuts
 
@@ -28,6 +37,18 @@ The main advantage of Cmder is portablibity. It is designed to be totally self-c
 
 (Some shortcuts are not yet documented, thought they exist, please add them here)
 
+## Features
+
+### Aliases
+You can define simple aliases with
+
+    alias=command
+
+For example there is one defined for you
+
+    e.=explorer .
+
+All aliases will be saved in `/config/aliases` file
 
 ## Todo
 
