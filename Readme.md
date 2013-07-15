@@ -2,6 +2,8 @@
 
 Cmder is a package created out of pure frustration over obsence of usable console emulator on Windows. It is based on [ConEmu](https://code.google.com/p/conemu-maximus5/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://code.google.com/p/clink/) and custom prompt layout.
 
+![Cmder Screenshot](http://i.imgur.com/g1nNf0I.png)
+
 ## Why use it
 
 The main advantage of Cmder is portablibity. It is designed to be totaly self-container. With no external dependencies. That makes is great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
