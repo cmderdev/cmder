@@ -4,4 +4,4 @@
 vendor/*
 !vendor/*.md
 !vendor/*.bat
-config\.history 
+config/.history
