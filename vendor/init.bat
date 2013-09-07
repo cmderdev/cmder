@@ -11,10 +11,16 @@
 :: Run clink
 @vendor\clink\clink_x%architecture%.exe inject --quiet --profile config
 
-@set rootDir=%CD%
+:: Prepare for msysgit
+@if not exist "%HOME%" @set HOME=%HOMEDRIVE%%HOMEPATH%
+@if not exist "%HOME%" @set HOME=%USERPROFILE%
+@set PLINK_PROTOCOL=ssh
+@if not defined TERM set TERM=msys
 
 :: Enhance Path
-@set PATH=%PATH%;%rootDir%\bin;
+@set rootDir=%CD%
+@set git_install_root=%CD%\vendor\PortableGit
+@set PATH=%PATH%;%rootDir%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;
 
 :: Add aliases
 @doskey /macrofile=%rootDir%\config\aliases
