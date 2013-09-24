@@ -1,0 +1,257 @@
+/* ==========================================================================
+   HTML5 Boilerplate styles - h5bp.com (generated via initializr.com)
+   ========================================================================== */
+
+html,
+button,
+input,
+select,
+textarea {
+    color: #222;
+}
+
+
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+img {
+    vertical-align: middle;
+}
+
+
+
+
+/* -------------- General Styles -------------- */
+
+body {
+    font-size: 0.9em;
+    line-height: 1.4;
+    font-family: 'Lato', sans-serif;
+    background-color: Whitesmoke;
+}
+
+.wrapper {
+    -webkit-box-shadow: 0 0 8px 3px #eee;
+    -moz-box-shadow: 0 0 8px 3px #eee;
+    box-shadow: 0 0 8px 3px #eee;
+    width: 80%;
+    background-color: #fff;
+    margin: 2em auto;
+    padding-bottom: 2em;
+}
+
+.container {
+    widows: 100%;
+    margin: 0 auto;
+}
+
+/* -------------- Typography -------------- */
+
+a {
+    color: #1E90FF;
+}
+
+h2 {
+    font-family: 'Lato', sans-serif;
+    font-style: italic;
+    font-weight: lighter;
+    color: #444;
+    padding: 0 1em;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+h2:before, h2:after {
+    content: "";
+    width: 50%;
+    margin: 0.5em auto;
+    display: block;
+    background-color: #eee;
+    height: 1px;
+}
+
+h3 {
+    font-size: 1.3em;
+    margin: 2.3em 0 0 0;
+    padding: 0.5em;
+    background-color: #eee;
+    color: #222;
+    letter-spacing: 0.2em;
+    font-weight: normal;
+    text-indent: 0.2em;
+}
+
+h4 {
+    color: #444;
+    text-indent: 0.5em;
+    text-rendering: optimizeLegibility;
+    font-size: 1.1em;
+    letter-spacing: 0.1em;
+}
+
+button {
+    background-color: #C4C4C4;
+    color: #fff;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    font-size: 1.1em;
+    box-shadow: 1px 1px 1px 0px #ddd, inset 0 0 -3px rgba(0, 0, 0, 0.02);
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    padding: 12px 0;
+    width: 100%;
+    display: block;
+    -webkit-transition: background-color 0.3s;
+    -moz-transition: background-color 0.3s;
+    -ms-transition: background-color 0.3s;
+    -o-transition: background-color 0.3s;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    box-shadow: 0px 0px 1px 0px #ddd;
+    background-color: #ccc;
+}
+
+button.gray { float: right; }
+button.blue { background-color: #3498db; }
+button.blue:hover { background-color: #5dade2; }
+
+/* -------------- Modules -------------- */
+
+header {
+    color: #fff;
+    position: relative;
+    font-family: 'Lato', sans-serif;
+    letter-spacing: 0.1em;
+    font-size: 1.6em;
+    font-weight: normal;
+    overflow: hidden;
+}
+
+#title_image {
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+@media (max-width: 1000px) {
+    #title_image { width: 120%; margin-left: -10%; }
+}
+
+main {
+    padding: 0em 6%;
+}
+
+#logo {
+    top: 6%;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    padding: 1em 0;
+}
+
+#logo img {
+    height: 40px;
+}
+
+
+.information img {
+    width: 100%;
+}
+
+.information p {
+    margin: 0;
+    padding: 0.5em;
+    line-height: 1.4em;
+}
+
+.download {
+    max-width: 35em;
+    text-align: center;
+}
+
+.download > .bit-2 {
+    margin: 1.5em 0;
+}
+
+.download small {
+    margin: 0.5em;
+    display: inline-block;
+}
+
+footer small {
+    text-align: center;
+    width: 100%;
+    display: inline-block;
+}
+
+code {
+    background-color: #eee;
+    padding: 1px 3px;
+    font-family: Consolas, monaco, monospace;
+    border-radius: 2px;
+    font-size: 0.9em;
+}
+
+.flushright {
+    text-align: right;
+}
+
+/* -------------- Lists -------------- */
+
+ol, ul {
+    list-style: none;
+}
+
+ul {
+    padding-left: 0.6em;
+}
+
+ul ol {
+    padding: 0 0 0 30px;
+    margin: 0.5em 0;
+}
+
+ol > li:before {
+    content: "1.";
+    padding: 1px 3px;
+    margin-right: 0.5em;
+    background-color: #eee;
+    font-family: Consolas, monaco, monospace;
+    border-radius: 2px;
+    font-size: 0.9em;
+}
+
+
+/* -------------- Helpers -------------- */
+
+.right {
+    float: right;
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1;
+}

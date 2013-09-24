@@ -1,0 +1,126 @@
+/*
+*
+* Lemonade v1.1
+* Copyright 2013, Joe Richardson
+* lemonade.im
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+*
+*/
+
+*,
+*:after,
+*:before {
+  margin: 0;
+  padding: 0;
+  /* Removes padding behavior on widths */
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+/* Attribute selector */
+[class*='bit-'] {
+  float: left;
+  padding: 5px;
+}
+
+/* Floats last ".bit-" to the right */
+[class*='bit-']:last-of-type {
+  padding-right: 5px;
+  float: right;
+}
+
+/* Alternative for IE8  */
+.last-type {
+  padding:5px;
+  float:right;
+}
+
+/* Clearfix */
+.container:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Main Widths */
+.bit-1  {width: 100%;}
+.bit-2  {width: 50%;}
+.bit-3  {width: 33.33%;}
+.bit-4  {width: 25%;}
+.bit-5  {width: 20%;}
+.bit-6  {width: 16.6666666667%;}
+.bit-7  {width: 14.2857142857%;}
+.bit-8  {width: 12.5%;}
+.bit-9  {width: 11.1111111111%;}
+.bit-10 {width: 10%;}
+.bit-11 {width: 9.09090909091%;}
+.bit-12 {width: 8.33%;}
+
+/* Landscape mobile & down */
+@media (max-width: 480px) {
+  .bit-1,
+  .bit-2,
+  .bit-3,
+  .bit-4,
+  .bit-5,
+  .bit-6,
+  .bit-7,
+  .bit-8,
+  .bit-9,
+  .bit-10,
+  .bit-11,
+  .bit-12 {
+    width: 100%;
+  }
+
+  .frame .bit-4:nth-child(2) {
+    float: right;
+  }
+
+  .frame .bit-4:nth-child(3) {
+    clear: both;
+    float: left;
+  }
+
+  .frame .bit-4:nth-child(4) {
+    float: right;
+  }
+}
+
+/* Portrait tablet to landscape */
+@media (min-width: 480px) and (max-width: 800px) {
+  .bit-4,
+  .bit-6,
+  .bit-8,
+  .bit-10,
+  .bit-12 {
+    width: 50%;
+  }
+
+  .bit-1,
+  .bit-2,
+  .bit-3,
+  .bit-5,
+  .bit-7,
+  .bit-9,
+  .bit-11 {
+    width: 100%;
+  }
+}
+
+/* Landscape to small desktop */
+@media (min-width: 800px) and (max-width: 1100px) {
+  .bit-2,
+  .bit-7 {
+    width: 100%;
+  }
+
+  .bit-4,
+  .bit-8,
+  .bit-10,
+  .bit-12 {
+    width: 50%;
+  }
+}
