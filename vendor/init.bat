@@ -1,5 +1,12 @@
 :: Set prompt style
-@prompt $E[1;32;40m$P $_$E[1;30;40m$$ $E[0m
+@for /f "tokens=2 delims=:." %%x in ('chcp') do @set cp=%%x
+
+:: The slow part
+:: World without Unicode is a sad world
+@chcp 65001>nul
+:: It has to be lambda, I already made a logo
+@prompt $E[1;32;40m$P $_$E[1;30;40mλ $E[0m
+@chcp %cp%>nul
 
 :: Pick right version of clink
 @if "%PROCESSOR_ARCHITECTURE%"=="x86" (
