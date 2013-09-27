@@ -1,3 +1,4 @@
 e.=explorer .
-gl=git log --oneline --all --graph --decorate
-hej=dir 
+gl=git log --oneline --all --graph --decorate  $*
+ls=ls --color $*
+
