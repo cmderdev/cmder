@@ -42,4 +42,4 @@
 :: cd into users homedir
 @cd /d "%userprofile%"
 
-echo Welcome to cmder!
+@echo Welcome to cmder!
