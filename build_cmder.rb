@@ -1,9 +1,13 @@
 # Samuel Vasko 2013
 # Cmder build script
 # Like really a beta
+#
+# This script downloads dependencies form google code. Each software is extracted
+# in a folder with same name as the project on google code. So Conemu becomes
+# conemu-maximus5. Correct files are beeing picked by using labels.
+# I will move the script for getting files by labels from php to here as soon I feel like it
 
 require 'FileUtils'
-require "pp"
 
 def get_file project, query
     # Should be changed to integrated downloader
@@ -15,7 +19,7 @@ def get_file project, query
     filename = project+'.'+extension
 
     puts "\n ------ Downloading #{project} ------- \n \n"
-    get_file = system("wget -O #{filename} -nc #{urlToFile}")
+    get_file = system("wget -O #{filename} #{urlToFile}")
 
     unless get_file
         puts "Failied to download #{project} from #{urlToFile}"
@@ -23,7 +27,7 @@ def get_file project, query
         exit(1)
     end
 
-    system("7z x -o\"#{project}\" #{project}.#{extension}")
+    system("7z x -o\"#{project}\" #{filename}")
 
     File.unlink(project+"."+extension);
 
