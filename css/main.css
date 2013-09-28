@@ -58,6 +58,10 @@ a {
     color: #1E90FF;
 }
 
+p {
+    padding-left: 8px;
+}
+
 h2 {
     font-family: 'Lato', sans-serif;
     font-style: italic;
@@ -80,7 +84,7 @@ h2:before, h2:after {
 h3 {
     font-size: 1.3em;
     margin: 2.3em 0 0 0;
-    padding: 0.5em;
+    padding: 8px;
     background-color: #eee;
     color: #222;
     letter-spacing: 0.2em;
@@ -90,9 +94,10 @@ h3 {
 
 h4 {
     color: #444;
-    text-indent: 0.5em;
+    text-indent: 8px;
     text-rendering: optimizeLegibility;
     font-size: 1.1em;
+    margin: 1em 0;
     letter-spacing: 0.1em;
 }
 
@@ -179,7 +184,7 @@ main {
 
 .information p {
     margin: 0;
-    padding: 0.5em;
+    padding: 0 8px;
     line-height: 1.4em;
 }
 
@@ -191,6 +196,10 @@ main {
 
 .download > .bit-2 {
     margin: 1.5em 0 0 0;
+}
+
+#installation {
+    text-align: left;
 }
 
 .download small {
@@ -218,27 +227,15 @@ code {
 
 /* -------------- Lists -------------- */
 
-ol, ul {
-    list-style: none;
-}
-
 ul {
-    padding-left: 0.6em;
+    list-style: none;
+    padding-left: 8px;
 }
 
 ul ol {
     padding: 0 0 0 30px;
     margin: 0.5em 0;
-}
-
-ol > li:before {
-    content: "1.";
-    padding: 1px 3px;
-    margin-right: 0.5em;
-    background-color: #eee;
-    font-family: Consolas, monaco, monospace;
-    border-radius: 2px;
-    font-size: 0.9em;
+    list-style: none;
 }
 
 
