@@ -59,15 +59,15 @@
                 </div>
 
                 <div class="bit-2">
-                    <a href="https://github.com/bliker/cmder/releases/download/v1.0.0/cmder_mini.zip">
+                    <a onclick="_gaq.push(['_trackEvent', 'Download', 'mini'])" href="https://github.com/bliker/cmder/releases/download/v1.0.0/cmder_mini.zip">
                         <button class="gray">Download mini</button>
                     </a>
                     <small>3 MB zipped &nbsp;:&nbsp; 7 MB</small>
                 </div>
                 <div class="bit-2">
-                    <a href="https://github.com/bliker/cmder/releases/download/v1.0.0/cmder_full.zip"><button class="blue">Download full</button></a>
+                    <a onclick="_gaq.push(['_trackEvent', 'Download', 'full'])" href="https://github.com/bliker/cmder/releases/download/v1.0.0/cmder_full.zip"><button class="blue">Download full</button></a>
                     <small>(with msysgit) 115 MB zipped &nbsp;:&nbsp; 250 MB </small>
-                    <small> <em><a href="https://github.com/bliker/cmder/releases/download/v1.0.0/cmder_full.7z">Shockingly small 23 MB 7z </a></em> </small>
+                    <small> <em><a onclick="_gaq.push(['_trackEvent', 'Download', 'full', '7z'])" href="https://github.com/bliker/cmder/releases/download/v1.0.0/cmder_full.7z">Shockingly small 23 MB 7z </a></em> </small>
                 </div>
 
                 <div id="installation">
@@ -154,6 +154,7 @@
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
       ga('create', 'UA-35740802-2', 'bliker.github.io');
       ga('send', 'pageview');
     </script>
