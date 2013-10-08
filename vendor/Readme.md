@@ -1,3 +1,3 @@
 ## Vendor
 
-Softwere from third parties + init sctipt
+Software from third parties + init sctipt
