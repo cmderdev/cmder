@@ -44,6 +44,10 @@ body {
     box-shadow: 0 0 8px 3px #eee;
 }
 
+@media (max-width: 480px) {
+    .wrapper { width: 98%; }
+}
+
 .container {
     margin: 0 auto;
     widows: 100%;
