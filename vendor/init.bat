@@ -25,9 +25,8 @@
 @vendor\clink\clink_x%architecture%.exe inject --quiet --profile config
 
 :: Prepare for msysgit
+
 :: I do not even know, copypasted from their .bat
-@if not exist "%HOME%" @set HOME=%HOMEDRIVE%%HOMEPATH%
-@if not exist "%HOME%" @set HOME=%USERPROFILE%
 @set PLINK_PROTOCOL=ssh
 @if not defined TERM set TERM=msys
 
