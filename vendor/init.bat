@@ -38,7 +38,9 @@
 :: Add aliases
 @doskey /macrofile=%rootDir%\config\aliases
 
-:: cd into users homedir
-@cd /d "%userprofile%"
+:: Set home path
 
+:: cd into users homedir
+@cd /d %USERPROFILE%
+@set HOME=%USERPROFILE%
 @echo Welcome to cmder!
