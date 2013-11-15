@@ -9,7 +9,7 @@
 :: World without Unicode is a sad world
 @chcp 65001>nul
 :: It has to be lambda, I already made a logo
-@prompt $E[1;32;40m$P $_$E[1;30;40mλ $E[0m
+@prompt $E[1;32;40m$P$S{git}$S$_$E[1;30;40mλ$S$E[0m
 @chcp %cp%>nul
 
 
@@ -38,9 +38,10 @@
 :: Add aliases
 @doskey /macrofile=%rootDir%\config\aliases
 
-:: Set home path
 
 :: cd into users homedir
 @cd /d %USERPROFILE%
+
+:: Set home path
 @set HOME=%USERPROFILE%
 @echo Welcome to cmder!
