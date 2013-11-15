@@ -6,3 +6,4 @@ vendor/*
 !vendor/*.bat
 config/.history
 Thumbs.db
+*.exe
