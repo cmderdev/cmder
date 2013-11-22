@@ -36,7 +36,7 @@
 @set PATH=%PATH%;%rootDir%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;
 
 :: Add aliases
-@doskey /macrofile=%rootDir%\config\aliases
+@doskey /macrofile="%rootDir%\config\aliases"
 
 
 :: cd into users homedir
