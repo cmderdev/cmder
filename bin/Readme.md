@@ -1,3 +1,3 @@
 ## Bin
 
-Thif folder will be injected into path at runtime
+This folder will be injected into path at runtime
