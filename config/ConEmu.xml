@@ -494,8 +494,8 @@
 				</key>
 						<key name="Task2" modified="2013-11-03 17:59:09" build="130827">
 					<value name="Name" type="string" data="{PowerShell}"/>
-					<value name="GuiArgs" type="string" data="/dir &quot;%userprofile%&quot;"/>
-					<value name="Cmd1" type="string" data="powershell"/>
+					<value name="GuiArgs" type="string" data=""/>
+					<value name="Cmd1" type="string" data="powershell -NoLogo -NoExit -File &quot;vendor/init.ps1&quot;"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 				</key>
