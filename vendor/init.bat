@@ -3,7 +3,7 @@
 :: Created as part of cmder project
 
 
-:: Seting  prompt style
+:: Setting prompt style
 @for /f "tokens=2 delims=:." %%x in ('chcp') do @set cp=%%x
 :: The slow part
 :: World without Unicode is a sad world
