@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2013-11-03 17:59:09" build="130827">
+		<key name=".Vanilla" modified="2013-11-28 16:14:39" build="131107">
 			<value name="ColorTable00" type="dword" data="00222827"/>
 			<value name="ColorTable01" type="dword" data="009e5401"/>
 			<value name="ColorTable02" type="dword" data="0004aa74"/>
@@ -415,8 +415,8 @@
 			<value name="KeyMacro01.Text" type="string" data="Task(&quot;cmd&quot;)"/>
 			<value name="KeyMacro02" type="dword" data="0012a232"/>
 			<value name="KeyMacro02.Text" type="string" data="Task(&quot;PowerShell&quot;)"/>
-			<value name="KeyMacro03" type="dword" data="00000000"/>
-			<value name="KeyMacro03.Text" type="string" data=""/>
+			<value name="KeyMacro03" type="dword" data="0012a233"/>
+			<value name="KeyMacro03.Text" type="string" data="Task(&quot;AdminPowerShell&quot;)"/>
 			<value name="KeyMacro04" type="dword" data="00000000"/>
 			<value name="KeyMacro04.Text" type="string" data=""/>
 			<value name="KeyMacro05" type="dword" data="00000000"/>
@@ -483,28 +483,38 @@
 			<value name="DndLKey" type="hex" data="00"/>
 			<value name="DndRKey" type="hex" data="a2"/>
 			<value name="WndDragKey" type="dword" data="00121101"/>
-				<key name="Tasks" modified="2013-11-03 17:59:09" build="130827">
-				<value name="Count" type="dword" data="00000002"/>
-						<key name="Task1" modified="2013-11-03 17:59:09" build="130827">
+				<key name="Tasks" modified="2013-11-28 16:14:39" build="131107">
+				<value name="Count" type="dword" data="00000003"/>
+						<key name="Task1" modified="2013-11-28 16:14:39" build="131107">
 					<value name="Name" type="string" data="{cmd}"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;cmd.exe&quot;"/>
 					<value name="Cmd1" type="string" data="cmd /k vendor\init.bat"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
 				</key>
-						<key name="Task2" modified="2013-11-03 17:59:09" build="130827">
+						<key name="Task2" modified="2013-11-28 16:14:39" build="131107">
 					<value name="Name" type="string" data="{PowerShell}"/>
 					<value name="GuiArgs" type="string" data="/dir &quot;%userprofile%&quot;"/>
 					<value name="Cmd1" type="string" data="powershell"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+				</key>
+						<key name="Task3" modified="2013-11-28 16:14:39" build="131107">
+					<value name="Name" type="string" data="{AdminPowerShell}"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data="/dir &quot;%userprofile%&quot;"/>
+					<value name="Cmd1" type="string" data="* powershell"/>
+					<value name="Active" type="dword" data="00000000"/>
+					<value name="Count" type="dword" data="00000001"/>
 				</key>
 			</key>
-				<key name="Apps" modified="2013-11-03 17:59:09" build="130827">
+				<key name="Apps" modified="2013-11-28 16:14:39" build="131107">
 				<value name="Count" type="dword" data="00000000"/>
 			</key>
-				<key name="Colors" modified="2013-11-03 17:59:09" build="130827">
-			<key name="Palette1" modified="2013-11-03 17:59:09" build="130827">
+				<key name="Colors" modified="2013-11-28 16:14:39" build="131107">
+			<key name="Palette1" modified="2013-11-28 16:14:39" build="131107">
 					<value name="Name" type="string" data="Monokai"/>
 					<value name="ExtendColors" type="hex" data="00"/>
 					<value name="ExtendColorIdx" type="hex" data="0e"/>
@@ -562,6 +572,15 @@
 			<value name="Multi.SplitFocusL" type="dword" data="00005d25"/>
 			<value name="Multi.SplitFocusR" type="dword" data="00005d27"/>
 			<value name="CloseGroupPrcKey" type="dword" data="00000000"/>
+			<value name="SetDefaultTerminalStartupTSA" type="hex" data="01"/>
+			<value name="CTS.HtmlFormat" type="hex" data="00"/>
+			<value name="TabIcons" type="hex" data="01"/>
+			<value name="Multi.NewConsolePopup2" type="dword" data="00000000"/>
+			<value name="CloseAllConKey" type="dword" data="00000000"/>
+			<value name="CloseExceptConKey" type="dword" data="00000000"/>
+			<value name="CTS.VkCopyFmt0" type="dword" data="00001143"/>
+			<value name="CTS.VkCopyFmt1" type="dword" data="00101143"/>
+			<value name="CTS.VkCopyFmt2" type="dword" data="00000000"/>
 		</key>
 	</key>
 </key>
