@@ -1,4 +1,4 @@
 e.=explorer .
 gl=git log --oneline --all --graph --decorate  $*
 ls=ls --color $*
-
+pwd=cd
