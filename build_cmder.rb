@@ -7,22 +7,28 @@
 # conemu-maximus5. Correct files are beeing picked by using labels.
 # I will move the script for getting files by labels from php to here as soon I feel like it
 
-require 'FileUtils'
+require 'fileutils'
+require 'open-uri'
+require 'uri'
 
 def get_file project, query
-    # Should be changed to integrated downloader
-    urlToFile = 'wget -q -O - "http://samuelvasko.tk/gcode/?project='+project+'&query='+query+'"'
-    urlToFile = `#{urlToFile}`
-    urlToFile =  urlToFile.split("\n").first
+    urlToFile = URI.escape('http://samuelvasko.tk/gcode/?project='+project+'&query='+query)
+    open(urlToFile) do |resp|
+        urlToFile = URI.escape(resp.read.split(/\r?\n/).first)
+    end
 
     extension = urlToFile.split('.').last
     filename = project+'.'+extension
 
-    puts "\n ------ Downloading #{project} ------- \n \n"
-    get_file = system("wget -O #{filename} #{urlToFile}")
-
-    unless get_file
-        puts "Failied to download #{project} from #{urlToFile}"
+    puts "\n ------ Downloading #{project} from #{urlToFile} ------- \n \n"
+    begin
+        open(urlToFile, 'rb') do |infile|
+            open(filename, 'wb') do |outfile|
+                outfile.write(infile.read)
+            end
+        end
+    rescue IOError => error
+        puts error
         FileUtils.rm(filename) if File.exists?(filename)
         exit(1)
     end
@@ -39,7 +45,17 @@ def get_file project, query
         FileUtils.mv(Dir.glob("#{temp_name}/*")[0], project)
         FileUtils.rm_r(temp_name)
     end
+end
 
+def find_on_path exe
+    path = ENV['PATH'].split(File::PATH_SEPARATOR)
+    for dir in path
+        if File.exists?(File.join(dir, exe))
+            return true
+        end
+    end
+
+    return false
 end
 
 puts '
@@ -52,6 +68,11 @@ ______       _ _     _ _                                   _
                                 __/ |
                                |___/
 '
+
+unless find_on_path('7z.exe')
+    puts '7z.exe not found. Ensure 7-zip is installed and on the PATH.'
+    exit(1)
+end
 
 puts 'Cleanup'
 
