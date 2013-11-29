@@ -47,6 +47,17 @@ def get_file project, query
     end
 end
 
+def find_on_path exe
+    path = ENV['PATH'].split(File::PATH_SEPARATOR)
+    for dir in path
+        if File.exists?(File.join(dir, exe))
+            return true
+        end
+    end
+
+    return false
+end
+
 puts '
 ______       _ _     _ _                                   _
 | ___ \     (_) |   | (_)                                 | |
@@ -57,6 +68,11 @@ ______       _ _     _ _                                   _
                                 __/ |
                                |___/
 '
+
+unless find_on_path('7z.exe')
+    puts '7z.exe not found. Ensure 7-zip is installed and on the PATH.'
+    exit(1)
+end
 
 puts 'Cleanup'
 
