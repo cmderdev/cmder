@@ -18,7 +18,7 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    return os.execute("git diff-files --quiet --ignore-submodules")
+    return os.execute("git diff --quiet --ignore-submodules HEAD")
 end
 
 function git_prompt_filter()
