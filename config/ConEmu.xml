@@ -193,7 +193,7 @@
 			<value name="FARuseASCIIsort" type="hex" data="00"/>
 			<value name="ShellNoZoneCheck" type="hex" data="00"/>
 			<value name="FixAltOnAltTab" type="hex" data="00"/>
-			<value name="DisableMouse" type="hex" data="00"/>
+			<value name="DisableMouse" type="hex" data="01"/>
 			<value name="RSelectionFix" type="hex" data="01"/>
 			<value name="MouseSkipActivation" type="hex" data="01"/>
 			<value name="MouseSkipMoving" type="hex" data="01"/>
