@@ -19,11 +19,8 @@
 ) else (
     set architecture=64
 )
-
-@set rootDir="%~dp0\.."
-
 :: Run clink
-@%rootDir%\vendor\clink\clink_x%architecture%.exe inject --quiet --profile %rootDir%\config
+@%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe inject --quiet --profile %CMDER_ROOT%\config
 
 :: Prepare for msysgit
 
@@ -32,11 +29,13 @@
 @if not defined TERM set TERM=msys
 
 :: Enhance Path
-@set git_install_root=%rootDir%\vendor\msysgit
-@set PATH=%PATH%;%rootDir%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim73;
+@set git_install_root=%CMDER_ROOT%\vendor\msysgit
+@set PATH=%PATH%;%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim73;
+
+@call %CMDER_ROOT%\bin\genpath.bat
 
 :: Add aliases
-@doskey /macrofile="%rootDir%\config\aliases"
+@doskey /macrofile="%CMDER_ROOT%\config\aliases"
 
 :: Set home path
 @set HOME=%USERPROFILE%
