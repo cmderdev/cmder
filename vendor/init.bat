@@ -36,7 +36,7 @@
 @set PATH=%PATH%;%rootDir%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim73;
 
 :: Add aliases
-@doskey /macrofile="%rootDir%\config\aliases"
+@doskey /macrofile=%rootDir%\config\aliases
 
 :: Set home path
 @set HOME=%USERPROFILE%
