@@ -29,7 +29,9 @@
 
 :: I do not even know, copypasted from their .bat
 @set PLINK_PROTOCOL=ssh
-@if not defined TERM set TERM=msys
+
+:: Set TERM to xterm so less, diff, etc. show properly
+@if not defined TERM set TERM=xterm
 
 :: Enhance Path
 @set git_install_root=%rootDir%\vendor\msysgit
