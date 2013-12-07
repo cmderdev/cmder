@@ -8,7 +8,7 @@ Cmder is a **software package** created out of pure frustration over absence of 
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies. That makes is great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies. That makes it great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Installation
 
@@ -25,13 +25,14 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 * `Ctrl + t` : new tab dialog (maybe you want to open cmd as admin?)
 * `Ctrl + w` : close tab
+* `Ctrl + d` : close tab (if pressed on empty command)
 * `Ctrl + alt + number` : fast new tab: `1` - CMD, `2` - Powershell `*` - More to come
 * `Alt + enter`: Fullscreen
 
 ### Shell
 
 * `Shift + Up` : Traverse up in directory structure (lovely feature!)
-* `End, Home, ctrl` : Traversing text with as usual on Windows
+* `End, Home, Ctrl` : Traversing text with as usual on Windows
 * `Ctrl + r` : History search
 * `Shift + mouse` : Select and copy text from buffer
 
