@@ -1,3 +1,3 @@
 ## Vendor
 
-Third parties softare & init script.
+Third parties software & init script.
