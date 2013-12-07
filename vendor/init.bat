@@ -29,7 +29,7 @@
 
 :: I do not even know, copypasted from their .bat
 @set PLINK_PROTOCOL=ssh
-@if not defined TERM set TERM=msys
+@if not defined TERM set TERM=cygwin
 
 :: Enhance Path
 @set git_install_root=%rootDir%\vendor\msysgit
