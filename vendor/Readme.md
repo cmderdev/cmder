@@ -1,3 +1,3 @@
 ## Vendor
 
-Software from third parties + init sctipt
+Third parties softare & init script.

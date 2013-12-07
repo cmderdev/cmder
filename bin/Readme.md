@@ -1,3 +1,3 @@
 ## Bin
 
-This folder will be injected into path at runtime
+This folder will be injected into the PATH environment variable at runtime.
