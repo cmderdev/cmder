@@ -33,5 +33,3 @@
 @set HOME=%USERPROFILE%
 
 @if defined CMDER_START cd /d "%CMDER_START%"
-
-@echo Welcome to cmder!
