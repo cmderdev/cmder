@@ -74,6 +74,14 @@ unless find_on_path('7z.exe')
     exit(1)
 end
 
+build_exe = true
+unless find_on_path('msbuild.exe')
+    puts 'msbuild.exe not found. We need that to build the executable.'
+    puts 'Do you want to continue? [Y/n]'
+    build_exe = false
+    exit(1) unless gets.chomp.downcase == 'y'
+end
+
 puts 'Cleanup'
 
 if Dir.exists?('vendor')
@@ -84,8 +92,19 @@ Dir.chdir('vendor')
 
 puts 'Getting files'
 
-get_file('clink', 'label:Type-Archive label=Featured')
-get_file('conemu-maximus5', 'label:Type-Archive label=Preview label=Featured')
+get_file('clink', 'label:Type-Archive label:Featured')
+get_file('conemu-maximus5', 'label:Type-Archive label:Preview label:Featured')
 get_file('msysgit', 'label:Type-Archive label:Featured')
+
+puts 'Creating executable'
+
+if build_exe
+    Dir.chdir('../launcher')
+    status = system('msbuild /p:Configuration=Release')
+    unless status
+        puts 'Looks like the build failied'
+        exit(1)
+    end
+end
 
 puts 'Done, bye'
