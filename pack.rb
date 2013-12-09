@@ -5,12 +5,13 @@ require "fileutils"
 
 def create_archive name, exclude
     if exclude
-        exclude = " -x!" + exclude
+        exclude = " -x!cmder\\" + exclude
     else
         exclude = ""
     end
+    system('ls')
     puts "Running 7z a -x@cmder\\packignore" + exclude + " " + name + " cmder"
-    system("7z a -x@cmder\packignore + "+ name +" cmder")
+    system("7z a -x@cmder\\packignore" + exclude + " " + name + " cmder")
 end
 
 targets = [
@@ -24,11 +25,16 @@ unless system("git describe --abbrev=0 --tags")
 end
 
 version = `git describe --abbrev=0 --tags`
+
 FileUtils.touch('Version ' + version)
+FileUtils.rm('config/.history')
+
+Dir.chdir('..')
 
 targets.each do |ar|
     create_archive ar[0], ar[1]
 end
 
-FileUtils.rm('Version ' + version)
+Dir.chdir('cmder')
 
+FileUtils.rm('Version ' + version.chomp)
