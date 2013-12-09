@@ -58,6 +58,14 @@ def find_on_path exe
     return false
 end
 
+def git_cleanup gexe
+    if gexe.gsub(/.*?(?=git), "").contains("-")
+        # recreate file to bat
+        # put @ECHO OFF/n
+        # git stuff
+    end
+end
+
 puts '
 ______       _ _     _ _                                   _
 | ___ \     (_) |   | (_)                                 | |
