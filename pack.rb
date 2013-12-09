@@ -26,7 +26,7 @@ end
 
 version = `git describe --abbrev=0 --tags`
 
-FileUtils.touch('Version ' + version)
+FileUtils.touch('Version ' + version.chomp)
 FileUtils.rm('config/.history')
 
 Dir.chdir('..')
