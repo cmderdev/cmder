@@ -17,6 +17,7 @@ def main()
 				new_file.write('@ECHO OFF\n' + file.gsub('-', ' ') + ' $*')
 			end
 			File.delete(file)
+			next
 		end
 	end
 end
