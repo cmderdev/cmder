@@ -1,6 +1,6 @@
 # Cmder
 
-**Yes, you can [download latest release](https://github.com/bliker/cmder/releases)**
+Latest release is **[v1.1.2](https://github.com/bliker/cmder/releases/tag/v1.1.2)**
 
 Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://code.google.com/p/conemu-maximus5/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://code.google.com/p/clink/) and custom prompt layout.
 
@@ -8,7 +8,7 @@ Cmder is a **software package** created out of pure frustration over absence of 
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies. That makes it great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Installation
 
