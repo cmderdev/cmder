@@ -158,22 +158,29 @@ void RegisterShellMenu(std::wstring opt)
 {
 	HKEY root = GetRootKey(opt);
 
+	wchar_t exePath[MAX_PATH] = { 0 };
+
+	GetModuleFileName(NULL, exePath, sizeof(exePath));
+
 	HKEY cmderKey;
 	FAIL_ON_ERROR(
 		RegCreateKeyEx(root, SHELL_MENU_REGISTRY_PATH, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 
+	wchar_t iconStr[MAX_PATH + 10] = { 0 };
+	swprintf_s(iconStr, L"%s,0", exePath);
+
 	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
+	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (const BYTE *)iconStr,  wcslen(iconStr) * sizeof(wchar_t) ));
+
 
 	HKEY command;
 	FAIL_ON_ERROR(
 		RegCreateKeyEx(cmderKey, L"command", 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
 
-	wchar_t exePath[MAX_PATH] = { 0 };
 
-	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
