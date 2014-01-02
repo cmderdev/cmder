@@ -1,6 +1,6 @@
 # Cmder
 
-Latest release is **[v1.1.2](https://github.com/bliker/cmder/releases/tag/v1.1.2)**
+Latest release is **[v1.1.3](https://github.com/bliker/cmder/releases/tag/v1.1.3)**
 
 Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://code.google.com/p/conemu-maximus5/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://code.google.com/p/clink/) and custom prompt layout.
 
