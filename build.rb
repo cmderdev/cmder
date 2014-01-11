@@ -96,6 +96,30 @@ get_file('clink', 'label:Type-Archive label:Featured')
 get_file('conemu-maximus5', 'label:Type-Archive label:Preview label:Featured')
 get_file('msysgit', 'label:Type-Archive label:Featured')
 
+puts 'Cleaning extra git executables'
+
+git_dir = '/msysgit/libexec/git-core/'
+Dir.entries(Dir.pwd + git_dir).each do |file|
+    if file == 'git.exe' or file == 'mergetools' or file.end_with?('.bat') then
+        puts 'found a nonmatch'
+        next
+    
+    elsif file.end_with?('.exe') then
+        #File.open(File.basename(file, '.*') + '.bat', "w") do |new_file|
+        #   new_file.write('@' + File.basename(file, '.*').gsub('-',' '))
+        puts 'found exe'
+        #File.delete(file)
+        next
+    else
+        #File.open(file + '.bat', "w") do |new_file|
+            #new_file.write('@' + file.gsub(/([\-])/, ' '))
+        puts 'Replacing a - here: ' + file + ' ' + file.gsub(/((?<!=\-)(?=\-\-)\-)/, ' -')
+        #File.delete(file)
+        next
+    end
+end
+
+
 puts 'Creating executable'
 
 if build_exe
