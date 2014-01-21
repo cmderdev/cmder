@@ -192,8 +192,13 @@ void UnregisterShellMenu(std::wstring opt)
 	FAIL_ON_ERROR(
 		RegCreateKeyEx(root, SHELL_MENU_REGISTRY_PATH, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+#ifdef XP
+	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
+	FAIL_ON_ERROR(SHDeleteKey(root, SHELL_MENU_REGISTRY_PATH));
+#else
 	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
 	FAIL_ON_ERROR(RegDeleteKey(root, SHELL_MENU_REGISTRY_PATH));
+#endif
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
 }
