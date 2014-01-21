@@ -349,7 +349,7 @@
 			<value name="SwitchGuiFocus" type="dword" data="00000000"/>
 			<value name="SetFocusGui" type="dword" data="00000000"/>
 			<value name="SetFocusChild" type="dword" data="00000000"/>
-			<value name="ChildSystemMenu" type="dword" data="00000000"/>
+			<value name="ChildSystemMenu" type="dword" data="006b2d288000000"/>
 			<value name="Multi.NewConsole" type="dword" data="80808000"/>
 			<value name="Multi.NewConsoleShift" type="dword" data="00001154"/>
 			<value name="Multi.NewConsolePopup" type="dword" data="80808000"/>
@@ -505,8 +505,8 @@
 				<key name="Apps" modified="2014-01-21 18:36:36" build="131215">
 				<value name="Count" type="dword" data="00000000"/>
 			</key>
-				<key name="Colors" modified="2014-01-31 17:13:53" build="131107">
-			<key name="Palette1" modified="2014-01-31 17:13:53" build="131107">
+			<key name="Colors" modified="2014-01-21 18:36:36" build="131215">
+			<key name="Palette1" modified="2014-01-21 18:36:36" build="131215">
 					<value name="Name" type="string" data="Monokai"/>
 					<value name="ExtendColors" type="hex" data="00"/>
 					<value name="ExtendColorIdx" type="hex" data="0e"/>
