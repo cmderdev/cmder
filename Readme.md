@@ -49,7 +49,10 @@ All aliases will be saved in `/config/aliases` file
 
 ## Todo
 
-1. Write a Todo list
+1. Complete PowerShell compatibility.
+2. Workaround git.exe overload after msysgit download (Granted this is an upstream issue).
+3. Redo Build/Pack scripts or remove them altogether.
+4. Launcher XP compatibility.
 
 ## License
 
