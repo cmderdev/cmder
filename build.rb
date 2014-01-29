@@ -98,11 +98,26 @@ get_file('msysgit', 'label:Type-Archive label:Featured')
 
 puts 'Creating executable'
 
+puts 'Build for XP? (Default: No)'
+if gets.downcase =='yes' or 'y'
+    XP = true
+elsif gets.downcase == 'no' or 'n'
+    XP = false
+else
+    puts 'Defaulting to non-XP build'
+    XP = false
+end
+
 if build_exe
     Dir.chdir('../launcher')
-    status = system('msbuild /p:Configuration=Release')
+    if XP
+        puts 'Building XP Compatible Launcher...'
+        status = system('msbuild /p:Configuration=ReleaseXP')
+    else
+        status = system('msbuild /p:Configuration=Release')
+    end
     unless status
-        puts 'Looks like the build failied'
+        puts 'Looks like the build failed'
         exit(1)
     end
 end
