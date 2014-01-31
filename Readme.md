@@ -26,7 +26,7 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 * `Ctrl + t` : new tab dialog (maybe you want to open cmd as admin?)
 * `Ctrl + w` : close tab
 * `Ctrl + d` : close tab (if pressed on empty command)
-* `Ctrl + alt + number` : fast new tab: `1` - CMD, `2` - Powershell `*` - More to come
+* `Shift + alt + number` : fast new tab: `1` - CMD, `2` - Powershell `*` - More to come
 * `Alt + enter`: Fullscreen
 
 ### Shell
