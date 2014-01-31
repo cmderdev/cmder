@@ -18,21 +18,21 @@
 			<value name="ColorTable13" type="dword" data="00b87da8"/>
 			<value name="ColorTable14" type="dword" data="0081cccc"/>
 			<value name="ColorTable15" type="dword" data="00ffffff"/>
-			<value name="ColorTable16" type="dword" data="00000000"/>
-			<value name="ColorTable17" type="dword" data="00800000"/>
-			<value name="ColorTable18" type="dword" data="00008000"/>
-			<value name="ColorTable19" type="dword" data="00808000"/>
-			<value name="ColorTable20" type="dword" data="00000080"/>
-			<value name="ColorTable21" type="dword" data="00800080"/>
-			<value name="ColorTable22" type="dword" data="00008080"/>
-			<value name="ColorTable23" type="dword" data="00c0c0c0"/>
-			<value name="ColorTable24" type="dword" data="00808080"/>
-			<value name="ColorTable25" type="dword" data="00ff0000"/>
-			<value name="ColorTable26" type="dword" data="0000ff00"/>
-			<value name="ColorTable27" type="dword" data="00ffff00"/>
-			<value name="ColorTable28" type="dword" data="000000ff"/>
-			<value name="ColorTable29" type="dword" data="00ff00ff"/>
-			<value name="ColorTable30" type="dword" data="0000ffff"/>
+			<value name="ColorTable16" type="dword" data="00222827"/>
+			<value name="ColorTable17" type="dword" data="009e5401"/>
+			<value name="ColorTable18" type="dword" data="0004aa74"/>
+			<value name="ColorTable19" type="dword" data="00a6831a"/>
+			<value name="ColorTable20" type="dword" data="003403a7"/>
+			<value name="ColorTable21" type="dword" data="009c5689"/>
+			<value name="ColorTable22" type="dword" data="0049b6b6"/>
+			<value name="ColorTable23" type="dword" data="00cacaca"/>
+			<value name="ColorTable24" type="dword" data="007c7c7c"/>
+			<value name="ColorTable25" type="dword" data="00f58303"/>
+			<value name="ColorTable26" type="dword" data="0006d08d"/>
+			<value name="ColorTable27" type="dword" data="00e5c258"/>
+			<value name="ColorTable28" type="dword" data="004b04f3"/>
+			<value name="ColorTable29" type="dword" data="00b87da8"/>
+			<value name="ColorTable30" type="dword" data="0081cccc"/>
 			<value name="ColorTable31" type="dword" data="00ffffff"/>
 			<value name="ExtendColors" type="hex" data="00"/>
 			<value name="ExtendColorIdx" type="hex" data="0e"/>
@@ -505,8 +505,8 @@
 				<key name="Apps" modified="2014-01-21 18:36:36" build="131215">
 				<value name="Count" type="dword" data="00000000"/>
 			</key>
-				<key name="Colors" modified="2014-01-21 18:36:36" build="131215">
-			<key name="Palette1" modified="2014-01-21 18:36:36" build="131215">
+				<key name="Colors" modified="2014-01-31 17:13:53" build="131107">
+			<key name="Palette1" modified="2014-01-31 17:13:53" build="131107">
 					<value name="Name" type="string" data="Monokai"/>
 					<value name="ExtendColors" type="hex" data="00"/>
 					<value name="ExtendColorIdx" type="hex" data="0e"/>
