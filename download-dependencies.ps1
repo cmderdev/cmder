@@ -35,13 +35,13 @@ function getDependency($TempPackageName = "temp.7z", $PackageUrl, $ExtractDirNam
 Write-Verbose "Downloading/extracting clink..."
 
 getDependency `
-    -PackageUrl "http://clink.googlecode.com/files/clink_0.4_setup.exe" `
+    -PackageUrl "https://clink.googlecode.com/files/clink_0.4_setup.exe" `
     -ExtractDirName "clink"
 
 Write-Verbose "Downloading/extracting ConEmu..."
 
 getDependency `
-    -PackageUrl "http://conemu-maximus5.googlecode.com/files/ConEmuPack.131107.7z" `
+    -PackageUrl "https://conemu-maximus5.googlecode.com/files/ConEmuPack.131107.7z" `
     -ExtractDirName "conemu-maximus5"
 
 if ($IncludeMsysgit) {
@@ -49,7 +49,7 @@ if ($IncludeMsysgit) {
     Write-Verbose "Downloading/extracting msysgit..."
 
     getDependency `
-        -PackageUrl "http://msysgit.googlecode.com/files/PortableGit-1.8.5.2-preview20131230.7z" `
+        -PackageUrl "https://msysgit.googlecode.com/files/PortableGit-1.8.5.2-preview20131230.7z" `
         -ExtractDirName "msysgit"
     
 }
