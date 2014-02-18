@@ -54,6 +54,7 @@ All aliases will be saved in `/config/aliases` file
 3. Redo Build/Pack scripts or remove them altogether.
 4. Launcher XP compatibility.
 5. Git Bash
+6. Check for clink and git before injecting them
 
 ## License
 
