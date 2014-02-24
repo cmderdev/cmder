@@ -4,6 +4,8 @@
 vendor/*
 !vendor/*.md
 !vendor/*.bat
+!vendor/*.json
+
 config/.history
 Thumbs.db
 *.exe
