@@ -60,20 +60,6 @@ function Delete-Existing ($path) {
     Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
 }
 
-function Expand-Download{
-    [CmdletBinding()]
-    Param(
-        [psobject]$package
-    )
-    Write-Verbose "Extract $($package.name).tmp"
-
-    # As if 7-zip doesn't have a silent output option. Append > `&null to the end to silence it.
-    # Also silences the error output
-
-    Write-Verbose "Delete downloaded archive: $($package.package)"
-    Remove-Item $package.package
-}
-
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
