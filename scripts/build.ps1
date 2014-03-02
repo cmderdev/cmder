@@ -29,10 +29,10 @@
 #>
 [CmdletBinding(SupportsShouldProcess=$true)]
 Param(
-    # CmdletBinding will give us; 
+    # CmdletBinding will give us;
     # -verbose switch to turn on logging and
     # -whatif switch to not actually make changes
-   
+
     # Path to the vendor configuration source file
     [string]$sourcesPath = "..\vendor\sources.json"
 
@@ -46,6 +46,7 @@ function Ensure-Exists ($item) {
         exit 1
     }
 }
+
 function Ensure-Executable ($command) {
     try { Get-Command $command -ErrorAction Stop > $null}
     catch{
@@ -53,51 +54,54 @@ function Ensure-Executable ($command) {
        exit 1
     }
 }
-function Delete-Existing ($name) {
-    Write-Verbose "Change directory to $($name.path)"
-    Push-Location -Path $name.path
 
-    Write-Verbose "Remove $($name.name)"
-    Remove-Item -Recurse -force $name.name -ErrorAction SilentlyContinue
-
-    Pop-Location
+function Delete-Existing ($path) {
+    Write-Verbose "Remove $path"
+    Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
 }
 
 function Expand-Download{
     [CmdletBinding()]
     Param(
-        [psobject]$name
+        [psobject]$package
     )
-    Push-Location -Path $name.path
-    Write-Verbose "Extract $($name.package)"
+    Write-Verbose "Extract $($package.name).tmp"
 
     # As if 7-zip doesn't have a silent output option. Append > `&null to the end to silence it.
     # Also silences the error output
-    Invoke-Expression "7z x -y -o$($name.name) $($name.package)"
 
-    Write-Verbose "Delete downloaded archive: $($name.package)"
-    Remove-Item $name.package
-
-    Pop-Location
+    Write-Verbose "Delete downloaded archive: $($package.package)"
+    Remove-Item $package.package
 }
 
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
 
+Push-Location -Path $saveTo
 $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 foreach ($s in $sources) {
-    $s | Add-Member -MemberType NoteProperty -Name 'path' -Value $saveTo
-    if( -not $s.package){
-        $filename = $s.name + '.' + $s.url.Split('.')[-1]
-        $s | Add-Member -MemberType NoteProperty -Name 'package' -Value $filename
-    }
-    Write-Verbose "URL $($s.url) has package $($s.package)"
+    Write-Verbose "Getting $($s.name) from URL $($s.url)"
 
-    Delete-Existing $s
-    Invoke-WebRequest -Uri $s.url -OutFile "H:\src\cmder\vendor\$($s.package)"
-    Expand-download $s -ErrorAction SilentlyContinue
+    # We do not care about the extensions/type of archive
+    $tempArchive = "$($s.name).tmp"
+    Delete-Existing $tempArchive
+    Delete-Existing $s.name
+
+    Invoke-WebRequest -Uri $s.url -OutFile $tempArchive
+    Invoke-Expression "7z x -y -o$($s.name) $tempArchive"
+    Remove-Item $tempArchive
+
+    # Check for archives that were not extracted correctly
+    if ((Get-Childitem $s.name).Count -eq 1) {
+        $child = (Get-Childitem $s.name)[0]
+        Rename-Item $s.name -NewName "$($s.name)_moving"
+        Move-Item -Path "$($s.name)_moving\$child" -Destination $s.name
+        Remove-Item -Recurse "$($s.name)_moving"
+    }
+
 }
 
+Pop-Location
 Write-Host "All good and done!"
