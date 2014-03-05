@@ -56,8 +56,13 @@ function Ensure-Executable ($command) {
 }
 
 function Delete-Existing ($path) {
-    Write-Verbose "Remove $path"
+    Write-Verbose "Removing $path in $(get-location)"
     Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
+    if(test-path $path -IsValid){
+        Write-Verbose "    Removed: $true"
+    } else {
+        Write-Verbose "    Removed: $false"
+    }
 }
 
 # Check for archives that were not extracted correctly
@@ -87,7 +92,7 @@ foreach ($s in $sources) {
     Delete-Existing $s.name
 
     Invoke-WebRequest -Uri $s.url -OutFile $tempArchive -ErrorAction Stop
-    Invoke-Expression "7z x -y -o$($s.name) $tempArchive"
+    Invoke-Expression "7z x -y -o$($s.name) $tempArchive > `$null"
     Remove-Item $tempArchive
 
     if ((Get-Childitem $s.name).Count -eq 1) {
