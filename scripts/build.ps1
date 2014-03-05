@@ -48,8 +48,8 @@ function Ensure-Exists ($item) {
 }
 
 function Ensure-Executable ($command) {
-    try { Get-Command $command -ErrorAction Stop > $null}
-    catch{
+    try { Get-Command $command -ErrorAction Stop > $null }
+    catch {
        Write-Error "Missing $command! Ensure it is installed and on in the PATH"
        exit 1
     }
@@ -67,6 +67,14 @@ function Flatten-Directory ($name) {
     Rename-Item $name -NewName "$($name)_moving"
     Move-Item -Path "$($name)_moving\$child" -Destination $name
     Remove-Item -Recurse "$($name)_moving"
+}
+
+function Extract-Archive ($source, $target) {
+    Invoke-Expression "7z x -y -o$($target) $source"
+    if ($lastexitcode -ne 0) {
+        Write-Error "Extracting of $source failied"
+    }
+    Remove-Item $source
 }
 
 $ErrorActionPreference = "Stop"
@@ -87,8 +95,7 @@ foreach ($s in $sources) {
     Delete-Existing $s.name
 
     Invoke-WebRequest -Uri $s.url -OutFile $tempArchive -ErrorAction Stop
-    Invoke-Expression "7z x -y -o$($s.name) $tempArchive"
-    Remove-Item $tempArchive
+    Extract-Archive $tempArchive $s.name
 
     if ((Get-Childitem $s.name).Count -eq 1) {
         Flatten-Directory($s.name)
