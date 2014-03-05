@@ -12,7 +12,6 @@
     {
         "name": "conemu-maximus5",
         "version": "140124",
-        "url": "http://conemu.codeplex.com/downloads/get/782952",
-        "package": "ConEmuPack.140124.7z"
+        "url": "https://conemu.codeplex.com/downloads/get/782952"
     }
 ]
