@@ -56,8 +56,13 @@ function Ensure-Executable ($command) {
 }
 
 function Delete-Existing ($path) {
-    Write-Verbose "Remove $path"
+    Write-Verbose "Removing $path in $(get-location)"
     Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
+    if(test-path $path -IsValid){
+        Write-Verbose "    Removed: $true"
+    } else {
+        Write-Verbose "    Removed: $false"
+    }
 }
 
 # Check for archives that were not extracted correctly
@@ -87,7 +92,7 @@ Push-Location -Path $saveTo
 $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 foreach ($s in $sources) {
-    Write-Host "Getting $($s.name) from URL $($s.url)"
+    Write-Output "Getting $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
     $tempArchive = "$($s.name).tmp"
@@ -104,4 +109,4 @@ foreach ($s in $sources) {
 }
 
 Pop-Location
-Write-Host "All good and done!"
+Write-Output "All good and done!"
