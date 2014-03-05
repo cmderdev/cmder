@@ -60,6 +60,17 @@ function Delete-Existing ($path) {
     Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
 }
 
+# Check for archives that were not extracted correctly
+# when the folder contains another folder
+function Flatten-Directory ($name) {
+    $child = (Get-Childitem $name)[0]
+    Rename-Item $name -NewName "$($name)_moving"
+    Move-Item -Path "$($name)_moving\$child" -Destination $name
+    Remove-Item -Recurse "$($name)_moving"
+}
+
+$ErrorActionPreference = "Stop"
+
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
@@ -68,23 +79,19 @@ Push-Location -Path $saveTo
 $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 foreach ($s in $sources) {
-    Write-Verbose "Getting $($s.name) from URL $($s.url)"
+    Write-Host "Getting $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
     $tempArchive = "$($s.name).tmp"
     Delete-Existing $tempArchive
     Delete-Existing $s.name
 
-    Invoke-WebRequest -Uri $s.url -OutFile $tempArchive
+    Invoke-WebRequest -Uri $s.url -OutFile $tempArchive -ErrorAction Stop
     Invoke-Expression "7z x -y -o$($s.name) $tempArchive"
     Remove-Item $tempArchive
 
-    # Check for archives that were not extracted correctly
     if ((Get-Childitem $s.name).Count -eq 1) {
-        $child = (Get-Childitem $s.name)[0]
-        Rename-Item $s.name -NewName "$($s.name)_moving"
-        Move-Item -Path "$($s.name)_moving\$child" -Destination $s.name
-        Remove-Item -Recurse "$($s.name)_moving"
+        Flatten-Directory($s.name)
     }
 
 }
