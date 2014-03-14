@@ -30,6 +30,10 @@
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
 
 :: Set home path
-@set HOME=%USERPROFILE%
+@if not defined HOME set HOME=%USERPROFILE%
 
-@if defined CMDER_START cd /d "%CMDER_START%"
+@if defined CMDER_START (
+    @cd /d "%CMDER_START%"
+) else (
+    @cd /d "%HOME%"
+)
