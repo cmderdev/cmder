@@ -35,5 +35,7 @@
 @if defined CMDER_START (
     @cd /d "%CMDER_START%"
 ) else (
-    @cd /d "%HOME%"
+    @if "%CD%\" == "%CMDER_ROOT%" (
+        @cd /d "%HOME%"
+    )
 )
