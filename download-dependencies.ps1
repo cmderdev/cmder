@@ -26,7 +26,8 @@ function getDependency($TempPackageName = "temp.7z", $PackageUrl, $ExtractDirNam
         rm -Recurse $extractDirPath
     }
     
-    Invoke-WebRequest $PackageUrl -OutFile $packageFilePath
+    $webClient = New-Object System.Net.WebClient
+    $webClient.DownloadFile($PackageUrl, $packageFilePath)
     & "7z.exe" "x", "-o""$extractDirPath""", $packageFilePath
     
     rm $packageFilePath
