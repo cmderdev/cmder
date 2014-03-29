@@ -27,7 +27,7 @@ end
 version = `git describe --abbrev=0 --tags`
 
 FileUtils.touch('Version ' + version.chomp)
-FileUtils.rm('config/.history')
+FileUtils.rm('config/.history') if File.exists?('config/.history')
 
 Dir.chdir('..')
 
