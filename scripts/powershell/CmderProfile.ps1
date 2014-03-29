@@ -3,7 +3,8 @@ if ($env:CMDER_START) {
 }
 
 # Autoinclude every .ps1 script in the autorun folder.
-$autoRunFolder = "$PSScriptRoot\autorun\"
+$thisDir = Split-Path $MyInvocation.MyCommand.Path -Parent
+$autoRunFolder = Join-Path $thisDir "autorun"
 
 if (Test-Path $autoRunFolder) {
     
