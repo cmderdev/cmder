@@ -27,7 +27,14 @@ function getDependency($TempPackageName = "temp.7z", $PackageUrl, $ExtractDirNam
     }
     
     $webClient = New-Object System.Net.WebClient
-    $webClient.DownloadFile($PackageUrl, $packageFilePath)
+    
+    try {
+        $webClient.DownloadFile($PackageUrl, $packageFilePath)
+    }
+    finally {
+        $webClient.Dispose()
+    }
+    
     & "7z.exe" "x", "-o""$extractDirPath""", $packageFilePath
     
     rm $packageFilePath
