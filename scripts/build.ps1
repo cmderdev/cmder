@@ -27,6 +27,7 @@
 .LINK
     https://github.com/bliker/cmder - Project Home
 #>
+
 [CmdletBinding(SupportsShouldProcess=$true)]
 Param(
     # CmdletBinding will give us;
@@ -34,57 +35,21 @@ Param(
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$sourcesPath = "..\vendor\sources.json"
+    [string]$sourcesPath = "..\vendor\sources.json",
 
-    , # Vendor folder locaton
+    # Vendor folder locaton
     [string]$saveTo = "..\vendor\"
 )
 
-function Ensure-Exists ($item) {
-    if (-not (Test-Path $item)) {
-        Write-Error "Missing required $item file"
-        exit 1
-    }
-}
-
-function Ensure-Executable ($command) {
-    try { Get-Command $command -ErrorAction Stop > $null }
-    catch {
-       Write-Error "Missing $command! Ensure it is installed and on in the PATH"
-       exit 1
-    }
-}
-
-function Delete-Existing ($path) {
-    Write-Verbose "Remove $path"
-    Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
-}
-
-# Check for archives that were not extracted correctly
-# when the folder contains another folder
-function Flatten-Directory ($name) {
-    $child = (Get-Childitem $name)[0]
-    Rename-Item $name -NewName "$($name)_moving"
-    Move-Item -Path "$($name)_moving\$child" -Destination $name
-    Remove-Item -Recurse "$($name)_moving"
-}
-
-function Extract-Archive ($source, $target) {
-    Invoke-Expression "7z x -y -o$($target) $source"
-    if ($lastexitcode -ne 0) {
-        Write-Error "Extracting of $source failied"
-    }
-    Remove-Item $source
-}
-
+. "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
+
+Push-Location -Path $saveTo
+$sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
-
-Push-Location -Path $saveTo
-$sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 foreach ($s in $sources) {
     Write-Host "Getting $($s.name) from URL $($s.url)"
@@ -100,7 +65,6 @@ foreach ($s in $sources) {
     if ((Get-Childitem $s.name).Count -eq 1) {
         Flatten-Directory($s.name)
     }
-
 }
 
 Pop-Location
