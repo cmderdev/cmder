@@ -1,8 +1,9 @@
-cmder\launcher
-cmder\icons
-cmder\.gitignore
-cmder\.gitattributes
-cmder\.git
-cmder\*.rb
-cmder\packignore
-cmder\Cmder.bat
+launcher
+icons
+.gitignore
+.gitattributes
+.git
+*.rb
+build
+packignore
+Cmder.bat
