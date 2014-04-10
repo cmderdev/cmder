@@ -52,7 +52,7 @@ Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
 
 foreach ($s in $sources) {
-    Write-Host "Getting $($s.name) from URL $($s.url)"
+    Write-Output "Getting $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
     $tempArchive = "$($s.name).tmp"
@@ -68,4 +68,4 @@ foreach ($s in $sources) {
 }
 
 Pop-Location
-Write-Host "All good and done!"
+Write-Verbose "All good and done!"
