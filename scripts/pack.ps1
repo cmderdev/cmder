@@ -32,7 +32,7 @@ Param(
     [string]$cmderRoot = "..",
 
     # Vendor folder locaton
-    [string]$saveTo = "."
+    [string]$saveTo = "..\build"
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -41,12 +41,16 @@ $ErrorActionPreference = "Stop"
 $targets = @{
     "cmder.zip" = $null;
     "cmder.7z" = $null;
-    "cmder_mini.zip" = "-x!`"..\vendor\msysgit`"";
+    "cmder_mini.zip" = "-x!`"vendor\msysgit`"";
 }
+
+Delete-Existing "..\Version*"
 
 $version = Invoke-Expression "git describe --abbrev=0 --tags"
 New-Item -ItemType file "$cmderRoot\Version $version"
 
 foreach ($t in $targets.GetEnumerator()) {
     Create-Archive $cmderRoot "$saveTo\$($t.Name)" $t.Value
+    $hash = (Digest-MD5 "$saveTo\$($t.Name)")
+    Add-Content "$saveTo\hashes.txt" $hash
 }

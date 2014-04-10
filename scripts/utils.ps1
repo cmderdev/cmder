@@ -43,3 +43,7 @@ function Flatten-Directory ($name) {
     Move-Item -Path "$($name)_moving\$child" -Destination $name
     Remove-Item -Recurse "$($name)_moving"
 }
+
+function Digest-MD5 ($path) {
+    return Invoke-Expression "md5sum $path"
+}
