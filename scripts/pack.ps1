@@ -47,7 +47,7 @@ $targets = @{
 Delete-Existing "..\Version*"
 
 $version = Invoke-Expression "git describe --abbrev=0 --tags"
-New-Item -ItemType file "$cmderRoot\Version $version"
+(New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
 
 foreach ($t in $targets.GetEnumerator()) {
     Create-Archive $cmderRoot "$saveTo\$($t.Name)" $t.Value

@@ -19,7 +19,7 @@ function Delete-Existing ($path) {
 }
 
 function Extract-Archive ($source, $target) {
-    Invoke-Expression "7z x -y -o$($target) $source"
+    Invoke-Expression "7z x -y -o$($target) $source  > `$null"
     if ($lastexitcode -ne 0) {
         Write-Error "Extracting of $source failied"
     }
@@ -27,7 +27,7 @@ function Extract-Archive ($source, $target) {
 }
 
 function Create-Archive ($source, $target, $params) {
-    $command = "7z a -x@`"$source\packignore`" $params $target $source"
+    $command = "7z a -x@`"$source\packignore`" $params $target $source  > `$null"
     Write-Verbose "Running: $command"
     Invoke-Expression $command
     if ($lastexitcode -ne 0) {
