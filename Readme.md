@@ -52,9 +52,8 @@ All aliases will be saved in `/config/aliases` file
 1. Complete PowerShell compatibility.
 2. Workaround git.exe overload after msysgit download (Granted this is an upstream issue).
 3. Redo Build/Pack scripts or remove them altogether.
-4. Launcher XP compatibility.
-5. Git Bash
-6. Check for clink and git before injecting them
+4. Git Bash
+5. Check for clink and git before injecting them
 
 ## License
 
