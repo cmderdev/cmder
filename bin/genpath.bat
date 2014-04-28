@@ -8,14 +8,8 @@ pushd %CD%
 cd /d "%CMDER_ROOT%\bin"
 
 for /d %%D in (*) do (
-    set hasexe=
-    :: Check for existence of folders with executables in \bin
-    if exist "%%D\*.exe" set hasexe=true
-    if exist "%%D\*.bat" set hasexe=true
-    if "!hasexe!" == "true" (
-        set PATH=!PATH!;%CD%\%%D
-    )
-
+    :: Check for existence of folders in bin
+    set PATH=!PATH!;%CD%\%%D
     :: Find all \bin\*\bin and also add them
     if exist "%%D\bin" (
         set PATH=!PATH!;%CD%\%%D\bin
