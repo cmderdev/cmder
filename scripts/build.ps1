@@ -52,7 +52,7 @@ Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
 
 foreach ($s in $sources) {
-    Write-Output "Getting $($s.name) from URL $($s.url)"
+    Write-Verbose "Getting $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
     $tempArchive = "$($s.name).tmp"
