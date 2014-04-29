@@ -24,7 +24,7 @@
 
 :: Enhance Path
 @set git_install_root=%CMDER_ROOT%\vendor\msysgit
-@set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim73;%PATH%
+@set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim73;%CMDER_ROOT%;%PATH%
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
