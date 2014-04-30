@@ -13,5 +13,10 @@
         "name": "conemu-maximus5",
         "version": "140404",
         "url": "https://conemu.codeplex.com/downloads/get/823971"
+    },
+    {
+        "name": "clink-gitprompt",
+        "version": "c6afc86",
+        "url": "https://github.com/bliker/clink-gitprompt/archive/c6afc86a98f44183eff0dfb65c6a4fa6999aeed2.zip"
     }
 ]
