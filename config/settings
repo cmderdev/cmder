@@ -33,7 +33,7 @@ exec_match_style = -1
 # type: int
 # Surrounds the prompt in ANSI escape codes to set the prompt's colour. Disabled
 # when the value is less than 0.
-prompt_colour = -1
+prompt_colour = 1
 
 # name: Auto-answer terminate prompt
 # type: enum
