@@ -19,6 +19,20 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 *(There will be a version with installer)*
 
+## Integration
+
+So you've experimented with cmder a little and want to give it a shot in a more permanent home;
+
+### Shortcut to open Cmder in a chosen folder
+
+1. Open a terminal as an Administrator
+1. Navigate to the directory you have placed Cmder
+1. Execute `.\cmder.exe /REGISTER ALL`*
+
+In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
+
+*If you get a message "Access Denied" ensure you are executing the command in an Administrator prompt.
+
 ## Keyboard shortcuts
 
 ### Tab manipulation
