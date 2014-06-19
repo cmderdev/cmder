@@ -13,5 +13,11 @@
         "name": "conemu-maximus5",
         "version": "140404",
         "url": "https://conemu.codeplex.com/downloads/get/823971"
+    },
+    {
+        "name": "gitprompt",
+        "version": "v0.1-beta.5",
+        "url": "https://github.com/fieryorc/gitprompt/releases/download/v0.1-beta.5/gitprompt-v0.1-beta.5.zip"
     }
 ]
+
