@@ -1,6 +1,8 @@
 #include <windows.h>
 #include <tchar.h>
 #include <Shlwapi.h>
+#include <ShObjIdl.h>
+#include <KnownFolders.h>
 #include "resource.h"
 #include <vector>
 
@@ -79,6 +81,62 @@ optpair GetOption()
 	return pair;
 }
 
+std::wstring GetAppId(std::wstring exePath)
+{
+	IKnownFolderManager* manager;
+	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	CoCreateInstance(CLSID_KnownFolderManager, NULL,
+		CLSCTX_INPROC_SERVER, IID_IKnownFolderManager,
+		reinterpret_cast<void **>(&manager));
+	if (!manager)
+	{
+		// Don't bother trying again.
+		return exePath;
+	}
+
+	// Try every single \ in the path to match it against a KNOWNFOLDERID
+	std::wstring::size_type nextBackslash = exePath.find_first_of('\\');
+
+	while (nextBackslash != std::wstring::npos)
+	{
+		// Try to match the current string against a KNOWNFOLDERID
+		std::wstring subPath = exePath.substr(0, nextBackslash + 1);
+		IKnownFolder* folder;
+		int ret = manager->FindFolderFromPath(subPath.c_str(), FFFP_EXACTMATCH, &folder);
+
+		if (SUCCEEDED(ret))
+		{
+			wchar_t string[MAX_PATH] = { 0 };
+			KNOWNFOLDERID id;
+			folder->GetId(&id);
+
+			// We need to specially treat Program Files. We are a 32-bit app, so
+			// if we get Program Files on a 64-bit computer, say we are the 32-bit
+			// Program Files folder.
+			if (IsEqualGUID(id, FOLDERID_ProgramFiles))
+			{
+				BOOL is64Bit = false;
+				if (IsWow64Process(GetCurrentProcess(), &is64Bit))
+				{
+					id = FOLDERID_ProgramFilesX86;
+				}
+			}
+
+			if (StringFromGUID2(id, string, sizeof(string) / sizeof(string[0])))
+			{
+				exePath.replace(exePath.begin(), exePath.begin() + nextBackslash,
+					string);
+				return exePath;
+			}
+		}
+
+		// Get the next backslash
+		nextBackslash = exePath.find_first_of('\\', nextBackslash + 1);
+	}
+
+	return exePath;
+}
+
 void StartCmder(std::wstring path)
 {
 #if USE_TASKBAR_API
@@ -93,7 +151,7 @@ void StartCmder(std::wstring path)
 	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
 
 #if USE_TASKBAR_API
-	wcscpy_s(appId, exeDir);
+	wcscpy_s(appId, GetAppId(exeDir).c_str());
 #endif
 
 	PathRemoveFileSpec(exeDir);
