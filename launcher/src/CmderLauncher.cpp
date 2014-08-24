@@ -97,7 +97,9 @@ std::wstring GetAppId(std::wstring exePath)
 	// Try every single \ in the path to match it against a KNOWNFOLDERID
 	std::wstring::size_type nextBackslash = exePath.find_first_of('\\');
 
-	while (nextBackslash != std::wstring::npos)
+	for ( ;
+		nextBackslash != std::wstring::npos;
+		nextBackslash = exePath.find_first_of('\\', nextBackslash + 1))
 	{
 		// Try to match the current string against a KNOWNFOLDERID
 		std::wstring subPath = exePath.substr(0, nextBackslash + 1);
@@ -112,7 +114,8 @@ std::wstring GetAppId(std::wstring exePath)
 
 			// We need to specially treat Program Files. We are a 32-bit app, so
 			// if we get Program Files on a 64-bit computer, say we are the 32-bit
-			// Program Files folder.
+			// Program Files folder. We currently know that Explorer replaces the
+			// path for programs in Program Files, but not for other Known Folders.
 			if (IsEqualGUID(id, FOLDERID_ProgramFiles))
 			{
 				BOOL is64Bit = false;
@@ -120,6 +123,11 @@ std::wstring GetAppId(std::wstring exePath)
 				{
 					id = FOLDERID_ProgramFilesX86;
 				}
+			}
+			else if (!IsEqualCLSID(id, FOLDERID_ProgramFilesX86) &&
+				!IsEqualCLSID(id, FOLDERID_ProgramFilesX64))
+			{
+				continue;
 			}
 
 			if (StringFromGUID2(id, string, sizeof(string) / sizeof(string[0])))
@@ -129,9 +137,6 @@ std::wstring GetAppId(std::wstring exePath)
 				return exePath;
 			}
 		}
-
-		// Get the next backslash
-		nextBackslash = exePath.find_first_of('\\', nextBackslash + 1);
 	}
 
 	return exePath;
