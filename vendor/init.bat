@@ -16,15 +16,32 @@
 :: Run clink
 @"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config"
 
+:: Add Cmder to the path
+@set PATH=%CMDER_ROOT%;%PATH%
+
 :: Prepare for msysgit
 
 :: I do not even know, copypasted from their .bat
 @set PLINK_PROTOCOL=ssh
 @if not defined TERM set TERM=cygwin
 
-:: Enhance Path
-@set git_install_root=%CMDER_ROOT%\vendor\msysgit
-@set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim73;%CMDER_ROOT%;%PATH%
+:: Check if msysgit is installed
+@if exist "%ProgramFiles%\Git" (
+	set "git_install_root=%ProgramFiles%\Git"
+) else if exist "%ProgramFiles(x86)%\Git" (
+    set "git_install_root=%ProgramFiles(x86)%\Git"
+) else if exist "%CMDER_ROOT%\vendor" (
+    set "git_install_root=%VENDOR_ROOT%\git"
+)
+
+:: Add msysgit to the path
+@if defined git_install_root (
+    set "PATH=%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim74;%PATH%"
+    if not defined SVN_SSH set "SVN_SSH=%GIT_ROOT:\=\\%\\bin\\ssh.exe"
+)
+
+:: Finish by adding the bin directory to the path
+@set PATH=%CMDER_ROOT%\bin;%PATH%
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
