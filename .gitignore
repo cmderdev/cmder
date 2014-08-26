@@ -9,3 +9,4 @@ vendor/*
 config/.history
 Thumbs.db
 *.exe
+build/

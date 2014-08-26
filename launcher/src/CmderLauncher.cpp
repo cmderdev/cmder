@@ -12,6 +12,8 @@
 
 #define USE_TASKBAR_API (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 
+#define XP (_WIN32_WINNT < _WIN32_WINNT_VISTA)
+
 #define MB_TITLE L"Cmder Launcher"
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
 #define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
@@ -205,12 +207,10 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	FAIL_ON_ERROR(
 		RegCreateKeyEx(root, keyBaseName, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
-#ifdef XP
+#if XP
 	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
-	FAIL_ON_ERROR(SHDeleteKey(root, SHELL_MENU_REGISTRY_PATH));
 #else
-	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL)););
-	FAIL_ON_ERROR(RegDeleteKey(root, SHELL_MENU_REGISTRY_PATH));
+	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
 #endif
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);

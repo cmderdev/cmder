@@ -37,8 +37,11 @@ Param(
     # Path to the vendor configuration source file
     [string]$sourcesPath = "..\vendor\sources.json",
 
-    # Vendor folder locaton
-    [string]$saveTo = "..\vendor\"
+    # Vendor folder location
+    [string]$saveTo = "..\vendor\",
+
+    # Launcher folder location
+    [string]$launcher = "..\launcher"
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -68,4 +71,9 @@ foreach ($s in $sources) {
 }
 
 Pop-Location
+
+Push-Location -Path $launcher
+msbuild CmderLauncher.vcxproj /p:configuration=Release
+Pop-Location
+
 Write-Verbose "All good and done!"
