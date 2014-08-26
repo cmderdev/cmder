@@ -41,7 +41,7 @@
 
 :: Add msysgit to the path
 @if defined git_install_root (
-    set "PATH=%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim74;%PATH%"
+    set "PATH=%git_install_root%\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim74;%PATH%"
     if not defined SVN_SSH set "SVN_SSH=%GIT_ROOT:\=\\%\\bin\\ssh.exe"
 )
 
