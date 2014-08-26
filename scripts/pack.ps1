@@ -37,6 +37,7 @@ Param(
 
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
+Ensure-Executable "7z"
 
 $targets = @{
     "cmder.zip" = $null;
