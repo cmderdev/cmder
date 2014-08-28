@@ -1,3 +1,11 @@
+function Ensure-Exists ($path) {
+    if (-not (Test-Path $path)) {
+        Write-Error "Missing required $path! Ensure it is installed"
+        exit 1
+    }
+    return $true > $null
+}
+
 function Ensure-Executable ($command) {
     try { Get-Command $command -ErrorAction Stop > $null }
     catch {
