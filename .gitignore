@@ -10,3 +10,4 @@ config/.history
 Thumbs.db
 *.exe
 build/
+Version v*
