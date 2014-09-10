@@ -32,12 +32,15 @@ Param(
     [string]$cmderRoot = "..",
 
     # Vendor folder locaton
-    [string]$saveTo = "..\build"
+    [string]$saveTo = "..\build",
+
+    # switch to 7zipCommandLine
+    [switch]$zipCommandLine
 )
 
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
-Ensure-Executable "7z"
+Ensure-Executable $sevenZip
 
 $targets = @{
     "cmder.zip" = $null;

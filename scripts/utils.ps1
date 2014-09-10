@@ -6,9 +6,18 @@ function Ensure-Exists ($path) {
     return $true > $null
 }
 
-function Ensure-Executable ($command) {
-    try { Get-Command $command -ErrorAction Stop > $null }
+function Ensure-Executable ($zipCommandLine) {
+    if ($zipCommandLine -eq $true) { $command = "7za"} else { $command = "7z" }
+    
+    Write-Verbose ("Use commandline: " + $zipCommandLine + ", " + "Command: " + $command)
+
+    try { 
+        $foundCommand = Get-Command $command -ErrorAction Stop -ErrorVariable x #> $null 
+        set-alias -Name "7z" -Value $foundCommand.Name -Scope script
+    }
     catch {
+        Write-Verbose ("Error: " + $x)
+
         If( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
             set-alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
         }

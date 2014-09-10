@@ -41,7 +41,10 @@ Param(
     [string]$saveTo = "..\vendor\",
 
     # Launcher folder location
-    [string]$launcher = "..\launcher"
+    [string]$launcher = "..\launcher",
+
+    # switch to 7zipCommandLine
+    [switch]$zipCommandLine
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -52,7 +55,7 @@ $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 # Check for requirements
 Ensure-Exists $sourcesPath
-Ensure-Executable "7z"
+Ensure-Executable $zipCommandLine
 
 foreach ($s in $sources) {
     Write-Verbose "Getting $($s.name) from URL $($s.url)"
