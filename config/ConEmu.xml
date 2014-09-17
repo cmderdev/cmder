@@ -419,8 +419,8 @@
 			<value name="KeyMacro03.Text" type="string" data="FontSetSize(1,2)"/>
 			<value name="KeyMacro04" type="dword" data="000011d1"/>
 			<value name="KeyMacro04.Text" type="string" data="FontSetSize(1,-2)"/>
-			<value name="KeyMacro05" type="dword" data="00000000"/>
-			<value name="KeyMacro05.Text" type="string" data=""/>
+			<value name="KeyMacro05" type="dword" data="0012a032"/>
+			<value name="KeyMacro05.Text" type="string" data="Task(&quot;PowerShell as Admin&quot;)"/>
 			<value name="KeyMacro06" type="dword" data="00000000"/>
 			<value name="KeyMacro06.Text" type="string" data=""/>
 			<value name="KeyMacro07" type="dword" data="00000000"/>
@@ -487,7 +487,7 @@
 				<value name="Count" type="dword" data="00000002"/>
 						<key name="Task1" modified="2014-01-21 18:36:36" build="131215">
 					<value name="Name" type="string" data="{cmd}"/>
-					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
+					<value name="GuiArgs" type="string" data="/icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
 					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%USERPROFILE%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
@@ -495,13 +495,21 @@
 				</key>
 						<key name="Task2" modified="2014-01-21 18:36:36" build="131215">
 					<value name="Name" type="string" data="{PowerShell}"/>
-					<value name="GuiArgs" type="string" data="/dir &quot;%userprofile%&quot;"/>
-					<value name="Cmd1" type="string" data="powershell"/>
+					<value name="GuiArgs" type="string" data="/icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
+					<value name="Cmd1" type="string" data="PowerShell -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%USERPROFILE%&quot;"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 				</key>
-			</key>
+          <key name="Task3" modified="2014-09-17 09:17:41" build="140903">
+            <value name="Name" type="string" data="{PowerShell as Admin}"/>
+            <value name="Hotkey" type="dword" data="00000000"/>
+            <value name="GuiArgs" type="string" data="/icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
+            <value name="Cmd1" type="string" data="* PowerShell -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\custom.ps1''' &quot; -new_console:d:&quot;%USERPROFILE%&quot;"/>
+            <value name="Active" type="dword" data="00000000"/>
+            <value name="Count" type="dword" data="00000001"/>
+          </key>
+        </key>
 				<key name="Apps" modified="2014-01-21 18:36:36" build="131215">
 				<value name="Count" type="dword" data="00000000"/>
 			</key>
