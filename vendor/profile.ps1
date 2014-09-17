@@ -5,8 +5,8 @@ $global:PsGetDestinationModulePath = $PSScriptRoot + "\..\vendor\psmodules"
 Push-Location -Path ($PsGetDestinationModulePath)
 
 # Load modules from current directory
-Get-ChildItem -Directory | `
-Foreach-Object{
+Import-Module .\PsGet\PsGet
+Get-ChildItem -Exclude "PsGet" -Directory -Name | Foreach-Object {
     Import-Module .\$_\$_
 }
 
@@ -16,8 +16,8 @@ Pop-Location
 # Set up a Cmder prompt, adding the git prompt parts inside git repos
 function global:prompt {
     $realLASTEXITCODE = $LASTEXITCODE
-    $Host.UI.RawUI.ForegroundColor = "white"
-    Write-Host($pwd.ProviderPath) -NoNewLine -ForegroundColor "green"
+    $Host.UI.RawUI.ForegroundColor = "White"
+    Write-Host("`n" + $pwd.ProviderPath) -NoNewLine -ForegroundColor Green
     if (Get-Module posh-git) {
         Write-VcsStatus
     }
