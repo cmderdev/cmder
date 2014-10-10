@@ -9,7 +9,7 @@
 
 :: Change the prompt style
 :: Mmm tasty lamb
-@prompt $E[1;32;40m$P$S{git}$S$_$E[1;30;40m{lamb}$S$E[0m
+@prompt $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
 
 :: Pick right version of clink
 @if "%PROCESSOR_ARCHITECTURE%"=="x86" (
