@@ -17,6 +17,10 @@ while(my $line = <$file_handle>)
     {
         $aliases{ $1 } = $2;
     }
+    else
+    {
+        print "Invalid alias:   $line"
+    }
 }
 close($file_handle);
 
