@@ -27,7 +27,7 @@ So you've experimented with cmder a little and want to give it a shot in a more 
 
 1. Open a terminal as an Administrator
 1. Navigate to the directory you have placed Cmder
-1. Execute `.\cmder.exe /REGISTER ALL`*
+1. Execute `.\cmder.exe /REGISTER ALL *`
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
 
