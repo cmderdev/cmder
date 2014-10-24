@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2013-11-29 16:19:40" build="131107">
+		<key name=".Vanilla" modified="2014-01-21 18:36:36" build="131215">
 			<value name="ColorTable00" type="dword" data="00222827"/>
 			<value name="ColorTable01" type="dword" data="009e5401"/>
 			<value name="ColorTable02" type="dword" data="0004aa74"/>
@@ -18,21 +18,21 @@
 			<value name="ColorTable13" type="dword" data="00b87da8"/>
 			<value name="ColorTable14" type="dword" data="0081cccc"/>
 			<value name="ColorTable15" type="dword" data="00ffffff"/>
-			<value name="ColorTable16" type="dword" data="00000000"/>
-			<value name="ColorTable17" type="dword" data="00800000"/>
-			<value name="ColorTable18" type="dword" data="00008000"/>
-			<value name="ColorTable19" type="dword" data="00808000"/>
-			<value name="ColorTable20" type="dword" data="00000080"/>
-			<value name="ColorTable21" type="dword" data="00800080"/>
-			<value name="ColorTable22" type="dword" data="00008080"/>
-			<value name="ColorTable23" type="dword" data="00c0c0c0"/>
-			<value name="ColorTable24" type="dword" data="00808080"/>
-			<value name="ColorTable25" type="dword" data="00ff0000"/>
-			<value name="ColorTable26" type="dword" data="0000ff00"/>
-			<value name="ColorTable27" type="dword" data="00ffff00"/>
-			<value name="ColorTable28" type="dword" data="000000ff"/>
-			<value name="ColorTable29" type="dword" data="00ff00ff"/>
-			<value name="ColorTable30" type="dword" data="0000ffff"/>
+			<value name="ColorTable16" type="dword" data="00222827"/>
+			<value name="ColorTable17" type="dword" data="009e5401"/>
+			<value name="ColorTable18" type="dword" data="0004aa74"/>
+			<value name="ColorTable19" type="dword" data="00a6831a"/>
+			<value name="ColorTable20" type="dword" data="003403a7"/>
+			<value name="ColorTable21" type="dword" data="009c5689"/>
+			<value name="ColorTable22" type="dword" data="0049b6b6"/>
+			<value name="ColorTable23" type="dword" data="00cacaca"/>
+			<value name="ColorTable24" type="dword" data="007c7c7c"/>
+			<value name="ColorTable25" type="dword" data="00f58303"/>
+			<value name="ColorTable26" type="dword" data="0006d08d"/>
+			<value name="ColorTable27" type="dword" data="00e5c258"/>
+			<value name="ColorTable28" type="dword" data="004b04f3"/>
+			<value name="ColorTable29" type="dword" data="00b87da8"/>
+			<value name="ColorTable30" type="dword" data="0081cccc"/>
 			<value name="ColorTable31" type="dword" data="00ffffff"/>
 			<value name="ExtendColors" type="hex" data="00"/>
 			<value name="ExtendColorIdx" type="hex" data="0e"/>
@@ -53,7 +53,7 @@
 			<value name="ClipboardArrowStart" type="hex" data="00"/>
 			<value name="ClipboardAllLines" type="hex" data="01"/>
 			<value name="ClipboardFirstLine" type="hex" data="01"/>
-			<value name="ClipboardClickPromptPosition" type="hex" data="02"/>
+			<value name="ClipboardClickPromptPosition" type="hex" data="00"/>
 			<value name="ClipboardDeleteLeftWord" type="hex" data="01"/>
 			<value name="TrueColorerSupport" type="hex" data="01"/>
 			<value name="FadeInactive" type="hex" data="01"/>
@@ -349,7 +349,7 @@
 			<value name="SwitchGuiFocus" type="dword" data="00000000"/>
 			<value name="SetFocusGui" type="dword" data="00000000"/>
 			<value name="SetFocusChild" type="dword" data="00000000"/>
-			<value name="ChildSystemMenu" type="dword" data="00000000"/>
+			<value name="ChildSystemMenu" type="dword" data="006b2d288000000"/>
 			<value name="Multi.NewConsole" type="dword" data="80808000"/>
 			<value name="Multi.NewConsoleShift" type="dword" data="00001154"/>
 			<value name="Multi.NewConsolePopup" type="dword" data="80808000"/>
@@ -483,17 +483,17 @@
 			<value name="DndLKey" type="hex" data="00"/>
 			<value name="DndRKey" type="hex" data="a2"/>
 			<value name="WndDragKey" type="dword" data="00121101"/>
-				<key name="Tasks" modified="2013-11-29 16:19:41" build="131107">
+				<key name="Tasks" modified="2014-01-21 18:36:36" build="131215">
 				<value name="Count" type="dword" data="00000002"/>
-						<key name="Task1" modified="2013-11-29 16:19:41" build="131107">
+						<key name="Task1" modified="2014-01-21 18:36:36" build="131215">
 					<value name="Name" type="string" data="{cmd}"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
-					<value name="Cmd1" type="string" data="cmd /k &quot;%CMDER_ROOT%\vendor\init.bat&quot;  -new_console:d:%USERPROFILE%"/>
+					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%USERPROFILE%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 				</key>
-						<key name="Task2" modified="2013-11-29 16:19:41" build="131107">
+						<key name="Task2" modified="2014-01-21 18:36:36" build="131215">
 					<value name="Name" type="string" data="{PowerShell}"/>
 					<value name="GuiArgs" type="string" data="/dir &quot;%userprofile%&quot;"/>
 					<value name="Cmd1" type="string" data="powershell"/>
@@ -502,11 +502,11 @@
 					<value name="Hotkey" type="dword" data="00000000"/>
 				</key>
 			</key>
-				<key name="Apps" modified="2013-11-29 16:19:41" build="131107">
+				<key name="Apps" modified="2014-01-21 18:36:36" build="131215">
 				<value name="Count" type="dword" data="00000000"/>
 			</key>
-				<key name="Colors" modified="2013-11-29 16:19:41" build="131107">
-			<key name="Palette1" modified="2013-11-29 16:19:41" build="131107">
+			<key name="Colors" modified="2014-01-21 18:36:36" build="131215">
+			<key name="Palette1" modified="2014-01-21 18:36:36" build="131215">
 					<value name="Name" type="string" data="Monokai"/>
 					<value name="ExtendColors" type="hex" data="00"/>
 					<value name="ExtendColorIdx" type="hex" data="0e"/>
@@ -573,6 +573,14 @@
 			<value name="CTS.VkCopyFmt0" type="dword" data="00001143"/>
 			<value name="CTS.VkCopyFmt1" type="dword" data="00101143"/>
 			<value name="CTS.VkCopyFmt2" type="dword" data="00000000"/>
+			<value name="ProcessNewConArg" type="hex" data="01"/>
+			<value name="HighlightMouseRow" type="hex" data="00"/>
+			<value name="HighlightMouseCol" type="hex" data="00"/>
+			<value name="HighlightMouseSwitch" type="dword" data="00005d4c"/>
+			<value name="TransparencyInc" type="dword" data="00000000"/>
+			<value name="TransparencyDec" type="dword" data="00000000"/>
+			<value name="Key.MaximizeWidth" type="dword" data="00000000"/>
+			<value name="Key.MaximizeHeight" type="dword" data="00000000"/>
 		</key>
 	</key>
 </key>
