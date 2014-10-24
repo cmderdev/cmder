@@ -1,5 +1,6 @@
 @echo off
 if ["%1"] == ["/?"] goto:p_help
+if ["%1"] == ["/reload"] goto:p_reload
 if ["%2"] == [""] echo Insufficient parameters. & goto:p_help
 ::validate alias
 setlocal
@@ -18,6 +19,11 @@ doskey /macrofile="%CMDER_ROOT%\config\aliases"
 perl "%CMDER_ROOT%\scripts\clean_aliases.pl"
 echo Alias created
 endlocal
+goto:eof
+
+:p_reload
+doskey /macrofile="%CMDER_ROOT%\config\aliases"
+echo Aliases reloaded
 goto:eof
 
 :p_help
