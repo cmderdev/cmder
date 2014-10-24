@@ -2,6 +2,11 @@
 :: Sets some nice defaults
 :: Created as part of cmder project
 
+:: Find root dir
+@if not defined CMDER_ROOT (
+    for /f %%i in ("%ConEmuDir%\..\..") do @set CMDER_ROOT=%%~fi
+)
+
 :: Change the prompt style
 :: Mmm tasty lamb
 @prompt $E[1;32;40m$P$S{git}$S$_$E[1;30;40m{lamb}$S$E[0m
@@ -24,12 +29,18 @@
 
 :: Enhance Path
 @set git_install_root=%CMDER_ROOT%\vendor\msysgit
-@set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim73;%PATH%
+@set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim74;%CMDER_ROOT%;%PATH%
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
 
 :: Set home path
-@set HOME=%USERPROFILE%
+@if not defined HOME set HOME=%USERPROFILE%
 
-@if defined CMDER_START cd /d "%CMDER_START%"
+@if defined CMDER_START (
+    @cd /d "%CMDER_START%"
+) else (
+    @if "%CD%\" == "%CMDER_ROOT%" (
+        @cd /d "%HOME%"
+    )
+)

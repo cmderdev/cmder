@@ -12,8 +12,11 @@
 
 #define USE_TASKBAR_API (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
 
+#define XP (_WIN32_WINNT < _WIN32_WINNT_VISTA)
+
 #define MB_TITLE L"Cmder Launcher"
-#define SHELL_MENU_REGISTRY_PATH L"Directory\\Background\\shell\\Cmder"
+#define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
+#define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
 
 #define streqi(a, b) (_wcsicmp((a), (b)) == 0) 
 
@@ -154,29 +157,41 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
-void RegisterShellMenu(std::wstring opt)
+void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 {
-	HKEY root = GetRootKey(opt);
-
-	HKEY cmderKey;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(root, SHELL_MENU_REGISTRY_PATH, 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
-
-	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
-	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
-
-	HKEY command;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(cmderKey, L"command", 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
+	// First, get the paths we will use
 
 	wchar_t exePath[MAX_PATH] = { 0 };
+	wchar_t icoPath[MAX_PATH] = { 0 };
 
 	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+
+	// Now that we have `commandStr`, it's OK to change `exePath`...
+	PathRemoveFileSpec(exePath);
+
+	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
+
+	// Now set the registry keys
+
+	HKEY root = GetRootKey(opt);
+
+	HKEY cmderKey;
+	FAIL_ON_ERROR(
+		RegCreateKeyEx(root, keyBaseName, 0, NULL,
+		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+
+	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
+	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
+
+	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
+
+	HKEY command;
+	FAIL_ON_ERROR(
+		RegCreateKeyEx(cmderKey, L"command", 0, NULL,
+		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
 
 	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
 
@@ -185,19 +200,17 @@ void RegisterShellMenu(std::wstring opt)
 	RegCloseKey(root);
 }
 
-void UnregisterShellMenu(std::wstring opt)
+void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 {
 	HKEY root = GetRootKey(opt);
 	HKEY cmderKey;
 	FAIL_ON_ERROR(
-		RegCreateKeyEx(root, SHELL_MENU_REGISTRY_PATH, 0, NULL,
+		RegCreateKeyEx(root, keyBaseName, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
-#ifdef XP
+#if XP
 	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
-	FAIL_ON_ERROR(SHDeleteKey(root, SHELL_MENU_REGISTRY_PATH));
 #else
 	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
-	FAIL_ON_ERROR(RegDeleteKey(root, SHELL_MENU_REGISTRY_PATH));
 #endif
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
@@ -220,11 +233,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else if (streqi(opt.first.c_str(), L"/REGISTER"))
 	{
-		RegisterShellMenu(opt.second);
+		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
 	else if (streqi(opt.first.c_str(), L"/UNREGISTER"))
 	{
-		UnregisterShellMenu(opt.second);
+		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
 	else
 	{

@@ -1,9 +1,12 @@
 
 ## Those files should be taken from their repositary
 
-vendor/*
-!vendor/*.md
-!vendor/*.bat
+vendor/*/*
+!vendor/*
+!vendor/psmodules/PsGet
+
 config/.history
 Thumbs.db
 *.exe
+build/
+Version v*
