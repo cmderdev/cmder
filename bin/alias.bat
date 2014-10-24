@@ -16,6 +16,7 @@ if not ["%_temp%"] == ["%_temp2%"] (
 
 echo %* >> "%CMDER_ROOT%\config\aliases"
 doskey /macrofile="%CMDER_ROOT%\config\aliases"
+perl "%CMDER_ROOT%\scripts\clean_aliases.pl"
 echo Alias created
 endlocal
 goto:eof
