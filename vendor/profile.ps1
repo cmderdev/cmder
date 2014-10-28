@@ -22,7 +22,8 @@ function global:prompt {
         Write-VcsStatus
     }
     $global:LASTEXITCODE = $realLASTEXITCODE
-    return "`nλ "
+    Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray"
+    return " "
 }
 
 # Load special features come from posh-git
