@@ -4,7 +4,7 @@
 
 :: Find root dir
 @if not defined CMDER_ROOT (
-    for /f %%i in ("%ConEmuDir%\..\..") do @set CMDER_ROOT=%%~fi
+    for /f "delims=" %%i in ("%ConEmuDir%\..\..") do @set CMDER_ROOT=%%~fi
 )
 
 :: Change the prompt style
