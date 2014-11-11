@@ -1,7 +1,13 @@
 @echo off
 if ["%1"] == ["/?"] goto:p_help
 if ["%1"] == ["/reload"] goto:p_reload
-if ["%2"] == [""] echo Insufficient parameters. & goto:p_help
+
+:: if arg is an existing alias, display it
+if ["%2"] == [""] (
+  doskey /macros | findstr /b %1= && goto:eof
+  echo Insufficient parameters. & goto:p_help
+)
+
 ::validate alias
 setlocal
 for /f "delims== tokens=1" %%G in ("%*") do set _temp2=%%G
