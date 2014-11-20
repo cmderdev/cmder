@@ -2,7 +2,7 @@
     {
         "name": "msysgit",
         "version": "1.9.4-preview",
-        "url": "https://github.com/msysgit/msysgit/releases/download/Git-1.9.4-preview20140611/PortableGit-1.9.4-preview20140611.7z"
+        "url": "https://github.com/msysgit/msysgit/releases/download/Git-1.9.4-preview20140929/PortableGit-1.9.4-preview20140929.7z"
     },
     {
         "name": "clink",
@@ -11,7 +11,7 @@
     },
     {
         "name": "conemu-maximus5",
-        "version": "140707",
-        "url": "https://conemu.codeplex.com/downloads/get/880090"
+        "version": "141117",
+        "url": "https://conemu.codeplex.com/downloads/get/932416"
     }
 ]
