@@ -1,0 +1,43 @@
+# name: Ctrl-D exits
+# type: bool
+# Ctrl-D exits the process when it is pressed on an empty line.
+ctrld_exits = 1
+
+# name: Ctrl-C raises exception
+# type: bool
+# When Ctrl-C is pressed Clink will pass it thourgh to the parent by raising the
+# appropriate exception.
+passthrough_ctrlc = 1
+
+# name: Esc clears line
+# type: bool
+# Clink clears the current line when Esc is pressed (unless Readline's Vi mode
+# is enabled).
+esc_clears_line = 1
+
+# name: Match display colour
+# type: int
+# Colour to use when displaying matches. A value less than 0 will be the
+# opposite brightness of the default colour.
+match_colour = -1
+
+# name: Executable match style
+# type: enum
+# Changes how Clink will match executables when there is no path separator on
+# the line. 0 = PATH only, 1 = PATH and CWD, 2 = PATH, CWD, and directories. In
+# all cases both executables and directories are matched when there is a path
+# separator present.
+exec_match_style = -1
+
+# name: Prompt colour
+# type: int
+# Surrounds the prompt in ANSI escape codes to set the prompt's colour. Disabled
+# when the value is less than 0.
+prompt_colour = -1
+
+# name: Auto-answer terminate prompt
+# type: enum
+# Automatically answers cmd.exe's 'Terminate batch job (Y/N)?' prompts. 0 =
+# disabled, 1 = answer 'Y', 2 = answer 'N'.
+terminate_autoanswer = 0
+

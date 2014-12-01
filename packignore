@@ -1,0 +1,10 @@
+launcher
+icons
+.gitignore
+.gitattributes
+.git
+*.rb
+build
+config\.history
+packignore
+Cmder.bat
