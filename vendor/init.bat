@@ -44,3 +44,5 @@
         @cd /d "%HOME%"
     )
 )
+
+:: @call "%CMDER_ROOT%/bin/agent.cmd"

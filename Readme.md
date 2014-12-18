@@ -61,6 +61,12 @@ For example there is one defined for you `alias e.=explorer .`
 
 All aliases will be saved in `/config/aliases` file
 
+### SSH Agent
+
+To start SSH agent simply call `agent`, which is in the `bin` folder.
+
+If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%CMDER_ROOT%/bin/agent.cmd"`.
+
 ## Todo
 
 1. Complete PowerShell compatibility.
