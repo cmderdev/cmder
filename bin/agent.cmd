@@ -38,8 +38,8 @@ REM Functions
 REM Check if ssh key has to be added
 :CHECKKEY
 SET VAR=
-FOR /f "tokens=*" %%J IN ('ssh-add -l ^| grep soldat_rsa') DO SET VAR=%%J
-IF "%VAR%" == "" SET KEYS=%KEYS% "%HOME%\.ssh\%1"
+FOR /f "tokens=*" %%J IN ('ssh-add -l ^| grep "%1"') DO SET VAR=%%J
+IF "%VAR%" == "" SET KEYS='%HOME%\.ssh\%1' %KEYS%
 GOTO:EOF
  
 :END
