@@ -1,6 +1,6 @@
 @echo off
 
-set ALIASES="%CMDER_ROOT%\config\aliases"
+set ALIASES=%CMDER_ROOT%\config\aliases
 
 if ["%*"] == [""] echo Use /? for help & echo. & goto :p_show
 if ["%1"] == ["/?"] goto:p_help
@@ -21,25 +21,25 @@ if not ["%_temp%"] == ["%_temp2%"] (
 )
 
 :: replace already defined alias
-findstr /b /v /i "%_temp%=" %ALIASES% >> %ALIASES%.tmp
-echo %* >> %ALIASES%.tmp && type %ALIASES%.tmp > %ALIASES% & @del /f /q %ALIASES%.tmp
-doskey /macrofile=%ALIASES%
+findstr /b /v /i "%_temp%=" "%ALIASES%" >> "%ALIASES%.tmp"
+echo %* >> "%ALIASES%.tmp" && type "%ALIASES%.tmp" > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
+doskey /macrofile="%ALIASES%"
 endlocal
 goto:eof
 
 :p_del
-findstr /b /v /i "%2=" %ALIASES% >> %ALIASES%.tmp
-type %ALIASES%.tmp > %ALIASES% & @del /f /q %ALIASES%.tmp
+findstr /b /v /i "%2=" "%ALIASES%" >> "%ALIASES%.tmp"
+type "%ALIASES%".tmp > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey /macrofile=%ALIASES%
 goto:eof
 
 :p_reload
-doskey /macrofile=%ALIASES%
+doskey /macrofile="%ALIASES%"
 echo Aliases reloaded
 goto:eof
 
 :p_show
-type %ALIASES% || echo No aliases found at %ALIASES%
+type "%ALIASES%" || echo No aliases found at "%ALIASES%"
 goto :eof
 
 :p_help
