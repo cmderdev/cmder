@@ -4,6 +4,8 @@ set ALIASES="%CMDER_ROOT%\config\aliases"
 
 if ["%1"] == ["/?"] goto:p_help
 if ["%1"] == ["/reload"] goto:p_reload
+:: /d flag for delete existing alias
+if ["%1"] == ["/d"] goto:p_del %*
 if ["%2"] == [""] echo Insufficient parameters. & goto:p_help
 ::validate alias
 setlocal
@@ -22,6 +24,12 @@ findstr /b /v /i "%_temp%=" %ALIASES% >> %ALIASES%.tmp
 echo %* >> %ALIASES%.tmp && type %ALIASES%.tmp > %ALIASES% & @del /f /q %ALIASES%.tmp
 doskey /macrofile=%ALIASES%
 endlocal
+goto:eof
+
+:p_del
+findstr /b /v /i "%2=" %ALIASES% >> %ALIASES%.tmp
+type %ALIASES%.tmp > %ALIASES% & @del /f /q %ALIASES%.tmp
+doskey /macrofile=%ALIASES%
 goto:eof
 
 :p_reload
