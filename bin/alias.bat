@@ -2,6 +2,7 @@
 
 set ALIASES="%CMDER_ROOT%\config\aliases"
 
+if ["%*"] == [""] echo Use /? for help & echo. & goto :p_show
 if ["%1"] == ["/?"] goto:p_help
 if ["%1"] == ["/reload"] goto:p_reload
 :: /d flag for delete existing alias
@@ -36,6 +37,10 @@ goto:eof
 doskey /macrofile=%ALIASES%
 echo Aliases reloaded
 goto:eof
+
+:p_show
+type %ALIASES% || echo No aliases found at %ALIASES%
+goto :eof
 
 :p_help
 echo.Usage:
