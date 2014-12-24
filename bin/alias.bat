@@ -1,4 +1,7 @@
 @echo off
+
+set ALIASES="%CMDER_ROOT%\config\aliases"
+
 if ["%1"] == ["/?"] goto:p_help
 if ["%1"] == ["/reload"] goto:p_reload
 if ["%2"] == [""] echo Insufficient parameters. & goto:p_help
@@ -14,15 +17,15 @@ if not ["%_temp%"] == ["%_temp2%"] (
 	goto:eof
 )
 
-echo %* >> "%CMDER_ROOT%\config\aliases"
-doskey /macrofile="%CMDER_ROOT%\config\aliases"
-perl "%CMDER_ROOT%\scripts\clean_aliases.pl"
-echo Alias created
+:: replace already defined alias
+findstr /b /v /i "%_temp%=" %ALIASES% >> %ALIASES%.tmp
+echo %* >> %ALIASES%.tmp && type %ALIASES%.tmp > %ALIASES% & @del /f /q %ALIASES%.tmp
+doskey /macrofile=%ALIASES%
 endlocal
 goto:eof
 
 :p_reload
-doskey /macrofile="%CMDER_ROOT%\config\aliases"
+doskey /macrofile=%ALIASES%
 echo Aliases reloaded
 goto:eof
 
