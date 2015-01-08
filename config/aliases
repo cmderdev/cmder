@@ -4,3 +4,4 @@ ls=ls --color $*
 pwd=cd
 clear=cls
 history=cat %CMDER_ROOT%\config\.history
+unalias=alias /d $1
