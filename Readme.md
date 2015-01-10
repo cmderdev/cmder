@@ -33,6 +33,15 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 
 *If you get a message "Access Denied" ensure you are executing the command in an Administrator prompt.
 
+### Start directory
+
+The start directory of cmder is defined in that order (if one is empty, then the next one is used):
+
+1. The directory passed as parameter to the cmder executable
+2. The `CMDER_START` environment variable
+3. The `HOME` environment variable
+4. The current user directory (`USERPROFILE` environment variable)
+
 ## Keyboard shortcuts
 
 ### Tab manipulation
