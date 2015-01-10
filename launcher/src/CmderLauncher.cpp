@@ -79,6 +79,33 @@ optpair GetOption()
 	return pair;
 }
 
+void ComputeStartDirectory(std::wstring path)
+{
+	if (path.empty()) {
+		wchar_t buffer[MAX_PATH];
+		if (GetEnvironmentVariable(L"CMDER_START", buffer, MAX_PATH))
+		{
+			SetEnvironmentVariable(L"CMDER_SESSION_START", buffer);
+		}
+		else
+		{
+			if (GetEnvironmentVariable(L"HOME", buffer, MAX_PATH))
+			{
+				SetEnvironmentVariable(L"CMDER_SESSION_START", buffer);
+			}
+			else
+			{
+				GetEnvironmentVariable(L"USERPROFILE", buffer, MAX_PATH);
+				SetEnvironmentVariable(L"CMDER_SESSION_START", buffer);
+			}
+		}
+	}
+	else
+	{
+		SetEnvironmentVariable(L"CMDER_SESSION_START", path.c_str());
+	}
+}
+
 void StartCmder(std::wstring path, bool is_single_mode)
 {
 #if USE_TASKBAR_API
@@ -112,7 +139,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	SetEnvironmentVariable(L"CMDER_START", path.c_str());
+	ComputeStartDirectory(path);
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
