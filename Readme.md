@@ -67,6 +67,18 @@ To start SSH agent simply call `agent`, which is in the `bin` folder.
 
 If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%CMDER_ROOT%/bin/agent.cmd"`.
 
+### cd new feature
+
+The `cd` command has some new usefull features:
+* `cd`: go to `%HOME%` or `%USERPROFILE%`
+* `cd -`: go to previous directory
+* `h`: show 10 lines of history
+* `cd [0-9]`: go to the history lines passed in parameter (only if the directory does not exist)
+* `p`: pop the last line in the history, and go there (sort of undo cd)
+
+Also, no need to pass the `/d` parameter anymore, `cd` will change the
+drive automatically.
+
 ## Todo
 
 1. Complete PowerShell compatibility.
