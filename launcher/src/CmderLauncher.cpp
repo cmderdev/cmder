@@ -88,6 +88,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	wchar_t icoPath[MAX_PATH] = { 0 };
 	wchar_t cfgPath[MAX_PATH] = { 0 };
 	wchar_t conEmuPath[MAX_PATH] = { 0 };
+	wchar_t cmderConfig[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
 
 	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
@@ -99,8 +100,19 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathRemoveFileSpec(exeDir);
 
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
-	PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
 	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
+
+	DWORD isSet = GetEnvironmentVariable(L"CMDER_CONFIG", cmderConfig, MAX_PATH);
+	if (!isSet)
+	{
+		PathCombine(cmderConfig, exeDir, L"config\\");
+	}
+
+	PathCombine(cfgPath, cmderConfig, L"ConEmu.xml");
+	
+	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
+	SetEnvironmentVariable(L"CMDER_START", path.c_str());
+	SetEnvironmentVariable(L"CMDER_CONFIG", cmderConfig);
 
 	if (is_single_mode) 
 	{
@@ -108,11 +120,8 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	}
 	else 
 	{
-		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
+		swprintf_s(args, L"/Icon \"%S\" /Title Cmder /LoadCfgFile \"%S\"", icoPath, cfgPath);
 	}
-
-	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	SetEnvironmentVariable(L"CMDER_START", path.c_str());
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
