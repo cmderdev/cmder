@@ -1,6 +1,6 @@
 @echo off
 
-if defined CMDER_ROOT set ALIASES=%CMDER_ROOT%config\aliases
+if defined CMDER_ROOT set ALIASES=%CMDER_ROOT%\config\aliases
 if defined CMDER_CONFIG set ALIASES=%CMDER_CONFIG%\aliases
 
 if ["%*"] == [""] echo Use /? for help & echo. & goto :p_show
