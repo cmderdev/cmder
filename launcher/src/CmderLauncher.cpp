@@ -105,7 +105,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	DWORD isSet = GetEnvironmentVariable(L"CMDER_CONFIG", cmderConfig, MAX_PATH);
 	if (!isSet)
 	{
-		PathCombine(cmderConfig, exeDir, L"config\\");
+		PathCombine(cmderConfig, exeDir, L"config");
 	}
 
 	PathCombine(cfgPath, cmderConfig, L"ConEmu.xml");
@@ -120,7 +120,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	}
 	else 
 	{
-		swprintf_s(args, L"/Icon \"%S\" /Title Cmder /LoadCfgFile \"%S\"", icoPath, cfgPath);
+		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
 	}
 
 	STARTUPINFO si = { 0 };
