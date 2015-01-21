@@ -419,7 +419,7 @@
 			<value name="KeyMacro03.Text" type="string" data="FontSetSize(1,2)"/>
 			<value name="KeyMacro04" type="dword" data="000011d1"/>
 			<value name="KeyMacro04.Text" type="string" data="FontSetSize(1,-2)"/>
-			<value name="KeyMacro05" type="dword" data="0012a032"/>
+			<value name="KeyMacro05" type="dword" data="0012a033"/>
 			<value name="KeyMacro05.Text" type="string" data="Task(&quot;PowerShell as Admin&quot;)"/>
 			<value name="KeyMacro06" type="dword" data="00000000"/>
 			<value name="KeyMacro06.Text" type="string" data=""/>
