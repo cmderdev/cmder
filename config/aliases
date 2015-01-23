@@ -1,7 +1,10 @@
 e.=explorer .
 gl=git log --oneline --all --graph --decorate  $*
 ls=ls --color $*
-pwd=cd
+pwd=chdir
 clear=cls
 history=cat %CMDER_ROOT%\config\.history
 unalias=alias /d $1
+cd=cdplus.bat $*
+h=cdplus /h $1
+p=cdplus /p
