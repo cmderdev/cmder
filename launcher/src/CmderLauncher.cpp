@@ -18,7 +18,7 @@
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
 #define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
 
-#define streqi(a, b) (_wcsicmp((a), (b)) == 0) 
+#define streqi(a, b) (_wcsicmp((a), (b)) == 0)
 
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
@@ -29,7 +29,7 @@
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
 	wchar_t * buffer;
-	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, ec, 0, (LPWSTR) &buffer, 0, NULL) == 0)
 	{
 		buffer = L"Unknown error. FormatMessage failed.";
@@ -102,11 +102,11 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
 	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 
-	if (is_single_mode) 
+	if (is_single_mode)
 	{
 		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
 	}
-	else 
+	else
 	{
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
 	}
@@ -175,11 +175,8 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+	swprintf_s(icoPath, L"\"%s\",0", exePath);
 
-	// Now that we have `commandStr`, it's OK to change `exePath`...
-	PathRemoveFileSpec(exePath);
-
-	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
 
 	// Now set the registry keys
 
@@ -215,9 +212,9 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 		RegCreateKeyEx(root, keyBaseName, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 #if XP
-	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
+	FAIL_ON_ERROR(SHDeleteKey(cmderKey, L"Cmder"));
 #else
-	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
+	FAIL_ON_ERROR(RegDeleteTree(cmderKey, L"Cmder"));
 #endif
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
