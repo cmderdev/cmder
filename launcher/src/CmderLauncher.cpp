@@ -16,10 +16,10 @@
 #define XP (_WIN32_WINNT < _WIN32_WINNT_VISTA)
 
 #define MB_TITLE L"Cmder Launcher"
-#define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
-#define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
+#define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell"
+#define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell"
 
-#define streqi(a, b) (_wcsicmp((a), (b)) == 0)
+#define streqi(a, b) (_wcsicmp((a), (b)) == 0) 
 
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
@@ -31,7 +31,7 @@ void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
 	wchar_t * buffer;
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL, ec, 0, (LPWSTR) &buffer, 0, NULL) == 0)
+		NULL, ec, 0, (LPWSTR)&buffer, 0, NULL) == 0)
 	{
 		buffer = L"Unknown error. FormatMessage failed.";
 	}
@@ -165,6 +165,45 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
+bool IsElevated() {
+	bool fRet = FALSE;
+	HANDLE hToken = NULL;
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+		TOKEN_ELEVATION Elevation;
+		DWORD cbSize = sizeof(TOKEN_ELEVATION);
+		if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize)) {
+			fRet = Elevation.TokenIsElevated > 0 ? true : false;
+		}
+	}
+	if (hToken) {
+		CloseHandle(hToken);
+	}
+	return fRet;
+}
+
+void runAsAdmin(optpair opt)
+{
+	wchar_t params[MAX_PATH] = { 0 };
+	wchar_t exePath[MAX_PATH] = { 0 };
+
+	GetModuleFileName(NULL, exePath, sizeof(exePath));
+
+	if (opt.second.c_str() != L"") {
+		swprintf_s(params, L"%s %s", opt.first.c_str(), opt.second.c_str());
+	}
+	else {
+		swprintf_s(params, L"%s", opt.first.c_str());
+	}
+
+	ShellExecute(NULL,
+		L"runas",
+		exePath,
+		params,
+		NULL, // default dir
+		SW_SHOWNORMAL
+		);
+}
+
 std::wstring GetLanguage()
 {
 	wchar_t szISOLang[5] = { 0 };
@@ -197,10 +236,15 @@ std::wstring GetTranslation(std::wstring languageCode, std::wstring name)
 		>
 	> translations;
 	translations[L"de_DE"][L"NORMAL"] = L"Einga&beaufforderung öffnen";
+	translations[L"de_DE"][L"ADMIN"] = L"Einga&beaufforderung öffnen (Administrator)";
 	translations[L"en_US"][L"NORMAL"] = L"Open Comm&and Prompt";
+	translations[L"en_US"][L"ADMIN"] = L"Open E&levated Command Prompt";
 	translations[L"es_ES"][L"NORMAL"] = L"A&brir un símbolo del sistema";
+	translations[L"es_ES"][L"ADMIN"] = L"A&brir un símbolo del sistema (Administrador)";
 	translations[L"fr_FR"][L"NORMAL"] = L"Ouvrir une &invite de commandes";
+	translations[L"fr_FR"][L"ADMIN"] = L"Ouvrir une &invite de commandes (Administrateur)";
 	translations[L"it_IT"][L"NORMAL"] = L"Apri un prompt &dei comandi";
+	translations[L"it_IT"][L"ADMIN"] = L"Apri un prompt &dei comandi (Amministratore)";
 
 	return translations[languageCode][name];
 }
@@ -211,16 +255,16 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 
 	wchar_t exePath[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
+	wchar_t keyName[MAX_PATH] = { 0 };
 
 	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
+	swprintf_s(keyName, L"%s\\Cmder", keyBaseName);
+
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+	swprintf_s(icoPath, L"\"%s\",0", exePath);
 
-	// Now that we have `commandStr`, it's OK to change `exePath`...
-	PathRemoveFileSpec(exePath);
-
-	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
 	std::wstring languageCode = GetLanguage();
 	std::wstring menuText = GetTranslation(languageCode, L"NORMAL");
 	if (menuText == L"") menuText = L"Open Comm&and Prompt";
@@ -231,7 +275,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 
 	HKEY cmderKey;
 	FAIL_ON_ERROR(
-		RegCreateKeyEx(root, keyBaseName, 0, NULL,
+		RegCreateKeyEx(root, keyName, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 
 	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, menuText.c_str(), NULL));
@@ -240,6 +284,31 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
 
 	HKEY command;
+	FAIL_ON_ERROR(
+		RegCreateKeyEx(cmderKey, L"command", 0, NULL,
+		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
+
+	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
+
+	RegCloseKey(command);
+	RegCloseKey(cmderKey);
+
+
+	swprintf_s(keyName, L"%s\\CmderElv", keyBaseName);
+	swprintf_s(commandStr, L"\"%s\" /admin \"%%V\"", exePath);
+
+	FAIL_ON_ERROR(
+		RegCreateKeyEx(root, keyName, 0, NULL,
+		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+
+	menuText = GetTranslation(languageCode, L"ADMIN");
+	if (menuText == L"") menuText = L"Open E&levated Command Prompt";
+
+	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, menuText.c_str(), NULL));
+	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
+
+	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
+
 	FAIL_ON_ERROR(
 		RegCreateKeyEx(cmderKey, L"command", 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
@@ -259,9 +328,11 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 		RegCreateKeyEx(root, keyBaseName, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 #if XP
-	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
+	FAIL_ON_ERROR(SHDeleteKey(cmderKey, L"Cmder"));
+	FAIL_ON_ERROR(SHDeleteKey(cmderKey, L"CmderElv"));
 #else
-	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
+	FAIL_ON_ERROR(RegDeleteTree(cmderKey, L"Cmder"));
+	FAIL_ON_ERROR(RegDeleteTree(cmderKey, L"CmderElv"));
 #endif
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
@@ -288,17 +359,36 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else if (streqi(opt.first.c_str(), L"/REGISTER"))
 	{
-		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		if (IsElevated()) {
+			RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+			RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		}
+		else {
+			runAsAdmin(opt);
+		}
 	}
 	else if (streqi(opt.first.c_str(), L"/UNREGISTER"))
 	{
-		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		if (IsElevated()) {
+			UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+			UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		}
+		else {
+			runAsAdmin(opt);
+		}
+	}
+	else if (streqi(opt.first.c_str(), L"/ADMIN"))
+	{
+		if (IsElevated()) {
+			StartCmder(opt.second, false);
+		}
+		else {
+			runAsAdmin(opt);
+		}
 	}
 	else
 	{
-		MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /START <path>\n  /SINGLE <path>\n  /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
+		MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /START <path>\n  /SINGLE <path>\n  /ADMIN <path>\n  /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
 		return 1;
 	}
 
