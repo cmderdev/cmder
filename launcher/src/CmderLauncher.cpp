@@ -3,6 +3,7 @@
 #include <Shlwapi.h>
 #include "resource.h"
 #include <vector>
+#include <map>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -18,7 +19,7 @@
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
 #define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
 
-#define streqi(a, b) (_wcsicmp((a), (b)) == 0) 
+#define streqi(a, b) (_wcsicmp((a), (b)) == 0)
 
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
@@ -29,7 +30,7 @@
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
 	wchar_t * buffer;
-	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, ec, 0, (LPWSTR) &buffer, 0, NULL) == 0)
 	{
 		buffer = L"Unknown error. FormatMessage failed.";
@@ -102,11 +103,11 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
 	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 
-	if (is_single_mode) 
+	if (is_single_mode)
 	{
 		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
 	}
-	else 
+	else
 	{
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
 	}
@@ -164,6 +165,46 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
+std::wstring GetLanguage()
+{
+	wchar_t szISOLang[5] = { 0 };
+	wchar_t szISOCountry[5] = { 0 };
+	wchar_t language[11] = { 0 };
+	int iLen = 0;
+
+	::GetLocaleInfo(LOCALE_USER_DEFAULT,
+		LOCALE_SISO639LANGNAME,
+		szISOLang,
+		sizeof(szISOLang) / sizeof(wchar_t));
+
+	::GetLocaleInfo(LOCALE_USER_DEFAULT,
+		LOCALE_SISO3166CTRYNAME,
+		szISOCountry,
+		sizeof(szISOCountry) / sizeof(wchar_t));
+
+	swprintf_s(language, L"%s_%s", szISOLang, szISOCountry);
+
+	return language;
+}
+
+std::wstring GetTranslation(std::wstring languageCode, std::wstring name)
+{
+	std::map <
+		std::wstring,  // langcode
+		std::map <
+		std::wstring,
+		std::wstring
+		>
+	> translations;
+	translations[L"de_DE"][L"NORMAL"] = L"Einga&beaufforderung öffnen";
+	translations[L"en_US"][L"NORMAL"] = L"Open Comm&and Prompt";
+	translations[L"es_ES"][L"NORMAL"] = L"A&brir un símbolo del sistema";
+	translations[L"fr_FR"][L"NORMAL"] = L"Ouvrir une &invite de commandes";
+	translations[L"it_IT"][L"NORMAL"] = L"Apri un prompt &dei comandi";
+
+	return translations[languageCode][name];
+}
+
 void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 {
 	// First, get the paths we will use
@@ -180,6 +221,9 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	PathRemoveFileSpec(exePath);
 
 	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
+	std::wstring languageCode = GetLanguage();
+	std::wstring menuText = GetTranslation(languageCode, L"NORMAL");
+	if (menuText == L"") menuText = L"Open Comm&and Prompt";
 
 	// Now set the registry keys
 
@@ -190,7 +234,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 		RegCreateKeyEx(root, keyBaseName, 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 
-	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
+	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, menuText.c_str(), NULL));
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
 
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
