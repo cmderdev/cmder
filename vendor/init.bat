@@ -45,4 +45,7 @@
     )
 )
 
+:: extend init.bat
+@if exist "%CMDER_ROOT%\config\init.bat" call "%CMDER_ROOT%\config\init.bat"
+
 :: @call "%CMDER_ROOT%/bin/agent.cmd"
