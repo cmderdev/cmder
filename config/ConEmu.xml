@@ -496,7 +496,7 @@
 						<key name="Task2" modified="2014-01-21 18:36:36" build="131215">
 					<value name="Name" type="string" data="{PowerShell}"/>
 					<value name="GuiArgs" type="string" data="/dir &quot;%userprofile%&quot;"/>
-					<value name="Cmd1" type="string" data="powershell"/>
+					<value name="Cmd1" type="string" data="powershell -ExecutionPolicy Unrestricted -NoLogo -NoProfile -NoExit -File &quot;%CMDER_ROOT%\scripts\powershell\DefaultProfile.ps1&quot;"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
