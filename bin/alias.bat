@@ -26,3 +26,7 @@ echo.	$* allows the alias to assume all the parameters of the supplied command.
 echo.	$1-$9 Allows you to seperate parameter by number, much like %%1 in batch.
 echo.	$T is the command seperator, allowing you to string several commands together into one alias.
 echo.	For more information, read DOSKEY/?
+echo.	Your aliases are automatically saved in "%CMDER_ROOT%\config\aliases"
+echo.	The current aliases are:
+echo.
+doskey /macros:all
