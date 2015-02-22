@@ -1,13 +1,16 @@
 @echo off
 if ["%1"] == ["/?"] goto:p_help
 if ["%2"] == [""] echo Insufficient parameters. & goto:p_help
-::validate alias
+
 setlocal
-for /f "delims== tokens=1" %%G in ("%*") do set _temp2=%%G
+::handle quotes within command definition, e.g. quoted long file names
+set _x="%*"
+set _x=%_x:"=%
 
-	set _temp=%_temp2: =%
-
-if not ["%_temp%"] == ["%_temp2%"] (
+::validate alias
+for /f "delims== tokens=1" %%G in ("%_x%") do set alias=%%G
+set _temp=%alias: =%
+if not ["%_temp%"] == ["%alias%"] (
 	echo Your alias name can not contain a space
 	endlocal
 	goto:eof
