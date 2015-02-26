@@ -14,7 +14,7 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 1. Download the latest release
 1. Extract
-1. (optional) Place files into `bin` folder, it will be injected into your PATH.
+1. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
 1. Run cmder
 
 *(There will be a version with installer)*
