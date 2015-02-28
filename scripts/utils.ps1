@@ -9,13 +9,13 @@ function Ensure-Exists ($path) {
 function Ensure-Executable ($command) {
     try { Get-Command $command -ErrorAction Stop > $null }
     catch {
-        If( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
-            set-alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
+        if (($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
+            Set-Alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
         }
-        ElseIf( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
-            set-alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script             
+        elseif (($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
+            Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script             
         }
-        Else {
+        else {
             Write-Error "Missing $command! Ensure it is installed and on in the PATH"
             exit 1
         }
@@ -24,13 +24,48 @@ function Ensure-Executable ($command) {
 
 function Delete-Existing ($path) {
     Write-Verbose "Remove $path"
-    Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force $path -ErrorAction SilentlyContinue
 }
 
 function Extract-Archive ($source, $target) {
-    Invoke-Expression "7z x -y -o$($target) $source  > `$null"
+    # Get the information of the archive
+    $archiveType = Invoke-Expression "7z l $source"
+    
+    # Loop through each line until we find the type of the archive
+    foreach ($line in $archiveType) {
+        if ($line -match "Type = (.+)") {
+            $archiveType = $matches[1]
+
+            # We found the line so stop checking
+            break
+        }
+    }
+
+    # Do special things if the file is gzipped
+    if ($archiveType -eq "gzip") {
+        # Filename is hub.tmp, extracting to filename hub
+        Invoke-Expression "7z x -y $source > `$null"
+
+        # Remove the original .tmp file
+        Remove-Item $source
+
+        # File is extracted so the filename is now the original without extension
+        $extractedName = $source.Replace(".tmp", "")
+
+        # The new name should be extracted filename with added .gz extension
+        $newName = "$extractedName.gz"
+        Write-Verbose "name $extName"
+
+        # Rename extracted filename without extension to new name with .gz extension
+        Rename-Item $extractedName -NewName $newName
+
+        # The source is now filename with .gz extension instead of .tmp
+        $source = $newName
+    }
+
+    Invoke-Expression "7z x -y -o$($target) $source > `$null"
     if ($lastexitcode -ne 0) {
-        Write-Error "Extracting of $source failied"
+        Write-Error "Extracting of $source failed"
     }
     Remove-Item $source
 }
@@ -40,7 +75,7 @@ function Create-Archive ($source, $target, $params) {
     Write-Verbose "Running: $command"
     Invoke-Expression $command
     if ($lastexitcode -ne 0) {
-        Write-Error "Compressing $source failied"
+        Write-Error "Compressing $source failed"
     }
 }
 

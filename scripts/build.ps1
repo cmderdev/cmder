@@ -17,7 +17,11 @@
 
     Executes a full build for cmder, including git. This is equivalent to the "full" style package in the releases
 .EXAMPLE
-    .\build -verbose
+    .\build.ps1 -NoDownload
+
+    Skip all downloads and only build launcher
+.EXAMPLE
+    .\build.ps1 -verbose
 
     Execute the build and see what's going on.
 .EXAMPLE
@@ -47,43 +51,52 @@ Param(
     [string]$launcher = "..\launcher",
 
     # Include git with the package build
-    [switch]$Full,
+    [switch]$full,
+
+    # Using this option will skip all downloads and only build launcher
+    [switch]$noDownload,
+
+    # MSBuild.exe location. Acquired using system functions
+    [string]$msBuild = [System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory() + "MSBuild.exe"
 )
 
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
 
-Push-Location -Path $saveTo
-$sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
+if (-not $noDownload) {
+    Push-Location -Path $saveTo
+    $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
-# Check for requirements
-Ensure-Exists $sourcesPath
-Ensure-Executable "7z"
+    # Check for requirements
+    Ensure-Exists $sourcesPath
+    Ensure-Executable "7z"
 
-foreach ($s in $sources) {
-    if($Full -eq $false -and $s.name -eq "msysgit"){
-        Continue
+    foreach ($s in $sources) {
+        if ($full -eq $false -and $s.name -eq "msysgit"){
+            Continue
+        }
+
+        Write-Verbose "Getting $($s.name) from URL $($s.url)"
+
+        # We do not care about the extensions/type of archive
+        $tempArchive = "$($s.name).tmp"
+        Delete-Existing $tempArchive
+        Delete-Existing $s.name
+
+        Invoke-WebRequest -Uri $s.url -OutFile $tempArchive -ErrorAction Stop
+        Extract-Archive $tempArchive $s.name
+
+        if ((Get-Childitem $s.name).Count -eq 1) {
+            Flatten-Directory($s.name)
+        }
     }
 
-    Write-Verbose "Getting $($s.name) from URL $($s.url)"
-
-    # We do not care about the extensions/type of archive
-    $tempArchive = "$($s.name).tmp"
-    Delete-Existing $tempArchive
-    Delete-Existing $s.name
-
-    Invoke-WebRequest -Uri $s.url -OutFile $tempArchive -ErrorAction Stop
-    Extract-Archive $tempArchive $s.name
-
-    if ((Get-Childitem $s.name).Count -eq 1) {
-        Flatten-Directory($s.name)
-    }
+    Pop-Location
 }
 
-Pop-Location
-
 Push-Location -Path $launcher
-msbuild CmderLauncher.vcxproj /p:configuration=Release
+# Using '&' to execute MSBuild.exe
+&$msBuild CmderLauncher.vcxproj /p:configuration=Release
 Pop-Location
 
 Write-Verbose "All good and done!"
