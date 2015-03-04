@@ -7,6 +7,9 @@
     for /f %%i in ("%ConEmuDir%\..\..") do @set CMDER_ROOT=%%~fi
 )
 
+:: Set config dir
+@if not defined CMDER_CONFIG set CMDER_CONFIG=%CMDER_ROOT%\config
+
 :: Change the prompt style
 :: Mmm tasty lamb
 @prompt $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
@@ -19,7 +22,7 @@
 )
 
 :: Run clink
-@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config"
+@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_CONFIG%"
 
 :: Prepare for msysgit
 
@@ -32,7 +35,7 @@
 @set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim74;%CMDER_ROOT%;%PATH%
 
 :: Add aliases
-@doskey /macrofile="%CMDER_ROOT%\config\aliases"
+@%CMDER_ROOT%\bin\alias /reload >NUL
 
 :: Set home path
 @if not defined HOME set HOME=%USERPROFILE%
