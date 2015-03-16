@@ -87,6 +87,7 @@ void StartCmder(std::wstring path)
 	wchar_t exeDir[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 	wchar_t cfgPath[MAX_PATH] = { 0 };
+	//wchar_t cfgExpPath[MAX_PATH] = { 0 };
 	wchar_t conEmuPath[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
 
@@ -99,7 +100,11 @@ void StartCmder(std::wstring path)
 	PathRemoveFileSpec(exeDir);
 
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
-	PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
+    PathCombine(cfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+    ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
+    if (!PathFileExists(cfgPath)) {
+        PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
+    }
 	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 
 	swprintf_s(args, L"/Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
