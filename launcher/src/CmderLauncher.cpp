@@ -99,7 +99,11 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathRemoveFileSpec(exeDir);
 
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
-	PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
+	PathCombine(cfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+	ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
+	if (!PathFileExists(cfgPath)) {
+		PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
+	}
 	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 
 	if (is_single_mode) 
