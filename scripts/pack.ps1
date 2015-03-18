@@ -16,7 +16,7 @@
     Creates default archives for cmder with plenty of information
 .NOTES
     AUTHORS
-    Samuel Vasko, Jack Bennett
+    Samuel Vasko, Jack Bennett, Martin Kemp
     Part of the Cmder project.
 .LINK
     https://github.com/bliker/cmder - Project Home
@@ -46,6 +46,7 @@ $targets = @{
 }
 
 Delete-Existing "..\Version*"
+Cleanup-Git
 
 $version = Invoke-Expression "git describe --abbrev=0 --tags"
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null

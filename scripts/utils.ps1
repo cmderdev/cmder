@@ -13,7 +13,7 @@ function Ensure-Executable ($command) {
             set-alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
         }
         ElseIf( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
-            set-alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script             
+            set-alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
         Else {
             Write-Error "Missing $command! Ensure it is installed and on in the PATH"
@@ -55,4 +55,14 @@ function Flatten-Directory ($name) {
 
 function Digest-MD5 ($path) {
     return Invoke-Expression "md5sum $path"
+}
+
+function Cleanup-Git () {
+    $gitdir = '/vendor/msysgit/libexec/git-core/'
+    Get-Childitem $gitdir -Filter git-* | Where { $_ -NotMatch '--' } | Foreach-Object {
+        '@' + $_.BaseName.Split("-") -join ' ' + ' $*' | Set-Content -Path $_.BaseName'.bat'
+        Remove-Item $_.FullName
+    }
+    # Cleanup any missed files
+    Get-Childitem $gitdir -Exclude git.exe,*.bat | Where-Object{!($_.PSIsContainer)} | Foreach-Object { Remove-Item $_.FullName }
 }
