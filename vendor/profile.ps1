@@ -1,17 +1,9 @@
-﻿# Global modules directory
-$global:PsGetDestinationModulePath = $PSScriptRoot + "\..\vendor\psmodules"
+﻿# Add Cmder modules directory to the autoload path.
+$CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
-# Push to modules location
-Push-Location -Path ($PsGetDestinationModulePath)
-
-# Load modules from current directory
-Import-Module .\PsGet\PsGet
-Get-ChildItem -Exclude "PsGet" -Directory -Name | Foreach-Object {
-    Import-Module .\$_\$_
+if( -not $env:PSModulePath.Contains($CmderModulePath) ){
+    $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
-
-# Come back to PWD
-Pop-Location
 
 # Set up a Cmder prompt, adding the git prompt parts inside git repos
 function global:prompt {
