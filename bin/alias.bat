@@ -5,9 +5,13 @@ set ALIASES=%CMDER_ROOT%\config\aliases
 if ["%*"] == [""] echo Use /? for help & echo. & goto :p_show
 if ["%1"] == ["/?"] goto:p_help
 if ["%1"] == ["/reload"] goto:p_reload
-:: /d flag for delete existing alias
-if ["%1"] == ["/d"] goto:p_del %*
-if ["%2"] == [""] echo Insufficient parameters. & goto:p_help
+
+:: if arg is an existing alias, display it
+if ["%2"] == [""] (
+  doskey /macros | findstr /b %1= && goto:eof
+  echo Insufficient parameters. & goto:p_help
+)
+
 ::validate alias
 setlocal
 for /f "delims== tokens=1" %%G in ("%*") do set _temp2=%%G
