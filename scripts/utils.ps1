@@ -54,6 +54,10 @@ function Flatten-Directory ($name) {
 }
 
 function Digest-MD5 ($path) {
+    if(Get-Command Get-FileHash -ErrorAction SilentlyContinue){
+        return (Get-FileHash -Algorithm MD5 -Path $path).Hash
+    }
+
     return Invoke-Expression "md5sum $path"
 }
 
