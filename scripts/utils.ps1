@@ -63,10 +63,5 @@ function Digest-MD5 ($path) {
 
 function Cleanup-Git () {
     $gitdir = '/vendor/msysgit/libexec/git-core/'
-    Get-Childitem $gitdir -Filter git-* | Where { $_ -NotMatch '--' } | Foreach-Object {
-        '@' + $_.BaseName.Split("-") -join ' ' + ' $*' | Set-Content -Path $_.BaseName'.bat'
-        Remove-Item $_.FullName
-    }
-    # Cleanup any missed files
-    Get-Childitem $gitdir -Exclude git.exe,*.bat | Where-Object{!($_.PSIsContainer)} | Foreach-Object { Remove-Item $_.FullName }
+    Get-Childitem $gitdir -Exclude git.exe | Where-Object{!($_.PSIsContainer)} | Foreach-Object { Remove-Item $_.FullName }
 }
