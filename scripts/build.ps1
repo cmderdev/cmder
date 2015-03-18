@@ -47,7 +47,7 @@ Param(
     [string]$launcher = "..\launcher",
 
     # Include git with the package build
-    [switch]$Full,
+    [switch]$Full
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -59,6 +59,7 @@ $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
+New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
 
 foreach ($s in $sources) {
     if($Full -eq $false -and $s.name -eq "msysgit"){
@@ -68,7 +69,7 @@ foreach ($s in $sources) {
     Write-Verbose "Getting $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
-    $tempArchive = "$($s.name).tmp"
+    $tempArchive = "tmp/$($s.name).tmp"
     Delete-Existing $tempArchive
     Delete-Existing $s.name
 
