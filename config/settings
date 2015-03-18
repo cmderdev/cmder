@@ -27,7 +27,7 @@ match_colour = -1
 # the line. 0 = PATH only, 1 = PATH and CWD, 2 = PATH, CWD, and directories. In
 # all cases both executables and directories are matched when there is a path
 # separator present.
-exec_match_style = -1
+exec_match_style = 2
 
 # name: Prompt colour
 # type: int
