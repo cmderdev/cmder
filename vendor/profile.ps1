@@ -17,7 +17,7 @@ Pop-Location
 function global:prompt {
     $realLASTEXITCODE = $LASTEXITCODE
     $Host.UI.RawUI.ForegroundColor = "White"
-    Write-Host("`n" + $pwd.ProviderPath) -NoNewLine -ForegroundColor Green
+    Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
     if (Get-Module posh-git) {
         Write-VcsStatus
     }
