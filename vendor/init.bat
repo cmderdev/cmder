@@ -29,7 +29,9 @@
 
 :: Enhance Path
 @set git_install_root=%CMDER_ROOT%\vendor\msysgit
-@set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim74;%CMDER_ROOT%;%PATH%
+@set NODE_HOME=%CMDER_ROOT%\vendor\nodejs
+@set NODE_PATH=%NODE_HOME%\node_modules
+@set PATH=%CMDER_ROOT%\bin;%git_install_root%\bin;%git_install_root%\mingw\bin;%git_install_root%\cmd;%git_install_root%\share\vim\vim74;%RUBY_PATH%;%CMDER_ROOT%;%PATH%
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
