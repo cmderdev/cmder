@@ -13,5 +13,20 @@
         "name": "conemu-maximus5",
         "version": "150319",
         "url": "https://conemu.codeplex.com/releases/view/612677"
+    },
+    {
+        "name": "nodejs",
+        "version": "0.12.0",
+        "url": "http://nodejs.org/dist/v0.12.0/node.exe"
+    },
+    {
+        "name": "nodejs/npm",
+        "version": "1.4.9",
+        "url": "http://nodejs.org/dist/npm/npm-1.4.9.zip"
+    },
+    {
+        "name": "ruby",
+        "version": "2.2.1",
+        "url": "http://dl.bintray.com/oneclick/rubyinstaller/ruby-2.2.1-i386-mingw32.7z"
     }
 ]
