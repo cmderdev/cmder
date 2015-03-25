@@ -65,3 +65,32 @@ function Cleanup-Git () {
     $gitdir = '/vendor/msysgit/libexec/git-core/'
     Get-Childitem $gitdir -Exclude git.exe | Where-Object{!($_.PSIsContainer)} | Foreach-Object { Remove-Item $_.FullName }
 }
+
+function Register-Cmder(){
+    [CmdletBinding()]
+    Param
+    (
+        # Text for the context menu item.
+        $MenuText = "Cmder Here"
+
+        , # Defaults to the current cmder directory when run from cmder.
+        $PathToExe = (Join-Path $env:CMDER_ROOT "cmder.exe")
+
+        , # Commands the context menu will execute.
+        $Command = "%V"
+
+        , # Defaults to the icons folder in the cmder package.
+        $icon = (Split-Path $PathToExe | join-path -ChildPath 'icons/cmder.ico')
+    )
+    Begin
+    {
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+    }
+    Process
+    {
+        New-Item -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
+        New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
+        New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "NoWorkingDirectory"
+        New-Item -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+    }
+}
