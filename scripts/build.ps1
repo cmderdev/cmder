@@ -79,6 +79,8 @@ foreach ($s in $sources) {
     if ((Get-Childitem $s.name).Count -eq 1) {
         Flatten-Directory($s.name)
     }
+    # Write current version to .cmderver file, for later.
+    "$($s.version)" | Out-File "$s.name/.cmderver"
 }
 
 Pop-Location
