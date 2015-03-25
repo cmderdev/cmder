@@ -14,13 +14,24 @@ try {
     $gitStatus = $false
 }
 
+function checkGit($Path) {
+    if (Test-Path -Path (Join-Path $Path '.git/') ) {
+        Write-VcsStatus
+        return
+    }
+    $SplitPath = split-path $path
+    if ($SplitPath) {
+        checkGit($SplitPath)
+    }
+}
+
 # Set up a Cmder prompt, adding the git prompt parts inside git repos
 function global:prompt {
     $realLASTEXITCODE = $LASTEXITCODE
     $Host.UI.RawUI.ForegroundColor = "White"
     Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-        Write-VcsStatus
     if($gitStatus){
+        checkGit($pwd.ProviderPath)
     }
     $global:LASTEXITCODE = $realLASTEXITCODE
     Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray"
