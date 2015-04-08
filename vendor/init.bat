@@ -61,3 +61,6 @@
 )
 
 :: @call "%CMDER_ROOT%/bin/agent.cmd"
+
+:: Run user personal settings
+@if exist "%HOME%\cmderrc.bat" call "%HOME%\cmderrc.bat"
