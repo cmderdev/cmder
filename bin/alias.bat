@@ -12,7 +12,7 @@ if not ["%_temp%"] == ["%_temp2%"] (
 	endlocal
 	goto:eof
 )
-
+echo.>> "%CMDER_ROOT%\config\aliases"
 echo %* >> "%CMDER_ROOT%\config\aliases"
 doskey /macrofile="%CMDER_ROOT%\config\aliases"
 echo Alias created
