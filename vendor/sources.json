@@ -1,8 +1,8 @@
 [
     {
         "name": "msysgit",
-        "version": "1.9.5-preview",
-        "url": "https://github.com/msysgit/msysgit/releases/download/Git-1.9.5-preview20141217/PortableGit-1.9.5-preview20141217.7z"
+        "version": "1.9.5-preview20150319",
+        "url": "https://github.com/msysgit/msysgit/releases/download/Git-1.9.5-preview20150319/PortableGit-1.9.5-preview20150319.7z"
     },
     {
         "name": "clink",
@@ -11,8 +11,8 @@
     },
     {
         "name": "conemu-maximus5",
-        "version": "150215",
-        "url": "https://conemu.codeplex.com/downloads/get/1430634"
+        "version": "150331",
+        "url": "https://github.com/Maximus5/ConEmu/releases/download/v15.03.31/ConEmuPack.150331.7z"
     },
     {
         "name": "clink-completions",
