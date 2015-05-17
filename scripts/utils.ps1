@@ -62,7 +62,7 @@ function Digest-MD5 ($path) {
 }
 
 function Cleanup-Git () {
-    $gitdir = '/vendor/msysgit/libexec/git-core/'
+    $gitdir = '../vendor/msysgit/libexec/git-core/'
     Get-Childitem $gitdir -Exclude git.exe | Where-Object{!($_.PSIsContainer)} | Foreach-Object { Remove-Item $_.FullName }
 }
 
