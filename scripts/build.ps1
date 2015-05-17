@@ -11,7 +11,11 @@
 .EXAMPLE
     .\build.ps1
 
-    Executes the default build for cmder, this is equivalent to the "minimum" style package in the releases
+    Executes the default build for cmder; Conemu, clink. This is equivalent to the "minimum" style package in the releases
+.EXAMPLE
+    .\build.ps1 -Full
+
+    Executes a full build for cmder, including git. This is equivalent to the "full" style package in the releases
 .EXAMPLE
     .\build -verbose
 
@@ -27,7 +31,6 @@
 .LINK
     https://github.com/bliker/cmder - Project Home
 #>
-
 [CmdletBinding(SupportsShouldProcess=$true)]
 Param(
     # CmdletBinding will give us;
@@ -41,7 +44,10 @@ Param(
     [string]$saveTo = "..\vendor\",
 
     # Launcher folder location
-    [string]$launcher = "..\launcher"
+    [string]$launcher = "..\launcher",
+
+    # Include git with the package build
+    [switch]$Full
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -53,12 +59,17 @@ $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
+New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
 
 foreach ($s in $sources) {
+    if($Full -eq $false -and $s.name -eq "msysgit"){
+        Continue
+    }
+
     Write-Verbose "Getting $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
-    $tempArchive = "$($s.name).tmp"
+    $tempArchive = "tmp/$($s.name).tmp"
     Delete-Existing $tempArchive
     Delete-Existing $s.name
 
@@ -68,6 +79,8 @@ foreach ($s in $sources) {
     if ((Get-Childitem $s.name).Count -eq 1) {
         Flatten-Directory($s.name)
     }
+    # Write current version to .cmderver file, for later.
+    "$($s.version)" | Out-File "$($s.name)/.cmderver"
 }
 
 Pop-Location

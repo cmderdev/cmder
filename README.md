@@ -14,7 +14,7 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 1. Download the latest release
 1. Extract
-1. (optional) Place files into `bin` folder, it will be injected into your PATH.
+1. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
 1. Run cmder
 
 *(There will be a version with installer)*
@@ -60,6 +60,12 @@ For example there is one defined for you `alias e.=explorer .`
 
 All aliases will be saved in `/config/aliases` file
 
+### SSH Agent
+
+To start SSH agent simply call `agent`, which is in the `bin` folder.
+
+If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%CMDER_ROOT%/bin/agent.cmd"`.
+
 ## Todo
 
 1. Complete PowerShell compatibility.
@@ -74,7 +80,7 @@ All software included is bundled with own license
 
 The MIT License (MIT)
 
-Copyright (c) 2013 Samuel Vasko
+Copyright (c) 2015 Samuel Vasko
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
