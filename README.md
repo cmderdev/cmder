@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bliker/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Latest release is **[v1.1.4.1](https://github.com/bliker/cmder/releases/tag/v1.1.4.1)**
+Latest release is **[v1.2](https://github.com/bliker/cmder/releases/tag/v1.2)**
 
 Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://code.google.com/p/conemu-maximus5/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://github.com/mridgers/clink) and custom prompt layout.
 
@@ -15,9 +15,9 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 ## Installation
 
 1. Download the latest release
-1. Extract
-1. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
-1. Run cmder
+2. Extract
+3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
+4. Run cmder
 
 *(There will be a version with installer)*
 
@@ -70,11 +70,8 @@ If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat
 
 ## Todo
 
-1. Complete PowerShell compatibility.
-2. Workaround git.exe overload after msysgit download (Granted this is an upstream issue).
-3. Redo Build/Pack scripts or remove them altogether.
-4. Git Bash
-5. Check for clink and git before injecting them
+1. Git Bash
+2. Check for clink and git before injecting them (Sort of done)
 
 ## License
 
