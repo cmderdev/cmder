@@ -1,4 +1,9 @@
-﻿# Add Cmder modules directory to the autoload path.
+﻿# Compatibility with PS major versions <= 2
+if(!$PSScriptRoot) {
+    $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
+}
+
+# Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
 if( -not $env:PSModulePath.Contains($CmderModulePath) ){
