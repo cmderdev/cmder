@@ -1,0 +1,1 @@
+.\cmder.exe /REGISTER ALL
