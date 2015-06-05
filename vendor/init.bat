@@ -60,4 +60,9 @@
     )
 )
 
+:: Call user-init script, if any
+@if defined CMDER_USER_INIT (
+  @if exist "%CMDER_USER_INIT%" call "%CMDER_USER_INIT%"
+)
+
 :: @call "%CMDER_ROOT%/bin/agent.cmd"
