@@ -10,3 +10,4 @@ Thumbs.db
 *.exe
 build/
 Version v*
+*.bak
