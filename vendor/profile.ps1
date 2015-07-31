@@ -40,7 +40,6 @@ function global:prompt {
 
 # Load special features come from posh-git
 if ($gitStatus) {
-    Enable-GitColors
     Start-SshAgent -Quiet
 }
 
