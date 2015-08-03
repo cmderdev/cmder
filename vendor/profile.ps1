@@ -60,3 +60,6 @@ if (Test-Path Env:\CMDER_START) {
 } elseif ($Env:CMDER_ROOT -and $Env:CMDER_ROOT.StartsWith($pwd)) {
     Set-Location -Path $Env:USERPROFILE
 }
+
+# Enhance Path
+$env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
