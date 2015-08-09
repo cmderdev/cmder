@@ -46,7 +46,6 @@ $targets = @{
 }
 
 Delete-Existing "..\Version*"
-Cleanup-Git
 
 $version = Invoke-Expression "git describe --abbrev=0 --tags"
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null

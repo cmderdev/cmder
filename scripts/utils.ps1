@@ -61,11 +61,6 @@ function Digest-MD5 ($path) {
     return Invoke-Expression "md5sum $path"
 }
 
-function Cleanup-Git () {
-    $gitdir = '../vendor/msysgit/libexec/git-core/'
-    Get-Childitem $gitdir -Exclude git.exe | Where-Object{!($_.PSIsContainer)} | Foreach-Object { Remove-Item $_.FullName }
-}
-
 function Register-Cmder(){
     [CmdletBinding()]
     Param
