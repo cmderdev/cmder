@@ -1,4 +1,9 @@
-﻿# Add Cmder modules directory to the autoload path.
+﻿# Compatibility with PS major versions <= 2
+if(!$PSScriptRoot) {
+    $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
+}
+
+# Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
 if( -not $env:PSModulePath.Contains($CmderModulePath) ){
@@ -6,7 +11,13 @@ if( -not $env:PSModulePath.Contains($CmderModulePath) ){
 }
 
 try {
+    # Check if git is on PATH, i.e. Git already installed on system
     Get-command -Name "git" -ErrorAction Stop >$null
+} catch {
+    $env:Path += ";$env:CMDER_ROOT\vendor\msysgit\bin"
+}
+
+try {
     Import-Module -Name "posh-git" -ErrorAction Stop >$null
     $gitStatus = $true
 } catch {
@@ -40,7 +51,6 @@ function global:prompt {
 
 # Load special features come from posh-git
 if ($gitStatus) {
-    Enable-GitColors
     Start-SshAgent -Quiet
 }
 
