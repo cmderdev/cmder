@@ -10,7 +10,7 @@ try {
     Import-Module -Name "posh-git" -ErrorAction Stop >$null
     $gitStatus = $true
 } catch {
-    Write-Warning "Missing git support"
+    Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart cmder."
     $gitStatus = $false
 }
 

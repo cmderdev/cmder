@@ -11,8 +11,8 @@
     },
     {
         "name": "conemu-maximus5",
-        "version": "150331",
-        "url": "https://github.com/Maximus5/ConEmu/releases/download/v15.03.31/ConEmuPack.150331.7z"
+        "version": "150513",
+        "url": "https://github.com/Maximus5/ConEmu/releases/download/v15.05.13/ConEmuPack.150513.7z"
     },
     {
         "name": "clink-completions",

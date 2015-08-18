@@ -80,7 +80,7 @@ foreach ($s in $sources) {
         Flatten-Directory($s.name)
     }
     # Write current version to .cmderver file, for later.
-    "$($s.version)" | Out-File "$s.name/.cmderver"
+    "$($s.version)" | Out-File "$($s.name)/.cmderver"
 }
 
 Pop-Location
