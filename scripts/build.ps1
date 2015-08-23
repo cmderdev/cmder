@@ -11,11 +11,11 @@
 .EXAMPLE
     .\build.ps1
 
-    Executes the default build for cmder; Conemu, clink. This is equivalent to the "minimum" style package in the releases
+    Executes the default build for Cmder; Conemu, clink. This is equivalent to the "minimum" style package in the releases
 .EXAMPLE
     .\build.ps1 -Full
 
-    Executes a full build for cmder, including git. This is equivalent to the "full" style package in the releases
+    Executes a full build for Cmder, including git. This is equivalent to the "full" style package in the releases
 .EXAMPLE
     .\build -verbose
 
@@ -62,7 +62,7 @@ Ensure-Executable "7z"
 New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
 
 foreach ($s in $sources) {
-    if($Full -eq $false -and $s.name -eq "msysgit"){
+    if($Full -eq $false -and $s.name -eq "git-for-windows"){
         Continue
     }
 
