@@ -23,7 +23,7 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 ## Integration
 
-So you've experimented with cmder a little and want to give it a shot in a more permanent home;
+So you've experimented with Cmder a little and want to give it a shot in a more permanent home;
 
 ### Shortcut to open Cmder in a chosen folder
 

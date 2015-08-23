@@ -21,7 +21,7 @@
 :: Run clink
 @"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config"
 
-:: Prepare for msysgit
+:: Prepare for git-for-windows
 
 :: I do not even know, copypasted from their .bat
 @set PLINK_PROTOCOL=ssh
@@ -33,7 +33,7 @@
 ) else if exist "%ProgramFiles(x86)%\Git" (
     set "GIT_INSTALL_ROOT=%ProgramFiles(x86)%\Git"
 ) else if exist "%CMDER_ROOT%\vendor" (
-    set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\msysgit"
+    set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
 )
 
 :: Add git to the path

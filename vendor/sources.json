@@ -1,8 +1,8 @@
 [
     {
-        "name": "msysgit",
-        "version": "1.9.5-preview20150319",
-        "url": "https://github.com/msysgit/msysgit/releases/download/Git-1.9.5-preview20150319/PortableGit-1.9.5-preview20150319.7z"
+        "name": "git-for-windows",
+        "version": "v2.5.0.windows.1",
+        "url": "https://github.com/git-for-windows/git/releases/download/v2.5.0.windows.1/PortableGit-2.5.0-32-bit.7z.exe"
     },
     {
         "name": "clink",
