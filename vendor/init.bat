@@ -2,6 +2,9 @@
 :: Sets some nice defaults
 :: Created as part of cmder project
 
+:: !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
+:: !!! Use "%CMDER_ROOT%\config\user-startup.cmd" to add your own startup commands
+
 :: Find root dir
 @if not defined CMDER_ROOT (
     for /f "delims=" %%i in ("%ConEmuDir%\..\..") do @set CMDER_ROOT=%%~fi
@@ -60,4 +63,17 @@
     )
 )
 
-:: @call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"
+@if exist "%CMDER_ROOT%\config\user-startup.cmd" (
+    @rem create this file and place your own command in there
+    call "%CMDER_ROOT%\config\user-startup.cmd"
+) else (
+    @echo Creating user startup file: "%CMDER_ROOT%\config\user-startup.cmd"
+    (
+    @echo :: use this file to run your own startup commands 
+    @echo :: use @ in front of the command to prevent printing the command
+    @echo. 
+    @echo :: @call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd
+    @echo :: @set PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%
+    @echo. 
+    ) > "%CMDER_ROOT%\config\user-startup.cmd"
+)
