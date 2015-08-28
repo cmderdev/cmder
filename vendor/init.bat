@@ -60,4 +60,4 @@
     )
 )
 
-:: @call "%CMDER_ROOT%/bin/agent.cmd"
+:: @call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"
