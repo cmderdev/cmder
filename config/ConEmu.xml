@@ -516,8 +516,8 @@
 					<value name="Name" type="string" data="{git sh}"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
-					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat &amp; %CMDER_ROOT%\vendor\msysgit\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
-					<value name="Cmd2" type="string" data="%CMDER_ROOT%\vendor\msysgit\git-bash.bat"/>
+					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat &amp; %CMDER_ROOT%\vendor\git-for-windows\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
+					<value name="Cmd2" type="string" data="%CMDER_ROOT%\vendor\git-for-windows\git-bash.exe"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 				</key>

@@ -21,7 +21,7 @@
 :: Run clink
 @"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config"
 
-:: Prepare for msysgit
+:: Prepare for git-for-windows
 
 :: I do not even know, copypasted from their .bat
 @set PLINK_PROTOCOL=ssh
@@ -33,12 +33,12 @@
 ) else if exist "%ProgramFiles(x86)%\Git" (
     set "GIT_INSTALL_ROOT=%ProgramFiles(x86)%\Git"
 ) else if exist "%CMDER_ROOT%\vendor" (
-    set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\msysgit"
+    set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
 )
 
 :: Add git to the path
 @if defined GIT_INSTALL_ROOT (
-    set "PATH=%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\share\vim\vim74;%PATH%"
+    set "PATH=%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\share\vim\vim74;%PATH%"
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
@@ -60,4 +60,4 @@
     )
 )
 
-:: @call "%CMDER_ROOT%/bin/agent.cmd"
+:: @call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"

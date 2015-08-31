@@ -14,7 +14,7 @@ try {
     # Check if git is on PATH, i.e. Git already installed on system
     Get-command -Name "git" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\msysgit\bin"
+    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\bin"
 }
 
 try {
