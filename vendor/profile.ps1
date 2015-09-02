@@ -25,6 +25,15 @@ try {
     $gitStatus = $false
 }
 
+try {
+    Get-command -Name "hg" -ErrorAction Stop >$null
+    Import-Module -Name "posh-hg" -ErrorAction Stop >$null
+    $hgStatus = $true
+} catch {
+    Write-Warning "Missing hg support, install posh-hg with 'Install-Module posh-hg' and restart cmder."
+    $hgStatus = $false
+}
+
 function checkGit($Path) {
     if (Test-Path -Path (Join-Path $Path '.git/') ) {
         Write-VcsStatus
@@ -36,13 +45,27 @@ function checkGit($Path) {
     }
 }
 
-# Set up a Cmder prompt, adding the git prompt parts inside git repos
+function checkHg($Path) {
+    if (Test-Path -Path (Join-Path $Path '.hg/') ) {
+        Write-VcsStatus
+        return
+    }
+    $SplitPath = split-path $path
+    if ($SplitPath) {
+        checkHg($SplitPath)
+    }
+}
+
+# Set up a Cmder prompt, adding the git/hg prompt parts inside git/hg repos
 function global:prompt {
     $realLASTEXITCODE = $LASTEXITCODE
     $Host.UI.RawUI.ForegroundColor = "White"
     Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
     if($gitStatus){
         checkGit($pwd.ProviderPath)
+    }
+    if($hgStatus){
+        checkHg($pwd.ProviderPath)
     }
     $global:LASTEXITCODE = $realLASTEXITCODE
     Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray"
