@@ -64,7 +64,7 @@ All aliases will be saved in `/config/aliases` file
 
 ### SSH Agent
 
-To start SSH agent simply call `agent`, which is in the `vendor/git-for-windows/cmd` folder.
+To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
 If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"`.
 
