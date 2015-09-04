@@ -61,10 +61,25 @@ if ($gitStatus) {
 }
 
 # Move to the wanted location
-if (Test-Path Env:\CMDER_START) {
-    Set-Location -Path $Env:CMDER_START
-} elseif ($Env:CMDER_ROOT -and $Env:CMDER_ROOT.StartsWith($pwd)) {
-    Set-Location -Path $Env:USERPROFILE
+$cmderStartKey = 'HKCU:\Software\cmder'
+$cmderStartSubKey = 'CMDER_START'
+
+$cmderStart = (Get-Item -Path $cmderStartKey).GetValue($cmderStartSubKey)
+if ( $cmderStart ) {
+    $cmderStart = ($cmderStart).Trim('"').Trim("'")
+    if ( $cmderStart.EndsWith(':') ) {
+        $cmderStart += '\'
+    }
+
+    if ( ( Get-Item $cmderStart -Force ) -is [System.IO.FileInfo] ) {
+        $cmderStart = Split-Path $cmderStart
+    }
+
+    Set-Location -Path "${cmderStart}"
+
+    Set-ItemProperty -Path $cmderStartKey -Name $cmderStartSubKey -Value $null
+} else {
+    Set-Location -Path "${env:HOME}"
 }
 
 # Enhance Path

@@ -18,7 +18,7 @@
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
 #define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
 
-#define streqi(a, b) (_wcsicmp((a), (b)) == 0) 
+#define streqi(a, b) (_wcsicmp((a), (b)) == 0)
 
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
@@ -29,7 +29,7 @@
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
 	wchar_t * buffer;
-	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, ec, 0, (LPWSTR) &buffer, 0, NULL) == 0)
 	{
 		buffer = L"Unknown error. FormatMessage failed.";
@@ -129,17 +129,30 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		}
 	}
 
-	if (is_single_mode) 
+	if (is_single_mode)
 	{
 		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder", icoPath);
 	}
-	else 
+	else
 	{
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
 	}
 
-	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	SetEnvironmentVariable(L"CMDER_START", path.c_str());
+		SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
+		//SetEnvironmentVariable(L"CMDER_START", path.c_str());
+
+		// Send out the Settings Changed message - Once using ANSII...
+		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+
+		// ...and once using UniCode (because Windows 8 likes it that way).
+		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+
+		HKEY cmderStartRegistryKey;
+		if (RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\cmder", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &cmderStartRegistryKey, 0) == ERROR_SUCCESS)
+		{
+			RegSetValueEx(cmderStartRegistryKey, L"CMDER_START", 0, REG_SZ, (const BYTE*) path.c_str(), path.size() * 2);
+			RegCloseKey(cmderStartRegistryKey);
+		}
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
