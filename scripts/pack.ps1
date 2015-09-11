@@ -42,11 +42,10 @@ Ensure-Executable "7z"
 $targets = @{
     "cmder.zip" = $null;
     "cmder.7z" = $null;
-    "cmder_mini.zip" = "-x!`"vendor\msysgit`"";
+    "cmder_mini.zip" = "-x!`"vendor\git-for-windows`"";
 }
 
 Delete-Existing "..\Version*"
-Cleanup-Git
 
 $version = Invoke-Expression "git describe --abbrev=0 --tags"
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null

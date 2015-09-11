@@ -23,7 +23,7 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 ## Integration
 
-So you've experimented with cmder a little and want to give it a shot in a more permanent home;
+So you've experimented with Cmder a little and want to give it a shot in a more permanent home;
 
 ### Shortcut to open Cmder in a chosen folder
 
@@ -64,9 +64,9 @@ All aliases will be saved in `/config/aliases` file
 
 ### SSH Agent
 
-To start SSH agent simply call `agent`, which is in the `bin` folder.
+To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
-If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%CMDER_ROOT%/bin/agent.cmd"`.
+If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"`.
 
 ## Todo
 

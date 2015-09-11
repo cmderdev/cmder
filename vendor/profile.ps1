@@ -14,7 +14,7 @@ try {
     # Check if git is on PATH, i.e. Git already installed on system
     Get-command -Name "git" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\msysgit\bin"
+    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\bin"
 }
 
 try {
@@ -60,3 +60,6 @@ if (Test-Path Env:\CMDER_START) {
 } elseif ($Env:CMDER_ROOT -and $Env:CMDER_ROOT.StartsWith($pwd)) {
     Set-Location -Path $Env:USERPROFILE
 }
+
+# Enhance Path
+$env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
