@@ -86,6 +86,7 @@ foreach ($s in $sources) {
 Pop-Location
 
 Push-Location -Path $launcher
+$env:Path += ";C:\Program Files (x86)\MSBuild\14.0\Bin"
 msbuild CmderLauncher.vcxproj /p:configuration=Release
 Pop-Location
 
