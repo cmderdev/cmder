@@ -10,7 +10,7 @@ Cmder is a **software package** created out of pure frustration over absence of 
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **Dropbox** - you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere!
 
 ## Installation
 
@@ -23,7 +23,7 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 ## Integration
 
-So you've experimented with cmder a little and want to give it a shot in a more permanent home;
+So, you've experimented with cmder a little and want to give it a shot in a more permanent home:
 
 ### Shortcut to open Cmder in a chosen folder
 
@@ -51,7 +51,7 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 * `Ctrl + r` : History search
 * `Shift + mouse` : Select and copy text from buffer
 
-(Some shortcuts are not yet documented, thought they exist, please add them here)
+(Some shortcuts are not yet documented, thought they exist - please document them here)
 
 ## Features
 
