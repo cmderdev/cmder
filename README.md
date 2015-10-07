@@ -13,7 +13,7 @@ Cmder is a **software package** created out of pure frustration over absence of 
 The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **Dropbox** - you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere!
 
 ## Installation
-
+0. Make sure you have Visual C++ Redistributable 2015 installed. If not, download it here: https://www.microsoft.com/en-US/download/details.aspx?id=46881 (RC version right now, will update link to release when it will be available)
 1. Download the latest release
 2. Extract
 3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
