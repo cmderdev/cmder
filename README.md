@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/cmderdev/cmder.png?label=ready&title=Ready)](https://waffle.io/cmderdev/cmder)
 # Cmder
 
 [![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bliker/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
