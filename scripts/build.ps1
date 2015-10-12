@@ -46,11 +46,11 @@ Param(
     # Launcher folder location
     [string]$launcher = "..\launcher",
 
-    # Include git with the package build
-    [switch]$Full,
+    # Config folder location
+    [string]$config = "..\config",
 
-    # config folder location
-    [string]$config = "..\config"
+    # Include git with the package build
+    [switch]$Full
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -73,6 +73,7 @@ if ($config -ne "") {
         Copy-Item $ConEmuXml $ConEmuXmlSave
     } else { $ConEmuXml = "" }
 } else { $ConEmuXml = "" }
+
 
 foreach ($s in $sources) {
     if($Full -eq $false -and $s.name -eq "msysgit"){
