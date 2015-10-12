@@ -1,6 +1,6 @@
 # Cmder
 
-[![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bliker/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Latest release is **[v1.2](https://github.com/bliker/cmder/releases/tag/v1.2)**
 
