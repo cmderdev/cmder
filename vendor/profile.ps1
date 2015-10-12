@@ -50,3 +50,7 @@ if (Test-Path Env:\CMDER_START) {
 } elseif ($Env:CMDER_ROOT -and $Env:CMDER_ROOT.StartsWith($pwd)) {
     Set-Location -Path $Env:USERPROFILE
 }
+
+if (Test-Path $PROFILE) {
+    . $PROFILE
+}
