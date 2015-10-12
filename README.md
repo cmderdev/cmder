@@ -2,24 +2,20 @@
 
 [![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bliker/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Latest release is **[v1.2](https://github.com/bliker/cmder/releases/tag/v1.2)**
-
-Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://github.com/mridgers/clink) and custom prompt layout.
+Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul, adds a Monokai color scheme, integrates amazing [clink](https://github.com/mridgers/clink) and a custom prompt layout.
 
 ![Cmder Screenshot](http://i.imgur.com/g1nNf0I.png)
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Installation
 
-1. Download the latest release
+1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
 2. Extract
 3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
-4. Run cmder
-
-*(There will be a version with installer)*
+4. Run Cmder
 
 ## Integration
 
@@ -38,18 +34,18 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 
 ### Tab manipulation
 
-* `Ctrl + t` : new tab dialog (maybe you want to open cmd as admin?)
-* `Ctrl + w` : close tab
-* `Ctrl + d` : close tab (if pressed on empty command)
-* `Shift + alt + number` : fast new tab: `1` - CMD, `2` - Powershell `*` - More to come
-* `Alt + enter`: Fullscreen
+* <kbd>Ctrl</kbd> + <kbd>T</kbd> : New tab dialog (maybe you want to open cmd as admin?)
+* <kbd>Ctrl</kbd> + <kbd>W</kbd> : Close tab
+* <kbd>Ctrl</kbd> + <kbd>D</kbd> : Close tab (if pressed on empty command)
+* <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>#Number</kbd> : Fast new tab: <kbd>1</kbd> - CMD, <kbd>2</kbd> - PowerShell
+* <kbd>Alt</kbd> + <kbd>Enter</kbd>: Fullscreen
 
 ### Shell
 
-* `Shift + Up` : Traverse up in directory structure (lovely feature!)
-* `End, Home, Ctrl` : Traversing text with as usual on Windows
-* `Ctrl + r` : History search
-* `Shift + mouse` : Select and copy text from buffer
+* <kbd>Shift</kbd> + <kbd>Up</kbd> : Traverse up in directory structure (lovely feature!)
+* <kbd>End</kbd>, <kbd>Home</kbd>, <kbd>Ctrl</kbd> : Traversing text with as usual on Windows
+* <kbd>Ctrl</kbd> + <kbd>R</kbd> : History search
+* <kbd>Shift</kbd> + Mouse : Select and copy text from buffer
 
 (Some shortcuts are not yet documented, thought they exist, please add them here)
 
