@@ -1,0 +1,40 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+version: 1.0.{build}-{branch}
+
+# branches to build
+branches:
+  # blacklist
+  except:
+    - gh-pages
+
+# Do not build on tags
+skip_tags: true
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Operating system (build VM template)
+os: Windows Server 2012 R2
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+build_script:
+  - ps: cd scripts; .\build.ps1 -Compile -verbose
+
+#---------------------------------#
+#         notifications           #
+#---------------------------------#
+  
+notifications:
+  # Webhook
+  - provider: Webhook
+    url: https://webhooks.gitter.im/e/f7b9c3ae66741c2e046e
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true

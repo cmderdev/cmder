@@ -74,7 +74,7 @@ if ($config -ne "") {
     } else { $ConEmuXml = "" }
 } else { $ConEmuXml = "" }
 
-
+$vend = $pwd
 foreach ($s in $sources) {
     if($Full -eq $false -and $s.name -eq "git-for-windows"){
         Continue
@@ -87,7 +87,7 @@ foreach ($s in $sources) {
     Delete-Existing $tempArchive
     Delete-Existing $s.name
 
-    Invoke-WebRequest -Uri $s.url -OutFile $tempArchive -ErrorAction Stop
+    Download-File -Url $s.url -File $vend\$tempArchive -ErrorAction Stop
     Extract-Archive $tempArchive $s.name
 
     if ((Get-Childitem $s.name).Count -eq 1) {
