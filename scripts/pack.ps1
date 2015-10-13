@@ -16,7 +16,7 @@
     Creates default archives for cmder with plenty of information
 .NOTES
     AUTHORS
-    Samuel Vasko, Jack Bennett
+    Samuel Vasko, Jack Bennett, Martin Kemp
     Part of the Cmder project.
 .LINK
     https://github.com/bliker/cmder - Project Home
@@ -42,7 +42,7 @@ Ensure-Executable "7z"
 $targets = @{
     "cmder.zip" = $null;
     "cmder.7z" = $null;
-    "cmder_mini.zip" = "-x!`"vendor\msysgit`"";
+    "cmder_mini.zip" = "-x!`"vendor\git-for-windows`"";
 }
 
 Delete-Existing "..\Version*"

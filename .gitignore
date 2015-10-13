@@ -8,5 +8,7 @@ vendor/*/*
 config/.history
 Thumbs.db
 *.exe
+*.dll
 build/
 Version v*
+*.bak
