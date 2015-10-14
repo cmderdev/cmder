@@ -1,5 +1,4 @@
 :: Init Script for cmd.exe
-:: Sets some nice defaults
 :: Created as part of cmder project
 
 :: !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
