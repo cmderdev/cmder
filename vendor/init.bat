@@ -41,7 +41,7 @@
 
 :: Add git to the path
 @if defined GIT_INSTALL_ROOT (
-    set "PATH=%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\share\vim\vim74;%PATH%"
+    set "PATH=%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74;%PATH%"
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
@@ -69,11 +69,11 @@
 ) else (
     @echo Creating user startup file: "%CMDER_ROOT%\config\user-startup.cmd"
     (
-    @echo :: use this file to run your own startup commands 
+    @echo :: use this file to run your own startup commands
     @echo :: use @ in front of the command to prevent printing the command
-    @echo. 
+    @echo.
     @echo :: @call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd
     @echo :: @set PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%
-    @echo. 
+    @echo.
     ) > "%CMDER_ROOT%\config\user-startup.cmd"
 )
