@@ -4,6 +4,9 @@ launcher
 .git
 *.rb
 build
+scripts
 config\.history
 packignore
+icons\Thumbs.db
+icons\cmder_icon.psd
 Cmder.bat
