@@ -9,4 +9,9 @@ config\.history
 packignore
 icons\Thumbs.db
 icons\cmder_icon.psd
+icons\icon_16.png
+icons\icon_32.png
+icons\icon_48.png
+icons\icon_256.png
 Cmder.bat
+vendor\tmp
