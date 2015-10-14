@@ -50,7 +50,10 @@ Param(
     [string]$config = "..\config",
 
     # Include git with the package build
-    [switch]$Full
+    [switch]$Full,
+
+    # New launcher if you have MSBuild tools installed
+    [switch]$Compile
 )
 
 . "$PSScriptRoot\utils.ps1"
@@ -105,8 +108,13 @@ if ($ConEmuXml -ne "") {
 
 Pop-Location
 
-Push-Location -Path $launcher
-msbuild CmderLauncher.vcxproj /p:configuration=Release
-Pop-Location
+if($Compile) {
+    Push-Location -Path $launcher
+    msbuild CmderLauncher.vcxproj /p:configuration=Release
+    Pop-Location
+} else {
+    Write-Warning "You are not building a launcher, Use -Complie"
+    Write-Warning "This cannot be a release. Test build only!"
+}
 
 Write-Verbose "All good and done!"
