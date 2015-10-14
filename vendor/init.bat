@@ -72,7 +72,7 @@
     @echo :: use this file to run your own startup commands 
     @echo :: use @ in front of the command to prevent printing the command
     @echo. 
-    @echo :: @call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd
+    @echo :: @call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd
     @echo :: @set PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%
     @echo. 
     ) > "%CMDER_ROOT%\config\user-startup.cmd"
