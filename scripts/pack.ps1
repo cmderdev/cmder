@@ -19,7 +19,7 @@
     Samuel Vasko, Jack Bennett, Martin Kemp
     Part of the Cmder project.
 .LINK
-    https://github.com/bliker/cmder - Project Home
+    https://github.com/cmderdev/cmder - Project Home
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -46,6 +46,7 @@ $targets = @{
 }
 
 Delete-Existing "..\Version*"
+Delete-Existing "..\build\*"
 
 $version = Invoke-Expression "git describe --abbrev=0 --tags"
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
