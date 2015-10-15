@@ -74,7 +74,7 @@ $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config/user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
-    Invoke-Expression $CmderUserProfilePath
+    . "$CmderUserProfilePath"
 } else {
     Write-Host "Creating user startup file: $CmderUserProfilePath"
     "# Use this file to run your own startup commands" | Out-File $CmderUserProfilePath
