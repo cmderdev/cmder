@@ -89,3 +89,16 @@ function Register-Cmder(){
         New-Item -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
     }
 }
+
+function Download-File {
+    param (
+        $Url,
+        $File
+    )
+    # I think this is the problem
+    $File = $File -Replace "/", "\"
+    Write-Verbose "Downloading from $Url to $File"
+    $wc = new-object System.Net.WebClient
+    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;    
+    $wc.DownloadFile($Url, $File)
+}
