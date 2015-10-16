@@ -734,27 +734,27 @@
 				<value name="PastePathKey" type="dword" data="00101144"/>
 				<value name="PasteCygwinKey" type="dword" data="00005d2d"/>
 				<value name="KeyMacro01" type="dword" data="00a01231"/>
-				<value name="KeyMacro01.Text" type="string" data="Task(&quot;cmd&quot;)"/>
+				<value name="KeyMacro01.Text" type="string" data="Task(1)"/>
 				<value name="KeyMacro02" type="dword" data="00a01232"/>
-				<value name="KeyMacro02.Text" type="string" data="Task(&quot;PowerShell&quot;)"/>
+				<value name="KeyMacro02.Text" type="string" data="Task(2)"/>
 				<value name="KeyMacro03" type="dword" data="000011d0"/>
 				<value name="KeyMacro03.Text" type="string" data="FontSetSize(1,2)"/>
 				<value name="KeyMacro04" type="dword" data="000011d1"/>
 				<value name="KeyMacro04.Text" type="string" data="FontSetSize(1,-2)"/>
 				<value name="KeyMacro05" type="dword" data="00a01233"/>
-				<value name="KeyMacro05.Text" type="string" data="Task(&quot;PowerShell as Admin&quot;)"/>
-				<value name="KeyMacro06" type="dword" data="00000000"/>
-				<value name="KeyMacro06.Text" type="string" data=""/>
-				<value name="KeyMacro07" type="dword" data="00000000"/>
-				<value name="KeyMacro07.Text" type="string" data=""/>
-				<value name="KeyMacro08" type="dword" data="00000000"/>
-				<value name="KeyMacro08.Text" type="string" data=""/>
-				<value name="KeyMacro09" type="dword" data="00000000"/>
-				<value name="KeyMacro09.Text" type="string" data=""/>
-				<value name="KeyMacro10" type="dword" data="00000000"/>
-				<value name="KeyMacro10.Text" type="string" data=""/>
-				<value name="KeyMacro11" type="dword" data="00000000"/>
-				<value name="KeyMacro11.Text" type="string" data=""/>
+				<value name="KeyMacro05.Text" type="string" data="Task(3)"/>
+				<value name="KeyMacro06" type="dword" data="00a01234"/>
+				<value name="KeyMacro06.Text" type="string" data="Task(4)"/>
+				<value name="KeyMacro07" type="dword" data="00a01235"/>
+				<value name="KeyMacro07.Text" type="string" data="Task(5)"/>
+				<value name="KeyMacro08" type="dword" data="00a01236"/>
+				<value name="KeyMacro08.Text" type="string" data="Task(6)"/>
+				<value name="KeyMacro09" type="dword" data="00a01237"/>
+				<value name="KeyMacro09.Text" type="string" data="Task(7)"/>
+				<value name="KeyMacro10" type="dword" data="00a01238"/>
+				<value name="KeyMacro10.Text" type="string" data="Task(8)"/>
+				<value name="KeyMacro11" type="dword" data="00a01239"/>
+				<value name="KeyMacro11.Text" type="string" data="Task(9)"/>
 				<value name="KeyMacro12" type="dword" data="00000000"/>
 				<value name="KeyMacro12.Text" type="string" data=""/>
 				<value name="KeyMacro13" type="dword" data="00000000"/>
