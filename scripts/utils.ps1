@@ -13,7 +13,7 @@ function Ensure-Executable ($command) {
             set-alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
         }
         ElseIf( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
-            set-alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script             
+            set-alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
         Else {
             Write-Error "Missing $command! Ensure it is installed and on in the PATH"
@@ -28,7 +28,7 @@ function Delete-Existing ($path) {
 }
 
 function Extract-Archive ($source, $target) {
-    Invoke-Expression "7z x -y -o$($target) $source  > `$null"
+    Invoke-Expression "7z x -y -o$($target) '$source' > `$null"
     if ($lastexitcode -ne 0) {
         Write-Error "Extracting of $source failied"
     }
@@ -54,5 +54,51 @@ function Flatten-Directory ($name) {
 }
 
 function Digest-MD5 ($path) {
+    if(Get-Command Get-FileHash -ErrorAction SilentlyContinue){
+        return (Get-FileHash -Algorithm MD5 -Path $path).Hash
+    }
+
     return Invoke-Expression "md5sum $path"
+}
+
+function Register-Cmder(){
+    [CmdletBinding()]
+    Param
+    (
+        # Text for the context menu item.
+        $MenuText = "Cmder Here"
+
+        , # Defaults to the current cmder directory when run from cmder.
+        $PathToExe = (Join-Path $env:CMDER_ROOT "cmder.exe")
+
+        , # Commands the context menu will execute.
+        $Command = "%V"
+
+        , # Defaults to the icons folder in the cmder package.
+        $icon = (Split-Path $PathToExe | join-path -ChildPath 'icons/cmder.ico')
+    )
+    Begin
+    {
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+    }
+    Process
+    {
+        New-Item -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
+        New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
+        New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "NoWorkingDirectory"
+        New-Item -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+    }
+}
+
+function Download-File {
+    param (
+        $Url,
+        $File
+    )
+    # I think this is the problem
+    $File = $File -Replace "/", "\"
+    Write-Verbose "Downloading from $Url to $File"
+    $wc = new-object System.Net.WebClient
+    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;    
+    $wc.DownloadFile($Url, $File)
 }

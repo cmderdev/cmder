@@ -1,27 +1,35 @@
 @echo off
 
 set ALIASES=%CMDER_ROOT%\config\aliases
+setlocal
+:: handle quotes within command definition, e.g. quoted long file names
+set _x="%*"
+set _x=%_x:"=%
 
-if ["%*"] == [""] echo Use /? for help & echo. & goto :p_show
+:: check command usage
+if ["%_x%"] == [""] echo Use /? for help & echo. & goto :p_show
 if ["%1"] == ["/?"] goto:p_help
 if ["%1"] == ["/reload"] goto:p_reload
 :: /d flag for delete existing alias
 if ["%1"] == ["/d"] goto:p_del %*
-if ["%2"] == [""] echo Insufficient parameters. & goto:p_help
-::validate alias
-setlocal
-for /f "delims== tokens=1" %%G in ("%*") do set _temp2=%%G
+:: if arg is an existing alias, display it
+if ["%2"] == [""] (
+  doskey /macros | findstr /b %1= && goto:eof
+  echo Insufficient parameters. & goto:p_help
+)
 
-	set _temp=%_temp2: =%
+:: validate alias
+for /f "delims== tokens=1" %%G in ("%_x%") do set alias=%%G
+set _temp=%alias: =%
 
-if not ["%_temp%"] == ["%_temp2%"] (
+if not ["%_temp%"] == ["%alias%"] (
 	echo Your alias name can not contain a space
 	endlocal
 	goto:eof
 )
 
 :: replace already defined alias
-findstr /b /v /i "%_temp%=" "%ALIASES%" >> "%ALIASES%.tmp"
+findstr /b /v /i "%alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
 echo %* >> "%ALIASES%.tmp" && type "%ALIASES%.tmp" > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey /macrofile="%ALIASES%"
 endlocal

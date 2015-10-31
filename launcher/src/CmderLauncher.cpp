@@ -79,6 +79,19 @@ optpair GetOption()
 	return pair;
 }
 
+bool FileExists(const wchar_t * filePath)
+{
+	HANDLE hFile = CreateFile(filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(hFile);
+		return true;
+	}
+
+	return false;
+}
+
 void StartCmder(std::wstring path, bool is_single_mode)
 {
 #if USE_TASKBAR_API
@@ -87,6 +100,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	wchar_t exeDir[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 	wchar_t cfgPath[MAX_PATH] = { 0 };
+	wchar_t oldCfgPath[MAX_PATH] = { 0 };
 	wchar_t conEmuPath[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
 
@@ -99,20 +113,42 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathRemoveFileSpec(exeDir);
 
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
-	PathCombine(cfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+
+	// Check for machine-specific config file.
+	PathCombine(oldCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+	ExpandEnvironmentStrings(oldCfgPath, oldCfgPath, sizeof(oldCfgPath) / sizeof(oldCfgPath[0]));
+	if (!PathFileExists(oldCfgPath)) {
+		PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
+	}
+
+	// Check for machine-specific config file.
+	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu-%COMPUTERNAME%.xml");
 	ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
 	if (!PathFileExists(cfgPath)) {
-		PathCombine(cfgPath, exeDir, L"config\\ConEmu.xml");
+		PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
 	}
+
 	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
+
+	if (FileExists(oldCfgPath) && !FileExists(cfgPath))
+	{
+		if (!CopyFile(oldCfgPath, cfgPath, FALSE))
+		{
+			MessageBox(NULL,
+				(GetLastError() == ERROR_ACCESS_DENIED)
+				? L"Failed to copy ConEmu.xml file to new location! Restart cmder as administrator."
+				: L"Failed to copy ConEmu.xml file to new location!", MB_TITLE, MB_ICONSTOP);
+			exit(1);
+		}
+	}
 
 	if (is_single_mode) 
 	{
-		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
+		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder", icoPath);
 	}
 	else 
 	{
-		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /LoadCfgFile \"%s\"", icoPath, cfgPath);
+		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
