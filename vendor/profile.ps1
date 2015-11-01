@@ -1,4 +1,16 @@
-﻿# Add Cmder modules directory to the autoload path.
+# Git or MSYSGit
+if (test-path "$env:ProgramFiles\Git") {
+  $ENV:GIT_INSTALL_ROOT = "$ENV:programfiles\git"
+} elseif (test-path "$env:ProgramFiles`(x86`)\Git") {
+  $ENV:GIT_INSTALL_ROOT = "$ENV:programfiles\`(git`)"
+} else {	
+  $ENV:GIT_INSTALL_ROOT = "$ENV:CMDER_ROOT\vendor\msysgit"
+}
+
+# Add Git to the path
+$ENV:PATH = "$ENV:GIT_INSTALL_ROOT\bin;$ENV:PATH"
+
+# Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
 if( -not $env:PSModulePath.Contains($CmderModulePath) ){
