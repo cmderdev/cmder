@@ -118,17 +118,23 @@ end
 
 ---
  -- Find out current branch
- -- @return {false|git branch name}
+ -- @return {nil|git branch name}
 ---
-function get_git_branch()
-    for line in io.popen("git branch 2>nul"):lines() do
-        local m = line:match("%* (.+)$")
-        if m then
-            return m
-        end
-    end
+function get_git_branch(git_dir)
+    local git_dir = git_dir or get_git_dir()
 
-    return false
+    -- If git directory not found then we're probably outside of repo
+    -- or something went wrong. The same is when head_file is nil
+    local head_file = git_dir and io.open(git_dir..'/HEAD')
+    if not head_file then return end
+
+    local HEAD = head_file:read()
+    head_file:close()
+
+    -- if HEAD matches branch expression, then we're on named branch
+    -- otherwise it is a detached commit
+    local branch_name = HEAD:match('ref: refs/heads/(.+)')
+    return branch_name or 'HEAD detached at '..HEAD:sub(1, 7)
 end
 
 ---
@@ -147,9 +153,10 @@ function git_prompt_filter()
         dirty = "\x1b[31;1m",
     }
 
-    if get_git_dir() then
+    local git_dir = get_git_dir()
+    if git_dir then
         -- if we're inside of git repo then try to detect current branch
-        local branch = get_git_branch()
+        local branch = get_git_branch(git_dir)
         if branch then
             -- Has branch => therefore it is a git folder, now figure out status
             if get_git_status() then
