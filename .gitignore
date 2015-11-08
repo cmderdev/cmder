@@ -12,3 +12,4 @@ Thumbs.db
 build/
 Version v*
 *.bak
+config/user-*
