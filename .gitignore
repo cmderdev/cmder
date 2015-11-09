@@ -12,3 +12,8 @@ Thumbs.db
 build/
 Version v*
 *.bak
+vendor/my_sources.json
+config/user-profile.ps1
+config/user-startup.cmd
+config/MyConEmu.xml
+MyCmder.bat

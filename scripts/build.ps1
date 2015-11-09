@@ -110,4 +110,11 @@ if($Compile) {
     Write-Warning "This cannot be a release. Test build only!"
 }
 
+
+
+if ( !(Test-Path $($SaveTo + "git-for-windows/etc/profile.d/cmder.sh")) ) {
+  write-verbose "Adding cmder.sh /etc/profile.d"
+  Copy-Item $($SaveTo + "cmder.sh") $($SaveTo + "git-for-windows/etc/profile.d/cmder.sh")
+}
+
 Write-Verbose "All good and done!"
