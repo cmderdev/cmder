@@ -17,6 +17,12 @@ if( -not $env:PSModulePath.Contains($CmderModulePath) ){
 }
 
 try {
+    Get-command -Name "vim" -ErrorAction Stop >$null
+} catch {
+    $env:Path += ";$env:CMDER_ROOT\vendor\msysgit\share\vim\vim74"
+}
+
+try {
     # Check if git is on PATH, i.e. Git already installed on system
     Get-command -Name "git" -ErrorAction Stop >$null
 } catch {
