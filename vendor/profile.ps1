@@ -19,7 +19,7 @@ if( -not $env:PSModulePath.Contains($CmderModulePath) ){
 try {
     Get-command -Name "vim" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\msysgit\share\vim\vim74"
+    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\usr\share\vim\vim74"
 }
 
 try {
