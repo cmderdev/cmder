@@ -9,6 +9,8 @@
     for /f "delims=" %%i in ("%ConEmuDir%\..\..") do @set CMDER_ROOT=%%~fi
 )
 
+@if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
+
 :: Change the prompt style
 :: Mmm tasty lamb
 @prompt $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
@@ -34,7 +36,7 @@
     set "GIT_INSTALL_ROOT=%ProgramFiles%\Git"
 ) else if exist "%ProgramFiles(x86)%\Git" (
     set "GIT_INSTALL_ROOT=%ProgramFiles(x86)%\Git"
-) else if exist "%CMDER_ROOT%\vendor" (
+) else if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
 )
 
@@ -46,7 +48,7 @@
 )
 
 :: Enhance Path
-@set PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%
+@set PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
@@ -57,7 +59,7 @@
 @if defined CMDER_START (
     @cd /d "%CMDER_START%"
 ) else (
-    @if "%CD%\" == "%CMDER_ROOT%" (
+    @if "%CD%\" == "%CMDER_ROOT%\" (
         @cd /d "%HOME%"
     )
 )
