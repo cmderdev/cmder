@@ -37,7 +37,7 @@
     set "GIT_INSTALL_ROOT=%ProgramFiles%\Git"
 ) else if exist "%ProgramFiles(x86)%\Git" (
     set "GIT_INSTALL_ROOT=%ProgramFiles(x86)%\Git"
-) else if exist "%CMDER_ROOT%\vendor" (
+) else if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
 )
 
@@ -49,7 +49,7 @@
 )
 
 :: Enhance Path
-@set PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%
+@set PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
@@ -70,7 +70,7 @@
 @if defined CMDER_START (
     @cd /d "%CMDER_START%"
 ) else (
-    @if "%CD%\" == "%CMDER_ROOT%" (
+    @if "%CD%\" == "%CMDER_ROOT%\" (
         @cd /d "%HOME%"
     )
 )
