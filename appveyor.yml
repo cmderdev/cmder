@@ -28,6 +28,23 @@ build_script:
   - ps: cd scripts; .\build.ps1 -Compile -verbose
 
 #---------------------------------#
+#           artifacts             #
+#---------------------------------#
+
+after_build:
+  - ps: cd scripts; .\pack.ps1 -verbose
+
+artifacts:
+  - path: build\cmder.zip
+    name: cmderzip
+
+  - path: build\cmder.7z
+    name: cmder7z
+
+  - path: build\cmder_mini.zip
+    name: cmdermini
+
+#---------------------------------#
 #         notifications           #
 #---------------------------------#
   
