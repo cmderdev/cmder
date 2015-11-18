@@ -32,7 +32,7 @@ build_script:
 #---------------------------------#
 
 after_build:
-  - ps: cd scripts; .\pack.ps1 -verbose
+  - ps: .\pack.ps1 -verbose
 
 artifacts:
   - path: build\cmder.zip
