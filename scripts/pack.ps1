@@ -19,7 +19,7 @@
     Samuel Vasko, Jack Bennett, Martin Kemp
     Part of the Cmder project.
 .LINK
-    https://github.com/bliker/cmder - Project Home
+    https://github.com/cmderdev/cmder - Project Home
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -42,11 +42,11 @@ Ensure-Executable "7z"
 $targets = @{
     "cmder.zip" = $null;
     "cmder.7z" = $null;
-    "cmder_mini.zip" = "-x!`"vendor\msysgit`"";
+    "cmder_mini.zip" = "-x!`"vendor\git-for-windows`"";
 }
 
 Delete-Existing "..\Version*"
-Cleanup-Git
+Delete-Existing "..\build\*"
 
 $version = Invoke-Expression "git describe --abbrev=0 --tags"
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null

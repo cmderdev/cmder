@@ -1,4 +1,10 @@
-﻿# Compatibility with PS major versions <= 2
+﻿# Init Script for PowerShell
+# Created as part of cmder project
+
+# !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
+# !!! Use "%CMDER_ROOT%\config\user-profile.ps1" to add your own startup commands
+
+# Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
 }
@@ -11,10 +17,16 @@ if( -not $env:PSModulePath.Contains($CmderModulePath) ){
 }
 
 try {
+    Get-command -Name "vim" -ErrorAction Stop >$null
+} catch {
+    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\usr\share\vim\vim74"
+}
+
+try {
     # Check if git is on PATH, i.e. Git already installed on system
     Get-command -Name "git" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\msysgit\bin"
+    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\bin"
 }
 
 try {
@@ -59,4 +71,17 @@ if (Test-Path Env:\CMDER_START) {
     Set-Location -Path $Env:CMDER_START
 } elseif ($Env:CMDER_ROOT -and $Env:CMDER_ROOT.StartsWith($pwd)) {
     Set-Location -Path $Env:USERPROFILE
+}
+
+# Enhance Path
+$env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
+
+
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config/user-profile.ps1"
+if(Test-Path $CmderUserProfilePath) {
+    # Create this file and place your own command in there.
+    . "$CmderUserProfilePath"
+} else {
+    Write-Host "Creating user startup file: $CmderUserProfilePath"
+    "# Use this file to run your own startup commands" | Out-File $CmderUserProfilePath
 }

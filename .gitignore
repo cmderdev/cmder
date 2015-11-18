@@ -11,3 +11,5 @@ Thumbs.db
 *.dll
 build/
 Version v*
+*.bak
+config/user-*

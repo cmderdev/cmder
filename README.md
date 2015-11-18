@@ -1,29 +1,27 @@
 # Cmder
 
-[![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bliker/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Latest release is **[v1.2](https://github.com/bliker/cmder/releases/tag/v1.2)**
+![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)
 
-Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://code.google.com/p/conemu-maximus5/) with *major* config overhaul. Monokai color scheme, amazing [clink](https://github.com/mridgers/clink) and custom prompt layout.
+Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul, comes with a Monokai color scheme, amazing [clink](https://github.com/mridgers/clink) (further enhanced by [clink-completions](https://github.com/vladimir-kotikov/clink-completions)) and a custom prompt layout.
 
 ![Cmder Screenshot](http://i.imgur.com/g1nNf0I.png)
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **Dropbox**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Installation
 
-1. Download the latest release
+1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
 2. Extract
 3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
-4. Run cmder
-
-*(There will be a version with installer)*
+4. Run Cmder
 
 ## Integration
 
-So you've experimented with cmder a little and want to give it a shot in a more permanent home;
+So you've experimented with Cmder a little and want to give it a shot in a more permanent home;
 
 ### Shortcut to open Cmder in a chosen folder
 
@@ -38,18 +36,18 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 
 ### Tab manipulation
 
-* `Ctrl + t` : new tab dialog (maybe you want to open cmd as admin?)
-* `Ctrl + w` : close tab
-* `Ctrl + d` : close tab (if pressed on empty command)
-* `Shift + alt + number` : fast new tab: `1` - CMD, `2` - Powershell `*` - More to come
-* `Alt + enter`: Fullscreen
+* <kbd>Ctrl</kbd> + <kbd>T</kbd> : New tab dialog (maybe you want to open cmd as admin?)
+* <kbd>Ctrl</kbd> + <kbd>W</kbd> : Close tab
+* <kbd>Ctrl</kbd> + <kbd>D</kbd> : Close tab (if pressed on empty command)
+* <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>#Number</kbd> : Fast new tab: <kbd>1</kbd> - CMD, <kbd>2</kbd> - PowerShell
+* <kbd>Alt</kbd> + <kbd>Enter</kbd>: Fullscreen
 
 ### Shell
 
-* `Shift + Up` : Traverse up in directory structure (lovely feature!)
-* `End, Home, Ctrl` : Traversing text with as usual on Windows
-* `Ctrl + r` : History search
-* `Shift + mouse` : Select and copy text from buffer
+* <kbd>Shift</kbd> + <kbd>Up</kbd> : Traverse up in directory structure (lovely feature!)
+* <kbd>End</kbd>, <kbd>Home</kbd>, <kbd>Ctrl</kbd> : Traversing text with as usual on Windows
+* <kbd>Ctrl</kbd> + <kbd>R</kbd> : History search
+* <kbd>Shift</kbd> + Mouse : Select and copy text from buffer
 
 (Some shortcuts are not yet documented, thought they exist, please add them here)
 
@@ -64,9 +62,9 @@ All aliases will be saved in `/config/aliases` file
 
 ### SSH Agent
 
-To start SSH agent simply call `agent`, which is in the `bin` folder.
+To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
-If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%CMDER_ROOT%/bin/agent.cmd"`.
+If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `/config/user-startup.bat` (usually just uncomment it).
 
 ## Todo
 
