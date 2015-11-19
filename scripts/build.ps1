@@ -53,7 +53,8 @@ Param(
     [switch]$Compile
 )
 
-. "$PSScriptRoot\utils.ps1"
+# Dot source util functions into this scope
+. ".\utils.ps1"
 $ErrorActionPreference = "Stop"
 
 Push-Location -Path $saveTo
