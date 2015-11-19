@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Latest release is **[v1.2](https://github.com/bliker/cmder/releases/tag/v1.2)**
+Latest release is **[v1.2.9](https://github.com/bliker/cmder/releases/tag/v1.2.9)**
 
 Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://github.com/Maximus5/ConEmu) with *major* config overhaul. Monokai color scheme, amazing [clink](https://github.com/mridgers/clink) and custom prompt layout.
 
