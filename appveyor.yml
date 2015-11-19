@@ -27,12 +27,15 @@ os: Windows Server 2012 R2
 build_script:
   - ps: cd scripts; .\build.ps1 -Compile -verbose
 
+after_build:
+  - ps: .\pack.ps1 -verbose
+
+# Disable test search, since we don't have any.
+test: off
+
 #---------------------------------#
 #           artifacts             #
 #---------------------------------#
-
-after_build:
-  - ps: .\pack.ps1 -verbose
 
 artifacts:
   - path: build\cmder.zip
