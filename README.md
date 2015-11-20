@@ -1,6 +1,6 @@
 # Cmder
 
-[![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)
 
@@ -10,7 +10,7 @@ Cmder is a **software package** created out of pure frustration over absence of 
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Installation
 
@@ -27,7 +27,7 @@ So you've experimented with Cmder a little and want to give it a shot in a more 
 
 1. Open a terminal as an Administrator
 2. Navigate to the directory you have placed Cmder
-3. Execute `.\cmder.exe /REGISTER ALL`  
+3. Execute `.\cmder.exe /REGISTER ALL`
    _If you get a message "Access Denied" ensure you are executing the command in an **Administrator** prompt._
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
@@ -49,7 +49,7 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 * <kbd>Ctrl</kbd> + <kbd>R</kbd> : History search
 * <kbd>Shift</kbd> + Mouse : Select and copy text from buffer
 
-(Some shortcuts are not yet documented, thought they exist, please add them here)
+(Some shortcuts are not yet documented, though they exist - please document them here)
 
 ## Features
 
