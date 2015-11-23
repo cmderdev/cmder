@@ -53,6 +53,39 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 
 ## Features
 
+### Access to multiple shells in one window using tabs
+You can open multiple tabs each containing one of the following shells:
+
+* Cmder | Cmder as Admin             - Enhanced Windows 'cmd.exe' shell.
+* Powershell | Powershell as Admin   - Enhanced Windows Powershell.
+* Bash/mintty | Bash/mintty as Admin - Unix/Linux like bash shell running on Windows.
+
+Cmder, Powershell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
+
+Mintty tabs use a program called 'mintty' as the terminal that is not based on the Windows Console API so some differences in functionality are normal, as a result mintty specific config is done via the '[%USERPROFILE%|$HOME]/.minttyrc' file.
+
+Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings. For more on Mintty and its config click [here](https://code.google.com/p/mintty/).
+
+An example of setting Cmder portable terminal colors for mintty:
+
+From a bash/mintty shell:
+
+```
+cd $CMDER_ROOT/vendor
+git clone https://github.com/karlin/mintty-colors-solarized.git
+cd mintty-colors-solarized/
+echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-cmder.sh
+```
+
+### Cmder Portable Shell User Config
+User specific configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
+
+* Cmder       - %CMDER_ROOT%\config\user-startup.cmd
+* Powershell  - $ENV:CMDER_ROOT\config\user-profile.ps1
+* Bash/Mintty - $CMDER_ROOT/config/user-cmder.sh
+
+Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists before it sources '$CMDER_ROOT/config/user-cmder.sh'.
+
 ### Aliases
 You can define simple aliases with command `alias name=command`.
 
@@ -68,8 +101,7 @@ If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_R
 
 ## Todo
 
-1. Git Bash
-2. Check for clink and git before injecting them (Sort of done)
+1. Check for clink and git before injecting them (Sort of done)
 
 ## License
 

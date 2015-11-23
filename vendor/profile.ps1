@@ -4,6 +4,14 @@
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user-profile.ps1" to add your own startup commands
 
+# We do this for Powershell as Admin Sessions because CMDER_ROOT is not beng set.
+if (! $ENV:CMDER_ROOT ) {
+    $ENV:CMDER_ROOT = resolve-path( $ENV:ConEmuDir + "\..\.." )
+}
+
+# Remove trailing '\'
+$ENV:CMDER_ROOT = (($ENV:CMDER_ROOT).trimend("\"))
+
 # Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
@@ -26,7 +34,7 @@ try {
     # Check if git is on PATH, i.e. Git already installed on system
     Get-command -Name "git" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\bin"
+    $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\bin")
 }
 
 try {
@@ -92,7 +100,7 @@ if ( $cmderStart ) {
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
 
 
-$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config/user-profile.ps1"
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
     . "$CmderUserProfilePath"

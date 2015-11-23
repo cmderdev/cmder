@@ -9,6 +9,7 @@
     for /f "delims=" %%i in ("%ConEmuDir%\..\..") do @set CMDER_ROOT=%%~fi
 )
 
+:: Remove trailing '\'
 @if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
 
 :: Change the prompt style
@@ -52,6 +53,16 @@
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
+
+:: See vendor\git-for-windows\README.portable for why we do this
+:: Basically we need to execute this post-install.bat because we are
+:: manually extracting the archive rather than executing the 7z sfx
+@if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
+    echo Running Git for Windows one time Post Install....
+    cd /d "%CMDER_ROOT%\vendor\git-for-windows\"
+    "%CMDER_ROOT%\vendor\git-for-windows\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
+    cd /d %USERPROFILE%
+)
 
 :: Set home path
 @if not defined HOME set HOME=%USERPROFILE%
