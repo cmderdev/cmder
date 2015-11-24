@@ -117,4 +117,11 @@ if ( (Test-Path $($SaveTo + "git-for-windows/etc/profile.d") ) ) {
   Copy-Item $($SaveTo + "cmder.sh") $($SaveTo + "git-for-windows/etc/profile.d/cmder.sh")
 }
 
+# Replace /etc/profile.d/git-prompt.sh with cmder lambda prompt so it runs when we start bash or mintty
+if ( !(Test-Path $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak") ) ) {
+  write-verbose "Replacing /etc/profile.d/git-prompt.sh with our git-prompt.sh"
+  Move-Item $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak")
+  Copy-Item $($SaveTo + "git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
+}
+
 Write-Verbose "All good and done!"
