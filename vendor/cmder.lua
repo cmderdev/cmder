@@ -189,3 +189,13 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
         dofile(filename)
     end
 end
+
+-- now do the same for all lua files in config which do not start with '_'
+local user_config_dir = clink.get_env('CMDER_ROOT')..'\\config\\'
+for _,lua_module in ipairs(clink.find_files(user_config_dir..'*.lua')) do
+    -- Skip files that starts with _. This could be useful if some files should be ignored
+    if not string.match(lua_module, '^_.*') then
+        local filename = user_config_dir..lua_module
+        dofile(filename)
+    end
+end
