@@ -37,6 +37,8 @@
     set "GIT_INSTALL_ROOT=%ProgramFiles%\Git"
 ) else if exist "%ProgramFiles(x86)%\Git" (
     set "GIT_INSTALL_ROOT=%ProgramFiles(x86)%\Git"
+) else if exist "%USERPROFILE%\AppData\Local\Programs\Git" (
+    set "GIT_INSTALL_ROOT=%USERPROFILE%\AppData\Local\Programs\Git"
 ) else if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
 )
