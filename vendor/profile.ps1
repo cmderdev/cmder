@@ -32,9 +32,9 @@ try {
     # $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\usr\bin")
     # set-alias -name "vi" -value "vim"
     # # I think the below is safer.
-    set-alias -name "vim" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe $1 $2 $3 $4 $5 $6 $7 $8 $9")
-    set-alias -name "vi" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe $1 $2 $3 $4 $5 $6 $7 $8 $9")
     
+    new-alias -name "vim" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe")
+    new-alias -name "vi" -value vim
 }
 
 try {
