@@ -27,7 +27,14 @@ if( -not $env:PSModulePath.Contains($CmderModulePath) ){
 try {
     Get-command -Name "vim" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\usr\share\vim\vim74"
+    # # You could do this but it may be a little drastic and introduce a lot of
+    # # unix tool overlap with powershel unix like aliases
+    # $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\usr\bin")
+    # set-alias -name "vi" -value "vim"
+    # # I think the below is safer.
+    set-alias -name "vim" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe $1 $2 $3 $4 $5 $6 $7 $8 $9")
+    set-alias -name "vi" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe $1 $2 $3 $4 $5 $6 $7 $8 $9")
+    
 }
 
 try {
@@ -78,8 +85,10 @@ if ($gitStatus) {
 $cmderStartKey = 'HKCU:\Software\cmder'
 $cmderStartSubKey = 'CMDER_START'
 
-$cmderStart = (Get-Item -Path $cmderStartKey).GetValue($cmderStartSubKey)
+$cmderStart = (Get-Item -Path $cmderStartKey -ErrorAction SilentlyContinue)
+
 if ( $cmderStart ) {
+    $cmderStart = $cmderStart.GetValue($cmderStartSubKey)
     $cmderStart = ($cmderStart).Trim('"').Trim("'")
     if ( $cmderStart.EndsWith(':') ) {
         $cmderStart += '\'
@@ -95,6 +104,7 @@ if ( $cmderStart ) {
 } else {
     Set-Location -Path "${env:HOME}"
 }
+
 
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
