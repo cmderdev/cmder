@@ -53,6 +53,13 @@
 :: Enhance Path
 @set PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\
 
+
+:: make sure we have an example file
+@if not exist "%CMDER_ROOT%\config\aliases" (
+    echo Creating intial aliases in %CMDER_ROOT%\config\aliases
+    copy "%CMDER_ROOT%\vendor\aliases.example" "%CMDER_ROOT%\config\aliases" > null
+) 
+
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
 
