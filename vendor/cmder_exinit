@@ -1,0 +1,50 @@
+# Copy this file to your externally installed meaning not in the cmder/vendor
+# folder Cygwin/Msys2/Msys installs '/etc/profile.d/' folder to integrate
+# the externally installed Unix like environment into Cmder so it has
+# access to settings stored in Cmder/config folder when launched.
+#
+# The destination file extension depends on the shell you use.  For example:
+#
+# bash - Copy to /etc/profile.d/cmder_exinit.sh
+# zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
+#
+# # Uncomment and edit the CMDER_ROOT line to use Cmder/config even when launched
+# # from outside Cmder.
+# CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
+
+# Add portable user customizations ${CMDER_ROOT}/config/user-profile.sh,
+# these customizations will follow Cmder if $CMDER_ROOT is copied
+# to another machine.
+#
+# Add system specific users customizations to $HOME/.bashrc, these 
+# customizations will not follow Cmder to another machine.
+
+# We do this for bash as admin sessions since $CMDER_ROOT is not being set
+if [ "$CMDER_ROOT" = "" -a "$ConEmuDir" != "" ] ; then
+  case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
+elif [ "$CMDER_ROOT" != "" ] ; then
+  case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
+else
+  break # This is a HACK to exit this script without exiting all running scripts.
+fi >/dev/null 2>&1 # This prevents showing errors when the above HACK happens.
+
+# Remove any trailing '/'
+CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
+
+export CMDER_ROOT
+
+PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
+
+export PATH
+
+if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
+    . ${CMDER_ROOT}/config/user-profile.sh
+else
+    echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
+    cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
+# use this file to run your own startup commands for msys2 bash'
+
+# To add a new vendor to the path, do something like:
+# export PATH=\${CMDER_ROOT}/vendor/whatever:\${PATH}
+eof
+fi
