@@ -28,7 +28,7 @@ SET SSH_AUTH_PID=%VAR%
  
 REM Check if ssh keys are known
 SET KEYS=
-FOR /f "tokens=*" %%I IN ('DIR /B "%HOME%\.ssh\*_rsa"') DO CALL:CHECKKEY %%I
+FOR /f "tokens=*" %%I IN ('DIR /B "%HOME%\.ssh\*.pub" ^| sed "s/\.[^\.]*$//"') DO CALL:CHECKKEY %%I
  
 REM Add missing ssh keys at once
 IF NOT "%KEYS%" == "" ssh-add %KEYS%
