@@ -24,7 +24,7 @@
 )
 
 :: Run clink
-@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config"
+@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\vendor"
 
 :: Prepare for git-for-windows
 
