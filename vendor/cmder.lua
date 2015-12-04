@@ -142,7 +142,7 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    return os.execute("git diff --quiet --ignore-submodules HEAD 2>nul")
+    return io.popen("git diff --quiet --ignore-submodules HEAD 2>nul")
 end
 
 function git_prompt_filter()
