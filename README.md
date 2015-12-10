@@ -56,9 +56,16 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 ### Access to multiple shells in one window using tabs
 You can open multiple tabs each containing one of the following shells:
 
-* Cmder | Cmder as Admin             - Enhanced Windows 'cmd.exe' shell.
-* Powershell | Powershell as Admin   - Enhanced Windows Powershell.
-* Bash/mintty | Bash/mintty as Admin - Unix/Linux like bash shell running on Windows.
+|Task|Shell|Description|
+|----|-----|-----------|
+|Cmder|cmd.exe|Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink(GNU Readline), and Aliases.|
+|Cmder as Admin|cmd.exe|Administrative Windows 'cmd.exe' Cmder shell.|
+|Powershell|powershell.exe|Windows Powershell enhanced with Git and Git aware prompt .|
+|Powershell as Admin|powershell.exe|Administrative Windows 'powerhell.exe' Cmder shell.|
+|Bash|bash.exe|Unix/Linux like bash shell running on Windows.|
+|Bash as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows.|
+|Mintty|bash.exe|Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
+|Mintty as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
 
 Cmder, Powershell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
 
@@ -74,30 +81,41 @@ From a bash/mintty shell:
 cd $CMDER_ROOT/vendor
 git clone https://github.com/karlin/mintty-colors-solarized.git
 cd mintty-colors-solarized/
-echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-cmder.sh
+echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-profile.sh
 ```
 
 ### Cmder Portable Shell User Config
 User specific configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
 
-* Cmder       - %CMDER_ROOT%\config\user-startup.cmd
-* Powershell  - $ENV:CMDER_ROOT\config\user-profile.ps1
-* Bash/Mintty - $CMDER_ROOT/config/user-cmder.sh
+|Shell|Cmder Portable User Config|
+| ------------- |:-------------:|
+|Cmder|%CMDER_ROOT%\config\user-profile.cmd|
+|Powershell|$ENV:CMDER_ROOT\config\user-profile.ps1|
+|Bash/Mintty|$CMDER_ROOT/config/user-profile.sh|
 
-Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists before it sources '$CMDER_ROOT/config/user-cmder.sh'.
+Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
 
 ### Aliases
-You can define simple aliases with command `alias name=command`.
+#### Cmder(Cmd.exe) Aliases
+You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`. 
 
-For example there is one defined for you `alias e.=explorer .`
+Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
 
-All aliases will be saved in `/config/aliases` file
+Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\aliases` file
+
+#### Bash.exe|Mintty.exe Aliases
+Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.  To make an alias permanent add it to either your `$CMDER_ROOT/config/user-profile.sh` or your `$HOME/.bashrc`.
+
+If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable. 
+
+#### Powershell.exe Aliases
+Powershell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in Powershell sessions.  Type `get-help [new-alias|set-alias] -full` for help on Powershell aliases.
 
 ### SSH Agent
 
 To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
-If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `/config/user-startup.bat` (usually just uncomment it).
+If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user-profile.cmd` (usually just uncomment it).
 
 ## Todo
 
