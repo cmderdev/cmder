@@ -51,7 +51,7 @@
 )
 
 :: Enhance Path
-@set PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\
+@set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
 
 
 :: make sure we have an example file
