@@ -19,14 +19,23 @@
 # Add system specific users customizations to $HOME/.bashrc, these 
 # customizations will not follow Cmder to another machine.
 
+# Check that we haven't already been sourced.
+[[ -z ${CMDER_EXINIT} ]] && CMDER_EXINIT="1" || return
+
 # We do this for bash as admin sessions since $CMDER_ROOT is not being set
 if [ "$CMDER_ROOT" = "" -a "$ConEmuDir" != "" ] ; then
   case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
+  if [ !-d $CMDER_ROOT/vendor ] ; then
+    echo "Running in ConEmu without Cmder, skipping Cmder integration."
+    return
+  fi
 elif [ "$CMDER_ROOT" != "" ] ; then
   case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
 else
-  break # This is a HACK to exit this script without exiting all running scripts.
-fi >/dev/null 2>&1 # This prevents showing errors when the above HACK happens.
+  return
+fi
+
+echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"...\n"
 
 # Remove any trailing '/'
 CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
@@ -34,14 +43,14 @@ CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
 export CMDER_ROOT
 
 PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
-
+ 
 export PATH
 
 if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
-    . ${CMDER_ROOT}/config/user-profile.sh
+  . ${CMDER_ROOT}/config/user-profile.sh
 else
-    echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
-    cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
+  echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
+  cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
 # use this file to run your own startup commands for msys2 bash'
 
 # To add a new vendor to the path, do something like:
