@@ -63,10 +63,12 @@ optpair GetOption()
 
 	if (argc == 1)
 	{
+		// no commandline argument...
 		pair = optpair(L"/START", L"");
 	}
 	else if (argc == 2 && argv[1][0] != L'/')
 	{
+		// only a single argument: this should be a path...
 		pair = optpair(L"/START", argv[1]);
 	}
 	else
@@ -152,20 +154,16 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	}
 
 		SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-		//SetEnvironmentVariable(L"CMDER_START", path.c_str());
+		if (!streqi(path.c_str(), L""))
+		{
+			SetEnvironmentVariable(L"CMDER_START", path.c_str());
+		}
 
 		// Send out the Settings Changed message - Once using ANSII...
 		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
 
 		// ...and once using UniCode (because Windows 8 likes it that way).
 		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
-
-		HKEY cmderStartRegistryKey;
-		if (RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\cmder", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &cmderStartRegistryKey, 0) == ERROR_SUCCESS)
-		{
-			RegSetValueEx(cmderStartRegistryKey, L"CMDER_START", 0, REG_SZ, (const BYTE*) path.c_str(), path.size() * 2);
-			RegCloseKey(cmderStartRegistryKey);
-		}
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);

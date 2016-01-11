@@ -32,7 +32,7 @@ try {
     # $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\usr\bin")
     # set-alias -name "vi" -value "vim"
     # # I think the below is safer.
-    
+
     new-alias -name "vim" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe")
     new-alias -name "vi" -value vim
 }
@@ -82,33 +82,14 @@ if ($gitStatus) {
 }
 
 # Move to the wanted location
-$cmderStartKey = 'HKCU:\Software\cmder'
-$cmderStartSubKey = 'CMDER_START'
-
-$cmderStart = (Get-Item -Path $cmderStartKey -ErrorAction SilentlyContinue)
-
-if ( $cmderStart ) {
-    $cmderStart = $cmderStart.GetValue($cmderStartSubKey)
-    $cmderStart = ($cmderStart).Trim('"').Trim("'")
-    if ( $cmderStart.EndsWith(':') ) {
-        $cmderStart += '\'
-    }
-
-    if ( ( Get-Item $cmderStart -Force ) -is [System.IO.FileInfo] ) {
-        $cmderStart = Split-Path $cmderStart
-    }
-
-    Set-Location -Path "${cmderStart}"
-
-    Set-ItemProperty -Path $cmderStartKey -Name $cmderStartSubKey -Value $null
-} else {
-    Set-Location -Path "${env:HOME}"
+# This is either a env variable set by the user or the result of
+# cmder.exe setting this variable due to a commandline argument or a "cmder here"
+if ( $ENV:CMDER_START ) {
+    Set-Location -Path "$ENV:CMDER_START"
 }
-
 
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
-
 
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
