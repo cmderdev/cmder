@@ -58,7 +58,7 @@
 @if not exist "%CMDER_ROOT%\config\aliases" (
     echo Creating intial aliases in %CMDER_ROOT%\config\aliases
     copy "%CMDER_ROOT%\vendor\aliases.example" "%CMDER_ROOT%\config\aliases" > null
-) 
+)
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
@@ -76,12 +76,10 @@
 :: Set home path
 @if not defined HOME set HOME=%USERPROFILE%
 
+:: This is either a env variable set by the user or the result of
+:: cmder.exe setting this variable due to a commandline argument or a "cmder here"
 @if defined CMDER_START (
     @cd /d "%CMDER_START%"
-) else (
-    @if "%CD%\" == "%CMDER_ROOT%\" (
-        @cd /d "%HOME%"
-    )
 )
 
 @if exist "%CMDER_ROOT%\config\user-profile.cmd" (
