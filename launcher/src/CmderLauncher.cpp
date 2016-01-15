@@ -164,6 +164,10 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		GetEnvironmentVariable(L"USER_PROFILE", buff, MAX_PATH);
 		SetEnvironmentVariable(L"CMDER_START", buff);
 	}
+	
+	// Ensure EnvironmentVariables are propagated.
+	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL); // For Windows >= 8
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
