@@ -153,17 +153,15 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
 	}
 
-		SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-		if (!streqi(path.c_str(), L""))
-		{
-			SetEnvironmentVariable(L"CMDER_START", path.c_str());
-		}
-
-		// Send out the Settings Changed message - Once using ANSII...
-		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
-
-		// ...and once using UniCode (because Windows 8 likes it that way).
-		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
+	if (!streqi(path.c_str(), L""))
+	{
+		SetEnvironmentVariable(L"CMDER_START", path.c_str());
+	}
+	else
+	{
+		SetEnvironmentVariable(L"CMDER_START", GetEnvironmentVariable(L"USER_PROFILE"));
+	}
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
