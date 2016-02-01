@@ -23,8 +23,14 @@
     set architecture=64
 )
 
+:: Tell the user about the clink config files...
+@if not exist "%CMDER_ROOT%\config\settings" (
+    echo Generating clink initial settings in %CMDER_ROOT%\config\settings
+    echo Additional *.lua files in %CMDER_ROOT%\config are loaded on startup.
+) 
+
 :: Run clink
-@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\vendor"
+@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
 
 :: Prepare for git-for-windows
 
