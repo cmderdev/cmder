@@ -488,7 +488,7 @@
 				<key name="Task1" modified="2015-11-24 14:49:10" build="151119">
 					<value name="Name" type="string" data="{cmd::Cmder as Admin}"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
-					<value name="Cmd1" type="string" data="*cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%CMDER_START%"/>
+					<value name="Cmd1" type="string" data="*cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%USERPROFILE%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -497,7 +497,7 @@
 				<key name="Task2" modified="2015-11-24 14:49:10" build="151119">
 					<value name="Name" type="string" data="{cmd::Cmder}"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
-					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%CMDER_START%"/>
+					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%USERPROFILE%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -507,7 +507,7 @@
 					<value name="Name" type="string" data="{Powershell::PowerShell as Admin}"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
-					<value name="Cmd1" type="string" data="*PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%CMDER_START%&quot;"/>
+					<value name="Cmd1" type="string" data="*PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%USERPROFILE%&quot;"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Flags" type="dword" data="00000000"/>
@@ -516,7 +516,7 @@
 					<value name="Name" type="string" data="{Powershell::Powershell}"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
-					<value name="Cmd1" type="string" data="PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%CMDER_START%&quot;"/>
+					<value name="Cmd1" type="string" data="PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%USERPROFILE%&quot;"/>
 					<value name="Cmd2" type="string" data="%CMDER_ROOT%\vendor\git-for-windows\git-bash.exe"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
@@ -527,7 +527,7 @@
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data="/icon &quot;%ConEmuDir%\..\git-for-windows\usr\share\git\git-for-windows.ico&quot;"/>
-					<value name="Cmd1" type="string" data="*%ConEmuDir%\..\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%CMDER_START%"/>
+					<value name="Cmd1" type="string" data="*%ConEmuDir%\..\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%userProfile%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 				</key>
@@ -536,10 +536,10 @@
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data="/icon &quot;%ConEmuDir%\..\git-for-windows\usr\share\git\git-for-windows.ico&quot;"/>
-					<value name="Cmd1" type="string" data="%ConEmuDir%\..\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%CMDER_START%"/>
+					<value name="Cmd1" type="string" data="%ConEmuDir%\..\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%userProfile%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
-					<value name="Cmd2" type="string" data="%CMDER_ROOT%vendor\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%CMDER_START%"/>
+					<value name="Cmd2" type="string" data="%CMDER_ROOT%vendor\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%userProfile%"/>
 				</key>
 				<key name="Task7" modified="2015-11-24 14:49:10" build="151119">
 					<value name="Name" type="string" data="{bash::bash as Admin}"/>
@@ -548,14 +548,14 @@
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
-					<value name="Cmd1" type="string" data="*cmd /c &quot;%ConEmuDir%\..\git-for-windows\bin\bash --login -i&quot; -new_console:d:%CMDER_START%"/>
+					<value name="Cmd1" type="string" data="*cmd /c &quot;%ConEmuDir%\..\git-for-windows\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
 				</key>
 				<key name="Task8" modified="2015-11-24 14:49:10" build="151119">
 					<value name="Name" type="string" data="{bash::bash}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
-					<value name="Cmd1" type="string" data="cmd /c &quot;%ConEmuDir%\..\git-for-windows\bin\bash --login -i&quot; -new_console:d:%CMDER_START%"/>
+					<value name="Cmd1" type="string" data="cmd /c &quot;%ConEmuDir%\..\git-for-windows\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 				</key>
