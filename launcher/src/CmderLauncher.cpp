@@ -3,6 +3,8 @@
 #include <Shlwapi.h>
 #include "resource.h"
 #include <vector>
+#include <Shlobj.h>
+
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -18,7 +20,7 @@
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
 #define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
 
-#define streqi(a, b) (_wcsicmp((a), (b)) == 0) 
+#define streqi(a, b) (_wcsicmp((a), (b)) == 0)
 
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
@@ -29,7 +31,7 @@
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
 	wchar_t * buffer;
-	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, ec, 0, (LPWSTR) &buffer, 0, NULL) == 0)
 	{
 		buffer = L"Unknown error. FormatMessage failed.";
@@ -63,10 +65,12 @@ optpair GetOption()
 
 	if (argc == 1)
 	{
+		// no commandline argument...
 		pair = optpair(L"/START", L"");
 	}
 	else if (argc == 2 && argv[1][0] != L'/')
 	{
+		// only a single argument: this should be a path...
 		pair = optpair(L"/START", argv[1]);
 	}
 	else
@@ -113,8 +117,21 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathRemoveFileSpec(exeDir);
 
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
-	PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
-	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
+
+	// Check for machine-specific config file.
+	PathCombine(oldCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+	ExpandEnvironmentStrings(oldCfgPath, oldCfgPath, sizeof(oldCfgPath) / sizeof(oldCfgPath[0]));
+	if (!PathFileExists(oldCfgPath)) {
+		PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
+	}
+
+	// Check for machine-specific config file.
+	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu-%COMPUTERNAME%.xml");
+	ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
+	if (!PathFileExists(cfgPath)) {
+		PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
+	}
+
 	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 
 	if (FileExists(oldCfgPath) && !FileExists(cfgPath))
@@ -129,17 +146,35 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		}
 	}
 
-	if (is_single_mode) 
+	if (is_single_mode)
 	{
 		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder", icoPath);
 	}
-	else 
+	else
 	{
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	SetEnvironmentVariable(L"CMDER_START", path.c_str());
+	if (!streqi(path.c_str(), L""))
+	{
+		if (!SetEnvironmentVariable(L"CMDER_START", path.c_str())) {
+			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
+		}
+	}
+	else
+	{
+		wchar_t* homeProfile = 0;
+		SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &homeProfile);
+		if (!SetEnvironmentVariable(L"CMDER_START", homeProfile)) {
+			MessageBox(NULL, _T("Error trying to set CMDER_START to USER_PROFILE!"), _T("Error"), MB_OK);
+		}
+		CoTaskMemFree(static_cast<void*>(homeProfile));
+	}
+	
+	// Ensure EnvironmentVariables are propagated.
+	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL); // For Windows >= 8
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
@@ -149,8 +184,10 @@ void StartCmder(std::wstring path, bool is_single_mode)
 #endif
 
 	PROCESS_INFORMATION pi;
-
-	CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi);
+	if (!CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
+		MessageBox(NULL, _T("Unable to create the ConEmu Process!"), _T("Error"), MB_OK);
+		return;
+	}
 }
 
 bool IsUserOnly(std::wstring opt)

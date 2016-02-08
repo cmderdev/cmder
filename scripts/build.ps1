@@ -105,10 +105,26 @@ Pop-Location
 if($Compile) {
     Push-Location -Path $launcher
     msbuild CmderLauncher.vcxproj /p:configuration=Release
+    if ($LastExitCode -ne 0) {
+        throw "msbuild failed to build the executable."
+    }
     Pop-Location
 } else {
     Write-Warning "You are not building a launcher, Use -Compile"
     Write-Warning "This cannot be a release. Test build only!"
+}
+
+# Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty
+if ( (Test-Path $($SaveTo + "git-for-windows/etc/profile.d") ) ) {
+  write-verbose "Adding cmder.sh /etc/profile.d"
+  Copy-Item $($SaveTo + "cmder.sh") $($SaveTo + "git-for-windows/etc/profile.d/cmder.sh")
+}
+
+# Replace /etc/profile.d/git-prompt.sh with cmder lambda prompt so it runs when we start bash or mintty
+if ( !(Test-Path $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak") ) ) {
+  write-verbose "Replacing /etc/profile.d/git-prompt.sh with our git-prompt.sh"
+  Move-Item $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak")
+  Copy-Item $($SaveTo + "git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
 }
 
 Write-Verbose "All good and done!"
