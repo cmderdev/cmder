@@ -4,6 +4,14 @@
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user-profile.ps1" to add your own startup commands
 
+# We do this for Powershell as Admin Sessions because CMDER_ROOT is not beng set.
+if (! $ENV:CMDER_ROOT ) {
+    $ENV:CMDER_ROOT = resolve-path( $ENV:ConEmuDir + "\..\.." )
+}
+
+# Remove trailing '\'
+$ENV:CMDER_ROOT = (($ENV:CMDER_ROOT).trimend("\"))
+
 # Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
@@ -19,14 +27,21 @@ if( -not $env:PSModulePath.Contains($CmderModulePath) ){
 try {
     Get-command -Name "vim" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\usr\share\vim\vim74"
+    # # You could do this but it may be a little drastic and introduce a lot of
+    # # unix tool overlap with powershel unix like aliases
+    # $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\usr\bin")
+    # set-alias -name "vi" -value "vim"
+    # # I think the below is safer.
+
+    new-alias -name "vim" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe")
+    new-alias -name "vi" -value vim
 }
 
 try {
     # Check if git is on PATH, i.e. Git already installed on system
     Get-command -Name "git" -ErrorAction Stop >$null
 } catch {
-    $env:Path += ";$env:CMDER_ROOT\vendor\git-for-windows\bin"
+    $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\bin")
 }
 
 try {
@@ -67,17 +82,16 @@ if ($gitStatus) {
 }
 
 # Move to the wanted location
-if (Test-Path Env:\CMDER_START) {
-    Set-Location -Path $Env:CMDER_START
-} elseif ($Env:CMDER_ROOT -and $Env:CMDER_ROOT.StartsWith($pwd)) {
-    Set-Location -Path $Env:USERPROFILE
+# This is either a env variable set by the user or the result of
+# cmder.exe setting this variable due to a commandline argument or a "cmder here"
+if ( $ENV:CMDER_START ) {
+    Set-Location -Path "$ENV:CMDER_START"
 }
 
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
 
-
-$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config/user-profile.ps1"
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
     . "$CmderUserProfilePath"

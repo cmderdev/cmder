@@ -16,3 +16,6 @@ icons\icon_256.png
 Cmder.bat
 vendor\tmp
 appveyor.yml
+vendor\cmder.sh
+vendor\git-prompt.sh
+config\user-*
