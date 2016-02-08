@@ -3,6 +3,8 @@
 #include <Shlwapi.h>
 #include "resource.h"
 #include <vector>
+#include <Shlobj.h>
+
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -153,17 +155,26 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
 	}
 
-		SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-		if (!streqi(path.c_str(), L""))
-		{
-			SetEnvironmentVariable(L"CMDER_START", path.c_str());
+	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
+	if (!streqi(path.c_str(), L""))
+	{
+		if (!SetEnvironmentVariable(L"CMDER_START", path.c_str())) {
+			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
 		}
-
-		// Send out the Settings Changed message - Once using ANSII...
-		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
-
-		// ...and once using UniCode (because Windows 8 likes it that way).
-		//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+	}
+	else
+	{
+		wchar_t* homeProfile = 0;
+		SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &homeProfile);
+		if (!SetEnvironmentVariable(L"CMDER_START", homeProfile)) {
+			MessageBox(NULL, _T("Error trying to set CMDER_START to USER_PROFILE!"), _T("Error"), MB_OK);
+		}
+		CoTaskMemFree(static_cast<void*>(homeProfile));
+	}
+	
+	// Ensure EnvironmentVariables are propagated.
+	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
+	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL); // For Windows >= 8
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
@@ -173,8 +184,10 @@ void StartCmder(std::wstring path, bool is_single_mode)
 #endif
 
 	PROCESS_INFORMATION pi;
-
-	CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi);
+	if (!CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
+		MessageBox(NULL, _T("Unable to create the ConEmu Process!"), _T("Error"), MB_OK);
+		return;
+	}
 }
 
 bool IsUserOnly(std::wstring opt)
