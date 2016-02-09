@@ -3,6 +3,7 @@
 #include <Shlwapi.h>
 #include "resource.h"
 #include <vector>
+#include <Shlobj.h>
 
 
 #pragma comment(lib, "Shlwapi.lib")
@@ -155,7 +156,16 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	if (!streqi(path.c_str(), L""))
+	if (streqi(path.c_str(), L""))
+	{
+		wchar_t* homeProfile = 0;
+		SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &homeProfile);
+		if (!SetEnvironmentVariable(L"CMDER_START", homeProfile)) {
+			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
+		}
+		CoTaskMemFree(static_cast<void*>(homeProfile));
+	}
+	else
 	{
 		if (!SetEnvironmentVariable(L"CMDER_START", path.c_str())) {
 			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
