@@ -123,14 +123,14 @@
 			<value name="ColorKeyTransparent" type="hex" data="00"/>
 			<value name="ColorKeyValue" type="dword" data="00010101"/>
 			<value name="UseCurrentSizePos" type="hex" data="01"/>
-			<value name="WindowMode" type="dword" data="00000520"/>
-			<value name="ConWnd Width" type="dword" data="0000006f"/>
-			<value name="ConWnd Height" type="dword" data="0000001a"/>
+			<value name="WindowMode" type="dword" data="0000051f"/>
+			<value name="ConWnd Width" type="dword" data="00000078"/>
+			<value name="ConWnd Height" type="dword" data="0000001e"/>
 			<value name="Cascaded" type="hex" data="01"/>
-			<value name="ConWnd X" type="dword" data="000000c5"/>
-			<value name="ConWnd Y" type="dword" data="00000089"/>
+			<value name="ConWnd X" type="dword" data="000001f4"/>
+			<value name="ConWnd Y" type="dword" data="000001f4"/>
 			<value name="16bit Height" type="dword" data="00000000"/>
-			<value name="AutoSaveSizePos" type="hex" data="00"/>
+			<value name="AutoSaveSizePos" type="hex" data="01"/>
 			<value name="IntegralSize" type="hex" data="00"/>
 			<value name="QuakeStyle" type="hex" data="00"/>
 			<value name="QuakeAnimation" type="dword" data="0000012c"/>
