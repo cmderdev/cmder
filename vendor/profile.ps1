@@ -15,7 +15,7 @@ try {
 }
 
 function checkGit($Path) {
-    if (Test-Path -Path (Join-Path $Path '.git/') ) {
+    if (Test-Path -Path (Join-Path $Path '.git') ) {
         Write-VcsStatus
         return
     }
