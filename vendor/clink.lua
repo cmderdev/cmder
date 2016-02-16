@@ -71,8 +71,45 @@ local function get_hg_dir(path)
     return get_dir_contains(path, '.hg')
 end
 
+-- adapted from from clink-completions' git.lua
 local function get_git_dir(path)
-    return get_dir_contains(path, '.git')
+
+    -- return parent path for specified entry (either file or directory)
+    local function pathname(path)
+        local prefix = ""
+        local i = path:find("[\\/:][^\\/:]*$")
+        if i then
+            prefix = path:sub(1, i-1)
+        end
+        return prefix
+    end
+
+    -- Checks if provided directory contains git directory
+    local function has_git_dir(dir)
+        return #clink.find_dirs(dir..'/.git') > 0 and dir..'/.git'
+    end
+
+    local function has_git_file(dir)
+        local gitfile = io.open(dir..'/.git')
+        if not gitfile then return false end
+
+        local git_dir = gitfile:read():match('gitdir: (.*)')
+        gitfile:close()
+
+        return git_dir and dir..'/'..git_dir
+    end
+
+    -- Set default path to current directory
+    if not path or path == '.' then path = clink.get_cwd() end
+
+    -- Calculate parent path now otherwise we won't be
+    -- able to do that inside of logical operator
+    local parent_path = pathname(path)
+
+    return has_git_dir(path)
+        or has_git_file(path)
+        -- Otherwise go up one level and make a recursive call
+        or (parent_path ~= path and get_git_dir(parent_path) or nil)
 end
 
 ---
