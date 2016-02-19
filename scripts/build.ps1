@@ -131,5 +131,4 @@ if ( !(Test-Path $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak") 
   Copy-Item $($SaveTo + "git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
 }
 
-copy 
 Write-Verbose "All good and done!"
