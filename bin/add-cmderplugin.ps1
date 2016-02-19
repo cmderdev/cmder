@@ -35,7 +35,7 @@ Param(
     [string]$PluginPath = "$env:CMDER_ROOT\vendor\sources-plugins.json",
 
     # Replace the plugin
-    [switch]$replace,
+    [switch]$force,
 
     # Vendor folder location
     [string]$saveTo = "$env:CMDER_ROOT\vendor\",
@@ -95,7 +95,8 @@ foreach ($s in $sources) {
     $tempArchive = "tmp/$($s.name).tmp"
     Delete-Existing $tempArchive
 
-    if ($replace -eq $true) {
+    if ($force -eq $true) {
+      write-host $("Deleting existing install of the '" + $s.name + "' plugin...")
       Delete-Existing $s.name
     }
 

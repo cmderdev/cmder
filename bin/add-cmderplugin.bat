@@ -1,3 +1,2 @@
 @echo off
-
-powershell %~dp0\cmder_add_plugins.ps1 %*
+powershell -command "& {%cmder_root%\bin\add-cmderplugin.ps1 %*}"
