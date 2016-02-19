@@ -29,7 +29,7 @@ So, you've experimented with cmder a little and want to give it a shot in a more
 
 1. Open a terminal as an Administrator
 2. Navigate to the directory you have placed Cmder
-3. Execute `.\cmder.exe /REGISTER ALL`  
+3. Execute `.\cmder.exe /REGISTER ALL`
    _If you get a message "Access Denied" ensure you are executing the command in an **Administrator** prompt._
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
@@ -72,6 +72,12 @@ If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat
 
 1. Git Bash
 2. Check for clink and git before injecting them (Sort of done)
+
+## Current development branch
+
+You can download builds of the current development branch by going to Appveyor via the following link:
+
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/MartiUK/cmder/branch/development/artifacts)
 
 ## License
 
