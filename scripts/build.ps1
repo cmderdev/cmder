@@ -55,6 +55,10 @@ Param(
 
 # Dot source util functions into this scope
 . ".\utils.ps1"
+
+# We need these for add-cmderplugin.ps1
+copy ".\utils.ps1" ../bin
+
 $ErrorActionPreference = "Stop"
 
 Push-Location -Path $saveTo
@@ -127,4 +131,5 @@ if ( !(Test-Path $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak") 
   Copy-Item $($SaveTo + "git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
 }
 
+copy 
 Write-Verbose "All good and done!"
