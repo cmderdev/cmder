@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2015-05-17 22:10:27" build="150513">
+		<key name=".Vanilla" modified="2015-11-24 14:43:35" build="151119">
 			<value name="ColorTable00" type="dword" data="00222827"/>
 			<value name="ColorTable01" type="dword" data="009e5401"/>
 			<value name="ColorTable02" type="dword" data="0004aa74"/>
@@ -72,12 +72,12 @@
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
 			<value name="StartTasksFile" type="string" data=""/>
-			<value name="StartTasksName" type="string" data="{PowerShell}"/>
+			<value name="StartTasksName" type="string" data="{cmd::Cmder}"/>
 			<value name="StartFarFolders" type="hex" data="00"/>
 			<value name="StartFarEditors" type="hex" data="00"/>
 			<value name="StoreTaskbarkTasks" type="hex" data="00"/>
 			<value name="StoreTaskbarCommands" type="hex" data="00"/>
-			<value name="CmdLineHistory" type="multi"><line data=";C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\"/></value>
+			<value name="CmdLineHistory" type="multi"></value>
 			<value name="SingleInstance" type="hex" data="00"/>
 			<value name="ShowHelpTooltips" type="hex" data="01"/>
 			<value name="Multi" type="hex" data="01"/>
@@ -124,13 +124,13 @@
 			<value name="ColorKeyValue" type="dword" data="00010101"/>
 			<value name="UseCurrentSizePos" type="hex" data="01"/>
 			<value name="WindowMode" type="dword" data="0000051f"/>
-			<value name="ConWnd Width" type="dword" data="0000006f"/>
-			<value name="ConWnd Height" type="dword" data="0000001a"/>
+			<value name="ConWnd Width" type="dword" data="00000078"/>
+			<value name="ConWnd Height" type="dword" data="0000001e"/>
 			<value name="Cascaded" type="hex" data="01"/>
-			<value name="ConWnd X" type="dword" data="000003f8"/>
-			<value name="ConWnd Y" type="dword" data="00000143"/>
+			<value name="ConWnd X" type="dword" data="000001f4"/>
+			<value name="ConWnd Y" type="dword" data="000001f4"/>
 			<value name="16bit Height" type="dword" data="00000000"/>
-			<value name="AutoSaveSizePos" type="hex" data="00"/>
+			<value name="AutoSaveSizePos" type="hex" data="01"/>
 			<value name="IntegralSize" type="hex" data="00"/>
 			<value name="QuakeStyle" type="hex" data="00"/>
 			<value name="QuakeAnimation" type="dword" data="0000012c"/>
@@ -483,51 +483,89 @@
 			<value name="DndLKey" type="hex" data="00"/>
 			<value name="DndRKey" type="hex" data="a2"/>
 			<value name="WndDragKey" type="dword" data="00121101"/>
-			<key name="Tasks" modified="2015-05-17 22:10:27" build="150513">
-				<value name="Count" type="dword" data="00000003"/>
-				<key name="Task1" modified="2015-05-17 22:10:27" build="150513">
-					<value name="Name" type="string" data="{cmd}"/>
-					<value name="GuiArgs" type="string" data="/icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
+			<key name="Tasks" modified="2015-11-24 14:43:35" build="151119">
+				<value name="Count" type="dword" data="00000008"/>
+				<key name="Task1" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{cmd::Cmder as Admin}"/>
+					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
+					<value name="Cmd1" type="string" data="*cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%USERPROFILE%"/>
+					<value name="Active" type="dword" data="00000000"/>
+					<value name="Count" type="dword" data="00000001"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="Flags" type="dword" data="00000000"/>
+				</key>
+				<key name="Task2" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{cmd::Cmder}"/>
+					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
 					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat&quot;  -new_console:d:%USERPROFILE%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="Flags" type="dword" data="00000000"/>
 				</key>
-				<key name="Task2" modified="2015-05-17 22:10:27" build="150513">
-					<value name="Name" type="string" data="{PowerShell}"/>
-					<value name="GuiArgs" type="string" data="/icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
-					<value name="Cmd1" type="string" data="PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%USERPROFILE%&quot;"/>
-					<value name="Active" type="dword" data="00000000"/>
-					<value name="Count" type="dword" data="00000001"/>
+				<key name="Task3" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{Powershell::PowerShell as Admin}"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
-					<value name="Flags" type="dword" data="00000000"/>
-				</key>
-				<key name="Task3" modified="2015-05-17 22:10:27" build="150513">
-					<value name="Name" type="string" data="{PowerShell as Admin}"/>
-					<value name="Hotkey" type="dword" data="00000000"/>
-					<value name="GuiArgs" type="string" data="/icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
+					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
 					<value name="Cmd1" type="string" data="*PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%USERPROFILE%&quot;"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 					<value name="Flags" type="dword" data="00000000"/>
 				</key>
-				<key name="Task4" modified="2015-02-24 18:49:50" build="140707">
-					<value name="Name" type="string" data="{git sh}"/>
+				<key name="Task4" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{Powershell::Powershell}"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
-					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
-					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat &amp; %CMDER_ROOT%\vendor\msysgit\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
-					<value name="Cmd2" type="string" data="%CMDER_ROOT%\vendor\msysgit\git-bash.bat"/>
+					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
+					<value name="Cmd1" type="string" data="PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command &quot;Invoke-Expression '. ''%ConEmuDir%\..\profile.ps1'''&quot; -new_console:d:&quot;%USERPROFILE%&quot;"/>
+					<value name="Cmd2" type="string" data="%CMDER_ROOT%\vendor\git-for-windows\git-bash.exe"/>
+					<value name="Active" type="dword" data="00000000"/>
+					<value name="Count" type="dword" data="00000001"/>
+					<value name="Flags" type="dword" data="00000000"/>
+				</key>
+				<key name="Task5" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{bash::mintty as Admin}"/>
+					<value name="Flags" type="dword" data="00000000"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data="/icon &quot;%ConEmuDir%\..\git-for-windows\usr\share\git\git-for-windows.ico&quot;"/>
+					<value name="Cmd1" type="string" data="*%ConEmuDir%\..\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%USERPROFILE%"/>
+					<value name="Active" type="dword" data="00000000"/>
+					<value name="Count" type="dword" data="00000001"/>
+				</key>
+				<key name="Task6" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{bash::mintty}"/>
+					<value name="Flags" type="dword" data="00000000"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data="/icon &quot;%ConEmuDir%\..\git-for-windows\usr\share\git\git-for-windows.ico&quot;"/>
+					<value name="Cmd1" type="string" data="%ConEmuDir%\..\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%userProfile%"/>
+					<value name="Active" type="dword" data="00000000"/>
+					<value name="Count" type="dword" data="00000001"/>
+					<value name="Cmd2" type="string" data="%CMDER_ROOT%vendor\git-for-windows\usr\bin\mintty.exe /bin/bash -l -new_console:d:%userProfile%"/>
+				</key>
+				<key name="Task7" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{bash::bash as Admin}"/>
+					<value name="Flags" type="dword" data="00000000"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
+					<value name="Active" type="dword" data="00000000"/>
+					<value name="Count" type="dword" data="00000001"/>
+					<value name="Cmd1" type="string" data="*cmd /c &quot;%ConEmuDir%\..\git-for-windows\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
+				</key>
+				<key name="Task8" modified="2015-11-24 14:49:10" build="151119">
+					<value name="Name" type="string" data="{bash::bash}"/>
+					<value name="Flags" type="dword" data="00000000"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
+					<value name="Cmd1" type="string" data="cmd /c &quot;%ConEmuDir%\..\git-for-windows\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 				</key>
 			</key>
 
-			<key name="Apps" modified="2015-05-17 22:10:27" build="150513">
+			<key name="Apps" modified="2015-11-24 14:49:10" build="151119">
 				<value name="Count" type="dword" data="00000000"/>
 			</key>
-			<key name="Colors" modified="2015-05-17 22:10:27" build="150513">
-				<key name="Palette1" modified="2015-05-17 22:10:27" build="150513">
+			<key name="Colors" modified="2015-11-24 14:49:10" build="151119">
+				<key name="Palette1" modified="2015-11-24 14:49:10" build="151119">
 					<value name="Name" type="string" data="Monokai"/>
 					<value name="ExtendColors" type="hex" data="00"/>
 					<value name="ExtendColorIdx" type="hex" data="0e"/>
@@ -628,7 +666,7 @@
 			<value name="StatusBar.Hide.Dpi" type="hex" data="01"/>
 			<value name="TabFlashChanged" type="dword" data="00000008"/>
 			<value name="TabModifiedSuffix" type="string" data="[*]"/>
-			<key name="HotKeys" modified="2015-05-17 22:10:27" build="150513">
+			<key name="HotKeys" modified="2015-11-24 14:43:35" build="151119">
 				<value name="KeyMacroVersion" type="hex" data="02"/>
 				<value name="Multi.Modifier" type="dword" data="00000011"/>
 				<value name="Multi.ArrowsModifier" type="dword" data="0000005b"/>
@@ -734,27 +772,27 @@
 				<value name="PastePathKey" type="dword" data="00101144"/>
 				<value name="PasteCygwinKey" type="dword" data="00005d2d"/>
 				<value name="KeyMacro01" type="dword" data="00a01231"/>
-				<value name="KeyMacro01.Text" type="string" data="Task(&quot;cmd&quot;)"/>
+				<value name="KeyMacro01.Text" type="string" data="Task(1)"/>
 				<value name="KeyMacro02" type="dword" data="00a01232"/>
-				<value name="KeyMacro02.Text" type="string" data="Task(&quot;PowerShell&quot;)"/>
+				<value name="KeyMacro02.Text" type="string" data="Task(2)"/>
 				<value name="KeyMacro03" type="dword" data="000011d0"/>
 				<value name="KeyMacro03.Text" type="string" data="FontSetSize(1,2)"/>
 				<value name="KeyMacro04" type="dword" data="000011d1"/>
 				<value name="KeyMacro04.Text" type="string" data="FontSetSize(1,-2)"/>
 				<value name="KeyMacro05" type="dword" data="00a01233"/>
-				<value name="KeyMacro05.Text" type="string" data="Task(&quot;PowerShell as Admin&quot;)"/>
-				<value name="KeyMacro06" type="dword" data="00000000"/>
-				<value name="KeyMacro06.Text" type="string" data=""/>
-				<value name="KeyMacro07" type="dword" data="00000000"/>
-				<value name="KeyMacro07.Text" type="string" data=""/>
-				<value name="KeyMacro08" type="dword" data="00000000"/>
-				<value name="KeyMacro08.Text" type="string" data=""/>
-				<value name="KeyMacro09" type="dword" data="00000000"/>
-				<value name="KeyMacro09.Text" type="string" data=""/>
-				<value name="KeyMacro10" type="dword" data="00000000"/>
-				<value name="KeyMacro10.Text" type="string" data=""/>
-				<value name="KeyMacro11" type="dword" data="00000000"/>
-				<value name="KeyMacro11.Text" type="string" data=""/>
+				<value name="KeyMacro05.Text" type="string" data="Task(3)"/>
+				<value name="KeyMacro06" type="dword" data="00a01234"/>
+				<value name="KeyMacro06.Text" type="string" data="Task(4)"/>
+				<value name="KeyMacro07" type="dword" data="00a01235"/>
+				<value name="KeyMacro07.Text" type="string" data="Task(5)"/>
+				<value name="KeyMacro08" type="dword" data="00a01236"/>
+				<value name="KeyMacro08.Text" type="string" data="Task(6)"/>
+				<value name="KeyMacro09" type="dword" data="00a01237"/>
+				<value name="KeyMacro09.Text" type="string" data="Task(7)"/>
+				<value name="KeyMacro10" type="dword" data="00a01238"/>
+				<value name="KeyMacro10.Text" type="string" data="Task(8)"/>
+				<value name="KeyMacro11" type="dword" data="00a01239"/>
+				<value name="KeyMacro11.Text" type="string" data="Task(9)"/>
 				<value name="KeyMacro12" type="dword" data="00000000"/>
 				<value name="KeyMacro12.Text" type="string" data=""/>
 				<value name="KeyMacro13" type="dword" data="00000000"/>
@@ -805,7 +843,20 @@
 				<value name="DndLKey" type="hex" data="00"/>
 				<value name="DndRKey" type="hex" data="a2"/>
 				<value name="WndDragKey" type="dword" data="00121101"/>
+				<value name="Multi.Unfasten" type="dword" data="00000000"/>
+				<value name="Key.DebugProcess" type="dword" data="00105b44"/>
+				<value name="Key.DumpProcess" type="dword" data="00000000"/>
+				<value name="Key.DumpTree" type="dword" data="00000000"/>
 			</key>
+			<value name="StartCreateDelay" type="dword" data="00000064"/>
+			<value name="DefaultTerminalDebugLog" type="hex" data="00"/>
+			<value name="LastMonitor" type="string" data="0,0,1920,1020"/>
+			<value name="Restore2ActiveMon" type="hex" data="00"/>
+			<value name="DownShowExOnTopMessage" type="hex" data="00"/>
+			<value name="EnvironmentSet" type="multi"/>
+			<value name="Update.InetTool" type="hex" data="00"/>
+			<value name="Update.InetToolCmd" type="string" data=""/>
+			<value name="SuppressBells" type="hex" data="01"/>
 		</key>
 	</key>
 </key>

@@ -2,28 +2,26 @@
 
 [![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Latest release is **[v1.2](https://github.com/bliker/cmder/releases/tag/v1.2)**
+![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)
 
-Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://github.com/Maximus5/ConEmu) with *major* config overhaul. Monokai color scheme, amazing [clink](https://github.com/mridgers/clink) and custom prompt layout.
+Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul, comes with a Monokai color scheme, amazing [clink](https://github.com/mridgers/clink) (further enhanced by [clink-completions](https://github.com/vladimir-kotikov/clink-completions)) and a custom prompt layout.
 
 ![Cmder Screenshot](http://i.imgur.com/g1nNf0I.png)
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **Dropbox** - you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere!
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Installation
 
-1. Download the latest release
+1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
 2. Extract
 3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
-4. Run cmder
-
-*(There will be a version with installer)*
+4. Run Cmder
 
 ## Integration
 
-So, you've experimented with cmder a little and want to give it a shot in a more permanent home:
+So you've experimented with Cmder a little and want to give it a shot in a more permanent home;
 
 ### Shortcut to open Cmder in a chosen folder
 
@@ -38,40 +36,129 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 
 ### Tab manipulation
 
-* `Ctrl + t` : new tab dialog (maybe you want to open cmd as admin?)
-* `Ctrl + w` : close tab
-* `Ctrl + d` : close tab (if pressed on empty command)
-* `Shift + alt + number` : fast new tab: `1` - CMD, `2` - Powershell `*` - More to come
-* `Alt + enter`: Fullscreen
+* <kbd>Ctrl</kbd> + <kbd>T</kbd> : New tab dialog (maybe you want to open cmd as admin?)
+* <kbd>Ctrl</kbd> + <kbd>W</kbd> : Close tab
+* <kbd>Ctrl</kbd> + <kbd>D</kbd> : Close tab (if pressed on empty command)
+* <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>#Number</kbd> : Fast new tab: <kbd>1</kbd> - CMD, <kbd>2</kbd> - PowerShell
+* <kbd>Alt</kbd> + <kbd>Enter</kbd>: Fullscreen
 
 ### Shell
 
-* `Shift + Up` : Traverse up in directory structure (lovely feature!)
-* `End, Home, Ctrl` : Traversing text with as usual on Windows
-* `Ctrl + r` : History search
-* `Shift + mouse` : Select and copy text from buffer
+* <kbd>Shift</kbd> + <kbd>Up</kbd> : Traverse up in directory structure (lovely feature!)
+* <kbd>End</kbd>, <kbd>Home</kbd>, <kbd>Ctrl</kbd> : Traversing text with as usual on Windows
+* <kbd>Ctrl</kbd> + <kbd>R</kbd> : History search
+* <kbd>Shift</kbd> + Mouse : Select and copy text from buffer
 
-(Some shortcuts are not yet documented, thought they exist - please document them here)
+(Some shortcuts are not yet documented, though they exist - please document them here)
 
 ## Features
 
+### Access to multiple shells in one window using tabs
+You can open multiple tabs each containing one of the following shells:
+
+|Task|Shell|Description|
+|----|-----|-----------|
+|Cmder|cmd.exe|Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink(GNU Readline), and Aliases.|
+|Cmder as Admin|cmd.exe|Administrative Windows 'cmd.exe' Cmder shell.|
+|Powershell|powershell.exe|Windows Powershell enhanced with Git and Git aware prompt .|
+|Powershell as Admin|powershell.exe|Administrative Windows 'powerhell.exe' Cmder shell.|
+|Bash|bash.exe|Unix/Linux like bash shell running on Windows.|
+|Bash as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows.|
+|Mintty|bash.exe|Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
+|Mintty as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
+
+Cmder, Powershell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
+
+Mintty tabs use a program called 'mintty' as the terminal that is not based on the Windows Console API so some differences in functionality are normal, as a result mintty specific config is done via the '[%USERPROFILE%|$HOME]/.minttyrc' file.
+
+Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings. For more on Mintty and its config click [here](https://code.google.com/p/mintty/).
+
+An example of setting Cmder portable terminal colors for mintty:
+
+From a bash/mintty shell:
+
+```
+cd $CMDER_ROOT/vendor
+git clone https://github.com/karlin/mintty-colors-solarized.git
+cd mintty-colors-solarized/
+echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-profile.sh
+```
+
+### Cmder Portable Shell User Config
+User specific configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
+
+|Shell|Cmder Portable User Config|
+| ------------- |:-------------:|
+|Cmder|%CMDER_ROOT%\config\user-profile.cmd|
+|Powershell|$ENV:CMDER_ROOT\config\user-profile.ps1|
+|Bash/Mintty|$CMDER_ROOT/config/user-profile.sh|
+
+Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
+
 ### Aliases
-You can define simple aliases with command `alias name=command`.
+#### Cmder(Cmd.exe) Aliases
+You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`. 
 
-For example there is one defined for you `alias e.=explorer .`
+Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
 
-All aliases will be saved in `/config/aliases` file
+Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\aliases` file
+
+#### Bash.exe|Mintty.exe Aliases
+Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.  To make an alias permanent add it to either your `$CMDER_ROOT/config/user-profile.sh` or your `$HOME/.bashrc`.
+
+If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable. 
+
+#### Powershell.exe Aliases
+Powershell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in Powershell sessions.  Type `get-help [new-alias|set-alias] -full` for help on Powershell aliases.
 
 ### SSH Agent
 
-To start SSH agent simply call `agent`, which is in the `bin` folder.
+To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
-If you want to run SSH agent on startup, uncomment the line in `/vendor/init.bat`so it says `@call "%CMDER_ROOT%/bin/agent.cmd"`.
+If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user-profile.cmd` (usually just uncomment it).
+
+### Plugin Support
+
+You can easily extend Cmder using plugins.  A Cmder plugin is a simple json formatted file that contains instructions on how to download and add software to cmder.
+
+Below is a simple plugin that installs the text editor 'Atom', adds aliases to launch/configure Atom to all shell types and even installs Atom plugins.
+
+```
+[
+  {
+    "name": "atom",
+    "version": "v1.5.3",
+    "url": "https://github.com/atom/atom/releases/download/v1.5.3/atom-windows.zip",
+    "alias": {
+      "atom": {
+        "sh": "$cmder_root/vendor/atom/atom",
+        "cmder": "%CMDER_ROOT%/vendor/atom/atom",
+        "posh": "$env:cmder_root/vendor/atom/atom"
+      },
+      "apm": {
+        "sh": "$cmder_root/vendor/atom/resources/app/apm/bin/apm",
+        "cmder": "%CMDER_ROOT%/vendor/atom/resources/app/apm/bin/apm",
+        "posh": "$env:cmder_root/vendor/atom/resources/app/apm/bin/apm"
+      }
+    },
+    "pre_commands": [
+    ],
+    "post_commands": [
+      "apm install vim-mode"
+    ]
+  }
+]
+```
+
+Install plugins by typing the following from either a Cmder or a Cmder Powershell shell:
+
+```
+add-cmderplugin -pluginpath [path-to-plugin.json]
+```
 
 ## Todo
 
-1. Git Bash
-2. Check for clink and git before injecting them (Sort of done)
+1. Check for clink and git before injecting them (Sort of done)
 
 ## Current development branch
 
