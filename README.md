@@ -150,6 +150,12 @@ Below is a simple plugin that installs the text editor 'Atom', adds aliases to l
 ]
 ```
 
+Install plugins by typing the following from either a Cmder or a Cmder Powershell shell:
+
+```
+add-cmderplugin -pluginpath [path-to-plugin.json]
+```
+
 ## Todo
 
 1. Check for clink and git before injecting them (Sort of done)
