@@ -1,3 +1,17 @@
+-- default script for clink, called by init.bat when injecting clink
+
+-- !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
+-- !!! Use "%CMDER_ROOT%\config\<whatever>.lua" to add your lua startup scripts
+
+
+-- At first, load the original clink.lua file
+-- this is needed as we set the script path to this dir and therefore the original 
+-- clink.lua is not loaded.
+local clink_lua_file = clink.get_env('CMDER_ROOT')..'\\vendor\\clink\\clink.lua'
+dofile(clink_lua_file)
+
+-- now add our own things...
+
 function lambda_prompt_filter()
     clink.prompt.value = string.gsub(clink.prompt.value, "{lamb}", "λ")
 end
@@ -57,8 +71,45 @@ local function get_hg_dir(path)
     return get_dir_contains(path, '.hg')
 end
 
+-- adapted from from clink-completions' git.lua
 local function get_git_dir(path)
-    return get_dir_contains(path, '.git')
+
+    -- return parent path for specified entry (either file or directory)
+    local function pathname(path)
+        local prefix = ""
+        local i = path:find("[\\/:][^\\/:]*$")
+        if i then
+            prefix = path:sub(1, i-1)
+        end
+        return prefix
+    end
+
+    -- Checks if provided directory contains git directory
+    local function has_git_dir(dir)
+        return #clink.find_dirs(dir..'/.git') > 0 and dir..'/.git'
+    end
+
+    local function has_git_file(dir)
+        local gitfile = io.open(dir..'/.git')
+        if not gitfile then return false end
+
+        local git_dir = gitfile:read():match('gitdir: (.*)')
+        gitfile:close()
+
+        return git_dir and dir..'/'..git_dir
+    end
+
+    -- Set default path to current directory
+    if not path or path == '.' then path = clink.get_cwd() end
+
+    -- Calculate parent path now otherwise we won't be
+    -- able to do that inside of logical operator
+    local parent_path = pathname(path)
+
+    return has_git_dir(path)
+        or has_git_file(path)
+        -- Otherwise go up one level and make a recursive call
+        or (parent_path ~= path and get_git_dir(parent_path) or nil)
 end
 
 ---
@@ -142,7 +193,7 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    return os.execute("git diff --quiet --ignore-submodules HEAD 2>nul")
+    return io.popen("git diff --quiet --ignore-submodules HEAD 2>nul")
 end
 
 function git_prompt_filter()
@@ -189,3 +240,4 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
         dofile(filename)
     end
 end
+

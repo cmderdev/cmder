@@ -23,8 +23,14 @@
     set architecture=64
 )
 
+:: Tell the user about the clink config files...
+@if not exist "%CMDER_ROOT%\config\settings" (
+    echo Generating clink initial settings in %CMDER_ROOT%\config\settings
+    echo Additional *.lua files in %CMDER_ROOT%\config are loaded on startup.
+) 
+
 :: Run clink
-@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config"
+@"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
 
 :: Prepare for git-for-windows
 
@@ -51,14 +57,14 @@
 )
 
 :: Enhance Path
-@set PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\
+@set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
 
 
 :: make sure we have an example file
 @if not exist "%CMDER_ROOT%\config\aliases" (
     echo Creating intial aliases in %CMDER_ROOT%\config\aliases
     copy "%CMDER_ROOT%\vendor\aliases.example" "%CMDER_ROOT%\config\aliases" > null
-) 
+)
 
 :: Add aliases
 @doskey /macrofile="%CMDER_ROOT%\config\aliases"
@@ -76,12 +82,10 @@
 :: Set home path
 @if not defined HOME set HOME=%USERPROFILE%
 
+:: This is either a env variable set by the user or the result of
+:: cmder.exe setting this variable due to a commandline argument or a "cmder here"
 @if defined CMDER_START (
     @cd /d "%CMDER_START%"
-) else (
-    @if "%CD%\" == "%CMDER_ROOT%\" (
-        @cd /d "%HOME%"
-    )
 )
 
 @if exist "%CMDER_ROOT%\config\user-profile.cmd" (
