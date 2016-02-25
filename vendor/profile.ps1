@@ -91,6 +91,18 @@ if ( $ENV:CMDER_START ) {
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
 
+# Drop *.ps1 files into "$ENV:CMDER_ROOT\config\profile.d"
+# to run them at startup.
+if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
+  mkdir "$ENV:CMDER_ROOT\config\profile.d"
+}
+
+pushd $ENV:CMDER_ROOT\config\profile.d
+foreach ($x in ls *.ps1) {
+  # write-host Sourcing $ENV:CMDER_ROOT\config\profile.d\$x
+  . $x
+}
+
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.

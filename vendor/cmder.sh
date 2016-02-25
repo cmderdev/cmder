@@ -35,6 +35,19 @@ PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
 
 export PATH
 
+# Drop *.sh files into "%CMDER_ROOT%\config\profile.d"
+# to run them at startup.
+if [ ! -d ${CMDER_ROOT}/config/profile.d ] ; then
+  mkdir -p "${CMDER_ROOT}/config/profile.d"
+fi
+
+pushd ${CMDER_ROOT}/config/profile.d >/dev/null
+for x in $(ls ${CMDER_ROOT}/config/profile.d/*.sh) ; do
+  # echo ${x}
+  . $x
+done
+popd >/dev/null
+
 if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
     . ${CMDER_ROOT}/config/user-profile.sh
 else
