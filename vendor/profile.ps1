@@ -92,7 +92,7 @@ if ( $ENV:CMDER_START ) {
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
 
 # Drop *.ps1 files into "$ENV:CMDER_ROOT\config\profile.d"
-# to run them at startup.
+# to source them at startup.
 if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
   mkdir "$ENV:CMDER_ROOT\config\profile.d"
 }
