@@ -40,7 +40,7 @@ if [ ! "$CMDER_ROOT" = "" ] ; then
   # Remove any trailing '/'
   CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
   
-  echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"...\n"
+  echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"."
   
   export CMDER_ROOT
   

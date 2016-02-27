@@ -117,7 +117,7 @@ To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-fo
 
 If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user-profile.cmd` (usually just uncomment it).
 
-### Using external Cygwin, MinGW, MSys2, or Git for Windows SDK with Cmder
+### Using external Cygwin/Babun, MSys2, or Git for Windows SDK with Cmder.
 
 1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'
 1. Click the '+' button to add a task.
@@ -127,14 +127,20 @@ If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_R
 
 Recommended Optional Steps:
 
-Copy the 'vendor/cmder_exinit' file to the Cygwin, MinGW, MSys2, or Git for Windows SDK environments ```/etc/profile.d/``` folder to use portable settings in the $CMDER_ROOT/config folder.
+Copy the 'vendor/cmder_exinit' file to the Cygwin/Babun, MSys2, or Git for Windows SDK environments ```/etc/profile.d/``` folder to use portable settings in the $CMDER_ROOT/config folder.
+
+Note: MinGW could work if the init scripts include profile.d but this has not been tested.
 
 The destination file extension depends on the shell you use in that environment.  For example:
 
 * bash - Copy to /etc/profile.d/cmder_exinit.sh
 * zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
 
-Uncomment and edit the below line to use Cmder/config even when launched from outside Cmder.
+Uncomment and edit the below line in the script to use Cmder config even when launched from outside Cmder.
+
+```
+# CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
+```
 
 ## Todo
 
