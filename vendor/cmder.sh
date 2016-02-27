@@ -35,18 +35,25 @@ PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
 
 export PATH
 
-# Drop *.sh files into "%CMDER_ROOT%\config\profile.d"
-# to run them at startup.
-if [ ! -d ${CMDER_ROOT}/config/profile.d ] ; then
-  mkdir -p "${CMDER_ROOT}/config/profile.d"
+# Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
+# to source them at startup.
+if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
+  mkdir -p ${CMDER_ROOT}/config/profile.d
 fi
 
-pushd ${CMDER_ROOT}/config/profile.d >/dev/null
-for x in $(ls ${CMDER_ROOT}/config/profile.d/*.sh) ; do
-  # echo ${x}
-  . $x
-done
-popd >/dev/null
+if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
+  unset profile_d_scripts
+  pushd ${CMDER_ROOT}/config/profile.d >/dev/null
+  profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh) 2>/dev/null
+
+  if [ ! "x${profile_d_scripts}" = "x" ] ; then
+    for x in ${profile_d_scripts} ; do
+      # echo Sourcing "${x}"...
+      . $x
+    done
+  fi
+  popd >/dev/null
+fi
 
 if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
     . ${CMDER_ROOT}/config/user-profile.sh
