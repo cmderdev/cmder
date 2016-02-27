@@ -97,7 +97,7 @@ Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it e
 
 ### Aliases
 #### Cmder(Cmd.exe) Aliases
-You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`. 
+You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`.
 
 Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
 
@@ -106,7 +106,7 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 #### Bash.exe|Mintty.exe Aliases
 Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.  To make an alias permanent add it to either your `$CMDER_ROOT/config/user-profile.sh` or your `$HOME/.bashrc`.
 
-If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable. 
+If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
 #### Powershell.exe Aliases
 Powershell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in Powershell sessions.  Type `get-help [new-alias|set-alias] -full` for help on Powershell aliases.
@@ -116,6 +116,25 @@ Powershell has native simple alias support, for example `[new-alias | set-alias]
 To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
 If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user-profile.cmd` (usually just uncomment it).
+
+### Using external Cygwin, MinGW, MSys2, or Git for Windows SDK with Cmder
+
+1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'
+1. Click the '+' button to add a task.
+1. Name the new task in the top text box.
+1. Provide task parameters, this is optional.
+1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console:d:%USERPROFILE%``` to the Commands text box.
+
+Recommended Optional Steps:
+
+Copy the 'vendor/cmder_exinit' file to the Cygwin, MinGW, MSys2, or Git for Windows SDK environments ```/etc/profile.d/``` folder to use portable settings in the $CMDER_ROOT/config folder.
+
+The destination file extension depends on the shell you use in that environment.  For example:
+
+* bash - Copy to /etc/profile.d/cmder_exinit.sh
+* zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
+
+Uncomment and edit the below line to use Cmder/config even when launched from outside Cmder.
 
 ## Todo
 
