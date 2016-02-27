@@ -1,7 +1,8 @@
-# Copy this file to your externally installed meaning not in the cmder/vendor
-# folder Cygwin/Msys2/Msys installs '/etc/profile.d/' folder to integrate
-# the externally installed Unix like environment into Cmder so it has
-# access to settings stored in Cmder/config folder when launched.
+# Copy this file to your non integrated *nix-like environment, 
+# Cygwin/MinGW/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
+# folder to integrate the externally installed Unix like environment
+# into Cmder so it has access to settings stored in Cmder/config
+# folder when launched.
 #
 # The destination file extension depends on the shell you use.  For example:
 #
@@ -12,8 +13,11 @@
 # # from outside Cmder.
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 
-# Add portable user customizations ${CMDER_ROOT}/config/user-profile.sh,
-# these customizations will follow Cmder if $CMDER_ROOT is copied
+# Add portable user customizations ${CMDER_ROOT}/config/user-profile.sh or
+# add whole config scripts to ${CMDER_ROOT}/config/profile.d both will be sourced
+# from mthis file and be appied to the environment at startup.
+#
+# These customizations will follow Cmder if $CMDER_ROOT is copied
 # to another machine.
 #
 # Add system specific users customizations to $HOME/.bashrc, these 
@@ -45,6 +49,21 @@ export CMDER_ROOT
 PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
  
 export PATH
+
+if [ ! -d ${CMDER_ROOT}/config/profile.d ; then
+  mkdir -p ${CMDER_ROOT}/config/profile.d
+fi
+
+# Drop *.sh files into "${CMDER_ROOT}\config\profile.d"
+# to source them at startup.
+if [ -d ${CMDER_ROOT}/config/profile.d ] ; then
+  pushd ${CMDER_ROOT}/config/profile.d >/dev/null
+  for x in $(ls ${CMDER_ROOT}/config/profile.d/*.sh) ; do
+    # echo ${x}
+    . $x
+  done
+  popd >/dev/null
+fi
 
 if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
   . ${CMDER_ROOT}/config/user-profile.sh
