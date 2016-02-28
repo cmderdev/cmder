@@ -100,8 +100,8 @@ You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CM
 
 |Shell|Cmder 'Profile.d' Scripts|
 | ------------- |:-------------:|
-|Cmder|%CMDER_ROOT%\config\profile.d\*.bat and *.cmd|
-|Powershell|$ENV:CMDER_ROOT\config\profile.d\*.ps1|
+|Cmder|%CMDER_ROOT%\config\profile.d\\*.bat and *.cmd|
+|Powershell|$ENV:CMDER_ROOT\config\profile.d\\*.ps1|
 |Bash/Mintty|$CMDER_ROOT/config/profile.d/*.sh|
 
 
