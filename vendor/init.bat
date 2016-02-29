@@ -88,6 +88,20 @@
     @cd /d "%CMDER_START%"
 )
 
+:: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
+:: to run them at startup.
+@if not exist "%CMDER_ROOT%\config\profile.d" (
+  mkdir "%CMDER_ROOT%\config\profile.d"
+}
+
+@pushd "%CMDER_ROOT%\config\profile.d"
+for /f "usebackq" %%x in ( `dir /b *.bat *.cmd` ) do (
+  REM @echo Calling %CMDER_ROOT%\config\profile.d\%%x...
+  @call %%x
+)
+@popd
+
+
 @if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     @rem create this file and place your own command in there
     call "%CMDER_ROOT%\config\user-profile.cmd"
