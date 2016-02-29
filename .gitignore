@@ -13,3 +13,4 @@ build/
 Version v*
 *.bak
 config/user-*
+config/aliases
