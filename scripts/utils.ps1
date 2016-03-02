@@ -61,11 +61,6 @@ function Digest-MD5 ($path) {
     return Invoke-Expression "md5sum $path"
 }
 
-function Cleanup-Git () {
-    $gitdir = '../vendor/msysgit/libexec/git-core/'
-    Get-Childitem $gitdir -Exclude git.exe | Where-Object{!($_.PSIsContainer)} | Foreach-Object { Remove-Item $_.FullName }
-}
-
 function Register-Cmder(){
     [CmdletBinding()]
     Param
@@ -93,4 +88,17 @@ function Register-Cmder(){
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "NoWorkingDirectory"
         New-Item -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
     }
+}
+
+function Download-File {
+    param (
+        $Url,
+        $File
+    )
+    # I think this is the problem
+    $File = $File -Replace "/", "\"
+    Write-Verbose "Downloading from $Url to $File"
+    $wc = new-object System.Net.WebClient
+    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;    
+    $wc.DownloadFile($Url, $File)
 }
