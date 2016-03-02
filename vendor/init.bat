@@ -27,7 +27,7 @@
 @if not exist "%CMDER_ROOT%\config\settings" (
     echo Generating clink initial settings in %CMDER_ROOT%\config\settings
     echo Additional *.lua files in %CMDER_ROOT%\config are loaded on startup.
-) 
+)
 
 :: Run clink
 @"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
@@ -63,10 +63,13 @@
         set test_dir=
     )
 )
+
 :: our last hope: our own git...
 :VENDORED_GIT
 @if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
+    rem add the minimal git commands to the front of the path
+    set "PATH=%GIT_INSTALL_ROOT%\cmd;%PATH%"
 ) else (
     goto :NO_GIT
 )
@@ -74,7 +77,9 @@
 :FOUND_GIT
 :: Add git to the path
 @if defined GIT_INSTALL_ROOT (
-    set "PATH=%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74;%PATH%"
+    rem add the unix commands including bash in GIT\bin at the end to not shadow windows commands like more
+    echo Enhancing PATH with unix commands from git [%GIT_INSTALL_ROOT%]
+    set "PATH=%PATH%;%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
