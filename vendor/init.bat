@@ -92,7 +92,7 @@
 :: to run them at startup.
 @if not exist "%CMDER_ROOT%\config\profile.d" (
   mkdir "%CMDER_ROOT%\config\profile.d"
-}
+)
 
 @pushd "%CMDER_ROOT%\config\profile.d"
 for /f "usebackq" %%x in ( `dir /b *.bat *.cmd` ) do (
