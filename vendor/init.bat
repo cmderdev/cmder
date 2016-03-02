@@ -40,23 +40,49 @@ if not exist "%CMDER_ROOT%\config\settings" (
 set PLINK_PROTOCOL=ssh
 if not defined TERM set TERM=cygwin
 
-:: Check if msysgit is installed
-if exist "%ProgramFiles%\Git" (
-    set "GIT_INSTALL_ROOT=%ProgramFiles%\Git"
-) else if exist "%ProgramFiles(x86)%\Git" (
-    set "GIT_INSTALL_ROOT=%ProgramFiles(x86)%\Git"
-) else if exist "%USERPROFILE%\AppData\Local\Programs\Git" (
-    set "GIT_INSTALL_ROOT=%USERPROFILE%\AppData\Local\Programs\Git"
-) else if exist "%CMDER_ROOT%\vendor\git-for-windows" (
-    set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
+:: The idea:
+:: * if the users points as to a specific git, use that
+:: * test if a git is in path and if yes, use that
+:: * last, use our vendored git
+:: also check that we have a recent enough version of git (e.g. test for GIT\cmd\git.exe)
+@if defined GIT_INSTALL_ROOT (
+    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (goto :FOUND_GIT)
 )
 
+:: check if git is in path...
+@setlocal enabledelayedexpansion
+@for /F "delims=" %%F in ('where git.exe') do @(
+    pushd %%~dpF
+    cd ..
+    set "test_dir=!CD!"
+    popd
+    if exist "!test_dir!\cmd\git.exe" (
+        set GIT_INSTALL_ROOT=!test_dir!
+        set test_dir=
+        goto :FOUND_GIT
+    ) else (
+        echo Found old git version in "!test_dir!", but not using...
+        set test_dir=
+    )
+)
+:: our last hope: our own git...
+:VENDORED_GIT
+@if exist "%CMDER_ROOT%\vendor\git-for-windows" (
+    set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
+) else (
+    goto :NO_GIT
+)
+
+:FOUND_GIT
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     set "PATH=%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74;%PATH%"
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
+
+:NO_GIT
+@endlocal & set PATH=%PATH% & set SVN_SSH=%SVN_SSH% & set GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
