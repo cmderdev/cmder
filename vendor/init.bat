@@ -97,7 +97,7 @@
 @pushd "%CMDER_ROOT%\config\profile.d"
 for /f "usebackq" %%x in ( `dir /b *.bat *.cmd` ) do (
   REM @echo Calling %CMDER_ROOT%\config\profile.d\%%x...
-  @call %%x
+  @call "%CMDER_ROOT%\config\profile.d\%%x"
 )
 @popd
 
