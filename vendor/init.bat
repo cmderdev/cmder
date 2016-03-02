@@ -79,9 +79,9 @@ if not defined TERM set TERM=cygwin
 :FOUND_GIT
 :: Add git to the path
 @if defined GIT_INSTALL_ROOT (
-    rem add the unix commands including bash in GIT\bin at the end to not shadow windows commands like more
+    rem add the unix commands at the end to not shadow windows commands like more
     echo Enhancing PATH with unix commands from git [%GIT_INSTALL_ROOT%]
-    set "PATH=%PATH%;%GIT_INSTALL_ROOT%\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
+    set "PATH=%PATH%;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
