@@ -99,9 +99,10 @@ if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
 
 pushd $ENV:CMDER_ROOT\config\profile.d
 foreach ($x in ls *.ps1) {
-  # write-host Sourcing $ENV:CMDER_ROOT\config\profile.d\$x
+  # write-host write-host Sourcing $x
   . $x
 }
+popd
 
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
