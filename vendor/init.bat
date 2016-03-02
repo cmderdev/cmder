@@ -126,9 +126,12 @@
 )
 
 @pushd "%CMDER_ROOT%\config\profile.d"
-for /f "usebackq" %%x in ( `dir /b *.bat *.cmd` ) do (
-  REM @echo Calling %CMDER_ROOT%\config\profile.d\%%x...
-  @call %%x
+@>nul 2>nul dir /b *.bat *.cmd && (
+    @for /f "usebackq" %%x in ( `dir /b *.bat *.cmd` ) do (
+      REM @echo Calling %CMDER_ROOT%\config\profile.d\%%x...
+      echo calling %%x
+      @call %%x
+    )
 )
 @popd
 
