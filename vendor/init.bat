@@ -59,15 +59,21 @@
 :: Enhance Path
 @set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
 
-
 :: make sure we have an example file
-@if not exist "%CMDER_ROOT%\config\aliases" (
-    echo Creating intial aliases in %CMDER_ROOT%\config\aliases
-    copy "%CMDER_ROOT%\vendor\aliases.example" "%CMDER_ROOT%\config\aliases" > null
+@set aliases=%CMDER_ROOT%\config\user-aliases.cmd
+@if not exist "%aliases%" (
+    echo Creating intial aliases in "%aliases%"...
+    copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%aliases%"
 )
 
-:: Add aliases
-@doskey /macrofile="%CMDER_ROOT%\config\aliases"
+:: Update old 'aliases' to new self executing 'user-aliases.cmd'
+@if exist "%CMDER_ROOT%\config\aliases" (
+  echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
+  type "%CMDER_ROOT%\config\aliases" >> "%aliases%" && del "%CMDER_ROOT%\config\aliases"
+)
+  
+:: Add aliases to the environment.
+@call "%aliases%"
 
 :: See vendor\git-for-windows\README.portable for why we do this
 :: Basically we need to execute this post-install.bat because we are
@@ -90,9 +96,10 @@
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
+
 @if not exist "%CMDER_ROOT%\config\profile.d" (
   mkdir "%CMDER_ROOT%\config\profile.d"
-}
+)
 
 @pushd "%CMDER_ROOT%\config\profile.d"
 for /f "usebackq" %%x in ( `dir /b *.bat *.cmd` ) do (
@@ -100,7 +107,6 @@ for /f "usebackq" %%x in ( `dir /b *.bat *.cmd` ) do (
   @call %%x
 )
 @popd
-
 
 @if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     @rem create this file and place your own command in there
