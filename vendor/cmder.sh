@@ -44,7 +44,7 @@ fi
 if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
   unset profile_d_scripts
   pushd ${CMDER_ROOT}/config/profile.d >/dev/null
-  profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh) 2>/dev/null
+  profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh 2>/dev/null)
 
   if [ ! "x${profile_d_scripts}" = "x" ] ; then
     for x in ${profile_d_scripts} ; do

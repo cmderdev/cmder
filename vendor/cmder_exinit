@@ -58,9 +58,9 @@ if [ ! "$CMDER_ROOT" = "" ] ; then
     unset profile_d_scripts
     pushd ${CMDER_ROOT}/config/profile.d >/dev/null
     if [ ! "x${ZSH_VERSION}" = "x"  ]; then
-      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.zsh) 2>/dev/null
+      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.zsh 2>/dev/null)
     elif [ ! "x${BASH_VERSION}" = "x"  ]; then
-      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh) 2>/dev/null
+      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh 2>/dev/null)
     fi
   
     if [ ! "x${profile_d_scripts}" = "x" ] ; then
