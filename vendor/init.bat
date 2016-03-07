@@ -61,6 +61,18 @@ if defined GIT_INSTALL_ROOT (
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
 
+:: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
+:: to run them at startup.
+if not exist "%CMDER_ROOT%\config\profile.d" (
+  mkdir "%CMDER_ROOT%\config\profile.d"
+)
+
+pushd "%CMDER_ROOT%\config\profile.d"
+for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
+  REM echo Calling %CMDER_ROOT%\config\profile.d\%%x...
+  call "%CMDER_ROOT%\config\profile.d\%%x"
+)
+popd
 
 :: make sure we have an example file
 if not exist "%CMDER_ROOT%\config\aliases" (
@@ -89,20 +101,6 @@ if not defined HOME set HOME=%USERPROFILE%
 if defined CMDER_START (
     cd /d "%CMDER_START%"
 )
-
-:: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
-:: to run them at startup.
-if not exist "%CMDER_ROOT%\config\profile.d" (
-  mkdir "%CMDER_ROOT%\config\profile.d"
-)
-
-pushd "%CMDER_ROOT%\config\profile.d"
-for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-  REM echo Calling %CMDER_ROOT%\config\profile.d\%%x...
-  call "%CMDER_ROOT%\config\profile.d\%%x"
-)
-popd
-
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     rem create this file and place your own command in there
