@@ -88,6 +88,10 @@ if ( $ENV:CMDER_START ) {
     Set-Location -Path "$ENV:CMDER_START"
 }
 
+if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
+    Set-PSReadlineOption -ExtraPromptLineCount 1
+}
+
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
 

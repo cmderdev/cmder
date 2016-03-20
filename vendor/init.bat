@@ -61,21 +61,43 @@ if defined GIT_INSTALL_ROOT (
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
 
-:: make sure we have an example file
-set aliases=%CMDER_ROOT%\config\user-aliases.cmd
-if not exist "%aliases%" (
-    echo Creating intial aliases in "%aliases%"...
-    copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%aliases%"
+:: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
+:: to run them at startup.
+if not exist "%CMDER_ROOT%\config\profile.d" (
+  mkdir "%CMDER_ROOT%\config\profile.d"
 )
 
-:: Update old 'aliases' to new self executing 'user-aliases.cmd'
-if exist "%CMDER_ROOT%\config\aliases" (
-  echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
-  type "%CMDER_ROOT%\config\aliases" >> "%aliases%" && del "%CMDER_ROOT%\config\aliases"
+pushd "%CMDER_ROOT%\config\profile.d"
+for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
+  REM echo Calling %CMDER_ROOT%\config\profile.d\%%x...
+  call "%CMDER_ROOT%\config\profile.d\%%x"
 )
+popd
+
+:: Allows user to override default aliases store using profile.d
+:: scripts run above.  Note: If overriding default aliases file
+:: in profile.d the aliases must also be loaded in profile.d.
+if not defined aliases (
+  set aliases=%CMDER_ROOT%\config\user-aliases.cmd
+)
+
+:: Using default cmder user-aliases.cmd store.
+if "%aliases%" == "%CMDER_ROOT%\config\user-aliases.cmd" (
+  :: make sure we have an example file
+  if not exist "%aliases%" (
+     echo Creating intial aliases in "%aliases%"...
+     copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%aliases%"
+  )
   
-:: Add aliases to the environment.
-call "%aliases%"
+  :: Update old 'aliases' to new self executing 'user-aliases.cmd'
+  if exist "%CMDER_ROOT%\config\aliases" (
+    echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
+    type "%CMDER_ROOT%\config\aliases" >> "%aliases%" && del "%CMDER_ROOT%\config\aliases"
+  )
+
+  :: Add aliases to the environment
+  call "%aliases%"
+)
 
 :: See vendor\git-for-windows\README.portable for why we do this
 :: Basically we need to execute this post-install.bat because we are
@@ -96,18 +118,6 @@ if defined CMDER_START (
     cd /d "%CMDER_START%"
 )
 
-:: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
-:: to run them at startup.
-if not exist "%CMDER_ROOT%\config\profile.d" (
-  mkdir "%CMDER_ROOT%\config\profile.d"
-)
-
-pushd "%CMDER_ROOT%\config\profile.d"
-for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-  REM echo Calling %CMDER_ROOT%\config\profile.d\%%x...
-  call "%CMDER_ROOT%\config\profile.d\%%x"
-)
-popd
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     rem create this file and place your own command in there

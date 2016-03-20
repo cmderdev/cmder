@@ -156,6 +156,12 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 
 1. Check for clink and git before injecting them (Sort of done)
 
+## Current development branch
+
+You can download builds of the current development branch by going to Appveyor via the following link:
+
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/MartiUK/cmder/branch/development/artifacts)
+
 ## License
 
 All software included is bundled with own license
