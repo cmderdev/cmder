@@ -74,14 +74,30 @@ for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
 )
 popd
 
-:: make sure we have an example file
-if not exist "%CMDER_ROOT%\config\aliases" (
-    echo Creating intial aliases in %CMDER_ROOT%\config\aliases
-    copy "%CMDER_ROOT%\vendor\aliases.example" "%CMDER_ROOT%\config\aliases" > null
+:: Allows user to override default aliases store using profile.d
+:: scripts run above.  Note: If overriding default aliases file
+:: in profile.d the aliases must also be loaded in profile.d.
+if not defined aliases (
+  set aliases=%CMDER_ROOT%\config\user-aliases.cmd
 )
 
-:: Add aliases
-doskey /macrofile="%CMDER_ROOT%\config\aliases"
+:: Using default cmder user-aliases.cmd store.
+if "%aliases%" == "%CMDER_ROOT%\config\user-aliases.cmd" (
+  :: make sure we have an example file
+  if not exist "%aliases%" (
+     echo Creating intial aliases in "%aliases%"...
+     copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%aliases%"
+  )
+  
+  :: Update old 'aliases' to new self executing 'user-aliases.cmd'
+  if exist "%CMDER_ROOT%\config\aliases" (
+    echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
+    type "%CMDER_ROOT%\config\aliases" >> "%aliases%" && del "%CMDER_ROOT%\config\aliases"
+  )
+
+  :: Add aliases to the environment
+  call "%aliases%"
+)
 
 :: See vendor\git-for-windows\README.portable for why we do this
 :: Basically we need to execute this post-install.bat because we are
@@ -101,6 +117,7 @@ if not defined HOME set HOME=%USERPROFILE%
 if defined CMDER_START (
     cd /d "%CMDER_START%"
 )
+
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     rem create this file and place your own command in there
