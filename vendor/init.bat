@@ -29,7 +29,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 if not exist "%CMDER_ROOT%\config\settings" (
     echo Generating clink initial settings in %CMDER_ROOT%\config\settings
     echo Additional *.lua files in %CMDER_ROOT%\config are loaded on startup.
-) 
+)
 
 :: Run clink
 "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
@@ -77,27 +77,25 @@ popd
 :: Allows user to override default aliases store using profile.d
 :: scripts run above.  Note: If overriding default aliases file
 :: in profile.d the aliases must also be loaded in profile.d.
+set user-aliases=%CMDER_ROOT%\config\user-aliases.cmd
 if not defined aliases (
-  set aliases=%CMDER_ROOT%\config\user-aliases.cmd
+  set aliases=%user-aliases%
 )
 
-:: Using default cmder user-aliases.cmd store.
-if "%aliases%" == "%CMDER_ROOT%\config\user-aliases.cmd" (
-  :: make sure we have an example file
-  if not exist "%aliases%" (
-     echo Creating intial aliases in "%aliases%"...
-     copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%aliases%"
-  )
-  
-  :: Update old 'aliases' to new self executing 'user-aliases.cmd'
-  if exist "%CMDER_ROOT%\config\aliases" (
-    echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
-    type "%CMDER_ROOT%\config\aliases" >> "%aliases%" && del "%CMDER_ROOT%\config\aliases"
-  )
-
-  :: Add aliases to the environment
-  call "%aliases%"
+:: make sure we have an example file
+if not exist "%user-aliases%" (
+   echo Creating intial user-aliases store in "%user-aliases%"...
+   copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
 )
+
+:: Update old 'user-aliases' to new self executing 'user-aliases.cmd'
+if exist "%CMDER_ROOT%\config\aliases" (
+  echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
+  type "%CMDER_ROOT%\config\aliases" >> "%user-aliases%" && del "%CMDER_ROOT%\config\aliases"
+)
+
+:: Add aliases to the environment
+call "%user-aliases%"
 
 :: See vendor\git-for-windows\README.portable for why we do this
 :: Basically we need to execute this post-install.bat because we are
