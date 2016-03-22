@@ -95,9 +95,19 @@ User specific configuration is possible using the cmder specific shell config fi
 
 Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
 
+### Linux like 'profile.d' support for all supported shell types.
+You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CMDER_ROOT%\config\profile.d folder to add startup config to Cmder.
+
+|Shell|Cmder 'Profile.d' Scripts|
+| ------------- |:-------------:|
+|Cmder|%CMDER_ROOT%\config\profile.d\\*.bat and *.cmd|
+|Powershell|$ENV:CMDER_ROOT\config\profile.d\\*.ps1|
+|Bash/Mintty|$CMDER_ROOT/config/profile.d/*.sh|
+
+
 ### Aliases
 #### Cmder(Cmd.exe) Aliases
-You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`. 
+You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`.
 
 Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
 
@@ -106,7 +116,7 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 #### Bash.exe|Mintty.exe Aliases
 Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.  To make an alias permanent add it to either your `$CMDER_ROOT/config/user-profile.sh` or your `$HOME/.bashrc`.
 
-If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable. 
+If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
 #### Powershell.exe Aliases
 Powershell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in Powershell sessions.  Type `get-help [new-alias|set-alias] -full` for help on Powershell aliases.
@@ -156,9 +166,40 @@ Install plugins by typing the following from either a Cmder or a Cmder Powershel
 add-cmderplugin -pluginpath [path-to-plugin.json]
 ```
 
+### Using external Cygwin/Babun, MSys2, or Git for Windows SDK with Cmder.
+
+1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'
+1. Click the '+' button to add a task.
+1. Name the new task in the top text box.
+1. Provide task parameters, this is optional.
+1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console:d:%USERPROFILE%``` to the Commands text box.
+
+Recommended Optional Steps:
+
+Copy the 'vendor/cmder_exinit' file to the Cygwin/Babun, MSys2, or Git for Windows SDK environments ```/etc/profile.d/``` folder to use portable settings in the $CMDER_ROOT/config folder.
+
+Note: MinGW could work if the init scripts include profile.d but this has not been tested.
+
+The destination file extension depends on the shell you use in that environment.  For example:
+
+* bash - Copy to /etc/profile.d/cmder_exinit.sh
+* zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
+
+Uncomment and edit the below line in the script to use Cmder config even when launched from outside Cmder.
+
+```
+# CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
+```
+
 ## Todo
 
 1. Check for clink and git before injecting them (Sort of done)
+
+## Current development branch
+
+You can download builds of the current development branch by going to Appveyor via the following link:
+
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/MartiUK/cmder/branch/development/artifacts)
 
 ## License
 

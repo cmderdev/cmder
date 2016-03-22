@@ -88,8 +88,25 @@ if ( $ENV:CMDER_START ) {
     Set-Location -Path "$ENV:CMDER_START"
 }
 
+if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
+    Set-PSReadlineOption -ExtraPromptLineCount 1
+}
+
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
+
+# Drop *.ps1 files into "$ENV:CMDER_ROOT\config\profile.d"
+# to source them at startup.
+if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
+  mkdir "$ENV:CMDER_ROOT\config\profile.d"
+}
+
+pushd $ENV:CMDER_ROOT\config\profile.d
+foreach ($x in ls *.ps1) {
+  # write-host write-host Sourcing $x
+  . $x
+}
+popd
 
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
