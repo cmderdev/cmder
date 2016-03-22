@@ -10,9 +10,6 @@ branches:
   except:
     - gh-pages
 
-# Do not build on tags
-skip_tags: true
-
 #---------------------------------#
 #    environment configuration    #
 #---------------------------------#
@@ -50,7 +47,7 @@ artifacts:
 #---------------------------------#
 #         notifications           #
 #---------------------------------#
-  
+
 notifications:
   # Webhook
   - provider: Webhook

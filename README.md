@@ -1,6 +1,6 @@
 # Cmder
 
-[![Join the chat at https://gitter.im/bliker/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)
 
@@ -10,7 +10,7 @@ Cmder is a **software package** created out of pure frustration over absence of 
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, that is makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
 ## Installation
 
@@ -27,7 +27,7 @@ So you've experimented with Cmder a little and want to give it a shot in a more 
 
 1. Open a terminal as an Administrator
 2. Navigate to the directory you have placed Cmder
-3. Execute `.\cmder.exe /REGISTER ALL`  
+3. Execute `.\cmder.exe /REGISTER ALL`
    _If you get a message "Access Denied" ensure you are executing the command in an **Administrator** prompt._
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
@@ -49,16 +49,23 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 * <kbd>Ctrl</kbd> + <kbd>R</kbd> : History search
 * <kbd>Shift</kbd> + Mouse : Select and copy text from buffer
 
-(Some shortcuts are not yet documented, thought they exist, please add them here)
+(Some shortcuts are not yet documented, though they exist - please document them here)
 
 ## Features
 
 ### Access to multiple shells in one window using tabs
 You can open multiple tabs each containing one of the following shells:
 
-* Cmder | Cmder as Admin             - Enhanced Windows 'cmd.exe' shell.
-* Powershell | Powershell as Admin   - Enhanced Windows Powershell.
-* Bash/mintty | Bash/mintty as Admin - Unix/Linux like bash shell running on Windows.
+|Task|Shell|Description|
+|----|-----|-----------|
+|Cmder|cmd.exe|Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink(GNU Readline), and Aliases.|
+|Cmder as Admin|cmd.exe|Administrative Windows 'cmd.exe' Cmder shell.|
+|Powershell|powershell.exe|Windows Powershell enhanced with Git and Git aware prompt .|
+|Powershell as Admin|powershell.exe|Administrative Windows 'powerhell.exe' Cmder shell.|
+|Bash|bash.exe|Unix/Linux like bash shell running on Windows.|
+|Bash as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows.|
+|Mintty|bash.exe|Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
+|Mintty as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
 
 Cmder, Powershell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
 
@@ -74,34 +81,86 @@ From a bash/mintty shell:
 cd $CMDER_ROOT/vendor
 git clone https://github.com/karlin/mintty-colors-solarized.git
 cd mintty-colors-solarized/
-echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-cmder.sh
+echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-profile.sh
 ```
 
 ### Cmder Portable Shell User Config
 User specific configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
 
-* Cmder       - %CMDER_ROOT%\config\user-startup.cmd
-* Powershell  - $ENV:CMDER_ROOT\config\user-profile.ps1
-* Bash/Mintty - $CMDER_ROOT/config/user-cmder.sh
+|Shell|Cmder Portable User Config|
+| ------------- |:-------------:|
+|Cmder|%CMDER_ROOT%\config\user-profile.cmd|
+|Powershell|$ENV:CMDER_ROOT\config\user-profile.ps1|
+|Bash/Mintty|$CMDER_ROOT/config/user-profile.sh|
 
-Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists before it sources '$CMDER_ROOT/config/user-cmder.sh'.
+Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
+
+### Linux like 'profile.d' support for all supported shell types.
+You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CMDER_ROOT%\config\profile.d folder to add startup config to Cmder.
+
+|Shell|Cmder 'Profile.d' Scripts|
+| ------------- |:-------------:|
+|Cmder|%CMDER_ROOT%\config\profile.d\\*.bat and *.cmd|
+|Powershell|$ENV:CMDER_ROOT\config\profile.d\\*.ps1|
+|Bash/Mintty|$CMDER_ROOT/config/profile.d/*.sh|
+
 
 ### Aliases
-You can define simple aliases with command `alias name=command`.
+#### Cmder(Cmd.exe) Aliases
+You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`.
 
-For example there is one defined for you `alias e.=explorer .`
+Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
 
-All aliases will be saved in `/config/aliases` file
+Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\aliases` file
+
+#### Bash.exe|Mintty.exe Aliases
+Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.  To make an alias permanent add it to either your `$CMDER_ROOT/config/user-profile.sh` or your `$HOME/.bashrc`.
+
+If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
+
+#### Powershell.exe Aliases
+Powershell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in Powershell sessions.  Type `get-help [new-alias|set-alias] -full` for help on Powershell aliases.
 
 ### SSH Agent
 
 To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
-If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `/config/user-startup.bat` (usually just uncomment it).
+If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user-profile.cmd` (usually just uncomment it).
+
+### Using external Cygwin/Babun, MSys2, or Git for Windows SDK with Cmder.
+
+1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'
+1. Click the '+' button to add a task.
+1. Name the new task in the top text box.
+1. Provide task parameters, this is optional.
+1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console:d:%USERPROFILE%``` to the Commands text box.
+
+Recommended Optional Steps:
+
+Copy the 'vendor/cmder_exinit' file to the Cygwin/Babun, MSys2, or Git for Windows SDK environments ```/etc/profile.d/``` folder to use portable settings in the $CMDER_ROOT/config folder.
+
+Note: MinGW could work if the init scripts include profile.d but this has not been tested.
+
+The destination file extension depends on the shell you use in that environment.  For example:
+
+* bash - Copy to /etc/profile.d/cmder_exinit.sh
+* zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
+
+Uncomment and edit the below line in the script to use Cmder config even when launched from outside Cmder.
+
+```
+# CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
+```
 
 ## Todo
 
 1. Check for clink and git before injecting them (Sort of done)
+
+## Current development branch
+
+You can download builds of the current development branch by going to Appveyor via the following link:
+
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/MartiUK/cmder/branch/development/artifacts)
 
 ## License
 

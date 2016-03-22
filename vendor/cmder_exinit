@@ -1,0 +1,86 @@
+# Copy this file to your non integrated *nix-like environment, 
+# Cygwin/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
+# folder to integrate the externally installed Unix like environment
+# into Cmder so it has access to settings stored in Cmder/config
+# folder when launched.
+#
+# The destination file extension depends on the shell you use.  For example:
+#
+# bash - Copy to /etc/profile.d/cmder_exinit.sh
+# zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
+# Add portable user customizations ${CMDER_ROOT}/config/user-profile.sh or
+# add whole config scripts to ${CMDER_ROOT}/config/profile.d both will be sourced
+# from mthis file and be appied to the environment at startup.
+#
+# These customizations will follow Cmder if $CMDER_ROOT is copied
+# to another machine.
+#
+# Add system specific users customizations to $HOME/.bashrc, these 
+# customizations will not follow Cmder to another machine.
+
+# # Uncomment and edit the CMDER_ROOT line to use Cmder/config even when launched
+# # from outside Cmder.
+# CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
+
+# Check that we haven't already been sourced.
+[[ -z ${CMDER_EXINIT} ]] && CMDER_EXINIT="1" || return
+
+# We do this for bash as admin sessions since $CMDER_ROOT is not being set
+if [ "$CMDER_ROOT" = "" -a "$ConEmuDir" != "" ] ; then
+  if [ -d "${ConEmuDir}../../vendor" ] ; then
+    case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
+  else
+    echo "Running in ConEmu without Cmder, skipping Cmder integration."
+  fi
+elif [ "$CMDER_ROOT" != "" ] ; then
+  case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
+fi
+
+if [ ! "$CMDER_ROOT" = "" ] ; then
+  # Remove any trailing '/'
+  CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
+  
+  echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"."
+  
+  export CMDER_ROOT
+  
+  PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
+   
+  export PATH
+  
+  # Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
+  # to source them at startup.
+  if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
+    mkdir -p ${CMDER_ROOT}/config/profile.d
+  fi
+  
+  if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
+    unset profile_d_scripts
+    pushd ${CMDER_ROOT}/config/profile.d >/dev/null
+    if [ ! "x${ZSH_VERSION}" = "x"  ]; then
+      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.zsh 2>/dev/null)
+    elif [ ! "x${BASH_VERSION}" = "x"  ]; then
+      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh 2>/dev/null)
+    fi
+  
+    if [ ! "x${profile_d_scripts}" = "x" ] ; then
+      for x in ${profile_d_scripts} ; do
+        # echo Sourcing "${x}"...
+        . $x
+      done
+    fi
+    popd >/dev/null
+  fi
+  
+  if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
+    . ${CMDER_ROOT}/config/user-profile.sh
+  else
+    echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
+    cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
+# use this file to run your own startup commands for msys2 bash'
+
+# To add a new vendor to the path, do something like:
+# export PATH=\${CMDER_ROOT}/vendor/whatever:\${PATH}
+eof
+  fi
+fi
