@@ -99,6 +99,9 @@ function Download-File {
     $File = $File -Replace "/", "\"
     Write-Verbose "Downloading from $Url to $File"
     $wc = new-object System.Net.WebClient
-    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;    
+    if ($env:https_proxy) {
+      $wc.proxy = (new-object System.Net.WebProxy($env:https_proxy))
+    }
+    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;
     $wc.DownloadFile($Url, $File)
 }
