@@ -45,13 +45,13 @@ if not defined TERM set TERM=cygwin
 :: * test if a git is in path and if yes, use that
 :: * last, use our vendored git
 :: also check that we have a recent enough version of git (e.g. test for GIT\cmd\git.exe)
-@if defined GIT_INSTALL_ROOT (
+if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (goto :FOUND_GIT)
 )
 
 :: check if git is in path...
-@setlocal enabledelayedexpansion
-@for /F "delims=" %%F in ('where git.exe') do @(
+setlocal enabledelayedexpansion
+for /F "delims=" %%F in ('where git.exe') do @(
     pushd %%~dpF
     cd ..
     set "test_dir=!CD!"
@@ -68,7 +68,7 @@ if not defined TERM set TERM=cygwin
 
 :: our last hope: our own git...
 :VENDORED_GIT
-@if exist "%CMDER_ROOT%\vendor\git-for-windows" (
+if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
     rem add the minimal git commands to the front of the path
     set "PATH=%GIT_INSTALL_ROOT%\cmd;%PATH%"
@@ -78,7 +78,7 @@ if not defined TERM set TERM=cygwin
 
 :FOUND_GIT
 :: Add git to the path
-@if defined GIT_INSTALL_ROOT (
+if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
     echo Enhancing PATH with unix commands from git [%GIT_INSTALL_ROOT%]
     set "PATH=%PATH%;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
@@ -87,7 +87,7 @@ if not defined TERM set TERM=cygwin
 )
 
 :NO_GIT
-@endlocal & set PATH=%PATH% & set SVN_SSH=%SVN_SSH% & set GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
+endlocal & set PATH=%PATH% & set SVN_SSH=%SVN_SSH% & set GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
