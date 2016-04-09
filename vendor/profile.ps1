@@ -18,7 +18,7 @@ if(!$PSScriptRoot) {
 }
 
 # Add Cmder modules directory to the autoload path.
-$CmderModulePath = Join-path $PSScriptRoot "psmodules/"
+$CmderModulePath = Join-path $PSScriptRoot "\psmodules/"
 
 if( -not $env:PSModulePath.Contains($CmderModulePath) ){
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
@@ -108,7 +108,7 @@ foreach ($x in ls *.ps1) {
 }
 popd
 
-$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "\config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
     . "$CmderUserProfilePath"
