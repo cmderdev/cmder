@@ -193,7 +193,10 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    return io.popen("git diff --quiet --ignore-submodules HEAD 2>nul")
+    for line in io.popen("git status --porcelain 2>nul"):lines() do
+        return false
+    end
+    return true
 end
 
 function git_prompt_filter()
