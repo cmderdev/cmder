@@ -144,23 +144,24 @@ void StartCmder(std::wstring path, bool is_single_mode)
 			exit(1);
 		}
 	}
+	
+	if (streqi(path.c_str(), L""))
+	{
+		TCHAR buff[MAX_PATH];
+		const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", buff, MAX_PATH);
+		path = buff;
+	}
 
 	if (is_single_mode)
 	{
-		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder", icoPath);
+		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, path.c_str());
 	}
 	else
 	{
-		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
+		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, path.c_str());
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	if (!streqi(path.c_str(), L""))
-	{
-		if (!SetEnvironmentVariable(L"CMDER_START", path.c_str())) {
-			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
-		}
-	}
 	// Ensure EnvironmentVariables are propagated.
 	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
 	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL); // For Windows >= 8
