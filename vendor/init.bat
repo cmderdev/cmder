@@ -131,8 +131,8 @@ if not exist "%user-aliases%" (
     type "%user-aliases%" | findstr /i ";= Add aliases below here" >nul
     if "!errorlevel!" == "1" (
         echo Creating initial user-aliases store in "%user-aliases%"...
-        copy "%CMDER_ROOT%\%user-aliases%" "%user-aliases%.old_format" 
-        copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%" 
+        copy "%CMDER_ROOT%\%user-aliases%" "%user-aliases%.old_format"
+        copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
     )
 )
 
@@ -160,12 +160,6 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-
-:: This is either a env variable set by the user or the result of
-:: cmder.exe setting this variable due to a commandline argument or a "cmder here"
-if defined CMDER_START (
-    pushd "%CMDER_START%"
-)
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there

@@ -4,7 +4,6 @@
 #include "resource.h"
 #include <vector>
 
-
 #pragma comment(lib, "Shlwapi.lib")
 
 #ifndef UNICODE
@@ -31,7 +30,7 @@ void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
 	wchar_t * buffer;
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL, ec, 0, (LPWSTR) &buffer, 0, NULL) == 0)
+		NULL, ec, 0, (LPWSTR)&buffer, 0, NULL) == 0)
 	{
 		buffer = L"Unknown error. FormatMessage failed.";
 	}
@@ -53,7 +52,6 @@ typedef struct _option
 } option;
 
 typedef std::pair<std::wstring, std::wstring> optpair;
-
 
 optpair GetOption()
 {
@@ -125,13 +123,13 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 	ExpandEnvironmentStrings(cpuCfgPath, cpuCfgPath, sizeof(cpuCfgPath) / sizeof(cpuCfgPath[0]));
 
 	PathCombine(userCfgPath, exeDir, L"config\\user-ConEmu.xml");
- 
+
 	if (PathFileExists(cpuCfgPath)) {
 		wcsncpy_s(oldCfgPath, cpuCfgPath, sizeof(cpuCfgPath));
 		wcsncpy_s(backupCfgPath, cpuCfgPath, sizeof(cpuCfgPath));
 	}
 	else if (PathFileExists(userCfgPath)) {
-		wcsncpy_s(oldCfgPath, userCfgPath,sizeof(userCfgPath));
+		wcsncpy_s(oldCfgPath, userCfgPath, sizeof(userCfgPath));
 		wcsncpy_s(backupCfgPath, userCfgPath, sizeof(userCfgPath));
 	}
 	else {
@@ -171,28 +169,28 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 		exit(1);
 	}
 
+	if (streqi(path.c_str(), L""))
+	{
+		TCHAR buff[MAX_PATH];
+		const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", buff, MAX_PATH);
+		path = buff;
+	}
+
 	if (is_single_mode)
 	{
-		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder", icoPath);
+		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, path.c_str());
 	}
 	else
 	{
-		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
+		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, path.c_str());
 	}
 
 	if (!taskName.empty()) {
 		swprintf_s(args, L"%s /run {%s}", args, taskName.c_str());
 	}
 
-	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	if (!streqi(path.c_str(), L""))
-	{
-		if (!SetEnvironmentVariable(L"CMDER_START", path.c_str())) {
-			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
-		}
-	}
+	SetEnvironmentVariable(L"CMDER_ROOT", exeDir); // keep for backwards compat?
 	// Ensure EnvironmentVariables are propagated.
-
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
@@ -207,8 +205,7 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 	}
 
 	LRESULT lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL);
-	lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL); // For Windows >= 8
-
+	lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL); // For Windows >= 8
 }
 
 bool IsUserOnly(std::wstring opt)
@@ -238,8 +235,7 @@ HKEY GetRootKey(std::wstring opt)
 
 	if (IsUserOnly(opt))
 	{
-		FAIL_ON_ERROR(RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Classes", 0, NULL,
-			REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &root, NULL));
+		FAIL_ON_ERROR(RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Classes", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &root, NULL));
 	}
 	else
 	{
@@ -271,9 +267,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	HKEY root = GetRootKey(opt);
 
 	HKEY cmderKey;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(root, keyBaseName, 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 
 	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
@@ -281,9 +275,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
 
 	HKEY command;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(cmderKey, L"command", 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
+	FAIL_ON_ERROR(RegCreateKeyEx(cmderKey, L"command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
 
 	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
 
@@ -296,9 +288,7 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 {
 	HKEY root = GetRootKey(opt);
 	HKEY cmderKey;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(root, keyBaseName, 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 #if XP
 	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
 #else
