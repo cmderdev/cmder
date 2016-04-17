@@ -108,7 +108,7 @@ foreach ($x in ls *.ps1) {
 }
 popd
 
-$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "\config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
     . "$CmderUserProfilePath"
