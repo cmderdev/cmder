@@ -12,7 +12,7 @@ if not defined CMDER_ROOT (
 )
 
 :: Remove trailing '\'
-if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
+if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
 :: Change the prompt style
 :: Mmm tasty lamb
@@ -27,9 +27,9 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 
 :: Tell the user about the clink config files...
 if not exist "%CMDER_ROOT%\config\settings" (
-    echo Generating clink initial settings in %CMDER_ROOT%\config\settings
-    echo Additional *.lua files in %CMDER_ROOT%\config are loaded on startup.
-) 
+    echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
+    echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
+)
 
 :: Run clink
 "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
@@ -69,14 +69,14 @@ if not exist "%CMDER_ROOT%\config\profile.d" (
 
 pushd "%CMDER_ROOT%\config\profile.d"
 for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-  REM echo Calling %CMDER_ROOT%\config\profile.d\%%x...
+  REM echo Calling "%CMDER_ROOT%\config\profile.d\%%x"...
   call "%CMDER_ROOT%\config\profile.d\%%x"
 )
 popd
 
 :: make sure we have an example file
 if not exist "%CMDER_ROOT%\config\aliases" (
-    echo Creating intial aliases in %CMDER_ROOT%\config\aliases
+    echo Creating intial aliases in "%CMDER_ROOT%\config\aliases"
     copy "%CMDER_ROOT%\vendor\aliases.example" "%CMDER_ROOT%\config\aliases" > null
 )
 
@@ -111,8 +111,8 @@ if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     echo :: use this file to run your own startup commands
     echo :: use  in front of the command to prevent printing the command
     echo.
-    echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd
-    echo :: set PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%
+    echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
+    echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
     echo.
     ) > "%CMDER_ROOT%\config\user-profile.cmd"
 )
