@@ -8,7 +8,7 @@
 
 :: Find root dir
 if not defined CMDER_ROOT (
-    for /f "delims=" %%i in ("%ConEmuDir%\..\..") do set CMDER_ROOT=%%~fi
+    for /f "delims=" %%i in ("%ConEmuDir%\..\..") do set "CMDER_ROOT=%%~fi"
 )
 
 :: Remove trailing '\'
@@ -57,7 +57,7 @@ for /F "delims=" %%F in ('where git.exe') do @(
     set "test_dir=!CD!"
     popd
     if exist "!test_dir!\cmd\git.exe" (
-        set GIT_INSTALL_ROOT=!test_dir!
+        set "GIT_INSTALL_ROOT=!test_dir!"
         set test_dir=
         goto :FOUND_GIT
     ) else (
@@ -80,14 +80,14 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    echo Enhancing PATH with unix commands from git [%GIT_INSTALL_ROOT%]
+    echo Enhancing PATH with unix commands from git in "%GIT_INSTALL_ROOT%\usr\bin"
     set "PATH=%PATH%;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
 
 :NO_GIT
-endlocal & set PATH=%PATH% & set SVN_SSH=%SVN_SSH% & set GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
+endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
@@ -108,9 +108,9 @@ popd
 :: Allows user to override default aliases store using profile.d
 :: scripts run above.  Note: If overriding default aliases file
 :: in profile.d the aliases must also be loaded in profile.d.
-set user-aliases=%CMDER_ROOT%\config\user-aliases.cmd
+set "user-aliases=%CMDER_ROOT%\config\user-aliases.cmd"
 if not defined aliases (
-  set aliases=%user-aliases%
+  set "aliases=%user-aliases%"
 )
 
 :: make sure we have an example file
@@ -139,7 +139,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
 )
 
 :: Set home path
-if not defined HOME set HOME=%USERPROFILE%
+if not defined HOME set "HOME=%USERPROFILE%"
 
 :: This is either a env variable set by the user or the result of
 :: cmder.exe setting this variable due to a commandline argument or a "cmder here"
