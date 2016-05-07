@@ -7,7 +7,7 @@
 :: !!! Use "%CMDER_ROOT%\config\user-profile.cmd" to add your own startup commands
 
 :: Set to > 0 for verbose output to aid in debugging.
-set verbose-output=0
+if not defined verbose-output ( set verbose-output=0 )
 
 :: Find root dir
 if not defined CMDER_ROOT (
@@ -109,7 +109,7 @@ for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
 popd
 
 :: Allows user to override default aliases store using profile.d
-:: scripts run above by setting the 'alaises' env variable.
+:: scripts run above by setting the 'aliases' env variable.
 ::
 :: Note: If overriding default aliases store file the aliases
 :: must also be self executing, see '.\user-aliases.cmd.example',
