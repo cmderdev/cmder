@@ -71,7 +71,7 @@ for /F "delims=" %%F in ('where git.exe') do @(
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
     rem add the minimal git commands to the front of the path
-    set "PATH=%GIT_INSTALL_ROOT%\cmd;%PATH%"
+    set "PATH=!GIT_INSTALL_ROOT!\cmd;%PATH%"
 ) else (
     goto :NO_GIT
 )
@@ -106,8 +106,11 @@ for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
 popd
 
 :: Allows user to override default aliases store using profile.d
-:: scripts run above.  Note: If overriding default aliases file
-:: in profile.d the aliases must also be loaded in profile.d.
+:: scripts run above by setting the 'alaises' env variable.
+::
+:: Note: If overriding default aliases store file the aliases
+:: must also be self executing, see '.\user-aliases.cmd.example',
+:: and be in profile.d folder.
 set "user-aliases=%CMDER_ROOT%\config\user-aliases.cmd"
 if not defined aliases (
   set "aliases=%user-aliases%"
