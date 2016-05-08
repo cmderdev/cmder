@@ -6,6 +6,9 @@
 :: !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 :: !!! Use "%CMDER_ROOT%\config\user-profile.cmd" to add your own startup commands
 
+:: Set to > 0 for verbose output to aid in debugging.
+if not defined verbose-output ( set verbose-output=0 )
+
 :: Find root dir
 if not defined CMDER_ROOT (
     for /f "delims=" %%i in ("%ConEmuDir%\..\..") do set "CMDER_ROOT=%%~fi"
@@ -51,7 +54,7 @@ if defined GIT_INSTALL_ROOT (
 
 :: check if git is in path...
 setlocal enabledelayedexpansion
-for /F "delims=" %%F in ('where git.exe') do @(
+for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
     pushd %%~dpF
     cd ..
     set "test_dir=!CD!"
@@ -70,7 +73,7 @@ for /F "delims=" %%F in ('where git.exe') do @(
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    rem add the minimal git commands to the front of the path
+    call :verbose-output Add the minimal git commands to the front of the path
     set "PATH=!GIT_INSTALL_ROOT!\cmd;%PATH%"
 ) else (
     goto :NO_GIT
@@ -80,7 +83,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    echo Enhancing PATH with unix commands from git in "%GIT_INSTALL_ROOT%\usr\bin"
+    call :verbose-output Enhancing PATH with unix commands from git in "%GIT_INSTALL_ROOT%\usr\bin"
     set "PATH=%PATH%;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
@@ -100,34 +103,48 @@ if not exist "%CMDER_ROOT%\config\profile.d" (
 
 pushd "%CMDER_ROOT%\config\profile.d"
 for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-  REM echo Calling "%CMDER_ROOT%\config\profile.d\%%x"...
+  call :verbose-output Calling "%CMDER_ROOT%\config\profile.d\%%x"...
   call "%CMDER_ROOT%\config\profile.d\%%x"
 )
 popd
 
 :: Allows user to override default aliases store using profile.d
-:: scripts run above by setting the 'alaises' env variable.
+:: scripts run above by setting the 'aliases' env variable.
 ::
 :: Note: If overriding default aliases store file the aliases
 :: must also be self executing, see '.\user-aliases.cmd.example',
 :: and be in profile.d folder.
 set "user-aliases=%CMDER_ROOT%\config\user-aliases.cmd"
+
+:: The aliases environment variable is used by alias.bat to id
+:: the default file to store new aliases in.
 if not defined aliases (
   set "aliases=%user-aliases%"
 )
 
-:: make sure we have an example file
+:: Make sure we have a self-extracting user-aliases.cmd file
+setlocal enabledelayedexpansion
 if not exist "%user-aliases%" (
-   echo Creating intial user-aliases store in "%user-aliases%"...
-   copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
+    echo Creating intial user-aliases store in "%user-aliases%"...
+    copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
+) else (
+    type "%user-aliases%" | findstr /i ";= Add aliases below here" >nul
+    if "!errorlevel!" == "1" (
+        echo Creating intial user-aliases store in "%user-aliases%"...
+        copy "%CMDER_ROOT%\%user-aliases%" "%user-aliases%.old_format" 
+        copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%" 
+    )
 )
 
 :: Update old 'user-aliases' to new self executing 'user-aliases.cmd'
 if exist "%CMDER_ROOT%\config\aliases" (
   echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
   type "%CMDER_ROOT%\config\aliases" >> "%user-aliases%" && del "%CMDER_ROOT%\config\aliases"
+) else if exist "%user-aliases%.old_format" (
+  echo Updating old "%user-aliases%" to new format...
+  type "%user-aliases%.old_format" >> "%user-aliases%" && del "%user-aliases%.old_format"
 )
-
+endlocal
 :: Add aliases to the environment
 call "%user-aliases%"
 
@@ -135,7 +152,7 @@ call "%user-aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
-    echo Running Git for Windows one time Post Install....
+    call :verbose-output Running Git for Windows one time Post Install....
     cd /d "%CMDER_ROOT%\vendor\git-for-windows\"
     "%CMDER_ROOT%\vendor\git-for-windows\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     cd /d %USERPROFILE%
@@ -152,7 +169,7 @@ if defined CMDER_START (
 
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
-    rem create this file and place your own command in there
+    REM Create this file and place your own command in there
     call "%CMDER_ROOT%\config\user-profile.cmd"
 ) else (
     echo Creating user startup file: "%CMDER_ROOT%\config\user-profile.cmd"
@@ -165,3 +182,12 @@ if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     echo.
     ) > "%CMDER_ROOT%\config\user-profile.cmd"
 )
+
+exit /b
+
+::
+:: sub-routines below here
+::
+:verbose-output
+    if %verbose-output% gtr 0 echo %*
+    exit /b
