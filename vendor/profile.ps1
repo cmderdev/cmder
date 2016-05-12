@@ -67,6 +67,9 @@ function checkGit($Path) {
 
 # Set up a Cmder prompt, adding the git prompt parts inside git repos
 function global:prompt {
+    
+    if(Test-Path Function:\"User-PrePrompt"){ Invoke-Expression "User-PrePrompt"} #Allows user to define some pre-prompt actions and affect tuning
+
     $realLASTEXITCODE = $LASTEXITCODE
     $Host.UI.RawUI.ForegroundColor = "White"
     Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
@@ -74,7 +77,12 @@ function global:prompt {
         checkGit($pwd.ProviderPath)
     }
     $global:LASTEXITCODE = $realLASTEXITCODE
-    Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray"
+    
+    if(Test-Path Function:\"User-Prompt"){ Invoke-Expression "User-Prompt"} #Allows user to hook his output instead of default 'λ'
+    else { Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray" }
+
+    if(Test-Path Function:\"User-PostPrompt"){ Invoke-Expression "User-PostPrompt"} #Allows user to define post-prompt actions
+    
     return " "
 }
 
