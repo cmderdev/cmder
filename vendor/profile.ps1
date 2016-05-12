@@ -65,19 +65,6 @@ function checkGit($Path) {
     }
 }
 
-# Set up a Cmder prompt, adding the git prompt parts inside git repos
-function global:prompt {
-    $realLASTEXITCODE = $LASTEXITCODE
-    $Host.UI.RawUI.ForegroundColor = "White"
-    Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-    if($gitStatus){
-        checkGit($pwd.ProviderPath)
-    }
-    $global:LASTEXITCODE = $realLASTEXITCODE
-    Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray"
-    return " "
-}
-
 # Load special features come from posh-git
 if ($gitStatus) {
     Start-SshAgent -Quiet
@@ -110,11 +97,78 @@ foreach ($x in ls *.ps1) {
 }
 popd
 
+#
+# Prompt Section
+#   Users should modify their user-profile.ps1 as it will be safe from updates.
+#
+
+# Pre assign the hooks so the first run of cmder gets a working prompt.
+[ScriptBlock]$PrePrompt = {}
+[ScriptBlock]$PostPrompt = {}
+[ScriptBlock]$CmderPrompt = {
+    $Host.UI.RawUI.ForegroundColor = "White"
+    Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
+    if($gitStatus){
+        checkGit($pwd.ProviderPath)
+    }
+}
+
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if(Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
     . "$CmderUserProfilePath"
 } else {
-    Write-Host "Creating user startup file: $CmderUserProfilePath"
-    "# Use this file to run your own startup commands" | Out-File $CmderUserProfilePath
+# This multiline string cannot be indented, for this reason I've not indented the whole block
+
+Write-Host -BackgroundColor Darkgreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
+
+$UserProfileTemplate = @'
+# Use this file to run your own startup commands
+
+## Prompt Customization
+<#
+.SYNTAX
+    <PrePrompt><CMDER DEFAULT>
+    λ <PostPrompt> <repl input>
+.EXAMPLE
+    <PrePrompt>N:\Documents\src\cmder [master]
+    λ <PostPrompt> |
+#>
+
+[ScriptBlock]$PrePrompt = {
+
 }
+
+# Replace the cmder prompt entirely with this.
+# [ScriptBlock]$CmderPrompt = {}
+
+[ScriptBlock]$PostPrompt = {
+
+}
+
+## <Continue to add your own>
+
+
+'@
+
+New-Item -ItemType File -Path $CmderUserProfilePath -Value $UserProfileTemplate > $null
+
+}
+
+# Once Created these code blocks cannot be overwritten
+Set-Item -Path function:\PrePrompt   -Value $PrePrompt   -Options Constant
+Set-Item -Path function:\CmderPrompt -Value $CmderPrompt -Options Constant
+Set-Item -Path function:\PostPrompt  -Value $PostPrompt  -Options Constant
+
+[ScriptBlock]$Prompt = {
+    $realLASTEXITCODE = $LASTEXITCODE
+    PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
+    CmderPrompt
+    Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
+    PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
+    $global:LASTEXITCODE = $realLASTEXITCODE
+    return " "
+}
+
+# ReadOnly at least requires `-force` to be overwritten
+Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly
