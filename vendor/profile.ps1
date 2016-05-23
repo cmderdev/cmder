@@ -46,16 +46,18 @@ try {
     $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\bin")
 }
 
-try {
-    Import-Module -Name "posh-git" -ErrorAction Stop >$null
-    $gitStatus = $true
-} catch {
-    Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart cmder."
-    $gitStatus = $false
+$gitLoaded = $false
+function Import-Git($Loaded){
+    if($Loaded) { return }
+    if(-not (Get-Module -Name Posh-Git -ListAvailable) ) {
+        Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart cmder."
+    }
+    return $true
 }
 
 function checkGit($Path) {
     if (Test-Path -Path (Join-Path $Path '.git') ) {
+        $gitLoaded = Import-Git $gitLoaded
         Write-VcsStatus
         return
     }
@@ -103,9 +105,7 @@ popd
 [ScriptBlock]$CmderPrompt = {
     $Host.UI.RawUI.ForegroundColor = "White"
     Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-    if($gitStatus){
-        checkGit($pwd.ProviderPath)
-    }
+    checkGit($pwd.ProviderPath)
 }
 
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
