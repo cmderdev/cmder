@@ -83,10 +83,10 @@ function Register-Cmder(){
     }
     Process
     {
-        New-Item -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
+        New-Item         -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "NoWorkingDirectory"
-        New-Item -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+        New-Item         -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
     }
 }
 
