@@ -79,14 +79,39 @@ function Register-Cmder(){
     )
     Begin
     {
-        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
     }
     Process
     {
-        New-Item -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
+        New-Item         -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "NoWorkingDirectory"
-        New-Item -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+        New-Item         -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+
+        New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Value $MenuText
+        New-ItemProperty -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
+        New-ItemProperty -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Name "NoWorkingDirectory"
+        New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+    }
+    End
+    {
+        Remove-PSDrive -Name HKCR
+    }
+}
+
+function Unregister-Cmder{
+    Begin
+    {
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
+    }
+    Process
+    {
+        Remove-Item -Path "HKCR:\Directory\Shell\Cmder" -Recurse
+        Remove-Item -Path "HKCR:\Directory\Background\Shell\Cmder" -Recurse
+    }
+    End
+    {
+        Remove-PSDrive -Name HKCR
     }
 }
 
