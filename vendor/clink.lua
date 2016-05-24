@@ -12,6 +12,21 @@ dofile(clink_lua_file)
 
 -- now add our own things...
 
+---
+ -- Setting the prompt in clink means that commands which rewrite the prompt do
+ -- not destroy our own prompt. It also means that started cmds (or batch files
+ -- which echo) don't get the ugly '{lamb}' shown.
+---
+function set_prompt_filter()
+    -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
+    -- color codes: "\x1b[1;37;40m"
+    cwd = clink.get_cwd()
+    prompt = "\x1b[1;32;40m{cwd} {git}{hg} \n\x1b[1;30;40m{lamb} \x1b[0m"
+    new_value = string.gsub(prompt, "{cwd}", cwd)
+    clink.prompt.value = new_value
+end
+
+
 function lambda_prompt_filter()
     clink.prompt.value = string.gsub(clink.prompt.value, "{lamb}", "λ")
 end
@@ -230,6 +245,8 @@ function git_prompt_filter()
     return false
 end
 
+-- insert the set_prompt at the very beginning so that it runs first
+clink.prompt.register_filter(set_prompt_filter, 1)
 clink.prompt.register_filter(lambda_prompt_filter, 40)
 clink.prompt.register_filter(hg_prompt_filter, 50)
 clink.prompt.register_filter(git_prompt_filter, 50)
