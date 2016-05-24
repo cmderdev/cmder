@@ -93,6 +93,10 @@ function Register-Cmder(){
         New-ItemProperty -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Name "NoWorkingDirectory"
         New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
     }
+    End
+    {
+        Remove-PSDrive -Name HKCR
+    }
 }
 
 function Unregister-Cmder{
@@ -104,6 +108,10 @@ function Unregister-Cmder{
     {
         Remove-Item -Path "HKCR:\Directory\Shell\Cmder" -Recurse
         Remove-Item -Path "HKCR:\Directory\Background\Shell\Cmder" -Recurse
+    }
+    End
+    {
+        Remove-PSDrive -Name HKCR
     }
 }
 
