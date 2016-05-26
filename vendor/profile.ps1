@@ -157,6 +157,7 @@ Set-Item -Path function:\PostPrompt  -Value $PostPrompt  -Options Constant
 
 [ScriptBlock]$Prompt = {
     $realLASTEXITCODE = $LASTEXITCODE
+    $host.UI.RawUI.WindowTitle = Split-Path $pwd.ProviderPath -Leaf
     PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
     CmderPrompt
     Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
