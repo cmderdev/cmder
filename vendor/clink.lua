@@ -5,7 +5,7 @@
 
 
 -- At first, load the original clink.lua file
--- this is needed as we set the script path to this dir and therefore the original 
+-- this is needed as we set the script path to this dir and therefore the original
 -- clink.lua is not loaded.
 local clink_lua_file = clink.get_env('CMDER_ROOT')..'\\vendor\\clink\\clink.lua'
 dofile(clink_lua_file)
@@ -193,7 +193,7 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    return io.popen("git diff --quiet --ignore-submodules HEAD 2>nul")
+    return os.execute("git diff --quiet --ignore-submodules HEAD")
 end
 
 function git_prompt_filter()
@@ -240,4 +240,3 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
         dofile(filename)
     end
 end
-
