@@ -193,7 +193,11 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    return io.popen("git diff --quiet --ignore-submodules HEAD 2>nul")
+    local file = io.popen("git diff --quiet --ignore-submodules HEAD 2>nul")
+    -- This will get a table with some return stuff
+    -- rc[3] will be the signal, 0 or 1
+    local rc = {file:close()}
+    return rc[3] == 0
 end
 
 function git_prompt_filter()
