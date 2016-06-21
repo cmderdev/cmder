@@ -17,10 +17,6 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\'
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
-:: Change the prompt style
-:: Mmm tasty lamb
-prompt $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
-
 :: Pick right version of clink
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set architecture=86
