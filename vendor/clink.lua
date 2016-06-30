@@ -23,12 +23,7 @@ function set_prompt_filter()
     cwd = clink.get_cwd()
     prompt = "\x1b[1;32;40m{cwd} {git}{hg} \n\x1b[1;30;40m{lamb} \x1b[0m"
     new_value = string.gsub(prompt, "{cwd}", cwd)
-    clink.prompt.value = new_value
-end
-
-
-function lambda_prompt_filter()
-    clink.prompt.value = string.gsub(clink.prompt.value, "{lamb}", "λ")
+    clink.prompt.value = string.gsub(new_value, "{lamb}", "λ")
 end
 
 ---
@@ -246,7 +241,6 @@ end
 
 -- insert the set_prompt at the very beginning so that it runs first
 clink.prompt.register_filter(set_prompt_filter, 1)
-clink.prompt.register_filter(lambda_prompt_filter, 40)
 clink.prompt.register_filter(hg_prompt_filter, 50)
 clink.prompt.register_filter(git_prompt_filter, 50)
 
