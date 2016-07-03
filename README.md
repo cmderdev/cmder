@@ -13,9 +13,9 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 ## Installation
 
 1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
-2. Extract
-3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
-4. Run Cmder
+2. Extract the archive
+3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH
+4. Run Cmder.exe
 
 ## Integration
 
@@ -58,18 +58,18 @@ You can open multiple tabs each containing one of the following shells:
 |----|-----|-----------|
 |Cmder|cmd.exe|Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink(GNU Readline), and Aliases.|
 |Cmder as Admin|cmd.exe|Administrative Windows 'cmd.exe' Cmder shell.|
-|Powershell|powershell.exe|Windows Powershell enhanced with Git and Git aware prompt .|
-|Powershell as Admin|powershell.exe|Administrative Windows 'powerhell.exe' Cmder shell.|
+|PowerShell|powershell.exe|Windows PowerShell enhanced with Git and Git aware prompt .|
+|PowerShell as Admin|powershell.exe|Administrative Windows 'powerhell.exe' Cmder shell.|
 |Bash|bash.exe|Unix/Linux like bash shell running on Windows.|
 |Bash as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows.|
 |Mintty|bash.exe|Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
 |Mintty as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
 
-Cmder, Powershell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
+Cmder, PowerShell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
 
 Mintty tabs use a program called 'mintty' as the terminal that is not based on the Windows Console API so some differences in functionality are normal, as a result mintty specific config is done via the '[%USERPROFILE%|$HOME]/.minttyrc' file.
 
-Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings. For more on Mintty and its config click [here](https://code.google.com/p/mintty/).
+Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings. For more on Mintty and its config click [here](https://github.com/mintty/mintty).
 
 An example of setting Cmder portable terminal colors for mintty:
 
@@ -88,7 +88,7 @@ User specific configuration is possible using the cmder specific shell config fi
 |Shell|Cmder Portable User Config|
 | ------------- |:-------------:|
 |Cmder|%CMDER_ROOT%\config\user-profile.cmd|
-|Powershell|$ENV:CMDER_ROOT\config\user-profile.ps1|
+|PowerShell|$ENV:CMDER_ROOT\config\user-profile.ps1|
 |Bash/Mintty|$CMDER_ROOT/config/user-profile.sh|
 
 Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
@@ -99,7 +99,7 @@ You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CM
 |Shell|Cmder 'Profile.d' Scripts|
 | ------------- |:-------------:|
 |Cmder|%CMDER_ROOT%\config\profile.d\\*.bat and *.cmd|
-|Powershell|$ENV:CMDER_ROOT\config\profile.d\\*.ps1|
+|PowerShell|$ENV:CMDER_ROOT\config\profile.d\\*.ps1|
 |Bash/Mintty|$CMDER_ROOT/config/profile.d/*.sh|
 
 
@@ -116,8 +116,8 @@ Bash shells support simple and complex aliases with optional parameters natively
 
 If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
-#### Powershell.exe Aliases
-Powershell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in Powershell sessions.  Type `get-help [new-alias|set-alias] -full` for help on Powershell aliases.
+#### PowerShell.exe Aliases
+PowerShell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in PowerShell sessions.  Type `get-help [new-alias|set-alias] -full` for help on PowerShell aliases.
 
 ### SSH Agent
 
@@ -127,11 +127,11 @@ If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_R
 
 ### Using external Cygwin/Babun, MSys2, or Git for Windows SDK with Cmder.
 
-1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'
+1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'.
 1. Click the '+' button to add a task.
 1. Name the new task in the top text box.
 1. Provide task parameters, this is optional.
-1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console:d:%USERPROFILE%``` to the Commands text box.
+1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console:d:%USERPROFILE%``` to the `Commands` text box.
 
 Recommended Optional Steps:
 
@@ -150,13 +150,9 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
-## Todo
-
-1. Check for clink and git before injecting them (Sort of done)
-
 ## Current development branch
 
-You can download builds of the current development branch by going to Appveyor via the following link:
+You can download builds of the current development branch by going to AppVeyor via the following link:
 
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/MartiUK/cmder/branch/development/artifacts)
 
@@ -166,7 +162,7 @@ All software included is bundled with own license
 
 The MIT License (MIT)
 
-Copyright (c) 2015 Samuel Vasko
+Copyright (c) 2016 Samuel Vasko
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
