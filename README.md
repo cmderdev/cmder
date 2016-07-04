@@ -42,7 +42,7 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 
 ### Shell
 
-* <kbd>Shift</kbd> + <kbd>Up</kbd> : Traverse up in directory structure (lovely feature!)
+* <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>u</kbd> : Traverse up in directory structure (lovely feature!)
 * <kbd>End</kbd>, <kbd>Home</kbd>, <kbd>Ctrl</kbd> : Traversing text with as usual on Windows
 * <kbd>Ctrl</kbd> + <kbd>R</kbd> : History search
 * <kbd>Shift</kbd> + Mouse : Select and copy text from buffer
