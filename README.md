@@ -14,7 +14,7 @@ The main advantage of Cmder is portability. It is designed to be totally self-co
 
 ## Installation
 
-1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
+1. Download the [latest release](https://github.com/cmderdev/cmder/releases/). (The download links are at bottom of change log.)
 2. Extract
 3. (optional) Place your own executable files into the `bin` folder to be injected into your PATH.
 4. Run Cmder
