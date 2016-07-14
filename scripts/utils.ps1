@@ -28,7 +28,7 @@ function Delete-Existing ($path) {
 }
 
 function Extract-Archive ($source, $target) {
-    Invoke-Expression "7z x -y -o$($target) '$source' > `$null"
+    Invoke-Expression "7z x -y -o`"$($target)`" `"$source`"  > `$null"
     if ($lastexitcode -ne 0) {
         Write-Error "Extracting of $source failied"
     }
@@ -79,14 +79,39 @@ function Register-Cmder(){
     )
     Begin
     {
-        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
     }
     Process
     {
-        New-Item -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
+        New-Item         -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "NoWorkingDirectory"
-        New-Item -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+        New-Item         -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+
+        New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Value $MenuText
+        New-ItemProperty -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
+        New-ItemProperty -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Name "NoWorkingDirectory"
+        New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+    }
+    End
+    {
+        Remove-PSDrive -Name HKCR
+    }
+}
+
+function Unregister-Cmder{
+    Begin
+    {
+        New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
+    }
+    Process
+    {
+        Remove-Item -Path "HKCR:\Directory\Shell\Cmder" -Recurse
+        Remove-Item -Path "HKCR:\Directory\Background\Shell\Cmder" -Recurse
+    }
+    End
+    {
+        Remove-PSDrive -Name HKCR
     }
 }
 
@@ -99,6 +124,9 @@ function Download-File {
     $File = $File -Replace "/", "\"
     Write-Verbose "Downloading from $Url to $File"
     $wc = new-object System.Net.WebClient
-    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;    
+    if ($env:https_proxy) {
+      $wc.proxy = (new-object System.Net.WebProxy($env:https_proxy))
+    }
+    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;
     $wc.DownloadFile($Url, $File)
 }
