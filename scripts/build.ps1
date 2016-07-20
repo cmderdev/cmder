@@ -53,6 +53,10 @@ Param(
     [switch]$Compile
 )
 
+# Get the scripts and cmder root dirs we are building in.
+$ScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
+$cmder_root = $ScriptRoot.replace("\scripts","")
+
 # Dot source util functions into this scope
 . ".\utils.ps1"
 
@@ -78,6 +82,14 @@ if ($config -ne "") {
         Copy-Item $ConEmuXml $ConEmuXmlSave
     } else { $ConEmuXml = "" }
 } else { $ConEmuXml = "" }
+
+# Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
+foreach ($ssh_agent in $(get-process ssh-agent -erroraction silentlycontinue)) {
+  if ([string]$($ssh_agent.path) -match [string]$cmder_root.replace('\','\\')) {
+    write-verbose $("Stopping " + $ssh_agent.path + "!")
+    stop-process $ssh_agent.id
+  }
+}
 
 $vend = $pwd
 foreach ($s in $sources) {

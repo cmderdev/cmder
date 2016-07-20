@@ -16,3 +16,4 @@ config/user-*
 bin/utils.ps1
 config/aliases
 config/profile.d
+.github_changelog_generator

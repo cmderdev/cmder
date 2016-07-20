@@ -131,7 +131,14 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
 	}
 
-	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
+	SYSTEM_INFO sysInfo;
+	GetNativeSystemInfo(&sysInfo);
+	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) {
+		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu64.exe");
+	}
+	else {
+		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
+	}
 
 	if (FileExists(oldCfgPath) && !FileExists(cfgPath))
 	{
