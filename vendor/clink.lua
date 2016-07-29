@@ -142,8 +142,8 @@ end
  -- @return {bool}
 ---
 function get_hg_status()
-    for line in io.popen("hg status"):lines() do
-        return false
+    for line in io.popen("hg status -0"):lines() do
+       return false
     end
     return true
 end
