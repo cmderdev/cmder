@@ -43,7 +43,7 @@ fi
 
 if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
   unset profile_d_scripts
-  pushd ${CMDER_ROOT}/config/profile.d >/dev/null
+  pushd "${CMDER_ROOT}/config/profile.d" >/dev/null
   profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh 2>/dev/null)
 
   if [ ! "x${profile_d_scripts}" = "x" ] ; then
@@ -55,8 +55,8 @@ if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
   popd >/dev/null
 fi
 
-if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
-    . ${CMDER_ROOT}/config/user-profile.sh
+if [ -f "${CMDER_ROOT}/config/user-profile.sh" ] ; then
+    . "${CMDER_ROOT}/config/user-profile.sh"
 else
     echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
     cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
