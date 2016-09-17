@@ -225,7 +225,7 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    for line in io.popen("git status --porcelain 2>nul"):lines() do
+    for line in io.popen("git status --no-lock-index --porcelain 2>nul"):lines() do
         return false
     end
     return true
