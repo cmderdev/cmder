@@ -203,9 +203,12 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    for line in io.popen("git status --porcelain 2>nul"):lines() do
+    local file = io.popen("git status --no-lock-index --porcelain 2>nul")
+    for line in file:lines() do
+        file:close()
         return false
     end
+    file:close()
     return true
 end
 
