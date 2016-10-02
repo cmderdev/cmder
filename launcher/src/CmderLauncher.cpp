@@ -118,15 +118,25 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
 
 	// Check for machine-specific config file.
-	PathCombine(oldCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
-	ExpandEnvironmentStrings(oldCfgPath, oldCfgPath, sizeof(oldCfgPath) / sizeof(oldCfgPath[0]));
-	if (!PathFileExists(oldCfgPath)) {
+	PathCombine(cpuCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+	ExpandEnvironmentStrings(cpuCfgPath, cpuCfgPath, sizeof(cpuCfgPath) / sizeof(cpuCfgPath[0]));
+
+	// Check for user-specific config file.
+	PathCombine(userCfgPath, exeDir, L"config\\user-ConEmu.xml");
+ 
+  if (PathFileExists(cpuCfgPath)) {
+		PathCombine(oldCfgPath, exeDir, cpuCfgPath.GetBuffer(sizeof(cpuCfgPath)));
+  }
+  else if (!PathFileExists(userCfgPath)) {
+		PathCombine(oldCfgPath, exeDir, userCfgPath.GetBuffer(sizeof(userCfgPath)));
+  }
+  else {
 		PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
-	}
+  }
 
 	// Check for machine-specific config file.
-	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu-%COMPUTERNAME%.xml");
-	ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
+	PathCombine(cfgPath, exeDir, oldCfgPath.GetBufer(sizeof(oldCfgPath);
+	// ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
 	if (!PathFileExists(cfgPath)) {
 		PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
 	}
