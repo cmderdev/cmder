@@ -103,6 +103,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	wchar_t exeDir[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 	wchar_t cfgPath[MAX_PATH] = { 0 };
+	wchar_t backupCfgPath[MAX_PATH] = { 0 };
 	wchar_t cpuCfgPath[MAX_PATH] = { 0 };
 	wchar_t userCfgPath[MAX_PATH] = { 0 };
 	wchar_t oldCfgPath[MAX_PATH] = { 0 };
@@ -127,12 +128,15 @@ void StartCmder(std::wstring path, bool is_single_mode)
  
 	if (PathFileExists(cpuCfgPath)) {
 		wcsncpy_s(oldCfgPath, cpuCfgPath, sizeof(cpuCfgPath));
+		wcsncpy_s(backupCfgPath, cpuCfgPath, sizeof(cpuCfgPath));
 	}
 	else if (PathFileExists(userCfgPath)) {
 		wcsncpy_s(oldCfgPath, userCfgPath,sizeof(userCfgPath));
+		wcsncpy_s(backupCfgPath, userCfgPath, sizeof(userCfgPath));
 	}
 	else {
 		PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
+		wcsncpy_s(backupCfgPath, userCfgPath, sizeof(userCfgPath));
 	}
 
 	// Set path to vendored ConEmu config file
@@ -158,15 +162,13 @@ void StartCmder(std::wstring path, bool is_single_mode)
 			exit(1);
 		}
 	}
-	else {
-		if (!CopyFile(cfgPath, oldCfgPath, FALSE))
-		{
-			MessageBox(NULL,
-				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to backup ConEmu.xml file to ./config folder!"
-				: L"Failed to backup ConEmu.xml file to ./config folder!", MB_TITLE, MB_ICONSTOP);
-			exit(1);
-		}
+	else if (!CopyFile(cfgPath, backupCfgPath, FALSE))
+	{
+		MessageBox(NULL,
+			(GetLastError() == ERROR_ACCESS_DENIED)
+			? L"Failed to backup ConEmu.xml file to ./config folder!"
+			: L"Failed to backup ConEmu.xml file to ./config folder!", MB_TITLE, MB_ICONSTOP);
+		exit(1);
 	}
 
 	if (is_single_mode)
