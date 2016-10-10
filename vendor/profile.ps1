@@ -49,9 +49,14 @@ try {
 $gitLoaded = $false
 function Import-Git($Loaded){
     if($Loaded) { return }
-    if(-not (Get-Module -Name Posh-Git -ListAvailable) ) {
+    $GitModule = Get-Module -Name Posh-Git -ListAvailable
+    if($GitModule | select version | where version -le ([version]"0.6.1.20160330")){
+        Import-Module Posh-Git > $null
+    }
+    if(-not ($GitModule) ) {
         Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart cmder."
     }
+    # Make sure we only run once by alawys returning true
     return $true
 }
 
