@@ -125,6 +125,45 @@ To start SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-fo
 
 If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user-profile.cmd` (usually just uncomment it).
 
+### Plugin Support
+
+You can easily extend Cmder using plugins.  A Cmder plugin is a simple json formatted file that contains instructions on how to download and add software to cmder.
+
+Below is a simple plugin that installs the text editor 'Atom', adds aliases to launch/configure Atom to all shell types and even installs Atom plugins.
+
+```
+[
+  {
+    "name": "atom",
+    "version": "v1.5.3",
+    "url": "https://github.com/atom/atom/releases/download/v1.5.3/atom-windows.zip",
+    "alias": {
+      "atom": {
+        "sh": "$cmder_root/vendor/atom/atom",
+        "cmder": "%CMDER_ROOT%/vendor/atom/atom",
+        "posh": "$env:cmder_root/vendor/atom/atom"
+      },
+      "apm": {
+        "sh": "$cmder_root/vendor/atom/resources/app/apm/bin/apm",
+        "cmder": "%CMDER_ROOT%/vendor/atom/resources/app/apm/bin/apm",
+        "posh": "$env:cmder_root/vendor/atom/resources/app/apm/bin/apm"
+      }
+    },
+    "pre_commands": [
+    ],
+    "post_commands": [
+      "apm install vim-mode"
+    ]
+  }
+]
+```
+
+Install plugins by typing the following from either a Cmder or a Cmder Powershell shell:
+
+```
+add-cmderplugin -pluginpath [path-to-plugin.json]
+```
+
 ### Using external Cygwin/Babun, MSys2, or Git for Windows SDK with Cmder.
 
 1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'.
