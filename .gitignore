@@ -15,3 +15,4 @@ Version v*
 config/user-*
 config/aliases
 config/profile.d
+.github_changelog_generator
