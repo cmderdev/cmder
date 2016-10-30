@@ -253,7 +253,7 @@
 			<value name="TabsLocation" type="hex" data="01"/>
 			<value name="TabSelf" type="hex" data="01"/>
 			<value name="TabLazy" type="hex" data="01"/>
-			<value name="TabRecent" type="hex" data="01"/>
+			<value name="TabRecent" type="hex" data="00"/>
 			<value name="TabDblClick" type="dword" data="00000001"/>
 			<value name="TabsOnTaskBar" type="hex" data="02"/>
 			<value name="TaskBarOverlay" type="hex" data="01"/>

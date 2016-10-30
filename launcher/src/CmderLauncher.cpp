@@ -188,8 +188,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		}
 	}
 	// Ensure EnvironmentVariables are propagated.
-	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
-	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL); // For Windows >= 8
+
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
@@ -197,12 +196,15 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	si.lpTitle = appId;
 	si.dwFlags = STARTF_TITLEISAPPID;
 #endif
-
 	PROCESS_INFORMATION pi;
 	if (!CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
 		MessageBox(NULL, _T("Unable to create the ConEmu Process!"), _T("Error"), MB_OK);
 		return;
 	}
+
+	LRESULT lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL);
+	lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL); // For Windows >= 8
+
 }
 
 bool IsUserOnly(std::wstring opt)
