@@ -18,7 +18,7 @@ if(!$PSScriptRoot) {
 }
 
 # Add Cmder modules directory to the autoload path.
-$CmderModulePath = Join-path $PSScriptRoot "psmodules/"
+$CmderModulePath = Join-path $PSScriptRoot "\psmodules/"
 
 if( -not $env:PSModulePath.Contains($CmderModulePath) ){
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
