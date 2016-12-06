@@ -38,6 +38,9 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 * <kbd>Ctrl</kbd> + <kbd>W</kbd> : Close tab
 * <kbd>Ctrl</kbd> + <kbd>D</kbd> : Close tab (if pressed on empty command)
 * <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>#Number</kbd> : Fast new tab: <kbd>1</kbd> - CMD, <kbd>2</kbd> - PowerShell
+* <kbd>Ctrl</kbd> + <kbd>Tab</kbd> : Switch to next tab
+* <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> : Switch to previous tab
+* <kbd>Ctrl</kbd> + <kbd>#Number</kbd> : Switch to tab #Number
 * <kbd>Alt</kbd> + <kbd>Enter</kbd>: Fullscreen
 
 ### Shell
