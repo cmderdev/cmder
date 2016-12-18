@@ -118,14 +118,14 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
 
 	// Check for machine-specific config file.
-	PathCombine(oldCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+	PathCombine(oldCfgPath, exeDir, L"config\\user-ConEmu-%COMPUTERNAME%.xml");
 	ExpandEnvironmentStrings(oldCfgPath, oldCfgPath, sizeof(oldCfgPath) / sizeof(oldCfgPath[0]));
 	if (!PathFileExists(oldCfgPath)) {
 		PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
 	}
 
 	// Check for machine-specific config file.
-	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu-%COMPUTERNAME%.xml");
+	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\user-ConEmu-%COMPUTERNAME%.xml");
 	ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
 	if (!PathFileExists(cfgPath)) {
 		PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
