@@ -12,8 +12,40 @@ dofile(clink_lua_file)
 
 -- now add our own things...
 
-function lambda_prompt_filter()
-    clink.prompt.value = string.gsub(clink.prompt.value, "{lamb}", "λ")
+---
+ -- Setting the prompt in clink means that commands which rewrite the prompt do
+ -- not destroy our own prompt. It also means that started cmds (or batch files
+ -- which echo) don't get the ugly '{lamb}' shown.
+---
+function set_prompt_filter()
+    -- get_cwd() is differently encoded than the clink.prompt.value, so everything other than
+    -- pure ASCII will get garbled. So try to parse the current directory from the original prompt
+    -- and only if that doesn't work, use get_cwd() directly.
+    -- The matching relies on the default prompt which ends in X:\PATH\PATH>
+    -- (no network path possible here!)
+    local old_prompt = clink.prompt.value
+    local cwd = old_prompt:match('.*(.:[^>]*)>')
+    if cwd == nil then cwd = clink.get_cwd() end
+    
+    -- environment systems like pythons virtualenv change the PROMPT and usually
+    -- set some variable. But the variables are differently named and we would never
+    -- get them all, so try to parse the env name out of the PROMPT.
+    -- envs are usually put in round or square parentheses and before the old prompt
+    local env = old_prompt:match('.*%(([^%)]+)%).+:')
+    -- also check for square brackets
+    if env == nil then env = old_prompt:match('.*%[([^%]]+)%].+:') end
+    
+    -- build our own prompt
+    -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
+    -- color codes: "\x1b[1;37;40m"
+    local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg} \n\x1b[1;30;40m{lamb} \x1b[0m"
+    cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
+    if env == nil then
+        lambda = "λ"
+    else
+        lambda = "("..env..") λ"
+    end
+    clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", lambda)
 end
 
 ---
@@ -132,8 +164,8 @@ end
  -- @return {bool}
 ---
 function get_hg_status()
-    for line in io.popen("hg status"):lines() do
-        return false
+    for line in io.popen("hg status -0"):lines() do
+       return false
     end
     return true
 end
@@ -193,7 +225,13 @@ end
  -- @return {bool}
 ---
 function get_git_status()
-    return io.popen("git diff --quiet --ignore-submodules HEAD 2>nul")
+    local file = io.popen("git status --no-lock-index --porcelain 2>nul")
+    for line in file:lines() do
+        file:close()
+        return false
+    end
+    file:close()
+    return true
 end
 
 function git_prompt_filter()
@@ -226,7 +264,8 @@ function git_prompt_filter()
     return false
 end
 
-clink.prompt.register_filter(lambda_prompt_filter, 40)
+-- insert the set_prompt at the very beginning so that it runs first
+clink.prompt.register_filter(set_prompt_filter, 1)
 clink.prompt.register_filter(hg_prompt_filter, 50)
 clink.prompt.register_filter(git_prompt_filter, 50)
 

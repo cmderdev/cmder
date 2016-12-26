@@ -103,6 +103,9 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	wchar_t exeDir[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 	wchar_t cfgPath[MAX_PATH] = { 0 };
+	wchar_t backupCfgPath[MAX_PATH] = { 0 };
+	wchar_t cpuCfgPath[MAX_PATH] = { 0 };
+	wchar_t userCfgPath[MAX_PATH] = { 0 };
 	wchar_t oldCfgPath[MAX_PATH] = { 0 };
 	wchar_t conEmuPath[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
@@ -117,21 +120,36 @@ void StartCmder(std::wstring path, bool is_single_mode)
 
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
 
-	// Check for machine-specific config file.
-	PathCombine(oldCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
-	ExpandEnvironmentStrings(oldCfgPath, oldCfgPath, sizeof(oldCfgPath) / sizeof(oldCfgPath[0]));
-	if (!PathFileExists(oldCfgPath)) {
+	// Check for machine-specific then user config source file.
+	PathCombine(cpuCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
+	ExpandEnvironmentStrings(cpuCfgPath, cpuCfgPath, sizeof(cpuCfgPath) / sizeof(cpuCfgPath[0]));
+
+	PathCombine(userCfgPath, exeDir, L"config\\user-ConEmu.xml");
+ 
+	if (PathFileExists(cpuCfgPath)) {
+		wcsncpy_s(oldCfgPath, cpuCfgPath, sizeof(cpuCfgPath));
+		wcsncpy_s(backupCfgPath, cpuCfgPath, sizeof(cpuCfgPath));
+	}
+	else if (PathFileExists(userCfgPath)) {
+		wcsncpy_s(oldCfgPath, userCfgPath,sizeof(userCfgPath));
+		wcsncpy_s(backupCfgPath, userCfgPath, sizeof(userCfgPath));
+	}
+	else {
 		PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
+		wcsncpy_s(backupCfgPath, userCfgPath, sizeof(userCfgPath));
 	}
 
-	// Check for machine-specific config file.
-	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu-%COMPUTERNAME%.xml");
-	ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
-	if (!PathFileExists(cfgPath)) {
-		PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
-	}
+	// Set path to vendored ConEmu config file
+	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
 
-	PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
+	SYSTEM_INFO sysInfo;
+	GetNativeSystemInfo(&sysInfo);
+	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) {
+		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu64.exe");
+	}
+	else {
+		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
+	}
 
 	if (FileExists(oldCfgPath) && !FileExists(cfgPath))
 	{
@@ -143,6 +161,14 @@ void StartCmder(std::wstring path, bool is_single_mode)
 				: L"Failed to copy ConEmu.xml file to new location!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
+	}
+	else if (!CopyFile(cfgPath, backupCfgPath, FALSE))
+	{
+		MessageBox(NULL,
+			(GetLastError() == ERROR_ACCESS_DENIED)
+			? L"Failed to backup ConEmu.xml file to ./config folder!"
+			: L"Failed to backup ConEmu.xml file to ./config folder!", MB_TITLE, MB_ICONSTOP);
+		exit(1);
 	}
 
 	if (is_single_mode)
@@ -162,8 +188,7 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		}
 	}
 	// Ensure EnvironmentVariables are propagated.
-	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
-	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL); // For Windows >= 8
+
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);
@@ -171,12 +196,15 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	si.lpTitle = appId;
 	si.dwFlags = STARTF_TITLEISAPPID;
 #endif
-
 	PROCESS_INFORMATION pi;
 	if (!CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
 		MessageBox(NULL, _T("Unable to create the ConEmu Process!"), _T("Error"), MB_OK);
 		return;
 	}
+
+	LRESULT lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL);
+	lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL); // For Windows >= 8
+
 }
 
 bool IsUserOnly(std::wstring opt)
