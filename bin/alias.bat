@@ -64,7 +64,7 @@ if "%aliases%" neq "%CMDER_ROOT%\config\user-aliases.cmd" (
 )
 
 :: validate alias
-for /f "delims== tokens=1,2 usebackq" %%G in (`echo "%_x%"`) do (
+for /f "delims== tokens=1,* usebackq" %%G in (`echo "%_x%"`) do (
   set alias_name=%%G
   set alias_value=%%H
 )

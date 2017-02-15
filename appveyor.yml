@@ -44,6 +44,9 @@ artifacts:
   - path: build\cmder_mini.zip
     name: cmdermini
 
+  - path: build\hashes.txt
+    name: hashes
+
 #---------------------------------#
 #         notifications           #
 #---------------------------------#

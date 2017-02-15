@@ -92,12 +92,15 @@ if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
   mkdir "$ENV:CMDER_ROOT\config\profile.d"
 }
 
-pushd $ENV:CMDER_ROOT\config\profile.d
-foreach ($x in ls *.ps1) {
-  # write-host write-host Sourcing $x
-  . $x
+foreach ($file in (Get-ChildItem "$($env:CMDER_ROOT)\config\profile.d" -Filter '*.ps1') ) {
+    # Grab the contents of files at once and parse that as a script block.
+    # faster script loading, see: https://becomelotr.wordpress.com/2017/02/13/expensive-dot-sourcing/
+    . (
+        [scriptblock]::Create(
+            [io.file]::ReadAllText($file.fullname)
+        )
+    )
 }
-popd
 
 #
 # Prompt Section

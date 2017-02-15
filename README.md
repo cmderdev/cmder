@@ -38,6 +38,9 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 * <kbd>Ctrl</kbd> + <kbd>W</kbd> : Close tab
 * <kbd>Ctrl</kbd> + <kbd>D</kbd> : Close tab (if pressed on empty command)
 * <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>#Number</kbd> : Fast new tab: <kbd>1</kbd> - CMD, <kbd>2</kbd> - PowerShell
+* <kbd>Ctrl</kbd> + <kbd>Tab</kbd> : Switch to next tab
+* <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> : Switch to previous tab
+* <kbd>Ctrl</kbd> + <kbd>#Number</kbd> : Switch to tab #Number
 * <kbd>Alt</kbd> + <kbd>Enter</kbd>: Fullscreen
 
 ### Shell
@@ -59,7 +62,7 @@ You can open multiple tabs each containing one of the following shells:
 |Cmder|cmd.exe|Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink(GNU Readline), and Aliases.|
 |Cmder as Admin|cmd.exe|Administrative Windows 'cmd.exe' Cmder shell.|
 |PowerShell|powershell.exe|Windows PowerShell enhanced with Git and Git aware prompt .|
-|PowerShell as Admin|powershell.exe|Administrative Windows 'powerhell.exe' Cmder shell.|
+|PowerShell as Admin|powershell.exe|Administrative Windows 'powershell.exe' Cmder shell.|
 |Bash|bash.exe|Unix/Linux like bash shell running on Windows.|
 |Bash as Admin|bash.exe|Administrative Unix/Linux like bash shell running on Windows.|
 |Mintty|bash.exe|Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences|
@@ -91,7 +94,7 @@ User specific configuration is possible using the cmder specific shell config fi
 |PowerShell|$ENV:CMDER_ROOT\config\user-profile.ps1|
 |Bash/Mintty|$CMDER_ROOT/config/user-profile.sh|
 
-Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file it it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
+Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file if it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
 
 ### Linux like 'profile.d' support for all supported shell types.
 You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CMDER_ROOT%\config\profile.d folder to add startup config to Cmder.
@@ -114,7 +117,7 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 #### Bash.exe|Mintty.exe Aliases
 Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.  To make an alias permanent add it to either your `$CMDER_ROOT/config/user-profile.sh` or your `$HOME/.bashrc`.
 
-If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
+If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will be portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
 #### PowerShell.exe Aliases
 PowerShell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in PowerShell sessions.  Type `get-help [new-alias|set-alias] -full` for help on PowerShell aliases.

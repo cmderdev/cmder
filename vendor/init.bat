@@ -121,12 +121,12 @@ if not defined aliases (
 :: Make sure we have a self-extracting user-aliases.cmd file
 setlocal enabledelayedexpansion
 if not exist "%user-aliases%" (
-    echo Creating intial user-aliases store in "%user-aliases%"...
+    echo Creating initial user-aliases store in "%user-aliases%"...
     copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
 ) else (
     type "%user-aliases%" | findstr /i ";= Add aliases below here" >nul
     if "!errorlevel!" == "1" (
-        echo Creating intial user-aliases store in "%user-aliases%"...
+        echo Creating initial user-aliases store in "%user-aliases%"...
         copy "%CMDER_ROOT%\%user-aliases%" "%user-aliases%.old_format" 
         copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%" 
     )
