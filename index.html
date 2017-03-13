@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>cmder | Console Emulator</title>
+        <meta name="description" content="cmder is software package that provides great console experience even on Windows">
+        <meta name="viewport" content="width=device-width">
+
+        <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,400italic' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="css/normalize.min.css">
+        <link rel="stylesheet" href="css/lemonade.css">
+        <link rel="stylesheet" href="css/main.css">
+
+    </head>
+    <body>
+
+    <div class="wrapper">
+        <header>
+            <div id="logo"><img src="img/logo.svg"></div>
+            <div id="pitch">Portable console emulator for Windows</div>
+            <img id="title_image" src="img/main.jpg" height="732" width="1366">
+        </header>
+
+        <main>
+            <h2 class="bit-1 copy"> Cmder is a software package created out of pure frustration over the absence of nice
+                console emulators on Windows. It is based on amazing software, and spiced up with the Monokai color scheme and
+                a custom prompt layout. Looking sexy from the start.
+            </h2>
+
+            <section class="container information">
+                <div class="bit-3">
+                    <div class="imgWrapper"><img src="img/conemu_thumb.png" alt=""></div>
+                    <h4>With help of the best</h4>
+                    <p>Think about cmder more as a software package than a separate app. All the magic is happening through
+                    <a href="https://code.google.com/p/conemu-maximus5/">Conemu</a>. With enhancements from
+                    <a href="http://mridgers.github.io/clink/">Clink</a>.</p>
+                </div>
+                <div class="bit-3">
+                    <div class="imgWrapper"><img src="img/bye_thumb.png" alt="Personally, I hate the absence of padding"></div>
+                    <h4>Total portability</h4>
+                    <p>Carry it with you on USB stick or in Cloud. So your settings, aliases and history can go anywhere
+                    you go. You will not see that ugly Windows prompt ever again.</p>
+                </div>
+                <div class="bit-3">
+                    <div class="imgWrapper"><img src="img/git_thumb.png" alt=""></div>
+                    <h4>Git and others</h4>
+                    <p>Oooh yes! If you decide to use the <em>slightly</em> bigger <a href="https://code.google.com/p/msysgit/">
+                    msysgit</a> version, you will have all Unix commands ready in PATH so that you can <code>git init</code>
+                    or <code>cat</code> instantly on every machine.</p>
+                </div>
+            </section>
+
+            <h3>Download</h3>
+
+            <section class="download container">
+
+                <div class="bit-1">
+                    <a href="https://github.com/bliker/cmder">Github Repo</a> (for issues/requests/sauce)
+                </div>
+
+                <div class="bit-2">
+                    <a onclick="_gaq.push(['_trackEvent', 'Download', 'mini'])" href="https://github.com/bliker/cmder/releases/download/v1.1.4.1/cmder_mini.zip">
+                        <button class="gray">Download mini</button>
+                    </a>
+                    <small>3 MB zipped &nbsp;:&nbsp; 7 MB</small>
+                </div>
+                <div class="bit-2">
+                    <a onclick="_gaq.push(['_trackEvent', 'Download', 'full'])" href="https://github.com/bliker/cmder/releases/download/v1.1.4.1/cmder.zip"><button class="blue">Download full</button></a>
+                    <small>(with msysgit) 115 MB zipped &nbsp;:&nbsp; 250 MB </small>
+                    <small> <em><a onclick="_gaq.push(['_trackEvent', 'Download', 'full', '7z'])" href="https://github.com/bliker/cmder/releases/download/v1.1.4.1/cmder.7z">Shockingly small 23 MB 7z </a></em> </small>
+                </div>
+
+                <div id="installation">
+                <h4>Installation</h4>
+                    <ol>
+                        <li>Unzip (can take a while) </li>
+                        <li>(optional) Place your executables in <code>/bin</code> folder</li>
+                        <li>Run <strong>Cmder</strong> <em>(Cmder.exe)</em></li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="keys container">
+                <h3>Keyboard shortcuts</h3>
+                <div class="bit-2">
+                    <h4>Tab manipulation</h4>
+                    <ul>
+                        <li><code>Ctrl + `</code> : <strong>Global</strong> Summon from taskbar</li>
+                        <li><code>Win + Alt + p</code> : Preferences (Or right click on title bar)</li>
+                        <li><code>Ctrl + t</code> : New tab dialog (maybe you want to open cmd as admin?)</li>
+                        <li><code>Ctrl + w</code> : Close tab</li>
+                        <li><code>Shift + Alt + number</code> : Fast new tab:
+                            <ol>
+                                <li><code>1.</code> CMD</li>
+                                <li><code>2.</code> PowerShell</li>
+                            </ol>
+                        </li>
+                        <li><code>Alt + Enter</code> : Fullscreen</li>
+                    </ul>
+                </div>
+                <div class="bit-2">
+                    <h4>Shell</h4>
+                    <ul>
+                        <li><code>Shift + Up</code> : Traverse up in directory structure (lovely feature!)</li>
+                        <li><code>End, Home, Ctrl</code> : Traverse text as usual on Windows</li>
+                        <li><code>Ctrl + r</code> : History search</li>
+                        <li><code>Shift + mouse</code> : Select and copy text from buffer</li>
+                        <li><code>Right click / Ctrl + Shift + v</code> : Paste text </li>
+                    </ul>
+                </div>
+        </section>
+        <section class="var_doc container">
+            <h3>Notes / Docs</h3>
+
+            <div class="bit-2">
+                <h4>Aliases</h4>
+                <p>There is simple support for aliases. They can be created by using the <code>alias</code> command like this:
+                <code>alias ls=ls --color $*</code>. They are pretty much just <em>doskeys</em> in <code>/config/aliases</code>. One per line.
+                And make sure to handle arguments by putting argument variables <code>$*</code> somewhere.</p>
+
+                <h4>Updating + Building</h4>
+                <p>There is not much going on here. But if you want to get most recent updates for Conemu just
+                tick <em>auto-updating</em> in preferences. If you want to clone the repo and build it yourself, you will need <em>
+                Ruby, wget and 7z</em>. When you are set on that, just run <code>build_cmder.rb</code>.</p>
+            </div>
+            <div class="bit-2">
+                <h4>PowerShell</h4>
+                <p>I have to admit here that <em>I am not a <abbr title="PowerShell, Duh!">PS</abbr> guy</em>. So do not
+                expect any improvement or tips in that department. But <strong>if you are a PS geek</strong>, you
+                really should start submitting some amazing tweaks.</p>
+
+                <h4>Other documentations</h4>
+                <p>If you have trouble with anything I am happy to help. But you will have much better chances to find solutions
+                on the pages of the upstream projects. Those are:
+                <ul>
+                    <li>Console emulator ~ <a href="https://code.google.com/p/conemu-maximus5/">Conemu</a></li>
+                    <li>Cmd.exe enhancements ~ <a href="https://code.google.com/p/clink/">clink</a></li>
+                    <li>Unix tools on windows ~ <a href="https://github.com/msysgit/msysgit">msysgit</a></li>
+                </ul></p>
+            </div>
+        </section>
+
+        </main>
+
+    </div>
+
+    <footer class="container">
+        <small>Samuel Vasko ~ sometime in 2013</small>
+    </footer>
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-35740802-2']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+
+    </body>
+</html>

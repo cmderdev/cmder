@@ -1,0 +1,254 @@
+/* ==========================================================================
+   HTML5 Boilerplate styles - h5bp.com (generated via initializr.com)
+   ========================================================================== */
+
+html,
+button,
+input,
+select,
+textarea {
+    color: #222;
+}
+
+
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+img {
+    vertical-align: middle;
+}
+
+/* -------------- General Styles -------------- */
+
+body {
+    background-color: Whitesmoke;
+    font-size: 0.9em;
+    font-family: 'Lato', Candara, Calibri, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+    line-height: 1.4;
+}
+
+.wrapper {
+    margin: 2em auto;
+    padding: 0 0 2em 0;
+    width: 80%;
+    background-color: #fff;
+    -webkit-box-shadow: 0 0 8px 3px #eee;
+    -moz-box-shadow: 0 0 8px 3px #eee;
+    box-shadow: 0 0 8px 3px #eee;
+}
+
+@media (max-width: 480px) {
+    .wrapper { width: 98%; }
+}
+
+.container {
+    margin: 0 auto;
+    widows: 100%;
+}
+
+/* -------------- Typography -------------- */
+
+a { color: #1E90FF; }
+p { padding-left: 8px; }
+
+h2 {
+    padding: 0 1em;
+    color: #444;
+    text-align: center;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 1.2em;
+}
+
+h2:before, h2:after {
+    display: block;
+    margin: 0.5em auto;
+    width: 50%;
+    height: 1px;
+    background-color: #eee;
+    content: "";
+}
+
+h3 {
+    margin: 2.3em 0 0 0;
+    padding: 8px;
+    background-color: #eee;
+    color: #222;
+    text-indent: 0.2em;
+    letter-spacing: 0.2em;
+    font-weight: normal;
+    font-size: 1.3em;
+}
+
+h4 {
+    margin: 1em 0;
+    color: #444;
+    text-indent: 8px;
+    letter-spacing: 0.1em;
+    font-size: 1.1em;
+    text-rendering: optimizeLegibility;
+}
+
+button {
+    display: block;
+    padding: 12px 0;
+    width: 100%;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background-color: #C4C4C4;
+    box-shadow: 1px 1px 1px 0px #ddd, inset 0 0 -3px rgba(0, 0, 0, 0.02);
+    color: #fff;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    font-size: 1.1em;
+    -webkit-transition: background-color 0.3s;
+    -moz-transition: background-color 0.3s;
+    -ms-transition: background-color 0.3s;
+    -o-transition: background-color 0.3s;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #ccc;
+    box-shadow: 0px 0px 1px 0px #ddd;
+}
+
+button.gray { float: right; }
+button.blue { background-color: #3498db; }
+button.blue:hover { background-color: #5dade2; }
+
+/* -------------- Modules -------------- */
+
+header {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    letter-spacing: 0.1em;
+    font-weight: normal;
+    font-size: 1.6em;
+    font-family: 'Lato', Candara, Calibri, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+}
+
+#title_image {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 1000px) {
+    #title_image { margin-left: -10%; width: 120%; }
+}
+
+main {
+    padding: 0em 6%;
+}
+
+#logo, #pitch {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+
+#pitch {
+    top: 100px;
+    color: #222;
+    text-shadow: 1px 1px 0 rgba(88, 88, 88, 0.5);
+    font-style: italic;
+    font-size: 0.6em;
+}
+
+#logo { top: 50px; }
+#logo img { height: 40px; }
+
+.information img {
+    width: 100%;
+}
+
+.information p {
+    margin: 0;
+    padding: 0 8px;
+    line-height: 1.4em;
+}
+
+.download {
+    padding-top: 1.2em;
+    max-width: 35em;
+    text-align: center;
+}
+
+.download > .bit-2 {
+    margin: 1.5em 0 0 0;
+}
+
+#installation {
+    text-align: left;
+}
+
+.download small {
+    display: inline-block;
+    margin: 0.5em 0 0;
+}
+
+footer small {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+code {
+    padding: 1px 3px;
+    border-radius: 2px;
+    background-color: #eee;
+    font-size: 0.9em;
+    font-family: Consolas, monaco, monospace;
+}
+
+.flushright {
+    text-align: right;
+}
+
+/* -------------- Lists -------------- */
+
+ul {
+    padding-left: 8px;
+    list-style: none;
+}
+
+ul ol {
+    margin: 0.5em 0;
+    padding: 0 0 0 30px;
+    list-style: none;
+}
+
+
+/* -------------- Helpers -------------- */
+
+.right {
+    float: right;
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+.clearfix:before,
+.clearfix:after {
+    display: table;
+    content: " ";
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1;
+}
