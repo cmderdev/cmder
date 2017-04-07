@@ -38,7 +38,7 @@ function set_prompt_filter()
     -- build our own prompt
     -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
     -- color codes: "\x1b[1;37;40m"
-    local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg} \n\x1b[1;30;40m{lamb} \x1b[0m"
+    local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;30;40m{lamb} \x1b[0m"
     cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
     if env == nil then
         lambda = "λ"
@@ -103,6 +103,20 @@ local function get_hg_dir(path)
     return get_dir_contains(path, '.hg')
 end
 
+local function get_svn_dir(path)
+    return get_dir_contains(path, '.svn')
+end
+function get_svn_branch(svn_dir)
+    for line in io.popen("svn info 2>nul"):lines() do
+        local m = line:match("^Relative URL:")
+        if m then
+            return line:sub(line:find("/")+1,line:len())
+        end
+    end
+
+    return false
+end
+
 -- adapted from from clink-completions' git.lua
 local function get_git_dir(path)
 
@@ -165,6 +179,13 @@ end
 ---
 function get_hg_status()
     for line in io.popen("hg status -0"):lines() do
+       return false
+    end
+    return true
+end
+
+function get_svn_status()
+    for line in io.popen("svn status -q"):lines() do
        return false
     end
     return true
@@ -264,10 +285,37 @@ function git_prompt_filter()
     return false
 end
 
+function svn_prompt_filter()
+    -- Colors for svn status
+    local colors = {
+        clean = "\x1b[1;37;40m",
+        dirty = "\x1b[31;1m",
+    }
+
+    if get_svn_dir() then
+        -- if we're inside of svn repo then try to detect current branch
+        local branch = get_svn_branch()
+        if branch then
+            if get_svn_status() then
+                color = colors.clean
+            else
+                color = colors.dirty
+            end
+
+            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", color.."("..branch..")")
+            return false
+        end
+    end
+
+    -- No mercurial present or not in mercurial file
+    clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", "")
+    return false
+end
 -- insert the set_prompt at the very beginning so that it runs first
 clink.prompt.register_filter(set_prompt_filter, 1)
 clink.prompt.register_filter(hg_prompt_filter, 50)
 clink.prompt.register_filter(git_prompt_filter, 50)
+clink.prompt.register_filter(svn_prompt_filter, 50)
 
 local completions_dir = clink.get_env('CMDER_ROOT')..'/vendor/clink-completions/'
 for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
