@@ -153,7 +153,7 @@
 			<value name="ComSpec.UpdateEnv" type="hex" data="00"/>
 			<value name="ComSpec.EnvAddPath" type="hex" data="01"/>
 			<value name="ComSpec.EnvAddExePath" type="hex" data="01"/>
-			<value name="ComSpec.UncPaths" type="hex" data="00"/>
+			<value name="ComSpec.UncPaths" type="hex" data="01"/>
 			<value name="ComSpec.Path" type="string" data=""/>
 			<value name="ConsoleTextSelection" type="hex" data="01"/>
 			<value name="CTS.AutoCopy" type="hex" data="01"/>
