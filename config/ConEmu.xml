@@ -559,6 +559,15 @@
 					<value name="Active" type="dword" data="00000000"/>
 					<value name="Count" type="dword" data="00000001"/>
 				</key>
+						<key name="Task3" modified="2015-02-23 12:48:52" build="140707">
+					<value name="Name" type="string" data="{git sh}"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\cmder.exe&quot;"/>
+					<value name="Cmd1" type="string" data="cmd /k &quot;%ConEmuDir%\..\init.bat &amp; %CMDER_ROOT%\vendor\msysgit\bin\bash --login -i&quot; -new_console:d:%USERPROFILE%"/>
+					<value name="Cmd2" type="string" data="%CMDER_ROOT%\vendor\msysgit\git-bash.bat"/>
+					<value name="Active" type="dword" data="00000000"/>
+					<value name="Count" type="dword" data="00000001"/>
+				</key>
 			</key>
 
 			<key name="Apps" modified="2015-11-24 14:49:10" build="151119">
