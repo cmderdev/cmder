@@ -180,15 +180,16 @@ void StartCmder(std::wstring path, bool is_single_mode)
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
 	}
 
-	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	if (!streqi(path.c_str(), L""))
+	// Environment Variables are not a reliable method of communicating between processes. Registry seems like a better choice:
+	HKEY cmderStartRegistryKey;
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\cmder", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &cmderStartRegistryKey, 0) == ERROR_SUCCESS)
 	{
-		if (!SetEnvironmentVariable(L"CMDER_START", path.c_str())) {
-			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
-		}
+		RegSetValueEx(cmderStartRegistryKey, L"CMDER_START", 0, REG_SZ, (const BYTE*)path.c_str(), path.size() * 2);
+		RegCloseKey(cmderStartRegistryKey);
 	}
-	// Ensure EnvironmentVariables are propagated.
-
+	else {
+		MessageBox(NULL, _T("Error trying to set CMDER_START in registry!"), _T("Error"), MB_OK);
+	}
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);

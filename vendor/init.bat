@@ -157,10 +157,26 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
 
-:: This is either a env variable set by the user or the result of
-:: cmder.exe setting this variable due to a commandline argument or a "cmder here"
-if defined CMDER_START (
-    cd /d "%CMDER_START%"
+:: Move to the correct location. This checks first for a registry key set by cmder.exe, but will also fall back on environment variables.
+set KEY_NAME="HKEY_CURRENT_USER\SOFTWARE\cmder"
+set VALUE_NAME=CMDER_START
+FOR /F "usebackq skip=2 tokens=1-2*" %%A IN (`REG QUERY %KEY_NAME% /v %VALUE_NAME% 2^>nul`) DO (
+    SET CMDER_START_REGISTRY=%%C
+)
+if defined CMDER_START_REGISTRY (
+    cd /d "%CMDER_START_REGISTRY%"
+:: because leaving the key would technically make it not portable.
+    REG DELETE %KEY_NAME% /f >nul 2>&1
+) else (
+    if defined CMDER_START (
+        cd /d "%CMDER_START%"
+    ) else (
+        if defined ConEmuWorkDir (
+            cd /d "%ConEmuWorkDir%"
+        ) else (
+            cd /d "%HOME%"
+        )
+    )
 )
 
 
