@@ -95,7 +95,7 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring path, bool is_single_mode)
+void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = L"")
 {
 #if USE_TASKBAR_API
 	wchar_t appId[MAX_PATH] = { 0 };
@@ -178,6 +178,10 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	else
 	{
 		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
+	}
+
+	if (!taskName.empty()) {
+		swprintf_s(args, L"%s -run {%s}", args, taskName.c_str());
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
@@ -323,6 +327,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	{
 		StartCmder(opt.second, true);
 	}
+	else if (streqi(opt.first.c_str(), L"/TASK"))
+	{
+		StartCmder(L"", false, opt.second);
+	}
 	else if (streqi(opt.first.c_str(), L"/REGISTER"))
 	{
 		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
@@ -335,7 +343,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else
 	{
-		MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /START <path>\n  /SINGLE <path>\n  /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
+		MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /START <path>\n  /SINGLE <path>\n  /TASK <name>\n /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
 		return 1;
 	}
 
