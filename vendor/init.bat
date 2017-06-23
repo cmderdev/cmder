@@ -11,7 +11,11 @@ if not defined verbose-output ( set verbose-output=0 )
 
 :: Find root dir
 if not defined CMDER_ROOT (
-    for /f "delims=" %%i in ("%ConEmuDir%\..\..") do set "CMDER_ROOT=%%~fi"
+    if defined ConEmuDir (
+        for /f "delims=" %%i in ("%ConEmuDir%\..\..") do set "CMDER_ROOT=%%~fi"
+    ) else (
+        for /f "delims=" %%i in ("%~dp0\..") do set "CMDER_ROOT=%%~fi"
+    )
 )
 
 :: Remove trailing '\'
