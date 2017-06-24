@@ -181,7 +181,7 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 	}
 
 	if (!taskName.empty()) {
-		swprintf_s(args, L"%s -run {%s}", args, taskName.c_str());
+		swprintf_s(args, L"%s /run {%s}", args, taskName.c_str());
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
