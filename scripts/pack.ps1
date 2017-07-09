@@ -53,6 +53,6 @@ $version = Invoke-Expression "git describe --abbrev=0 --tags"
 
 foreach ($t in $targets.GetEnumerator()) {
     Create-Archive $cmderRoot "$saveTo\$($t.Name)" $t.Value
-    $hash = (Digest-MD5 "$saveTo\$($t.Name)")
-    Add-Content "$saveTo\hashes.txt" $hash
+    $hash = (Digest-Hash "$saveTo\$($t.Name)")
+    Add-Content -path "$saveTo\hashes.txt" -value ($t.Name + ' ' + $hash)
 }

@@ -1,4 +1,4 @@
-function Ensure-Exists ($path) {
+function Ensure-Exists($path) {
     if (-not (Test-Path $path)) {
         Write-Error "Missing required $path! Ensure it is installed"
         exit 1
@@ -6,7 +6,7 @@ function Ensure-Exists ($path) {
     return $true > $null
 }
 
-function Ensure-Executable ($command) {
+function Ensure-Executable($command) {
     try { Get-Command $command -ErrorAction Stop > $null }
     catch {
         If( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
@@ -22,12 +22,12 @@ function Ensure-Executable ($command) {
     }
 }
 
-function Delete-Existing ($path) {
+function Delete-Existing($path) {
     Write-Verbose "Remove $path"
     Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
 }
 
-function Extract-Archive ($source, $target) {
+function Extract-Archive($source, $target) {
     Write-Verbose $("Extracting Archive '$cmder_root\vendor\" + $source.replace('/','\') + " to '$cmder_root\vendor\$target'")
     Invoke-Expression "7z x -y -o`"$($target)`" `"$source`"  > `$null"
     if ($lastexitcode -ne 0) {
@@ -36,7 +36,7 @@ function Extract-Archive ($source, $target) {
     Remove-Item $source
 }
 
-function Create-Archive ($source, $target, $params) {
+function Create-Archive($source, $target, $params) {
     $command = "7z a -x@`"$source\packignore`" $params $target $source  > `$null"
     Write-Verbose "Running: $command"
     Invoke-Expression $command
@@ -47,22 +47,22 @@ function Create-Archive ($source, $target, $params) {
 
 # If directory contains only one child directory
 # Flatten it instead
-function Flatten-Directory ($name) {
+function Flatten-Directory($name) {
     $child = (Get-Childitem $name)[0]
     Rename-Item $name -NewName "$($name)_moving"
     Move-Item -Path "$($name)_moving\$child" -Destination $name
     Remove-Item -Recurse "$($name)_moving"
 }
 
-function Digest-MD5 ($path) {
+function Digest-Hash($path) {
     if(Get-Command Get-FileHash -ErrorAction SilentlyContinue){
-        return (Get-FileHash -Algorithm MD5 -Path $path).Hash
+        return (Get-FileHash -Algorithm SHA256 -Path $path).Hash
     }
 
     return Invoke-Expression "md5sum $path"
 }
 
-function Register-Cmder(){
+function Register-Cmder() {
     [CmdletBinding()]
     Param
     (
@@ -76,7 +76,7 @@ function Register-Cmder(){
         $Command = "%V"
 
         , # Defaults to the icons folder in the cmder package.
-        $icon = (Split-Path $PathToExe | join-path -ChildPath 'icons/cmder.ico')
+        $icon = (Split-Path $PathToExe | Join-Path -ChildPath 'icons/cmder.ico')
     )
     Begin
     {
@@ -100,7 +100,7 @@ function Register-Cmder(){
     }
 }
 
-function Unregister-Cmder{
+function Unregister-Cmder {
     Begin
     {
         New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
@@ -124,9 +124,9 @@ function Download-File {
     # I think this is the problem
     $File = $File -Replace "/", "\"
     Write-Verbose "Downloading from $Url to $File"
-    $wc = new-object System.Net.WebClient
+    $wc = New-Object System.Net.WebClient
     if ($env:https_proxy) {
-      $wc.proxy = (new-object System.Net.WebProxy($env:https_proxy))
+      $wc.proxy = (New-Object System.Net.WebProxy($env:https_proxy))
     }
     $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;
     $wc.DownloadFile($Url, $File)
