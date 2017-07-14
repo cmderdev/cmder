@@ -17,10 +17,14 @@ if(!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
 }
 
+# do not load bundled psget if a module installer is already available
+# -> recent PowerShell versions include PowerShellGet out of the box
+$moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue | Out-Null)
+
 # Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
-if( -not $env:PSModulePath.Contains($CmderModulePath) ){
+if(-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderModulePath) ){
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
 
