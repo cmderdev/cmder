@@ -96,7 +96,7 @@ set del_alias=%~1
 findstr /b /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
 type "%ALIASES%".tmp > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey %del_alias%=
-doskey /macrofile=%ALIASES%
+doskey /macrofile="%ALIASES%"
 goto:eof
 
 :p_reload
