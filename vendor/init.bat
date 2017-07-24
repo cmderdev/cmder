@@ -173,7 +173,14 @@ if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     echo :: use this file to run your own startup commands
     echo :: use  in front of the command to prevent printing the command
     echo.
+    echo :: uncomment this to have the ssh agent load when cmder starts
     echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
+    echo.
+    echo :: uncomment this next two lines to use pageant as the ssh authentication agent
+    echo :: SET SSH_AUTH_SOCK=/tmp/.ssh-pageant-auth-sock
+    echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
+    echo.
+    echo :: you can add your plugins to the cmder path like so
     echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
     echo.
     ) > "%CMDER_ROOT%\config\user-profile.cmd"
