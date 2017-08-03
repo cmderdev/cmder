@@ -112,15 +112,38 @@ You can define simple aliases for `cmd.exe` sessions with a command like `alias 
 
 Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
 
-Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\aliases` file
+Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\user-aliases.cmd` file
+
+To make an alias and/or any other profile settings permanent add it to one of the following:
+
+Note: These are loaded in this order by '$CMDER_ROOT/vendor/init.bat'.  Anyhing stored in '%CMDER_ROOT%' will be a portable setting and will follow cmder to another machine.
+
+* '%CMDER_ROOT%\\config\\profile.d\\\*.cmd and \*.bat'
+* '%CMDER_ROOT%\\config\\user-aliases.cmd'
+* '%CMDER_ROOT%\\config\\user-profile.cmd'
 
 #### Bash.exe|Mintty.exe Aliases
-Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.  To make an alias permanent add it to either your `$CMDER_ROOT/config/user-profile.sh` or your `$HOME/.bashrc`.
+Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.
+
+To make an alias and/or any other profile settings permanent add it to one of the following:
+
+Note: These are loaded in this order by '$CMDER_ROOT/vendor/git-for-windows/etc/profile.d/cmder.sh'.  Anyhing stored in '$CMDER_ROOT' will be a portable setting and will follow cmder to another machine.
+
+* '$CMDER_ROOT/config/profile.d/*.sh'
+* '$CMDER_ROOT/config/user-profile.sh'
+* '$HOME/.bashrc'
 
 If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will be portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
 #### PowerShell.exe Aliases
 PowerShell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in PowerShell sessions.  Type `get-help [new-alias|set-alias] -full` for help on PowerShell aliases.
+
+To make an alias and/or any other profile settings permanent add it to one of the following:
+
+Note: These are loaded in this order by '$ENV:CMDER_ROOT\\vendor\\user-profile.ps1'.  Anyhing stored in '$ENV:CMDER_ROOT' will be a portable setting and will follow cmder to another machine.
+
+* '$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1'
+* '$ENV:CMDER_ROOT\\config\\user-profile.ps1'
 
 ### SSH Agent
 
