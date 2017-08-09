@@ -2,7 +2,7 @@
 #      general configuration      #
 #---------------------------------#
 
-version: 1.0.{build}-{branch}
+version: 1.5.{build}-{branch}
 
 # branches to build
 branches:
