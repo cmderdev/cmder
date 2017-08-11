@@ -160,7 +160,7 @@ if not defined HOME set "HOME=%USERPROFILE%"
 :: This is either a env variable set by the user or the result of
 :: cmder.exe setting this variable due to a commandline argument or a "cmder here"
 if defined CMDER_START (
-    cd /d "%CMDER_START%"
+    PUSHD "%CMDER_START%\"
 )
 
 
