@@ -149,9 +149,9 @@ call "%user-aliases%"
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
     call :verbose-output Running Git for Windows one time Post Install....
-    cd /d "%CMDER_ROOT%\vendor\git-for-windows\"
+    pushd "%CMDER_ROOT%\vendor\git-for-windows\"
     "%CMDER_ROOT%\vendor\git-for-windows\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
-    cd /d %USERPROFILE%
+    pushd "%USERPROFILE%"
 )
 
 :: Set home path
@@ -160,9 +160,6 @@ if not defined HOME set "HOME=%USERPROFILE%"
 :: This is either a env variable set by the user or the result of
 :: cmder.exe setting this variable due to a commandline argument or a "cmder here"
 if defined CMDER_START (
-    if "%CMDER_START:~-1%" neq "\" (
-        set CMDER_START="%CMDER_START%\"
-    )
     pushd "%CMDER_START%"
 )
 
