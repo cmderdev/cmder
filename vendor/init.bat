@@ -159,15 +159,9 @@ if not defined HOME set "HOME=%USERPROFILE%"
 
 :: This is either a env variable set by the user or the result of
 :: cmder.exe setting this variable due to a commandline argument or a "cmder here"
-setlocal enabledelayedexpansion
 if defined CMDER_START (
-    if "%CMDER_START:~-1%" neq "\" (
-        SET "CMDER_START=%CMDER_START%\"
-    )
-
-    pushd "!CMDER_START!"
+    pushd "%CMDER_START%"
 )
-endlocal
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
