@@ -157,7 +157,7 @@ If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_R
 1. Click the '+' button to add a task.
 1. Name the new task in the top text box.
 1. Provide task parameters, this is optional.
-1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console:d:%USERPROFILE%``` to the `Commands` text box.
+1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console``` to the `Commands` text box.
 
 Recommended Optional Steps:
 
