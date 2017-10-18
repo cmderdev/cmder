@@ -127,7 +127,7 @@ if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
 }
 
 pushd $ENV:CMDER_ROOT\config\profile.d
-foreach ($x in ls *.ps1) {
+foreach ($x in Get-ChildItem *.ps1) {
   # write-host write-host Sourcing $x
   . $x
 }
