@@ -1,8 +1,8 @@
 @echo off
 
 
-if "%aliases%" == "" (
-  set ALIASES=%CMDER_ROOT%\config\user-aliases.cmd
+if "%ALIASES%" == "" (
+  set aliases="%CMDER_ROOT%\config\user-aliases.cmd"
 )
 
 setlocal enabledelayedexpansion
@@ -50,16 +50,16 @@ goto parseargument
   )
 rem #endregion parseargument
 
-if "%aliases%" neq "%CMDER_ROOT%\config\user-aliases.cmd" (
-  set _x=!_x:/f %aliases% =!
+if "%ALIASES%" neq "%CMDER_ROOT%\config\user-aliases.cmd" (
+  set _x=!_x:/f "%ALIASES%" =!
 
-  if not exist "%aliases%" (
-    echo ;= @echo off>"%aliases%"
-    echo ;= rem Call DOSKEY and use this file as the macrofile>>"%aliases%"
-    echo ;= %%SystemRoot%%\system32\doskey /listsize=1000 /macrofile=%%0%%>>"%aliases%"
-    echo ;= rem In batch mode, jump to the end of the file>>"%aliases%"
-    echo ;= goto:eof>>"%aliases%"
-    echo ;= Add aliases below here>>"%aliases%"
+  if not exist "%ALIASES%" (
+    echo ;= @echo off>"%ALIASES%"
+    echo ;= rem Call DOSKEY and use this file as the macrofile>>"%ALIASES%"
+    echo ;= %%SystemRoot%%\system32\doskey /listsize=1000 /macrofile=%%0%%>>"%ALIASES%"
+    echo ;= rem In batch mode, jump to the end of the file>>"%ALIASES%"
+    echo ;= goto:eof>>"%ALIASES%"
+    echo ;= Add aliases below here>>"%ALIASES%"
   )
 )
 
