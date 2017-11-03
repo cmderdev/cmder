@@ -3,6 +3,7 @@
 -- !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 -- !!! Use "%CMDER_ROOT%\config\<whatever>.lua" to add your lua startup scripts
 
+-- luacheck: globals clink
 
 -- At first, load the original clink.lua file
 -- this is needed as we set the script path to this dir and therefore the original
@@ -39,6 +40,7 @@ function set_prompt_filter()
     -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
     -- color codes: "\x1b[1;37;40m"
     local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
+    local lambda
     cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
     if env == nil then
         lambda = "λ"
@@ -202,6 +204,7 @@ function hg_prompt_filter()
     if get_hg_dir() then
         -- if we're inside of mercurial repo then try to detect current branch
         local branch = get_hg_branch()
+        local color
         if branch then
             -- Has branch => therefore it is a mercurial folder, now figure out status
             if get_hg_status() then
@@ -225,7 +228,7 @@ end
  -- @return {nil|git branch name}
 ---
 function get_git_branch(git_dir)
-    local git_dir = git_dir or get_git_dir()
+    git_dir = git_dir or get_git_dir()
 
     -- If git directory not found then we're probably outside of repo
     -- or something went wrong. The same is when head_file is nil
@@ -267,6 +270,7 @@ function git_prompt_filter()
     if git_dir then
         -- if we're inside of git repo then try to detect current branch
         local branch = get_git_branch(git_dir)
+        local color
         if branch then
             -- Has branch => therefore it is a git folder, now figure out status
             if get_git_status() then
@@ -295,6 +299,7 @@ function svn_prompt_filter()
     if get_svn_dir() then
         -- if we're inside of svn repo then try to detect current branch
         local branch = get_svn_branch()
+        local color
         if branch then
             if get_svn_status() then
                 color = colors.clean
