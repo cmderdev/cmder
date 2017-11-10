@@ -151,7 +151,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
     call :verbose-output Running Git for Windows one time Post Install....
     pushd "%CMDER_ROOT%\vendor\git-for-windows\"
     "%CMDER_ROOT%\vendor\git-for-windows\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
-    pushd "%USERPROFILE%"
+    popd
 )
 
 :: Set home path
