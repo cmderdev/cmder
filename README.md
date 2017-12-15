@@ -176,6 +176,35 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
+## Upgrading
+
+The process of upgrading Cmder depends on the version/build you are currently running
+
+If you have a `[cmder_root]/config/user-conemu.xml` follow the below process: 
+
+1. Exit all Cmder sessions and relaunch `[cmder_root]/cmder.exe`, this backs up your existing `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
+   
+   * The `[cmder_root]/config/user-conemu.xml` contains any custom settings you have made using the 'Setup Tasks' settings dialog.
+
+2. Exit all Cmder sessions and backup any files you have manually edited under `[cmder_root]/vendor`.
+
+   * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in '[cmder_root]/config' folder.
+
+3.  Delete the `[cmder_root]/vendor` folder.
+4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
+
+If you do not have a `[cmder_root]/config/user-conemu.xml` follow the below process: 
+
+
+1. Exit all Cmder sessions and backup `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
+
+2. Backup any files you have manually edited under `[cmder_root]/vendor`.
+
+   * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in '[cmder_root]/config' folder.
+
+3.  Delete the `[cmder_root]/vendor` folder.
+4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
+
 ## Current development builds
 
 You can download builds of the current development branch by going to AppVeyor via the following link:
