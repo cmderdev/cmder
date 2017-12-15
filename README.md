@@ -180,7 +180,7 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 
 The process of upgrading Cmder depends on the version/build you are currently running
 
-If you have a `[cmder_root]/config/user-conemu.xml` follow the below process: 
+If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer version of Cmder, follow the below process: 
 
 1. Exit all Cmder sessions and relaunch `[cmder_root]/cmder.exe`, this backs up your existing `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
    
@@ -193,8 +193,7 @@ If you have a `[cmder_root]/config/user-conemu.xml` follow the below process:
 3.  Delete the `[cmder_root]/vendor` folder.
 4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
 
-If you do not have a `[cmder_root]/config/user-conemu.xml` follow the below process: 
-
+If you do not have a `[cmder_root]/config/user-conemu.xml`, you are running an older version of cmder, follow the below process: 
 
 1. Exit all Cmder sessions and backup `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
 
