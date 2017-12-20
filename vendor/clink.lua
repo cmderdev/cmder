@@ -43,9 +43,9 @@ local function set_prompt_filter()
     local lambda
     cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
     if env == nil then
-        lambda = "λ"
+        lambda = "$"
     else
-        lambda = "("..env..") λ"
+        lambda = "("..env..") $"
     end
     clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", lambda)
 end
