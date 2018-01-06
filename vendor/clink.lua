@@ -250,7 +250,7 @@ end
  -- @return {bool}
 ---
 local function get_git_status()
-    local file = io.popen("git status --no-optional-locks --porcelain 2>nul")
+    local file = io.popen("git --no-optional-locks status --porcelain 2>nul")
     for line in file:lines() do
         file:close()
         return false
