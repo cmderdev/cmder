@@ -18,7 +18,7 @@ dofile(clink_lua_file)
  -- not destroy our own prompt. It also means that started cmds (or batch files
  -- which echo) don't get the ugly '{lamb}' shown.
 ---
-function set_prompt_filter()
+local function set_prompt_filter()
     -- get_cwd() is differently encoded than the clink.prompt.value, so everything other than
     -- pure ASCII will get garbled. So try to parse the current directory from the original prompt
     -- and only if that doesn't work, use get_cwd() directly.
@@ -108,7 +108,8 @@ end
 local function get_svn_dir(path)
     return get_dir_contains(path, '.svn')
 end
-function get_svn_branch(svn_dir)
+
+local function get_svn_branch(svn_dir)
     for line in io.popen("svn info 2>nul"):lines() do
         local m = line:match("^Relative URL:")
         if m then
@@ -164,7 +165,7 @@ end
  -- Find out current branch
  -- @return {false|mercurial branch name}
 ---
-function get_hg_branch()
+local function get_hg_branch()
     for line in io.popen("hg branch 2>nul"):lines() do
         local m = line:match("(.+)$")
         if m then
@@ -179,21 +180,21 @@ end
  -- Get the status of working dir
  -- @return {bool}
 ---
-function get_hg_status()
+local function get_hg_status()
     for line in io.popen("hg status -0"):lines() do
        return false
     end
     return true
 end
 
-function get_svn_status()
+local function get_svn_status()
     for line in io.popen("svn status -q"):lines() do
        return false
     end
     return true
 end
 
-function hg_prompt_filter()
+local function hg_prompt_filter()
 
     -- Colors for mercurial status
     local colors = {
@@ -227,7 +228,7 @@ end
  -- Find out current branch
  -- @return {nil|git branch name}
 ---
-function get_git_branch(git_dir)
+local function get_git_branch(git_dir)
     git_dir = git_dir or get_git_dir()
 
     -- If git directory not found then we're probably outside of repo
@@ -248,8 +249,8 @@ end
  -- Get the status of working dir
  -- @return {bool}
 ---
-function get_git_status()
-    local file = io.popen("git status --no-lock-index --porcelain 2>nul")
+local function get_git_status()
+    local file = io.popen("git status --no-optional-locks --porcelain 2>nul")
     for line in file:lines() do
         file:close()
         return false
@@ -258,7 +259,7 @@ function get_git_status()
     return true
 end
 
-function git_prompt_filter()
+local function git_prompt_filter()
 
     -- Colors for git status
     local colors = {
@@ -289,7 +290,7 @@ function git_prompt_filter()
     return false
 end
 
-function svn_prompt_filter()
+local function svn_prompt_filter()
     -- Colors for svn status
     local colors = {
         clean = "\x1b[1;37;40m",
