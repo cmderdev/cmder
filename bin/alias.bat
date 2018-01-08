@@ -2,7 +2,7 @@
 
 
 if "%ALIASES%" == "" (
-  set aliases="%CMDER_ROOT%\config\user-aliases.cmd"
+  set ALIASES="%CMDER_ROOT%\config\user-aliases.cmd"
 )
 
 setlocal enabledelayedexpansion
@@ -21,7 +21,7 @@ goto parseargument
   set currentarg=%~1
 
   if /i "%currentarg%" equ "/f" (
-    set aliases=%~2
+    set ALIASES=%~2
     shift
     goto :do_shift
   ) else if /i "%currentarg%" == "/reload" (
@@ -110,11 +110,11 @@ exit /b
 
 :p_help
 echo.Usage:
-echo. 
+echo.
 echo.	alias [options] [alias=full command]
-echo. 
+echo.
 echo.Options:
-echo. 
+echo.
 echo.     /d [alias]     Delete an [alias].
 echo.     /f [macrofile] Path to the [macrofile] you want to store the new alias in.
 echo.                    Default: %cmder_root%\config\user-aliases.cmd
