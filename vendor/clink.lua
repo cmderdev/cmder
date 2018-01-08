@@ -101,25 +101,6 @@ local function get_dir_contains(path, dirname)
     end
 end
 
-local function get_hg_dir(path)
-    return get_dir_contains(path, '.hg')
-end
-
-local function get_svn_dir(path)
-    return get_dir_contains(path, '.svn')
-end
-
-local function get_svn_branch(svn_dir)
-    for line in io.popen("svn info 2>nul"):lines() do
-        local m = line:match("^Relative URL:")
-        if m then
-            return line:sub(line:find("/")+1,line:len())
-        end
-    end
-
-    return false
-end
-
 -- adapted from from clink-completions' git.lua
 local function get_git_dir(path)
 
@@ -130,6 +111,7 @@ local function get_git_dir(path)
         if i then
             prefix = path:sub(1, i-1)
         end
+
         return prefix
     end
 
@@ -161,67 +143,12 @@ local function get_git_dir(path)
         or (parent_path ~= path and get_git_dir(parent_path) or nil)
 end
 
----
- -- Find out current branch
- -- @return {false|mercurial branch name}
----
-local function get_hg_branch()
-    for line in io.popen("hg branch 2>nul"):lines() do
-        local m = line:match("(.+)$")
-        if m then
-            return m
-        end
-    end
-
-    return false
+local function get_hg_dir(path)
+    return get_dir_contains(path, '.hg')
 end
 
----
- -- Get the status of working dir
- -- @return {bool}
----
-local function get_hg_status()
-    for line in io.popen("hg status -0"):lines() do
-       return false
-    end
-    return true
-end
-
-local function get_svn_status()
-    for line in io.popen("svn status -q"):lines() do
-       return false
-    end
-    return true
-end
-
-local function hg_prompt_filter()
-
-    -- Colors for mercurial status
-    local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[31;1m",
-    }
-
-    if get_hg_dir() then
-        -- if we're inside of mercurial repo then try to detect current branch
-        local branch = get_hg_branch()
-        local color
-        if branch then
-            -- Has branch => therefore it is a mercurial folder, now figure out status
-            if get_hg_status() then
-                color = colors.clean
-            else
-                color = colors.dirty
-            end
-
-            clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", color.."("..branch..")")
-            return false
-        end
-    end
-
-    -- No mercurial present or not in mercurial file
-    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", "")
-    return false
+local function get_svn_dir(path)
+    return get_dir_contains(path, '.svn')
 end
 
 ---
@@ -242,7 +169,38 @@ local function get_git_branch(git_dir)
     -- if HEAD matches branch expression, then we're on named branch
     -- otherwise it is a detached commit
     local branch_name = HEAD:match('ref: refs/heads/(.+)')
+
     return branch_name or 'HEAD detached at '..HEAD:sub(1, 7)
+end
+
+---
+ -- Find out current branch
+ -- @return {false|mercurial branch name}
+---
+local function get_hg_branch()
+    for line in io.popen("hg branch 2>nul"):lines() do
+        local m = line:match("(.+)$")
+        if m then
+            return m
+        end
+    end
+
+    return false
+end
+
+---
+ -- Find out current branch
+ -- @return {false|svn branch name}
+---
+local function get_svn_branch(svn_dir)
+    for line in io.popen("svn info 2>nul"):lines() do
+        local m = line:match("^Relative URL:")
+        if m then
+            return line:sub(line:find("/")+1,line:len())
+        end
+    end
+
+    return false
 end
 
 ---
@@ -256,6 +214,30 @@ local function get_git_status()
         return false
     end
     file:close()
+    return true
+end
+
+---
+ -- Get the status of working dir
+ -- @return {bool}
+---
+local function get_hg_status()
+    for line in io.popen("hg status -0"):lines() do
+       return false
+    end
+
+    return true
+end
+
+---
+ -- Get the status of working dir
+ -- @return {bool}
+---
+local function get_svn_status()
+    for line in io.popen("svn status -q"):lines() do
+       return false
+    end
+
     return true
 end
 
@@ -290,6 +272,36 @@ local function git_prompt_filter()
     return false
 end
 
+local function hg_prompt_filter()
+
+    -- Colors for mercurial status
+    local colors = {
+        clean = "\x1b[1;37;40m",
+        dirty = "\x1b[31;1m",
+    }
+
+    if get_hg_dir() then
+        -- if we're inside of mercurial repo then try to detect current branch
+        local branch = get_hg_branch()
+        local color
+        if branch then
+            -- Has branch => therefore it is a mercurial folder, now figure out status
+            if get_hg_status() then
+                color = colors.clean
+            else
+                color = colors.dirty
+            end
+
+            clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", color.."("..branch..")")
+            return false
+        end
+    end
+
+    -- No mercurial present or not in mercurial file
+    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", "")
+    return false
+end
+
 local function svn_prompt_filter()
     -- Colors for svn status
     local colors = {
@@ -317,6 +329,7 @@ local function svn_prompt_filter()
     clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", "")
     return false
 end
+
 -- insert the set_prompt at the very beginning so that it runs first
 clink.prompt.register_filter(set_prompt_filter, 1)
 clink.prompt.register_filter(hg_prompt_filter, 50)
@@ -333,4 +346,3 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
         dofile(filename)
     end
 end
-
