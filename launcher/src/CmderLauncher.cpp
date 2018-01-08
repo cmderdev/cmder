@@ -155,7 +155,7 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 		{
 			MessageBox(NULL,
 				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to copy ConEmu.xml file to new location! Restart cmder as administrator."
+				? L"Failed to copy ConEmu.xml file to new location! Restart Cmder as administrator."
 				: L"Failed to copy ConEmu.xml file to new location!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
@@ -189,7 +189,8 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 		swprintf_s(args, L"%s /run {%s}", args, taskName.c_str());
 	}
 
-	SetEnvironmentVariable(L"CMDER_ROOT", exeDir); // keep for backwards compat?
+	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
+
 	// Ensure EnvironmentVariables are propagated.
 
 	STARTUPINFO si = { 0 };
@@ -200,7 +201,7 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 #endif
 	PROCESS_INFORMATION pi;
 	if (!CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
-		MessageBox(NULL, _T("Unable to create the ConEmu Process!"), _T("Error"), MB_OK);
+		MessageBox(NULL, _T("Unable to create the ConEmu process!"), _T("Error"), MB_OK);
 		return;
 	}
 
