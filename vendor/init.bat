@@ -167,6 +167,14 @@ if defined CMDER_START (
     pushd "%CMDER_START%"
 )
 
+:: This is used to create a new tab or split window
+:: when we need it to be our own work directory.
+if defined ConEmuWorkDir (
+    if not "%ConEmuWorkDir%" == "%HOME%" (
+        pushd "%ConEmuWorkDir%"
+    )
+)
+
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
     call "%CMDER_ROOT%\config\user-profile.cmd"
