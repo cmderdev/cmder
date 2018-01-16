@@ -14,9 +14,9 @@ dofile(clink_lua_file)
 -- now add our own things...
 
 ---
- -- Setting the prompt in clink means that commands which rewrite the prompt do
- -- not destroy our own prompt. It also means that started cmds (or batch files
- -- which echo) don't get the ugly '{lamb}' shown.
+-- Setting the prompt in clink means that commands which rewrite the prompt do
+-- not destroy our own prompt. It also means that started cmds (or batch files
+-- which echo) don't get the ugly '{lamb}' shown.
 ---
 local function set_prompt_filter()
     -- get_cwd() is differently encoded than the clink.prompt.value, so everything other than
@@ -51,12 +51,12 @@ local function set_prompt_filter()
 end
 
 ---
- -- Resolves closest directory location for specified directory.
- -- Navigates subsequently up one level and tries to find specified directory
- -- @param  {string} path    Path to directory will be checked. If not provided
- --                          current directory will be used
- -- @param  {string} dirname Directory name to search for
- -- @return {string} Path to specified directory or nil if such dir not found
+-- Resolves closest directory location for specified directory.
+-- Navigates subsequently up one level and tries to find specified directory
+-- @param  {string} path    Path to directory will be checked. If not provided
+--                          current directory will be used
+-- @param  {string} dirname Directory name to search for
+-- @return {string} Path to specified directory or nil if such dir not found
 local function get_dir_contains(path, dirname)
 
     -- return parent path for specified entry (either file or directory)
@@ -152,8 +152,8 @@ local function get_svn_dir(path)
 end
 
 ---
- -- Find out current branch
- -- @return {nil|git branch name}
+-- Find out current branch
+-- @return {nil|git branch name}
 ---
 local function get_git_branch(git_dir)
     git_dir = git_dir or get_git_dir()
@@ -174,8 +174,8 @@ local function get_git_branch(git_dir)
 end
 
 ---
- -- Find out current branch
- -- @return {false|mercurial branch name}
+-- Find out current branch
+-- @return {false|mercurial branch name}
 ---
 local function get_hg_branch()
     for line in io.popen("hg branch 2>nul"):lines() do
@@ -189,8 +189,8 @@ local function get_hg_branch()
 end
 
 ---
- -- Find out current branch
- -- @return {false|svn branch name}
+-- Find out current branch
+-- @return {false|svn branch name}
 ---
 local function get_svn_branch(svn_dir)
     for line in io.popen("svn info 2>nul"):lines() do
@@ -204,38 +204,46 @@ local function get_svn_branch(svn_dir)
 end
 
 ---
- -- Get the status of working dir
- -- @return {bool}
+-- Get the status of working dir
+-- @return {bool}
 ---
 local function get_git_status()
     local file = io.popen("git --no-optional-locks status --porcelain 2>nul")
     for line in file:lines() do
+        file:close()
         return false
     end
+    file:close()
 
     return true
 end
 
 ---
- -- Get the status of working dir
- -- @return {bool}
+-- Get the status of working dir
+-- @return {bool}
 ---
 local function get_hg_status()
-    for line in io.popen("hg status -0"):lines() do
-       return false
+    local file = io.popen("hg status -0")
+    for line in file:lines() do
+        file:close()
+        return false
     end
+    file:close()
 
     return true
 end
 
 ---
- -- Get the status of working dir
- -- @return {bool}
+-- Get the status of working dir
+-- @return {bool}
 ---
-local function get_svn_status()
-    for line in io.popen("svn status -q"):lines() do
-       return false
+function get_svn_status()
+    local file = io.popen("svn status -q")
+    for line in file:lines() do
+        file:close()
+        return false
     end
+    file:close()
 
     return true
 end
