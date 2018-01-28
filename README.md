@@ -100,8 +100,8 @@ echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh
 -a [user alias file path]    File path pointing to user aliases.
                              Default: '%CMDER_ROOT%\config\user-liases.cmd' 
 
--c [user cmder user root]]   User specified Cmder folder.  Allows for a shared install of Cmder with individual user configuratons.
-                             Default: The location of the Cmder.exe file.
+-c [user cmder user root]]   User specified Cmder root folder.  Allows for a shared install of Cmder with individual user configuratons.
+                             Default: None
 
 -d [startup folder]          User specified startup folder.
                              Default: '%userprofile%'

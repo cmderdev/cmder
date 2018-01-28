@@ -158,6 +158,10 @@ call :verbose-output GIT_INSTALL_ROOT-output=%GIT_INSTALL_ROOT-output%
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
 
+if defined CMDER_USER_ROOT (
+    set "PATH=%CMDER_USER_ROOT%\bin;%PATH%"
+)
+
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
 call :run_profile_d "%CMDER_ROOT%\config\profile.d"
