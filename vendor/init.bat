@@ -6,8 +6,64 @@
 :: !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 :: !!! Use "%CMDER_ROOT%\config\user-profile.cmd" to add your own startup commands
 
-:: Set to > 0 for verbose output to aid in debugging.
-if not defined verbose-output ( set verbose-output=0 )
+:: Use -v command line arg or set to > 0 for verbose output to aid in debugging.
+set verbose-output=0
+
+:var_loop
+    if "%1"=="-v" (
+        set verbose-output=1
+    ) else if "%1" == "-a" (
+        if exist "%~2" (
+            set "user-aliases=%~2"
+            shift
+        ) else (
+            echo WARNING:The user aliases file, "%~2", you specified does not exist!
+        )
+    ) else if "%1" == "-c" (
+        if not exist "%~2" (
+            echo WARNING: The CMDER user root folder "%~2", you specified does not exist!
+        )
+        if not exist "%~2\config\profile.d" md "%~2\config\profile.d"
+        if not exist "%~2\bin"  md "%~2\bin"
+        set "CMDER_USER_ROOT=%~2"
+        shift
+    ) else if "%1" == "-d" (
+        if exist "%~2" (
+          set "CMDER_START=%~2"
+          shift
+        ) else (
+          call :show_error The CMDER startup folder "%2", you specified does not exist!
+          exit /b
+        )
+    ) else if "%1" == "-g" (
+        if exist "%~2" (
+            set "GIT_INSTALL_ROOT=%~2"
+            shift
+        ) else (
+            call :show_error The Git install root folder "%2", you specified does not exist!
+            exit /b
+        )
+    ) else if "%1" == "-h" (
+        if exist "%~2" (
+            set "HOME=%~2"
+            shift
+        ) else (
+            call :show_error The home folder "%2", you specified does not exist!
+            exit /b
+        )
+    ) else if "%1" == "-s" (
+        set SVN_SSH=%2
+        shift
+    ) else (
+        goto :start
+    )
+    shift
+goto var_loop
+
+:start
+
+call :verbose-output verbose-output=%verbose-output%
+call :verbose-output CMDER_USER_ROOT=%CMDER_USER_ROOT%
 
 :: Find root dir
 if not defined CMDER_ROOT (
@@ -18,8 +74,9 @@ if not defined CMDER_ROOT (
     )
 )
 
-:: Remove trailing '\'
+:: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
+call :verbose-output CMDER_ROOT=%CMDER_ROOT%
 
 :: Pick right version of clink
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
@@ -35,7 +92,11 @@ if not exist "%CMDER_ROOT%\config\settings" (
 )
 
 :: Run clink
-"%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+if defined CMDER_USER_ROOT (
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+) else (
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+)
 
 :: Prepare for git-for-windows
 
@@ -91,22 +152,21 @@ if defined GIT_INSTALL_ROOT (
 
 :NO_GIT
 endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+call :verbose-output GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
 
-:: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
-:: to run them at startup.
-if not exist "%CMDER_ROOT%\config\profile.d" (
-  mkdir "%CMDER_ROOT%\config\profile.d"
+if defined CMDER_USER_ROOT (
+    set "PATH=%CMDER_USER_ROOT%\bin;%PATH%"
 )
 
-pushd "%CMDER_ROOT%\config\profile.d"
-for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-  call :verbose-output Calling "%CMDER_ROOT%\config\profile.d\%%x"...
-  call "%CMDER_ROOT%\config\profile.d\%%x"
+:: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
+:: to run them at startup.
+call :run_profile_d "%CMDER_ROOT%\config\profile.d"
+if defined CMDER_USER_ROOT (
+  call :run_profile_d "%CMDER_USER_ROOT%\config\profile.d"
 )
-popd
 
 :: Allows user to override default aliases store using profile.d
 :: scripts run above by setting the 'aliases' env variable.
@@ -114,7 +174,13 @@ popd
 :: Note: If overriding default aliases store file the aliases
 :: must also be self executing, see '.\user-aliases.cmd.example',
 :: and be in profile.d folder.
-set "user-aliases=%CMDER_ROOT%\config\user-aliases.cmd"
+if not defined user-aliases (
+  if defined CMDER_USER_ROOT (
+     set "user-aliases=%CMDER_USER_ROOT%\config\user-aliases.cmd"
+  ) else (
+     set "user-aliases=%CMDER_ROOT%\config\user-aliases.cmd"
+  )
+)
 
 :: The aliases environment variable is used by alias.bat to id
 :: the default file to store new aliases in.
@@ -131,7 +197,7 @@ if not exist "%user-aliases%" (
     type "%user-aliases%" | findstr /i ";= Add aliases below here" >nul
     if "!errorlevel!" == "1" (
         echo Creating initial user-aliases store in "%user-aliases%"...
-        copy "%CMDER_ROOT%\%user-aliases%" "%user-aliases%.old_format"
+        copy "%user-aliases%" "%user-aliases%.old_format"
         copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
     )
 )
@@ -145,6 +211,7 @@ if exist "%CMDER_ROOT%\config\aliases" (
   type "%user-aliases%.old_format" >> "%user-aliases%" && del "%user-aliases%.old_format"
 )
 endlocal
+
 :: Add aliases to the environment
 call "%user-aliases%"
 
@@ -160,28 +227,41 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
+call :verbose-output HOME=%HOME%
 
-if exist "%CMDER_ROOT%\config\user-profile.cmd" (
+if exist "%CMDER_USER_ROOT%\config\user-profile.cmd" (
+    REM Create this file and place your own command in there
+    call "%CMDER_USER_ROOT%\config\user-profile.cmd"
+) else if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
     call "%CMDER_ROOT%\config\user-profile.cmd"
 ) else (
     echo Creating user startup file: "%CMDER_ROOT%\config\user-profile.cmd"
     (
-    echo :: use this file to run your own startup commands
-    echo :: use  in front of the command to prevent printing the command
-    echo.
-    echo :: uncomment this to have the ssh agent load when cmder starts
-    echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
-    echo.
-    echo :: uncomment this next two lines to use pageant as the ssh authentication agent
-    echo :: SET SSH_AUTH_SOCK=/tmp/.ssh-pageant-auth-sock
-    echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
-    echo.
-    echo :: you can add your plugins to the cmder path like so
-    echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
-    echo.
-    ) > "%CMDER_ROOT%\config\user-profile.cmd"
+echo :: use this file to run your own startup commands
+echo :: use  in front of the command to prevent printing the command
+echo.
+echo :: uncomment this to have the ssh agent load when cmder starts
+echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
+echo.
+echo :: uncomment this next two lines to use pageant as the ssh authentication agent
+echo :: SET SSH_AUTH_SOCK=/tmp/.ssh-pageant-auth-sock
+echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
+echo.
+echo :: you can add your plugins to the cmder path like so
+echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
+echo.
+echo @echo off
+) >"%temp%\user-profile.tmp"
+
+  if defined CMDER_USER_ROOT (
+    copy "%temp%\user-profile.tmp" "%CMDER_USER_ROOT%\config\user-profile.cmd"
+  ) else (
+    copy "%temp%\user-profile.tmp" "%CMDER_ROOT%\config\user-profile.cmd"
+  )
 )
+
+if defined CMDER_START cd /d %CMDER_START%
 
 exit /b
 
@@ -191,3 +271,21 @@ exit /b
 :verbose-output
     if %verbose-output% gtr 0 echo %*
     exit /b
+
+:show_error
+    echo ERROR: %*
+    echo CMDER Shell Initialization has Failed!
+    exit /b
+
+:run_profile_d
+  if not exist "%~1" (
+    mkdir "%~1"
+  )
+
+  pushd "%~1"
+  for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
+    call :verbose-output Calling "%~1\%%x"...
+    call "%~1\%%x"
+  )
+  popd
+  exit /b
