@@ -198,13 +198,8 @@ if not exist "%user-aliases%" (
     type "%user-aliases%" | findstr /i ";= Add aliases below here" >nul
     if "!errorlevel!" == "1" (
         echo Creating initial user-aliases store in "%user-aliases%"...
-        if defined CMDER_USER_ROOT (
-            copy "%user-aliases%" "%user-aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
-        ) else (
-            copy "%user-aliases%" "%user-aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
-        )
+        copy "%user-aliases%" "%user-aliases%.old_format"
+        copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
     )
 )
 
