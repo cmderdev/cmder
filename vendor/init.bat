@@ -152,7 +152,7 @@ if defined GIT_INSTALL_ROOT (
 
 :NO_GIT
 endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-call :verbose-output GIT_INSTALL_ROOT-output=%GIT_INSTALL_ROOT-output%
+call :verbose-output GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
