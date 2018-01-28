@@ -13,6 +13,7 @@ build/
 Version v*
 *.bak
 config/user-*
+config/ConEmu-*
 config/settings
 config/aliases
 config/profile.d
