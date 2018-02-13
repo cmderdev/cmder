@@ -85,6 +85,39 @@ cd mintty-colors-solarized/
 echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-profile.sh
 ```
 
+### Changing Cmder Default 'cmd.exe' Shell Startup Behaviour Using Task Arguments
+
+1. Press <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd>
+1. Click either:
+  * `1. {cmd::Cmder as Admin}`
+  * `2. {cmd::Cmder}`
+1. Change `cmd /k "%ConEmuDir%\..\init.bat"` to `cmd /k ""%ConEmuDir%\..\init.bat" "`.  NOTE: The extra quotes and spacing around `"%ConEmuDir%\..\init.bat"`
+1. Add command line arguments after `"%ConEmuDir%\..\init.bat" `
+
+##### Command Line Arguments for `init.bat`
+
+```
+-a [user alias file path]    File path pointing to user aliases.
+                             Default: '%CMDER_ROOT%\config\user-liases.cmd' 
+
+-c [user cmder user root]]   User specified Cmder folder.  Allows for a shared install of Cmder with individual user configuratons.
+                             Default: The location of the Cmder.exe file.
+
+-d [startup folder]          User specified startup folder.
+                             Default: '%userprofile%'
+
+-g [git install root]        User specified Git installation root path.
+                             Default: '%CMDER_ROOT%\vendor\Git for Windows'
+
+-h [home folder]             User specified folder path to set `%HOME%` environment variable.
+                             Default: '%userprofile%'
+
+-s [path to ssh.exe]         Define %SVN_SSH% so we can use git svn with ssh svn repositories.
+                             Default: '%GIT_INSTALL_ROOT%\bin\ssh.exe'
+
+-v                           Enables verbose output.
+```
+
 ### Cmder Portable Shell User Config
 User specific configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
 
