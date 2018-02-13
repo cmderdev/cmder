@@ -237,7 +237,6 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		}
 	}
 
-
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
 	if (wcscmp(userConfigDirPath, configDirPath) != 0)
 	{
@@ -453,6 +452,7 @@ cmderOptions GetOption()
 
 	return cmderOptions;
 }
+
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPTSTR    lpCmdLine,

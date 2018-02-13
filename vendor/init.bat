@@ -27,6 +27,12 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+call "%cmder_root%\vendor\lib\lib_base"
+call "%cmder_root%\vendor\lib\lib_path"
+call "%cmder_root%\vendor\lib\lib_console"
+call "%cmder_root%\vendor\lib\lib_git"
+call "%cmder_root%\vendor\lib\lib_profile"
+
 :var_loop
     if "%~1" == "" (
         goto :start
@@ -39,7 +45,7 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
             set "max_depth=%~2"
             shift
         ) else (
-            call :show_error '/max_depth' requires a number between 1 and 5!
+            %lib_console% show_error "'/max_depth' requires a number between 1 and 5!"
             exit /b
         )
     ) else if "%1" == "/c" (
@@ -60,7 +66,7 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
             set "GIT_INSTALL_ROOT=%~2"
             shift
         ) else (
-            call :show_error The Git install root folder "%2", you specified does not exist!
+            %lib_console% show_error "The Git install root folder "%~2", you specified does not exist!"
             exit /b
         )
     ) else if "%1" == "/home" (
@@ -68,7 +74,7 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
             set "HOME=%~2"
             shift
         ) else (
-            call :show_error The home folder "%2", you specified does not exist!
+            %lib_console% show_error The home folder "%2", you specified does not exist!
             exit /b
         )
     ) else if "%1" == "/svn_ssh" (
@@ -79,12 +85,11 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 goto var_loop
 
 :start
-
-call :debug-output init.bat - Env Var - CMDER_ROOT=%CMDER_ROOT%
-call :debug-output init.bat - Env Var - debug-output=%debug-output%
+%lib_console% debug-output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
+%lib_console% debug-output init.bat "Env Var - debug-output=%debug-output%"
 
 if defined CMDER_USER_CONFIG (
-    call :debug-output init.bat - CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!
+    %lib_console% debug-output init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 )
 
 :: Pick right version of clink
@@ -125,12 +130,13 @@ if not defined TERM set TERM=cygwin
 :: * last, use our vendored git
 :: also check that we have a recent enough version of git by examining the version string
 if defined GIT_INSTALL_ROOT (
-    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (goto :FOUND_GIT)
+    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT)
 )
 
 :: get the version information for vendored git binary
 setlocal enabledelayedexpansion
-call :read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
+%lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
+%lib_git% validate_version VENDORED !GIT_VERSION_VENDORED!
 
 :: check if git is in path...
 for /F "delims=" %%F in ('where git.exe 2^>nul') do (
@@ -140,11 +146,12 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     popd
 
     :: get the version information for the user provided git binary
-    call :read_version USER "!test_dir!"
+    %lib_git% read_version USER "!test_dir!"
+    %lib_git% validate_version USER !GIT_VERSION_USER!
 
     if !errorlevel! geq 0 (
         :: compare the user git version against the vendored version
-        call :compare_versions USER VENDORED
+        %lib_git% compare_versions USER VENDORED
 
         :: use the user provided git if its version is greater than, or equal to the vendored git
         if !errorlevel! geq 0 if exist "!test_dir:~0,-4!\cmd\git.exe" (
@@ -175,7 +182,7 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    call :enhance_path "!GIT_INSTALL_ROOT!\cmd" 
+    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" 
 ) else (
     goto :NO_GIT
 )
@@ -184,33 +191,34 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" call :enhance_path "!GIT_INSTALL_ROOT!\cmd" append
+    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" append
     if exist "!GIT_INSTALL_ROOT!\mingw32" (
-        call :enhance_path "!GIT_INSTALL_ROOT!\mingw32" append
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32" append
     ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
-        call :enhance_path "!GIT_INSTALL_ROOT!\mingw64" append
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64" append
     )
-    if exist "!GIT_INSTALL_ROOT!\usr\bin" call :enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
+    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
+
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
 
 :NO_GIT
 endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-call :debug-output init.bat - Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
+%lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 
 :: Enhance Path
-call :enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
+%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth% 
 if defined CMDER_USER_BIN (
-  call :enhance_path "%CMDER_USER_BIN%" %max_depth%
+  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
 )
-call :enhance_path "%CMDER_ROOT%" append
+%lib_path% enhance_path "%CMDER_ROOT%" append
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
-call :run_profile_d "%CMDER_ROOT%\config\profile.d"
+%lib_profile% run_profile_d "%CMDER_ROOT%\config\profile.d"
 if defined CMDER_USER_CONFIG (
-  call :run_profile_d "%CMDER_USER_CONFIG%\profile.d"
+  %lib_profile% run_profile_d "%CMDER_USER_CONFIG%\profile.d"
 )
 
 :: Allows user to override default aliases store using profile.d
@@ -269,7 +277,7 @@ call "%user-aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    call :verbose-output Running Git for Windows one time Post Install....
+    %lib_console% verbose-output "Running Git for Windows one time Post Install...."
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -277,7 +285,7 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-call :debug-output init.bat - Env Var - HOME=%HOME%
+%lib_console% debug-output init.bat "Env Var - HOME=%HOME%"
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
@@ -314,233 +322,3 @@ echo @echo off
 )
 
 exit /b
-
-::
-:: sub-routines below here
-::
-:debug-output
-    if %debug-output% gtr 0 echo %* & echo.
-    exit /b
-
-:verbose-output
-    if %debug-output% gtr 0 (
-      call :debug-output :verbose-output - %*
-    ) else if %verbose-output% gtr 0 (
-      echo %*
-    )
-    exit /b
-
-:show_error
-    echo ERROR: %*
-    echo CMDER Shell Initialization has Failed!
-    exit /b
-
-:run_profile_d
-  if not exist "%~1" (
-    mkdir "%~1"
-  )
-  
-  pushd "%~1"
-  for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-    call :verbose-output Calling "%~1\%%x"...
-    call "%~1\%%x"
-  )
-  popd
-  exit /b
-
-::
-:: specific to git version comparing
-::
-:read_version
-    :: clear the variables
-    set GIT_VERSION_%~1=
-
-    :: set the executable path
-    set "git_executable=%~2\git.exe"
-    call :debug-output :read_version - Env Var - git_executable=%git_executable%
-
-    :: check if the executable actually exists
-    if not exist "%git_executable%" (
-        call :verbose-output "%git_executable%" does not exist!
-        exit /b -255
-    )
-
-    :: get the git version in the provided directory
-    for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do (
-        if "%%F %%G" == "git version" (
-            set "GIT_VERSION_%~1=%%H"
-            call :debug-output :read_version - Env Var - GIT_VERSION_%~1=%%H
-        ) else (
-            echo "git --version" returned an inproper version string!
-            pause
-            exit /b
-        )
-    )
-
-    :: parse the returned string
-    call :debug-output :read_version - Calling - :validate_version "%~1" !GIT_VERSION_%~1!
-    call :validate_version "%~1" !GIT_VERSION_%~1!
-    exit /b
-
-:parse_version
-    :: process a `x.x.x.xxxx.x` formatted string
-    for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
-        set "%~1_MAJOR=%%A"
-        set "%~1_MINOR=%%B"
-        set "%~1_PATCH=%%C"
-        set "%~1_BUILD=%%D"
-    )
-    exit /b
-
-:validate_version
-    :: now parse the version information into the corresponding variables
-    call :parse_version %~1 %~2
-
-    :: ... and maybe display it, for debugging purposes.
-    call :debug-output :validate_version - Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
-    exit /b
-
-:compare_versions
-    :: checks all major, minor, patch and build variables for the given arguments.
-    :: whichever binary that has the most recent version will be used based on the return code.
-
-    :: call :debug-output Comparing:
-    :: call :debug-output %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
-    :: call :debug-output %~2: !%~2_MAJOR!.!%~2_MINOR!.!%~2_PATCH!.!%~2_BUILD!
-
-    if !%~1_MAJOR! GTR !%~2_MAJOR! (exit /b  1)
-    if !%~1_MAJOR! LSS !%~2_MAJOR! (exit /b -1)
-
-    if !%~1_MINOR! GTR !%~2_MINOR! (exit /b  1)
-    if !%~1_MINOR! LSS !%~2_MINOR! (exit /b -1)
-
-    if !%~1_PATCH! GTR !%~2_PATCH! (exit /b  1)
-    if !%~1_PATCH! LSS !%~2_PATCH! (exit /b -1)
-
-    if !%~1_BUILD! GTR !%~2_BUILD! (exit /b  1)
-    if !%~1_BUILD! LSS !%~2_BUILD! (exit /b -1)
-
-    :: looks like we have the same versions.
-    exit /b 0
-
-:enhance_path
-    setlocal enabledelayedexpansion
-    if "%~1" neq "" (
-        if exist "%~1" (
-            set "add_path=%~1"
-        ) else (
-            call :show_error :enhance_path - The path specified. "%~1", does not exist!
-            exit 1
-        )
-    ) else (
-        call :show_error You must specify a directory to add to the path!
-        exit 1
-    )
-    
-    if "%~2" neq "" if /i "%~2" == "append" (
-        set "position=%~2"
-    ) else (
-        set "position="
-    )
-
-    set "find_query=%add_path%"
-    set "find_query=%find_query:\=\\%"
-    set "find_query=%find_query: =\ %"
-    set found=0
-
-    call :debug-output  :enhance_path "Env Var - find_query=%find_query%"
-    echo "%PATH%"|findstr >nul /I /R ";%find_query%\"$"
-    if "!ERRORLEVEL!" == "0" set found=1
-
-    call :debug-output  :enhance_path "Env Var 1 - found=!found!"
-    if "!found!" == "0" (
-        echo "%PATH%"|findstr >nul /i /r ";%find_query%;"
-        if "!ERRORLEVEL!" == "0" set found=1
-        call :debug-output  :enhance_path "Env Var 2 - found=!found!"
-    )
-
-    if "%found%" == "0" (
-        call :debug-output :enhance_path "BEFORE Env Var - PATH=!path!"
-        if /i "%position%" == "append" (
-            call :debug-output :enhance_path "Appending '%add_path%'"
-            set "PATH=%PATH%;%add_path%"
-        ) else (
-            call :debug-output :enhance_path "Prepending '%add_path%'"
-            set "PATH=%add_path%;%PATH%"
-        )
-
-        call :debug-output  :enhance_path "AFTER Env Var - PATH=!path!"
-    )
-
-    endlocal & set "PATH=%PATH%"
-    exit /b
-
-:enhance_path_recursive
-::: ==============================================================================
-:::enhance_path_recursive - Add a directory and subs to the path env variable if
-:::                         required.
-::: 
-:::include: 
-::: 
-:::  call "$0"
-:::
-:::usage: 
-::: 
-:::  call "%~DP0lib_path" enhance_path_recursive "[dir_path]" [max_depth] [append]
-::: 
-:::required: 
-::: 
-:::  [dir_path] <in> Fully qualified directory path. Ex: "c:\bin"
-::: 
-:::dptions: 
-::: 
-:::  [max_depth] <in> Max recuse depth.  Default: 1
-:::
-:::  append      <in> Append instead rather than pre-pend "[dir_path]"
-::: 
-:::output:
-::: 
-:::  path       <out> Sets the path env variable if required. 
-::: ------------------------------------------------------------------------------
-
-    setlocal enabledelayedexpansion
-    if "%~1" neq "" (
-        set "add_path=%~1"
-    ) else (
-        call :directory to add to the path!"
-        exit 1
-    )
-    
-    if "%~2" gtr "1" (
-        set "max_depth=%~2"
-    ) else (
-        set "max_depth=1"
-    )
-
-    if "%~3" neq "" if /i "%~3" == "append" (
-        set "position=%~3"
-    ) else (
-        set "position="
-    )
-
-    if "%depth%" == "" set depth=0
-
-    call :debug-output  :enhance_path_recursive "Env Var - add_path=%add_path%"
-    call :debug-output  :enhance_path_recursive "Env Var - position=%position%"
-    call :debug-output  :enhance_path_recursive "Env Var - max_depth=%max_depth%"
-
-    if %max_depth% gtr !depth! (
-        call :debug-output :enhance_path_recursive "Adding parent directory - '%add_path%'"
-        call :enhance_path "%add_path%" %position%
-        set /a "depth=!depth!+1"
-
-        for /d %%i in ("%add_path%\*") do (
-            call :debug-output  :enhance_path_recursive "Env Var BEFORE - depth=!depth!"
-            call :debug-output :enhance_path_recursive "Found Subdirectory - '%%~fi'"
-            call :enhance_path_recursive "%%~fi" %max_depth% %position%
-            call :debug-output  :enhance_path_recursive "Env Var AFTER- depth=!depth!"
-        )
-    )
-
-    endlocal & set "PATH=%PATH%"
-    exit /b
