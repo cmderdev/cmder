@@ -3,6 +3,7 @@
 #include <Shlwapi.h>
 #include "resource.h"
 #include <vector>
+#include <cstdlib>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -53,31 +54,23 @@ typedef struct _option
 
 typedef std::pair<std::wstring, std::wstring> optpair;
 
-optpair GetOption()
+struct optVal {
+	int argc;
+	char * argv;
+};
+
+optVal GetOption()
 {
 	wchar_t * cmd = GetCommandLine();
+	#define BUFFER_SIZE sizeof(cmd)
+
 	int argc;
-	wchar_t ** argv = CommandLineToArgvW(cmd, &argc);
-	optpair pair;
+	wchar_t ** args = CommandLineToArgvW(cmd, &argc);
+	char * argv = (char *)malloc(BUFFER_SIZE);
+	size_t f;
+	wcstombs_s(&f, argv, BUFFER_SIZE, cmd, BUFFER_SIZE);
 
-	if (argc == 1)
-	{
-		// no commandline argument...
-		pair = optpair(L"/START", L"");
-	}
-	else if (argc == 2 && argv[1][0] != L'/')
-	{
-		// only a single argument: this should be a path...
-		pair = optpair(L"/START", argv[1]);
-	}
-	else
-	{
-		pair = optpair(argv[1], argc > 2 ? argv[2] : L"");
-	}
-
-	LocalFree(argv);
-
-	return pair;
+	return { argc, argv};
 }
 
 bool FileExists(const wchar_t * filePath)
@@ -93,7 +86,7 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = L"")
+void StartCmder(char * path, bool is_single_mode, char * taskName = "", char * cfgRoot = "")
 {
 #if USE_TASKBAR_API
 	wchar_t appId[MAX_PATH] = { 0 };
@@ -169,24 +162,28 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 		exit(1);
 	}
 
-	if (streqi(path.c_str(), L""))
+	std::wstring cmderStart(&path[0], &path[sizeof(path)]);
+
+	if (streqi(cmderStart.c_str(), L""))
 	{
 		TCHAR buff[MAX_PATH];
 		const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", buff, MAX_PATH);
-		path = buff;
+		cmderStart = buff;
 	}
 
 	if (is_single_mode)
 	{
-		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, path.c_str());
+		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, cmderStart.c_str());
 	}
 	else
 	{
-		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, path.c_str());
+		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, cmderStart.c_str());
 	}
 
-	if (!taskName.empty()) {
-		swprintf_s(args, L"%s /run {%s}", args, taskName.c_str());
+	std::wstring cmderTask(&taskName[0], &taskName[sizeof(taskName)]);
+
+	if (!cmderTask.empty()) {
+		swprintf_s(args, L"%s /run {%s}", args, cmderTask.c_str());
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
@@ -246,7 +243,7 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
-void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
+void RegisterShellMenu(char * opt, wchar_t* keyBaseName)
 {
 	// First, get the paths we will use
 
@@ -264,8 +261,8 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
 
 	// Now set the registry keys
-
-	HKEY root = GetRootKey(opt);
+	std::wstring reg_root(&opt[0], &opt[sizeof(opt)]);
+	HKEY root = GetRootKey(reg_root);
 
 	HKEY cmderKey;
 	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
@@ -285,9 +282,10 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	RegCloseKey(root);
 }
 
-void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
+void UnregisterShellMenu(char * opt, wchar_t* keyBaseName)
 {
-	HKEY root = GetRootKey(opt);
+	std::wstring reg_root(&opt[0], &opt[sizeof(opt)]);
+	HKEY root = GetRootKey(reg_root);
 	HKEY cmderKey;
 	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 #if XP
@@ -299,6 +297,25 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	RegCloseKey(root);
 }
 
+char * getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+	
+	char ** itr = std::find(begin, end, option);
+	if (itr != end && ++itr != end)
+	{
+		// std::wstring its (itr, itr + strlen(*itr));
+		// return its;
+		return *itr;
+	}
+	return 0;
+}
+
+bool cmdOptionExists(char** begin, char** end, const std::string& option)
+{
+	return std::find(begin, end, option) != end;
+}
+
+
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPTSTR    lpCmdLine,
@@ -308,35 +325,59 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nCmdShow);
 
-	optpair opt = GetOption();
+	auto opts = GetOption();
+	char ** argv = (char **)opts.argv;
 
-	if (streqi(opt.first.c_str(), L"/START"))
+	char * cmderCfgRoot = "";
+	if (cmdOptionExists(argv, argv + opts.argc, "/C"))
 	{
-		StartCmder(opt.second, false);
+		cmderCfgRoot = getCmdOption(argv, argv + opts.argc, "/C");
 	}
-	else if (streqi(opt.first.c_str(), L"/SINGLE"))
+
+	
+	char * cmderStart = "";
+	if (cmdOptionExists(argv, argv + opts.argc, "/START"))
 	{
-		StartCmder(opt.second, true);
+		cmderStart = getCmdOption(argv, argv + opts.argc, "/START");
 	}
-	else if (streqi(opt.first.c_str(), L"/TASK"))
+
+	char * cmderTask = "";
+	if (cmdOptionExists(argv, argv + opts.argc, "/START"))
 	{
-		StartCmder(L"", false, opt.second);
+		cmderTask = getCmdOption(argv, argv + opts.argc, "/TASK");
 	}
-	else if (streqi(opt.first.c_str(), L"/REGISTER"))
+
+	char * cmderRegScope = "user";
+	if (cmdOptionExists(argv, argv + opts.argc, "/REGISTER"))
 	{
-		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		cmderRegScope = getCmdOption(argv, argv + opts.argc, "/REGISTER");
 	}
-	else if (streqi(opt.first.c_str(), L"/UNREGISTER"))
+	else if (cmdOptionExists(argv, argv + opts.argc, "/UNREGISTER"))
 	{
-		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		cmderRegScope = getCmdOption(argv, argv + opts.argc, "/UNREGISTER");
+	}
+
+	bool cmderSingle = false;
+	if (cmdOptionExists(argv, argv + opts.argc, "/SINGLE"))
+	{
+		cmderSingle = true;
+	}
+
+	
+	if (cmdOptionExists(argv, argv + opts.argc, "/REGISTER"))
+	{
+		RegisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+		RegisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+	}
+	else if (cmdOptionExists(argv, argv + opts.argc, "/UNREGISTER"))
+	{
+		UnregisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+		UnregisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
 	else
 	{
-		MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /START <path>\n  /SINGLE <path>\n  /TASK <name>\n /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
-		return 1;
+		StartCmder(cmderStart, cmderSingle, cmderTask, cmderCfgRoot);
 	}
-
+	
 	return 0;
 }

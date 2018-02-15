@@ -85,7 +85,7 @@ cd mintty-colors-solarized/
 echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-profile.sh
 ```
 
-### Changing Cmder Default 'cmd.exe' Shell Startup
+### Changing Cmder Default 'cmd.exe' Shell Startup Behaviour Using Task Arguments
 
 1. Press <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd>
 1. Click either:
