@@ -80,6 +80,36 @@ function checkGit($Path) {
     }
 }
 
+<<<<<<< HEAD
+=======
+# Move to the wanted location
+# This is either a env variable set by the user or the result of
+# cmder.exe setting this variable due to a commandline argument or a "cmder here"
+$cmderStartKey = 'HKCU:\Software\cmder'
+$cmderStartSubKey = 'CMDER_START'
+$cmderStart = (Get-Item -Path $cmderStartKey).GetValue($cmderStartSubKey)
+if ( $cmderStart ) {
+    $cmderStart = ($cmderStart).Trim('"').Trim("'")
+    if ( $cmderStart.EndsWith(':') ) {
+        $cmderStart += '\'
+    }
+    if ( ( Get-Item $cmderStart -Force ) -is [System.IO.FileInfo] ) {
+        $cmderStart = Split-Path $cmderStart
+    }
+    Set-Location -Path "${cmderStart}"
+    # technically, leaving the registry key in place makes it not "portable".
+    Remove-Item $cmderStartKey
+} elseif ( $ENV:CMDER_START ) {
+    Set-Location -Path "$ENV:CMDER_START"
+} elseif ( $ENV:ConEmuWorkDir ) {
+    # set by the -new_console:d: switch for ConEmu, which might be present in some startup tasks.
+    Set-Location -Path "$ENV:ConEmuWorkDir"
+} else {
+    Set-Location -Path "${env:HOME}"
+}
+
+
+>>>>>>> #420 and #577 - use registry for CMDER_START
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     Set-PSReadlineOption -ExtraPromptLineCount 1
 }
