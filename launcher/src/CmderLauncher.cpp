@@ -190,21 +190,31 @@ void StartCmder(std::wstring path, bool is_single_mode, std::wstring taskName = 
 		swprintf_s(args, L"%s /run {%s}", args, taskName.c_str());
 	}
 
+<<<<<<< HEAD
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
 
 	// Ensure EnvironmentVariables are propagated.
 =======
+=======
+>>>>>>> 9f870b5678910db6640821f81f30b9d001c7ec13
 	// Environment Variables are not a reliable method of communicating between processes. Registry seems like a better choice:
 	HKEY cmderStartRegistryKey;
 	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\cmder", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &cmderStartRegistryKey, 0) == ERROR_SUCCESS)
 	{
 		RegSetValueEx(cmderStartRegistryKey, L"CMDER_START", 0, REG_SZ, (const BYTE*)path.c_str(), path.size() * 2);
 		RegCloseKey(cmderStartRegistryKey);
+<<<<<<< HEAD
 	}
 	else {
 		MessageBox(NULL, _T("Error trying to set CMDER_START in registry!"), _T("Error"), MB_OK);
 	}
 >>>>>>> #420 and #577 - use registry for CMDER_START
+=======
+	}
+	else {
+		MessageBox(NULL, _T("Error trying to set CMDER_START in registry!"), _T("Error"), MB_OK);
+	}
+>>>>>>> 9f870b5678910db6640821f81f30b9d001c7ec13
 
 	STARTUPINFO si = { 0 };
 	si.cb = sizeof(STARTUPINFO);

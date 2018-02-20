@@ -109,7 +109,10 @@ if ( $cmderStart ) {
 }
 
 
+<<<<<<< HEAD
 >>>>>>> #420 and #577 - use registry for CMDER_START
+=======
+>>>>>>> 9f870b5678910db6640821f81f30b9d001c7ec13
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     Set-PSReadlineOption -ExtraPromptLineCount 1
 }

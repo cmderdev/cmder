@@ -162,7 +162,10 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
 if not defined HOME set "HOME=%USERPROFILE%"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 9f870b5678910db6640821f81f30b9d001c7ec13
 :: Move to the correct location. This checks first for a registry key set by cmder.exe, but will also fall back on environment variables.
 set KEY_NAME="HKEY_CURRENT_USER\SOFTWARE\cmder"
 set VALUE_NAME=CMDER_START
