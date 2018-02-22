@@ -12,9 +12,9 @@ set verbose-output=0
 :var_loop
     if "%~1" == "" (
         goto :start
-    ) else if "%1"=="-v" (
+    ) else if "%1"=="/v" (
         set verbose-output=1
-    ) else if "%1" == "-a" (
+    ) else if "%1" == "/user_aliases" (
         if exist "%~2" (
             set "user-aliases=%~2"
             shift
@@ -22,23 +22,7 @@ set verbose-output=0
             call :show_error The user aliases file, "%~2", you specified does not exist!
             exit /b
         )
-    ) else if "%1" == "-c" (
-        if not exist "%~2" (
-            echo WARNING: The CMDER user root folder "%~2", you specified does not exist!
-        )
-        if not exist "%~2\config\profile.d" md "%~2\config\profile.d"
-        if not exist "%~2\bin"  md "%~2\bin"
-        set "CMDER_USER_ROOT=%~2"
-        shift
-    ) else if "%1" == "-d" (
-        if exist "%~2" (
-          set "CMDER_START=%~2"
-          shift
-        ) else (
-          call :show_error The CMDER startup folder "%2", you specified does not exist!
-          exit /b
-        )
-    ) else if "%1" == "-g" (
+    ) else if "%1" == "/git_install_root" (
         if exist "%~2" (
             set "GIT_INSTALL_ROOT=%~2"
             shift
@@ -46,7 +30,7 @@ set verbose-output=0
             call :show_error The Git install root folder "%2", you specified does not exist!
             exit /b
         )
-    ) else if "%1" == "-h" (
+    ) else if "%1" == "/home" (
         if exist "%~2" (
             set "HOME=%~2"
             shift
@@ -54,7 +38,7 @@ set verbose-output=0
             call :show_error The home folder "%2", you specified does not exist!
             exit /b
         )
-    ) else if "%1" == "-s" (
+    ) else if "%1" == "/svn_ssh" (
         set SVN_SSH=%2
         shift
     )
@@ -64,7 +48,10 @@ goto var_loop
 :start
 
 call :verbose-output verbose-output=%verbose-output%
-call :verbose-output CMDER_USER_ROOT=%CMDER_USER_ROOT%
+
+if defined CMDER_USER_CONFIG (
+    call :verbose-output "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
+)
 
 :: Find root dir
 if not defined CMDER_ROOT (
@@ -87,14 +74,18 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 )
 
 :: Tell the user about the clink config files...
-if not exist "%CMDER_ROOT%\config\settings" (
+if defined "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\settings" (
+    echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
+    echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
+
+} else if not exist "%CMDER_ROOT%\config\settings" (
     echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
     echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
 )
 
 :: Run clink
-if defined CMDER_USER_ROOT (
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+if defined CMDER_USER_CONFIG (
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
 ) else (
     "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
 )
@@ -181,16 +172,19 @@ if defined GIT_INSTALL_ROOT (
 
 :NO_GIT
 endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-call :verbose-output GIT_INSTALL_ROOT-output=%GIT_INSTALL_ROOT-output%
+call :verbose-output GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
 set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
+if defined CMDER_USER_BIN (
+  set "PATH=%CMDER_USER_BIN%\bin;%PATH%"
+)
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
 call :run_profile_d "%CMDER_ROOT%\config\profile.d"
-if defined CMDER_USER_ROOT (
-  call :run_profile_d "%CMDER_USER_ROOT%\config\profile.d"
+if defined CMDER_USER_CONFIG (
+  call :run_profile_d "%CMDER_USER_CONFIG%\profile.d"
 )
 
 :: Allows user to override default aliases store using profile.d
@@ -200,8 +194,8 @@ if defined CMDER_USER_ROOT (
 :: must also be self executing, see '.\user-aliases.cmd.example',
 :: and be in profile.d folder.
 if not defined user-aliases (
-  if defined CMDER_USER_ROOT (
-     set "user-aliases=%CMDER_USER_ROOT%\config\user-aliases.cmd"
+  if defined CMDER_USER_CONFIG (
+     set "user-aliases=%CMDER_USER_CONFIG%\user-aliases.cmd"
   ) else (
      set "user-aliases=%CMDER_ROOT%\config\user-aliases.cmd"
   )
@@ -222,7 +216,7 @@ if not exist "%user-aliases%" (
     type "%user-aliases%" | findstr /i ";= Add aliases below here" >nul
     if "!errorlevel!" == "1" (
         echo Creating initial user-aliases store in "%user-aliases%"...
-        if defined CMDER_USER_ROOT (
+        if defined CMDER_USER_CONFIG (
             copy "%user-aliases%" "%user-aliases%.old_format"
             copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
         ) else (
@@ -259,12 +253,14 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 if not defined HOME set "HOME=%USERPROFILE%"
 call :verbose-output HOME=%HOME%
 
-if exist "%CMDER_USER_ROOT%\config\user-profile.cmd" (
-    REM Create this file and place your own command in there
-    call "%CMDER_USER_ROOT%\config\user-profile.cmd"
-) else if exist "%CMDER_ROOT%\config\user-profile.cmd" (
+if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
     call "%CMDER_ROOT%\config\user-profile.cmd"
+)
+
+if defined CMDER_USER_CONFIG if exist "%CMDER_USER_CONFIG%\user-profile.cmd" (
+    REM Create this file and place your own command in there
+    call "%CMDER_USER_CONFIG%\user-profile.cmd"
 ) else (
     echo Creating user startup file: "%CMDER_ROOT%\config\user-profile.cmd"
     (
@@ -284,14 +280,12 @@ echo.
 echo @echo off
 ) >"%temp%\user-profile.tmp"
 
-  if defined CMDER_USER_ROOT (
-    copy "%temp%\user-profile.tmp" "%CMDER_USER_ROOT%\config\user-profile.cmd"
+  if defined CMDER_USER_CONFIG (
+    copy "%temp%\user-profile.tmp" "%CMDER_USER_CONFIG%\user-profile.cmd"
   ) else (
     copy "%temp%\user-profile.tmp" "%CMDER_ROOT%\config\user-profile.cmd"
   )
 )
-
-if defined CMDER_START cd /d %CMDER_START%
 
 exit /b
 
