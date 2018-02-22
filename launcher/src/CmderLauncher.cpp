@@ -3,9 +3,6 @@
 #include <Shlwapi.h>
 #include "resource.h"
 #include <vector>
-#include <cstdlib>
-#include <stdlib.h>
-#include <algorithm>
 #include <shlobj.h>
 
 #pragma comment(lib, "Shlwapi.lib")
