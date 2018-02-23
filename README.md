@@ -136,6 +136,7 @@ echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh
 | /git_install_root [file path] | User specified Git installation root path.  Default: '%CMDER_ROOT%\vendor\Git-for-Windows'                   |
 | /home [home folder]           | User specified folder path to set `%HOME%` environment variable.  Default: '%userprofile%'                   |
 | /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.  Default: '%GIT_INSTALL_ROOT%\bin\ssh.exe' |
+| /d                            | Enables debug output.                                                                                      |
 | /v                            | Enables verbose output.                                                                                      |
 
 ### Cmder Shell User Config
