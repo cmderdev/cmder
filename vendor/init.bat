@@ -100,26 +100,54 @@ if not defined TERM set TERM=cygwin
 :: * if the users points as to a specific git, use that
 :: * test if a git is in path and if yes, use that
 :: * last, use our vendored git
-:: also check that we have a recent enough version of git (e.g. test for GIT\cmd\git.exe)
+:: also check that we have a recent enough version of git by examining the version string
 if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (goto :FOUND_GIT)
 )
 
+:: get the version information for vendored git binary
+setlocal enabledelayedexpansion
+call :read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
+
 :: check if git is in path...
 setlocal enabledelayedexpansion
 for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
+
+    :: get the absolute path to the user provided git binary
     pushd %%~dpF
-    cd ..
     set "test_dir=!CD!"
     popd
-    if exist "!test_dir!\cmd\git.exe" (
-        set "GIT_INSTALL_ROOT=!test_dir!"
-        set test_dir=
-        goto :FOUND_GIT
+
+    :: get the version information for the user provided git binary
+    setlocal enabledelayedexpansion
+    call :read_version USER !test_dir!
+
+    if !errorlevel! geq 0 (
+
+        :: compare the user git version against the vendored version
+        setlocal enabledelayedexpansion
+        call :compare_versions USER VENDORED
+
+        :: use the user provided git if its version is greater than, or equal to the vendored git
+        if !errorlevel! geq 0 (
+            set "GIT_INSTALL_ROOT=!test_dir!"
+            set test_dir=
+            goto :FOUND_GIT
+        ) else (
+            echo Found old !GIT_VERSION_USER! in "!test_dir!", but not using...
+            set test_dir=
+        )
+
     ) else (
-        echo Found old git version in "!test_dir!", but not using...
-        set test_dir=
+
+        :: if the user provided git executable is not found
+        if !errorlevel! equ -255 (
+            echo No git at "!git_executable!" found.
+            set test_dir=
+        )
+
     )
+
 )
 
 :: our last hope: our own git...
@@ -285,3 +313,83 @@ exit /b
   )
   popd
   exit /b
+
+::
+:: specific to git version comparing
+::
+:read_version
+    :: clear the variables
+    set GIT_VERSION_%~1=
+
+    :: set the executable path
+    set "git_executable=%~2\git.exe"
+
+    :: check if the executable actually exists
+    if not exist "%git_executable%" (
+        :: return a negative error code if the executable doesn't exist
+        exit /b -255
+    )
+
+    :: get the git version in the provided directory
+    for /F "delims=" %%F in ('%git_executable% --version 2^>nul') do @(
+        set "GIT_VERSION_%~1=%%F"
+    )
+
+    :: parse the returned string
+    call :validate_version "%~1" !GIT_VERSION_%~1!
+exit /b
+
+:parse_version
+    :: process a `git version x.x.x.xxxx.x` formatted string
+    for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
+        set "%~1_MAJOR=%%A"
+        set "%~1_MINOR=%%B"
+        set "%~1_PATCH=%%C"
+        set "%~1_BUILD=%%D"
+    )
+exit /b
+
+:validate_version
+    :: check if we have a valid version string
+    if /I "%~2 %~3"=="GIT VERSION" (
+
+        :: now parse the version information into the corresponding variables
+        call :parse_version %~1 %~4
+
+        :: ... and maybe display it, for debugging purposes.
+        call :verbose-output Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
+
+    ) else (
+        :: invalid format returned, use the vendored git instead
+        echo Invalid git version at "%git_executable%" detected!
+        call :verbose-output Returned version: %~2 %~3 %~4
+
+        rem or directly call the VENDORED_GIT
+        set test_dir=
+        exit /b -127
+    )
+exit /b
+
+:compare_versions
+    :: checks all major, minor, patch and build variables for the given arguments.
+    :: whichever binary that has the most recent version will be used based on the return code.
+
+    :: call :verbose-output Comparing:
+    :: call :verbose-output %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
+    :: call :verbose-output %~2: !%~2_MAJOR!.!%~2_MINOR!.!%~2_PATCH!.!%~2_BUILD!
+
+    if !%~1_MAJOR! GTR !%~2_MAJOR! (exit /b  1)
+    if !%~1_MAJOR! LSS !%~2_MAJOR! (exit /b -1)
+
+    if !%~1_MINOR! GTR !%~2_MINOR! (exit /b  1)
+    if !%~1_MINOR! LSS !%~2_MINOR! (exit /b -1)
+
+    if !%~1_PATCH! GTR !%~2_PATCH! (exit /b  1)
+    if !%~1_PATCH! LSS !%~2_PATCH! (exit /b -1)
+
+    if !%~1_BUILD! GTR !%~2_BUILD! (exit /b  1)
+    if !%~1_BUILD! LSS !%~2_BUILD! (exit /b -1)
+
+    :: looks like we have the same versions.
+    exit /b 0
+exit /b
