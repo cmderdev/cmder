@@ -18,9 +18,6 @@ set verbose-output=0
         if exist "%~2" (
             set "user-aliases=%~2"
             shift
-        ) else (
-            call :show_error The user aliases file, "%~2", you specified does not exist!
-            exit /b
         )
     ) else if "%1" == "/git_install_root" (
         if exist "%~2" (
