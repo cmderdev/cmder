@@ -313,12 +313,10 @@ exit /b
         exit /b -255
     )
 
-    if "%~1" equ "VENDORED" (
-        :: get the git version in the provided directory
-        for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do @(
-            set "GIT_VERSION_%~1=%%H"
-            call :verbose-output GIT_VERSION_%~1=%%H
-        )
+    :: get the git version in the provided directory
+    for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do @(
+        set "GIT_VERSION_%~1=%%H"
+        call :verbose-output GIT_VERSION_%~1=%%H
     )
 
     :: parse the returned string
