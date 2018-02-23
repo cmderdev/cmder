@@ -110,7 +110,6 @@ setlocal enabledelayedexpansion
 call :read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
 
 :: check if git is in path...
-setlocal enabledelayedexpansion
 for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
 
     :: get the absolute path to the user provided git binary
@@ -323,21 +322,26 @@ exit /b
 
     :: set the executable path
     set "git_executable=%~2\git.exe"
+    call :verbose-output git_executable=%git_executable%
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        :: return a negative error code if the executable doesn't exist
+        call :verbose-output "%git_executable%" does not exist!
         exit /b -255
     )
 
-    :: get the git version in the provided directory
-    for /F "delims=" %%F in ('%git_executable% --version 2^>nul') do @(
-        set "GIT_VERSION_%~1=%%F"
+    if "%~1" equ "VENDORED" (
+        :: get the git version in the provided directory
+        for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do @(
+            set "GIT_VERSION_%~1=%%H"
+            call :verbose-output GIT_VERSION_%~1=%%H
+        )
     )
 
     :: parse the returned string
+    call :verbose-output Calling :validate_version "%~1" !GIT_VERSION_%~1!
     call :validate_version "%~1" !GIT_VERSION_%~1!
-exit /b
+    exit /b
 
 :parse_version
     :: process a `git version x.x.x.xxxx.x` formatted string
@@ -347,28 +351,15 @@ exit /b
         set "%~1_PATCH=%%C"
         set "%~1_BUILD=%%D"
     )
-exit /b
+    exit /b
 
 :validate_version
-    :: check if we have a valid version string
-    if /I "%~2 %~3"=="GIT VERSION" (
+    :: now parse the version information into the corresponding variables
+    call :parse_version %~1 %~2
 
-        :: now parse the version information into the corresponding variables
-        call :parse_version %~1 %~4
-
-        :: ... and maybe display it, for debugging purposes.
-        call :verbose-output Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
-
-    ) else (
-        :: invalid format returned, use the vendored git instead
-        echo Invalid git version at "%git_executable%" detected!
-        call :verbose-output Returned version: %~2 %~3 %~4
-
-        rem or directly call the VENDORED_GIT
-        set test_dir=
-        exit /b -127
-    )
-exit /b
+    :: ... and maybe display it, for debugging purposes.
+    call :verbose-output Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
+    exit /b
 
 :compare_versions
     :: checks all major, minor, patch and build variables for the given arguments.
@@ -392,4 +383,4 @@ exit /b
 
     :: looks like we have the same versions.
     exit /b 0
-exit /b
+
