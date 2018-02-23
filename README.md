@@ -151,11 +151,11 @@ Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file if it e
 
 You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CMDER_ROOT%\config\profile.d folder to add startup config to Cmder.
 
-| Shell         | Cmder 'Profile.d' Scripts                      |
-| ------------- | :-------------:                                |
-| Cmder         | %CMDER_ROOT%\config\profile.d\\*.bat and *.cmd |
-| PowerShell    | $ENV:CMDER_ROOT\config\profile.d\\*.ps1        |
-| Bash/Mintty   | $CMDER_ROOT/config/profile.d/*.sh              |
+| Shell         | Cmder 'Profile.d' Scripts                         |
+| ------------- | :-------------:                                   |
+| Cmder         | %CMDER_ROOT%\\config\\profile.d\\\*.bat and *.cmd |
+| PowerShell    | $ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1        |
+| Bash/Mintty   | $CMDER_ROOT/config/profile.d/*.sh                 |
 
 
 ### Aliases
@@ -195,7 +195,7 @@ To make an alias and/or any other profile settings permanent add it to one of th
 Note: These are loaded in this order by '$ENV:CMDER_ROOT\\vendor\\user-profile.ps1'.  Anyhing stored in '$ENV:CMDER_ROOT' will be a portable setting and will follow cmder to another machine.
 
 * '$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1'
-* '$ENV:CMDER_ROOT\\config\\user-profile.ps2'
+* '$ENV:CMDER_ROOT\\config\\user-profile.ps1'
 
 ### SSH Agent
 
