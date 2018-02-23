@@ -271,34 +271,34 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 
 	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
-	wchar_t commandStr[MAX_PATH + 20] = { 0 };
-	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+wchar_t commandStr[MAX_PATH + 20] = { 0 };
+swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
 
-	// Now that we have `commandStr`, it's OK to change `exePath`...
-	PathRemoveFileSpec(exePath);
+// Now that we have `commandStr`, it's OK to change `exePath`...
+PathRemoveFileSpec(exePath);
 
-	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
+PathCombine(icoPath, exePath, L"icons\\cmder.ico");
 
-	// Now set the registry keys
-	// std::wstring reg_root(&opt[0], &opt[sizeof(opt)]);
-	HKEY root = GetRootKey(opt);
+// Now set the registry keys
+// std::wstring reg_root(&opt[0], &opt[sizeof(opt)]);
+HKEY root = GetRootKey(opt);
 
-	HKEY cmderKey;
-	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+HKEY cmderKey;
+FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 
-	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
-	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
+FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
+FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
 
-	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
+FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
 
-	HKEY command;
-	FAIL_ON_ERROR(RegCreateKeyEx(cmderKey, L"command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
+HKEY command;
+FAIL_ON_ERROR(RegCreateKeyEx(cmderKey, L"command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
 
-	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
+FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
 
-	RegCloseKey(command);
-	RegCloseKey(cmderKey);
-	RegCloseKey(root);
+RegCloseKey(command);
+RegCloseKey(cmderKey);
+RegCloseKey(root);
 }
 
 void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
@@ -316,26 +316,6 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	RegCloseKey(root);
 }
 
-char* getCmdOption(char ** begin, char ** end, const std::string & option)
-{
-	
-	char ** itr = std::find(begin, end, option);
-	if (itr != end && ++itr != end)
-	{
-		// std::wstring its (itr, itr + strlen(*itr));
-		// return its;
-		return *itr;
-	}
-	return 0;
-}
-
-bool cmdOptionExists(char** begin, char** end, const std::string& option)
-{
-	return std::find(begin, end, option) != end;
-}
-
-/*
-*/
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPTSTR    lpCmdLine,
@@ -355,15 +335,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return 10;
 	}
 
-	std::wstring  cmderCfgRoot = L"";
-	std::wstring  cmderStart = L"";
+	std::wstring cmderCfgRoot = L"";
+	std::wstring cmderStart = L"";
 	std::wstring cmderTask = L"";
+	std::wstring cmderRegScope = L"USER";
 	bool cmderSingle = false;
-	std::wstring cmderRegScope = L"user";
 	bool registerApp = false;
 	bool unRegisterApp = false;
 
-	for (int i = 0; i < argCount; i++)
+	for (int i = 1; i < argCount; i++)
 	{
 		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
 
@@ -386,22 +366,33 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		{
 			cmderSingle = true;
 		}
+		else if (wcscmp(L"/REGISTER", (wchar_t *)szArgList[i]) == 0)
+		{
+			registerApp = true;
+			unRegisterApp = false;
+			if (wcscmp(L"ALL", (wchar_t *)szArgList[i]) == 0 || wcscmp(L"USER", (wchar_t *)szArgList[i]) == 0)
+			{
+				cmderRegScope = szArgList[i + 1];
+				i++;
+			}
+		}
+		else if (wcscmp(L"/UNREGISTER", (wchar_t *)szArgList[i]) == 0)
+		{
+			unRegisterApp = true;
+			registerApp = false;
+			if (wcscmp(L"ALL", (wchar_t *)szArgList[i]) == 0 || wcscmp(L"USER", (wchar_t *)szArgList[i]) == 0)
+			{
+				cmderRegScope = szArgList[i + 1];
+				i++;
+			}
+		}
+		else
+		{
+			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /C <path>\n  /START <path>\n  /SINGLE <path>\n  /TASK <name>\n /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
+			return 1;
+		}
 	}
 
-	/*
-		if (cmdOptionExists(&opts.argv, &opts.argv + opts.argc, "/REGISTER"))
-		{
-			cmderRegScope = getCmdOption(&opts.argv, &opts.argv + opts.argc, "/REGISTER");
-			registerApp = true;
-		}
-		else if (cmdOptionExists(&opts.argv, &opts.argv + opts.argc, "/UNREGISTER"))
-		{
-			cmderRegScope = getCmdOption(&opts.argv, &opts.argv + opts.argc, "/UNREGISTER");
-			unRegisterApp = true;
-		}
-	}
-	*/
-	
 	if ( registerApp == true ) {
 		RegisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
 		RegisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
