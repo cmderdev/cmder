@@ -295,7 +295,7 @@ exit /b
 :verbose-output
     if %debug-output% gtr 0 (
       call :debug-output :verbose-output - %*
-    ) else (
+    ) else if %verbose-output% gtr 0 (
       echo %*
     )
     exit /b
@@ -312,7 +312,7 @@ exit /b
   
   pushd "%~1"
   for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-    call :verbose-output Calling "%~1\%%x"...
+    call :verbose-output :run_profile_d - Calling "%~1\%%x"...
     call "%~1\%%x"
   )
   popd
