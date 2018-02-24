@@ -239,7 +239,7 @@ call "%user-aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    call :verbose-output Running Git for Windows one time Post Install....
+    call :verbose-output init.bat - Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -299,6 +299,19 @@ exit /b
       echo %*
     )
     exit /b
+
+:run_profile_d
+  if not exist "%~1" (
+    mkdir "%~1"
+  )
+  
+  pushd "%~1"
+  for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
+    call :verbose-output :run_profile_d - Calling "%~1\%%x"...
+    call "%~1\%%x"
+  )
+  popd
+  exit /b
 
 ::
 :: specific to git version comparing
