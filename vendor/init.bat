@@ -44,10 +44,10 @@ goto var_loop
 
 :start
 
-call :verbose-output verbose-output=%verbose-output%
+call :verbose-output init.bat - Env Var - verbose-output=%verbose-output%
 
 if defined CMDER_USER_CONFIG (
-    call :verbose-output "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
+    call :verbose-output init.bat - CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!
 )
 
 :: Find root dir
@@ -61,7 +61,7 @@ if not defined CMDER_ROOT (
 
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
-call :verbose-output CMDER_ROOT=%CMDER_ROOT%
+call :verbose-output init.bat - Env Var - CMDER_ROOT=%CMDER_ROOT%
 
 :: Pick right version of clink
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
@@ -108,7 +108,6 @@ call :read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
 
 :: check if git is in path...
 for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
-
     :: get the absolute path to the user provided git binary
     pushd %%~dpF
     set "test_dir=!CD!"
@@ -133,7 +132,6 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
             echo Found old !GIT_VERSION_USER! in "!test_dir!", but not using...
             set test_dir=
         )
-
     ) else (
 
         :: if the user provided git executable is not found
@@ -150,8 +148,7 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    call :verbose-output Add the minimal git commands to the front of the path
-    set "PATH=!GIT_INSTALL_ROOT!\cmd;%PATH%"
+    call :enhance_path "!GIT_INSTALL_ROOT!\cmd" 
 ) else (
     goto :NO_GIT
 )
@@ -160,21 +157,21 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    call :verbose-output Enhancing PATH with unix commands from git in "%GIT_INSTALL_ROOT%\usr\bin"
-    set "PATH=%PATH%;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
+    call :enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
 
 :NO_GIT
 endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-call :verbose-output GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
+call :verbose-output init.bat - Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
-set "PATH=%CMDER_ROOT%\bin;%PATH%;%CMDER_ROOT%\"
+call :enhance_path "%CMDER_ROOT%\bin" 
 if defined CMDER_USER_BIN (
-  set "PATH=%CMDER_USER_BIN%\bin;%PATH%"
+  call :enhance_path "%CMDER_USER_BIN%\bin"
 )
+call :enhance_path "%CMDER_ROOT%\" append
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
@@ -239,7 +236,7 @@ call "%user-aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    call :verbose-output Running Git for Windows one time Post Install....
+    call :verbose-output init.bat - Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -247,7 +244,7 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-call :verbose-output HOME=%HOME%
+call :verbose-output init.bat - Env Var - HOME=%HOME%
 
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
@@ -290,6 +287,7 @@ exit /b
 ::
 :verbose-output
     if %verbose-output% gtr 0 echo %*
+    echo.
     exit /b
 
 :show_error
@@ -304,7 +302,7 @@ exit /b
   
   pushd "%~1"
   for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-    call :verbose-output Calling "%~1\%%x"...
+    call :verbose-output :run_profile_d - Calling "%~1\%%x"...
     call "%~1\%%x"
   )
   popd
@@ -319,22 +317,22 @@ exit /b
 
     :: set the executable path
     set "git_executable=%~2\git.exe"
-    call :verbose-output git_executable=%git_executable%
+    call :verbose-output :read_version - Env Var - git_executable=%git_executable%
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        call :verbose-output "%git_executable%" does not exist!
+        echo "%git_executable%" does not exist!
         exit /b -255
     )
 
     :: get the git version in the provided directory
     for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do @(
         set "GIT_VERSION_%~1=%%H"
-        call :verbose-output GIT_VERSION_%~1=%%H
+        call :verbose-output :read_version - Env Var - GIT_VERSION_%~1=%%H
     )
 
     :: parse the returned string
-    call :verbose-output Calling :validate_version "%~1" !GIT_VERSION_%~1!
+    call :verbose-output :read_version - Calling - :validate_version "%~1" !GIT_VERSION_%~1!
     call :validate_version "%~1" !GIT_VERSION_%~1!
     exit /b
 
@@ -353,7 +351,7 @@ exit /b
     call :parse_version %~1 %~2
 
     :: ... and maybe display it, for debugging purposes.
-    call :verbose-output Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
+    call :verbose-output :validate_version - Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
     exit /b
 
 :compare_versions
@@ -379,3 +377,47 @@ exit /b
     :: looks like we have the same versions.
     exit /b 0
 
+:enhance_path
+    setlocal enabledelayedexpansion
+    set "find_query=%~1"
+    set "find_query=%find_query:\=\\%"
+    set "find_query=%find_query: =\ %"
+    set found=0
+
+    call :verbose-output  :enhance_path - Env Var - find_query=%find_query%
+    if /i "%~2" == "append" (
+        echo "%PATH%" | findstr /I /R ";%find_query%$" >nul
+        if "!ERRORLEVEL!" == "0" set found=1
+
+        rem call :verbose-output  :enhance_path - Env Var 1 - found=!found!
+        if "!found!" == "0" (
+            echo "%PATH%" | findstr /I /R ";%find_query%;" >nul
+            if "!ERRORLEVEL!" == "0" set found=1
+            rem call :verbose-output  :enhance_path - Env Var 2 - found=!found!
+        )
+    ) else (
+        echo "%PATH%"|findstr /I /R ";%~1;" >nul
+        if "!ERRORLEVEL!" == "0" set found=1
+
+        rem call :verbose-output  :enhance_path - Env Var 1 - found=!found!
+        if "!found!" == "0" (
+            echo "%PATH%" | findstr /I /R "^%find_query%;" >nul
+            if "!ERRORLEVEL!" == "0" set found=1
+            rem call :verbose-output  :enhance_path - Env Var 2 - found=!found!
+        )
+    )
+
+    if "%found%" == "0" (
+        if /i "%~2" == "append" (
+            call :verbose-output :enhance_path - Appending "%~1"
+            set "PATH=%PATH%;%~1"
+        ) else (
+            call :verbose-output :enhance_path - Prepending "%~1"
+            set "PATH=%~1;%PATH%"
+        )
+
+        call :verbose-output  :enhance_path - Env Var - PATH=!path!
+    )
+
+    endlocal & set "PATH=%PATH%"
+    exit /b
