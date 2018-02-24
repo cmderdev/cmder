@@ -55,10 +55,17 @@ if defined CMDER_USER_CONFIG (
 
 :: Find root dir
 if not defined CMDER_ROOT (
+    call :debug-output init.bat - CMDER_ROOT is not defined!
     if defined ConEmuDir (
-        for /f "delims=" %%i in ("%ConEmuDir%\..\..") do set "CMDER_ROOT=%%~fi"
+        for /f "delims=" %%i in ("%ConEmuDir%\..\..") do (
+            call :debug-output init.bat - Setting CMDER_ROOT based off of "%ConEmuDir%\..\.."
+            set "CMDER_ROOT=%%~fi"
+        )
     ) else (
-        for /f "delims=" %%i in ("%~dp0\..") do set "CMDER_ROOT=%%~fi"
+        for /f "delims=" %%i in ("%~dp0\..") do (
+            call :debug-output init.bat - Setting CMDER_ROOT based off of "%~dp0\.."
+            set "CMDER_ROOT=%%~fi"
+        )
     )
 )
 
@@ -172,7 +179,7 @@ call :debug-output init.bat - Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 :: Enhance Path
 call :enhance_path "%CMDER_ROOT%\bin" 
 if defined CMDER_USER_BIN (
-  call :enhance_path "%CMDER_USER_BIN%\bin"
+  call :enhance_path "%CMDER_USER_BIN%"
 )
 call :enhance_path "%CMDER_ROOT%\" append
 
@@ -405,21 +412,21 @@ exit /b
         echo "%PATH%" | findstr /I /R ";%find_query%$" >nul
         if "!ERRORLEVEL!" == "0" set found=1
 
-        rem call :debug-output  :enhance_path - Env Var 1 - found=!found!
+        call :debug-output  :enhance_path - Env Var 1 - found=!found!
         if "!found!" == "0" (
             echo "%PATH%" | findstr /I /R ";%find_query%;" >nul
             if "!ERRORLEVEL!" == "0" set found=1
-            rem call :debug-output  :enhance_path - Env Var 2 - found=!found!
+            call :debug-output  :enhance_path - Env Var 2 - found=!found!
         )
     ) else (
-        echo "%PATH%"|findstr /I /R ";%~1;" >nul
+        echo "%PATH%"|findstr /I /R ";%find_query%" >nul
         if "!ERRORLEVEL!" == "0" set found=1
 
-        rem call :debug-output  :enhance_path - Env Var 1 - found=!found!
+        call :debug-output  :enhance_path - Env Var 1 - found=!found!
         if "!found!" == "0" (
-            echo "%PATH%" | findstr /I /R "^%find_query%;" >nul
+            echo "%PATH%" | findstr /I /R ";%find_query%;" >nul
             if "!ERRORLEVEL!" == "0" set found=1
-            rem call :debug-output  :enhance_path - Env Var 2 - found=!found!
+            call :debug-output  :enhance_path - Env Var 2 - found=!found!
         )
     )
 
