@@ -174,7 +174,7 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 call :debug-output init.bat - Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
-call :enhance_path "%CMDER_ROOT%\bin" 
+call :enhance_path_recursive "%CMDER_ROOT%\bin"
 if defined CMDER_USER_BIN (
   call :enhance_path "%CMDER_USER_BIN%"
 )
@@ -431,4 +431,15 @@ exit /b
     )
 
     endlocal & set "PATH=%PATH%"
+    exit /b
+
+:enhance_path_recursive
+    call :debug-output  :enhance_path_recursive - Adding parent directory - %1
+    call :enhance_path "%~1" %~2
+
+    for /d %%i in ("%~1%\*") do (
+        call :debug-output  :enhance_path_recursive - Found Subdirectory - %%~fi
+        call :enhance_path_recursive "%%~fi" %~2
+    )
+
     exit /b
