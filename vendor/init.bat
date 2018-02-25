@@ -10,6 +10,22 @@
 set verbose-output=0
 set debug-output=0
 
+:: Find root dir
+if not defined CMDER_ROOT (
+    if defined ConEmuDir (
+        for /f "delims=" %%i in ("%ConEmuDir%\..\..") do (
+            set "CMDER_ROOT=%%~fi"
+        )
+    ) else (
+        for /f "delims=" %%i in ("%~dp0\..") do (
+            set "CMDER_ROOT=%%~fi"
+        )
+    )
+)
+
+:: Remove trailing '\' from %CMDER_ROOT%
+if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
+
 :var_loop
     if "%~1" == "" (
         goto :start
@@ -47,31 +63,12 @@ goto var_loop
 
 :start
 
+call :debug-output init.bat - Env Var - CMDER_ROOT=%CMDER_ROOT%
 call :debug-output init.bat - Env Var - debug-output=%debug-output%
 
 if defined CMDER_USER_CONFIG (
     call :debug-output init.bat - CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!
 )
-
-:: Find root dir
-if not defined CMDER_ROOT (
-    call :debug-output init.bat - CMDER_ROOT is not defined!
-    if defined ConEmuDir (
-        for /f "delims=" %%i in ("%ConEmuDir%\..\..") do (
-            call :debug-output init.bat - Setting CMDER_ROOT based off of "%ConEmuDir%\..\.."
-            set "CMDER_ROOT=%%~fi"
-        )
-    ) else (
-        for /f "delims=" %%i in ("%~dp0\..") do (
-            call :debug-output init.bat - Setting CMDER_ROOT based off of "%~dp0\.."
-            set "CMDER_ROOT=%%~fi"
-        )
-    )
-)
-
-:: Remove trailing '\' from %CMDER_ROOT%
-if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
-call :debug-output init.bat - Env Var - CMDER_ROOT=%CMDER_ROOT%
 
 :: Pick right version of clink
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
@@ -181,7 +178,7 @@ call :enhance_path "%CMDER_ROOT%\bin"
 if defined CMDER_USER_BIN (
   call :enhance_path "%CMDER_USER_BIN%"
 )
-call :enhance_path "%CMDER_ROOT%\" append
+call :enhance_path "%CMDER_ROOT%" append
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
@@ -410,29 +407,18 @@ exit /b
     set found=0
 
     call :debug-output  :enhance_path - Env Var - find_query=%find_query%
-    if /i "%~2" == "append" (
-        echo "%PATH%" | findstr /I /R ";%find_query%$" >nul
-        if "!ERRORLEVEL!" == "0" set found=1
+    echo "%PATH%"|findstr >nul /I /R ";%find_query%\"$"
+    if "!ERRORLEVEL!" == "0" set found=1
 
-        call :debug-output  :enhance_path - Env Var 1 - found=!found!
-        if "!found!" == "0" (
-            echo "%PATH%" | findstr /I /R ";%find_query%;" >nul
-            if "!ERRORLEVEL!" == "0" set found=1
-            call :debug-output  :enhance_path - Env Var 2 - found=!found!
-        )
-    ) else (
-        echo "%PATH%"|findstr /I /R ";%find_query%" >nul
+    call :debug-output  :enhance_path - Env Var 1 - found=!found!
+    if "!found!" == "0" (
+        echo "%PATH%"|findstr >nul /i /r ";%find_query%;"
         if "!ERRORLEVEL!" == "0" set found=1
-
-        call :debug-output  :enhance_path - Env Var 1 - found=!found!
-        if "!found!" == "0" (
-            echo "%PATH%" | findstr /I /R ";%find_query%;" >nul
-            if "!ERRORLEVEL!" == "0" set found=1
-            call :debug-output  :enhance_path - Env Var 2 - found=!found!
-        )
+        call :debug-output  :enhance_path - Env Var 2 - found=!found!
     )
 
     if "%found%" == "0" (
+        call :debug-output  :enhance_path - BEFORE Env Var - PATH=!path!
         if /i "%~2" == "append" (
             call :debug-output :enhance_path - Appending "%~1"
             set "PATH=%PATH%;%~1"
@@ -441,7 +427,7 @@ exit /b
             set "PATH=%~1;%PATH%"
         )
 
-        call :debug-output  :enhance_path - Env Var - PATH=!path!
+        call :debug-output  :enhance_path - AFTER Env Var - PATH=!path!
     )
 
     endlocal & set "PATH=%PATH%"
