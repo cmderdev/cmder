@@ -178,7 +178,7 @@ call :enhance_path "%CMDER_ROOT%\bin"
 if defined CMDER_USER_BIN (
   call :enhance_path "%CMDER_USER_BIN%"
 )
-call :enhance_path "%CMDER_ROOT%\" append
+call :enhance_path "%CMDER_ROOT%" append
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
@@ -420,29 +420,18 @@ exit /b
     set found=0
 
     call :debug-output  :enhance_path - Env Var - find_query=%find_query%
-    if /i "%~2" == "append" (
-        echo "%PATH%" | findstr /I /R ";%find_query%$" >nul
-        if "!ERRORLEVEL!" == "0" set found=1
+    echo "%PATH%"|findstr >nul /I /R ";%find_query%\"$"
+    if "!ERRORLEVEL!" == "0" set found=1
 
-        call :debug-output  :enhance_path - Env Var 1 - found=!found!
-        if "!found!" == "0" (
-            echo "%PATH%" | findstr /I /R ";%find_query%;" >nul
-            if "!ERRORLEVEL!" == "0" set found=1
-            call :debug-output  :enhance_path - Env Var 2 - found=!found!
-        )
-    ) else (
-        echo "%PATH%"|findstr /I /R ";%find_query%" >nul
+    call :debug-output  :enhance_path - Env Var 1 - found=!found!
+    if "!found!" == "0" (
+        echo "%PATH%"|findstr >nul /i /r ";%find_query%;"
         if "!ERRORLEVEL!" == "0" set found=1
-
-        call :debug-output  :enhance_path - Env Var 1 - found=!found!
-        if "!found!" == "0" (
-            echo "%PATH%" | findstr /I /R ";%find_query%;" >nul
-            if "!ERRORLEVEL!" == "0" set found=1
-            call :debug-output  :enhance_path - Env Var 2 - found=!found!
-        )
+        call :debug-output  :enhance_path - Env Var 2 - found=!found!
     )
 
     if "%found%" == "0" (
+        call :debug-output  :enhance_path - BEFORE Env Var - PATH=!path!
         if /i "%~2" == "append" (
             call :debug-output :enhance_path - Appending "%~1"
             set "PATH=%PATH%;%~1"
@@ -451,7 +440,7 @@ exit /b
             set "PATH=%~1;%PATH%"
         )
 
-        call :debug-output  :enhance_path - Env Var - PATH=!path!
+        call :debug-output  :enhance_path - AFTER Env Var - PATH=!path!
     )
 
     endlocal & set "PATH=%PATH%"
