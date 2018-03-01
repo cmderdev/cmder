@@ -52,11 +52,7 @@ exit /b
 ::: 
 ::: ------------------------------------------------------------------------------
 
-    if %debug-output% gtr 0 (
-      %lib_console% debug-output :verbose-output "%*"
-    ) else if %verbose-output% gtr 0 (
-      echo %~1
-    )
+    echo %~1
     exit /b
 
 :show_error
@@ -77,7 +73,7 @@ exit /b
 ::: 
 ::: ------------------------------------------------------------------------------
 
-    echo ERROR: %*
+    echo ERROR: %~1
     echo CMDER Shell Initialization has Failed!
     exit /b
 

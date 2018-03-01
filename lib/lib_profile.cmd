@@ -44,7 +44,7 @@ exit /b
   
   pushd "%~1"
   for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-    call :verbose-output "Calling '%~1\%%x'..."
+    %lib_console% verbose-output "Calling '%~1\%%x'..."
     call "%~1\%%x"
   )
   popd

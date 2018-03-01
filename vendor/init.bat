@@ -9,8 +9,9 @@
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
 set verbose-output=0
 set debug-output=0
+set enhance_path_recursive=1
 
-:: Find root dir
+:: Find root did
 if not defined CMDER_ROOT (
     if defined ConEmuDir (
         for /f "delims=" %%i in ("%ConEmuDir%\..\..") do (
@@ -26,6 +27,12 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+call "%cmder_root%\lib\lib_base"
+call "%cmder_root%\lib\lib_path"
+call "%cmder_root%\lib\lib_console"
+call "%cmder_root%\lib\lib_git"
+call "%cmder_root%\lib\lib_profile"
+
 :var_loop
     if "%~1" == "" (
         goto :start
@@ -33,7 +40,15 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
         set verbose-output=1
     ) else if "%1"=="/d" (
         set debug-output=1
-    ) else if "%1" == "/user_aliases" (
+    ) else if "%1" == "/enhance_path_recursive" (
+        if "%~2" geq "1" if "%~2" leq "5" (
+            set "enhance_path_recursive=%~2"
+            shift
+        ) else (
+            %lib_console% show_error "'/enhance_path_recursive' requires a number between 1 and 5!"
+            exit /b
+        )
+     ) else if "%1" == "/user_aliases" (
         if exist "%~2" (
             set "user-aliases=%~2"
             shift
@@ -43,7 +58,7 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
             set "GIT_INSTALL_ROOT=%~2"
             shift
         ) else (
-            call :show_error The Git install root folder "%2", you specified does not exist!
+            %lib_console% show_error "The Git install root folder '%~2', you specified does not exist!"
             exit /b
         )
     ) else if "%1" == "/home" (
@@ -62,12 +77,6 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 goto var_loop
 
 :start
-call "%cmder_root%\lib\lib_base"
-call "%cmder_root%\lib\lib_path"
-call "%cmder_root%\lib\lib_console"
-call "%cmder_root%\lib\lib_git"
-call "%cmder_root%\lib\lib_profile"
-
 %lib_console% debug-output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
 %lib_console% debug-output init.bat "Env Var - debug-output=%debug-output%"
 
@@ -179,9 +188,11 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 %lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 
 :: Enhance Path
-%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 
+echo here 1
+%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %enhance_path_recursive% 
+echo here 1
 if defined CMDER_USER_BIN (
-  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%"
+  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %enhance_path_recursive%
 )
 %lib_path% enhance_path "%CMDER_ROOT%" append
 
@@ -248,7 +259,7 @@ call "%user-aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    call :verbose-output Running Git for Windows one time Post Install....
+    %lib_console% verbose-output "Running Git for Windows one time Post Install...."
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -293,8 +304,3 @@ echo @echo off
 )
 
 exit /b
-
-::
-:: sub-routines below here
-::
-
