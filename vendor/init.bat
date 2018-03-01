@@ -27,11 +27,11 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
-call "%cmder_root%\lib\lib_base"
-call "%cmder_root%\lib\lib_path"
-call "%cmder_root%\lib\lib_console"
-call "%cmder_root%\lib\lib_git"
-call "%cmder_root%\lib\lib_profile"
+call "%cmder_root%\vendor\lib\lib_base"
+call "%cmder_root%\vendor\lib\lib_path"
+call "%cmder_root%\vendor\lib\lib_console"
+call "%cmder_root%\vendor\lib\lib_git"
+call "%cmder_root%\vendor\lib\lib_profile"
 
 :var_loop
     if "%~1" == "" (

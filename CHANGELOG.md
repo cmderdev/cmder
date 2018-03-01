@@ -8,10 +8,10 @@
 
 * Removed all sub routines from `init.bat` and made them into importable libraries that can be used in any `*.bat|cmd` file.
 
-  * Libraries are in `%cmder_root%\lib`
-  * Import libraries into any `*.bat|cmd` file using `call "%cmder_root%\lib\[library file name]"`
+  * Libraries are in `%cmder_root%\vendor\lib`
+  * Import libraries into any `*.bat|cmd` file using `call "%cmder_root%\vendor\lib\[library file name]"`
   * Call library methods by typing `"%lib_path% enhance_path "c:\bin"`
-  * Get help on library method usage by typing `"%cmder_root%\lib\[library file name]" /h`
+  * Get help on library method usage by typing `"%cmder_root%\vendor\lib\[library file name]" /h`
 
 ## [1.3.6-pre1](https://github.com/cmderdev/cmder) (2018-03-01)
 
