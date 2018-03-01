@@ -47,7 +47,7 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
             if not exist "%~2\bin" mkdir "%~2\bin"
             set "cmder_user_bin=%~2\bin"
             if not exist "%~2\config\profile.d" mkdir "%~2\config\profile.d"
-            set "cmder_user_config=%~2\config\profile.d"
+            set "cmder_user_config=%~2\config"
             shift
         )
     ) else if "%1" == "/user_aliases" (
@@ -131,7 +131,7 @@ setlocal enabledelayedexpansion
 call :read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
 
 :: check if git is in path...
-for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
+for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     :: get the absolute path to the user provided git binary
     pushd %%~dpF
     set "test_dir=!CD!"
@@ -357,7 +357,7 @@ exit /b
     )
 
     :: get the git version in the provided directory
-    for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do @(
+    for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do (
         if "%%F %%G" == "git version" (
             set "GIT_VERSION_%~1=%%H"
             call :debug-output :read_version - Env Var - GIT_VERSION_%~1=%%H
