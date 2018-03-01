@@ -386,11 +386,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 				i++;
 			}
 		}
-		else
-		{
-			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /C <path>\n  /START <path>\n  /SINGLE <path>\n  /TASK <name>\n /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
-			return 1;
-		}
+		// else
+		// {
+		// 	MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /C <path>\n  /START <path>\n  /SINGLE <path>\n  /TASK <name>\n /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
+		// 	return 1;
+		// }
 	}
 
 	if ( registerApp == true ) {
