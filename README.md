@@ -132,7 +132,7 @@ echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh
 
 | Argument                      | Description                                                                                      | Default                               |
 | ----------------------------- | ----------------------------------------------------------------------------------------------   | ------------------------------------- |
-| /c [user cmder root]          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. || not set                               |
+| /c [user cmder root]          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. | not set                               |
 | /d                            | Enables debug output.                                                                            | not set                               |
 | /git_install_root [file path] | User specified Git installation root path.                                                       | '%CMDER_ROOT%\vendor\Git-for-Windows' |
 | /home [home folder]           | User specified folder path to set `%HOME%` environment variable.                                 | '%userprofile%'                       |
