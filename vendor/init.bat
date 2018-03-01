@@ -9,6 +9,7 @@
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
 set verbose-output=0
 set debug-output=0
+set max_depth=1
 
 :: Find root dir
 if not defined CMDER_ROOT (
