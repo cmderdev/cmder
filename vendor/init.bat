@@ -198,7 +198,7 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 :: Enhance Path
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth% 
 if defined CMDER_USER_BIN (
-  %lib_path% enhance_path_recursive "%CMDER_USER_BIN% %max_depth%
+  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
 )
 %lib_path% enhance_path "%CMDER_ROOT%" append
 
