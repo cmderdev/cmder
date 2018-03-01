@@ -130,30 +130,31 @@ echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh
 
 ##### Command Line Arguments for `init.bat`
 
-| Argument                      | Description                                                                                                  |
-| -------------------           | -----------------------------------------------------------------------                                      |
-| /user_aliases [file path]     | File path pointing to user aliases.  Default: '%CMDER_ROOT%\config\user-liases.cmd'                          |
-| /git_install_root [file path] | User specified Git installation root path.  Default: '%CMDER_ROOT%\vendor\Git-for-Windows'                   |
-| /home [home folder]           | User specified folder path to set `%HOME%` environment variable.  Default: '%userprofile%'                   |
-| /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.  Default: '%GIT_INSTALL_ROOT%\bin\ssh.exe' |
-| /d                            | Enables debug output.                                                                                      |
-| /v                            | Enables verbose output.                                                                                      |
+| Argument                      | Description                                                                                    | Default                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------- |
+| /d                            | Enables debug output.                                                                          |                                       |
+| /git_install_root [file path] | User specified Git installation root path.                                                     | '%CMDER_ROOT%\vendor\Git-for-Windows' |
+| /home [home folder]           | User specified folder path to set `%HOME%` environment variable.                               | '%userprofile%'                       |
+| /max_depth [1-5]              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%` | 1                                     |
+| /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.                              | '%GIT_INSTALL_ROOT%\bin\ssh.exe'      |
+| /user_aliases [file path]     | File path pointing to user aliases.                                                            | '%CMDER_ROOT%\config\user-liases.cmd' |
+| /v                            | Enables verbose output.                                                                        |                                       |
 
 ### Cmder Shell User Config
 Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
 
-| Shell         | Cmder Portable User Config              |
-| ------------- | :-------------:                         |
-| Cmder         | %CMDER_ROOT%\config\user-profile.cmd    |
-| PowerShell    | $ENV:CMDER_ROOT\config\user-profile.ps1 |
-| Bash/Mintty   | $CMDER_ROOT/config/user-profile.sh      |
+| Shell         | Cmder Portable User Config                |
+| ------------- | ----------------------------------------- |
+| Cmder         | %CMDER_ROOT%\\config\\user-profile.cmd    |
+| PowerShell    | $ENV:CMDER_ROOT\\config\\user-profile.ps1 |
+| Bash/Mintty   | $CMDER_ROOT/config/user-profile.sh        |
 
 Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file if it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
 
 You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CMDER_ROOT%\config\profile.d folder to add startup config to Cmder.
 
 | Shell         | Cmder 'Profile.d' Scripts                         |
-| ------------- | :-------------:                                   |
+| ------------- | --------------------------------------------------|
 | Cmder         | %CMDER_ROOT%\\config\\profile.d\\\*.bat and *.cmd |
 | PowerShell    | $ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1        |
 | Bash/Mintty   | $CMDER_ROOT/config/profile.d/*.sh                 |
