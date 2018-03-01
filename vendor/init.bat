@@ -33,6 +33,14 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
         set verbose-output=1
     ) else if "%1"=="/d" (
         set debug-output=1
+    ) else if "%1" == "/enhance_path_recursive" (
+        if "%~2" geq "1" if "%~2" leq "5" (
+            set "enhance_path_recursive=%~2"
+            shift
+        ) else (
+            call :show_error '/enhance_path_recursive' requires a number between 1 and 5!
+            exit /b
+        )
     ) else if "%1" == "/user_aliases" (
         if exist "%~2" (
             set "user-aliases=%~2"
@@ -174,9 +182,9 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 call :debug-output init.bat - Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
-call :enhance_path_recursive "%CMDER_ROOT%\bin"
+call :enhance_path_recursive "%CMDER_ROOT%\bin" %enhance_path_recursive%
 if defined CMDER_USER_BIN (
-  call :enhance_path "%CMDER_USER_BIN%"
+  call :enhance_path "%CMDER_USER_BIN%" %enhance_path_recursive%
 )
 call :enhance_path "%CMDER_ROOT%" append
 
@@ -414,45 +422,117 @@ exit /b
 
 :enhance_path
     setlocal enabledelayedexpansion
-    set "find_query=%~1"
+    if "%~1" neq "" (
+        set "add_path=%~1"
+    ) else (
+        call :show_error You must specify a directory to add to the path!
+        exit 1
+    )
+    
+    if "%~2" neq "" if /i "%~2" == "append" (
+        set "position=%~2"
+    ) else (
+        set "position="
+    )
+
+    set "find_query=%add_path%"
     set "find_query=%find_query:\=\\%"
     set "find_query=%find_query: =\ %"
     set found=0
 
-    call :debug-output  :enhance_path - Env Var - find_query=%find_query%
+    call :debug-output  :enhance_path "Env Var - find_query=%find_query%"
     echo "%PATH%"|findstr >nul /I /R ";%find_query%\"$"
     if "!ERRORLEVEL!" == "0" set found=1
 
-    call :debug-output  :enhance_path - Env Var 1 - found=!found!
+    call :debug-output  :enhance_path "Env Var 1 - found=!found!"
     if "!found!" == "0" (
         echo "%PATH%"|findstr >nul /i /r ";%find_query%;"
         if "!ERRORLEVEL!" == "0" set found=1
-        call :debug-output  :enhance_path - Env Var 2 - found=!found!
+        call :debug-output  :enhance_path "Env Var 2 - found=!found!"
     )
 
     if "%found%" == "0" (
-        call :debug-output  :enhance_path - BEFORE Env Var - PATH=!path!
-        if /i "%~2" == "append" (
-            call :debug-output :enhance_path - Appending "%~1"
-            set "PATH=%PATH%;%~1"
+        call :debug-output :enhance_path "BEFORE Env Var - PATH=!path!"
+        if /i "%position%" == "append" (
+            call :debug-output :enhance_path "Appending '%add_path%'"
+            set "PATH=%PATH%;%add_path%"
         ) else (
-            call :debug-output :enhance_path - Prepending "%~1"
-            set "PATH=%~1;%PATH%"
+            call :debug-output :enhance_path "Prepending '%add_path%'"
+            set "PATH=%add_path%;%PATH%"
         )
 
-        call :debug-output  :enhance_path - AFTER Env Var - PATH=!path!
+        call :debug-output  :enhance_path "AFTER Env Var - PATH=!path!"
     )
 
     endlocal & set "PATH=%PATH%"
     exit /b
 
 :enhance_path_recursive
-    call :debug-output  :enhance_path_recursive - Adding parent directory - %1
-    call :enhance_path "%~1" %~2
+::: ==============================================================================
+:::enhance_path_recursive - Add a directory and subs to the path env variable if
+:::                         required.
+::: 
+:::include: 
+::: 
+:::  call "$0"
+:::
+:::usage: 
+::: 
+:::  call "%~DP0lib_path" enhance_path_recursive "[dir_path]" [max_depth] [append]
+::: 
+:::required: 
+::: 
+:::  [dir_path] <in> Fully qualified directory path. Ex: "c:\bin"
+::: 
+:::dptions: 
+::: 
+:::  [max_depth] <in> Max recuse depth.  Default: 1
+:::
+:::  append      <in> Append instead rather than pre-pend "[dir_path]"
+::: 
+:::output:
+::: 
+:::  path       <out> Sets the path env variable if required. 
+::: ------------------------------------------------------------------------------
 
-    for /d %%i in ("%~1%\*") do (
-        call :debug-output  :enhance_path_recursive - Found Subdirectory - %%~fi
-        call :enhance_path_recursive "%%~fi" %~2
+    setlocal enabledelayedexpansion
+    if "%~1" neq "" (
+        set "add_path=%~1"
+    ) else (
+        call :directory to add to the path!"
+        exit 1
+    )
+    
+    if "%~2" gtr "1" (
+        set "max_depth=%~2"
+    ) else (
+        set "max_depth=1"
     )
 
+    if "%~3" neq "" if /i "%~3" == "append" (
+        set "position=%~3"
+    ) else (
+        set "position="
+    )
+
+    if "%depth%" == "" set depth=0
+
+    call :debug-output  :enhance_path_recursive "Env Var - add_path=%add_path%"
+    call :debug-output  :enhance_path_recursive "Env Var - position=%position%"
+    call :debug-output  :enhance_path_recursive "Env Var - max_depth=%max_depth%"
+
+    if %max_depth% gtr !depth! (
+        call :debug-output :enhance_path_recursive "Adding parent directory - '%add_path%'"
+        call :enhance_path "%add_path%" %position%
+        set /a "depth=!depth!+1"
+
+        for /d %%i in ("%add_path%\*") do (
+            call :debug-output  :enhance_path_recursive "Env Var BEFORE - depth=!depth!"
+            call :debug-output :enhance_path_recursive "Found Subdirectory - '%%~fi'"
+            call :enhance_path_recursive "%%~fi" %max_depth% %position%
+            call :debug-output  :enhance_path_recursive "Env Var AFTER- depth=!depth!"
+        )
+    )
+
+    endlocal & set "PATH=%PATH%"
     exit /b
