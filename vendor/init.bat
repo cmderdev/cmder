@@ -33,9 +33,9 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
         set verbose-output=1
     ) else if "%1"=="/d" (
         set debug-output=1
-    ) else if "%1" == "/enhance_path_recursive" (
+    ) else if "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
-            set "enhance_path_recursive=%~2"
+            set "max_depth=%~2"
             shift
         ) else (
             call :show_error '/enhance_path_recursive' requires a number between 1 and 5!
@@ -182,9 +182,9 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 call :debug-output init.bat - Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
 
 :: Enhance Path
-call :enhance_path_recursive "%CMDER_ROOT%\bin" %enhance_path_recursive%
+call :enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
 if defined CMDER_USER_BIN (
-  call :enhance_path "%CMDER_USER_BIN%" %enhance_path_recursive%
+  call :enhance_path "%CMDER_USER_BIN%" %max_depth%
 )
 call :enhance_path "%CMDER_ROOT%" append
 
