@@ -9,7 +9,7 @@
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
 set verbose-output=0
 set debug-output=0
-set enhance_path_recursive=1
+set max_depth=1
 
 :: Find root did
 if not defined CMDER_ROOT (
@@ -40,12 +40,12 @@ call "%cmder_root%\lib\lib_profile"
         set verbose-output=1
     ) else if "%1"=="/d" (
         set debug-output=1
-    ) else if "%1" == "/enhance_path_recursive" (
+    ) else if "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
-            set "enhance_path_recursive=%~2"
+            set "max_depth=%~2"
             shift
         ) else (
-            %lib_console% show_error "'/enhance_path_recursive' requires a number between 1 and 5!"
+            %lib_console% show_error "'/max_depth' requires a number between 1 and 5!"
             exit /b
         )
      ) else if "%1" == "/user_aliases" (
@@ -188,9 +188,9 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 %lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 
 :: Enhance Path
-%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %enhance_path_recursive% 
+%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth% 
 if defined CMDER_USER_BIN (
-  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %enhance_path_recursive%
+  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
 )
 %lib_path% enhance_path "%CMDER_ROOT%" append
 
