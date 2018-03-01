@@ -39,8 +39,16 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
             set "max_depth=%~2"
             shift
         ) else (
-            call :show_error '/enhance_path_recursive' requires a number between 1 and 5!
+            call :show_error '/max_depth' requires a number between 1 and 5!
             exit /b
+        )
+    ) else if "%1" == "/c" (
+        if exist "%~2" (
+            if not exist "%~2\bin" mkdir "%~2\bin"
+            set "cmder_user_bin=%~2\bin"
+            if not exist "%~2\config\profile.d" mkdir "%~2\config\profile.d"
+            set "cmder_user_config=%~2\config\profile.d"
+            shift
         )
     ) else if "%1" == "/user_aliases" (
         if exist "%~2" (
