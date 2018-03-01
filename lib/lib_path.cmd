@@ -120,7 +120,7 @@ exit /b
         exit 1
     )
     
-    if %~2 gtr 1 (
+    if "%~2" gtr "1" (
         set "max_depth=%~2"
     ) else (
         set "max_depth=1"

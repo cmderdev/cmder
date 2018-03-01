@@ -48,7 +48,15 @@ call "%cmder_root%\lib\lib_profile"
             %lib_console% show_error "'/max_depth' requires a number between 1 and 5!"
             exit /b
         )
-     ) else if "%1" == "/user_aliases" (
+    ) else if "%1" == "/c" (
+        if exist "%~2" (
+            if not exist "%~2\bin" mkdir "%~2\bin"
+            set "cmder_user_bin=%~2\bin"
+            if not exist "%~2\config\profile.d" mkdir "%~2\config\profile.d"
+            set "cmder_user_config=%~2\config"
+            shift
+        )
+    ) else if "%1" == "/user_aliases" (
         if exist "%~2" (
             set "user-aliases=%~2"
             shift
@@ -128,7 +136,7 @@ setlocal enabledelayedexpansion
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
 
 :: check if git is in path...
-for /F "delims=" %%F in ('where git.exe 2^>nul') do @(
+for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     :: get the absolute path to the user provided git binary
     pushd %%~dpF
     set "test_dir=!CD!"
@@ -190,7 +198,7 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 :: Enhance Path
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth% 
 if defined CMDER_USER_BIN (
-  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
+  %lib_path% enhance_path_recursive "%CMDER_USER_BIN% %max_depth%
 )
 %lib_path% enhance_path "%CMDER_ROOT%" append
 
