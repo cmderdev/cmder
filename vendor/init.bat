@@ -179,9 +179,9 @@ endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%
 %lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 
 :: Enhance Path
-%lib_path% enhance_path "%CMDER_ROOT%\bin" 
+%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 
 if defined CMDER_USER_BIN (
-  %lib_path% enhance_path "%CMDER_USER_BIN%"
+  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%"
 )
 %lib_path% enhance_path "%CMDER_ROOT%" append
 

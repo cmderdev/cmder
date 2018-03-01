@@ -70,3 +70,39 @@ exit /b
 
     endlocal & set "PATH=%PATH%"
     exit /b
+
+:enhance_path_recursive
+::: ==============================================================================
+:::enhance_path_recursive - Add a directory and subs to the path env variable if
+:::                         required.
+::: 
+:::include: 
+::: 
+:::  call "$0"
+:::
+:::usage: 
+::: 
+:::  call "%~DP0lib_path" enhance_path_recursive "[dir_path]" [append]
+::: 
+:::required: 
+::: 
+:::  [dir_path] <in> Fully qualified directory path. Ex: "c:\bin"
+::: 
+:::dptions: 
+::: 
+:::  append     <in> Append instead rather than pre-pend "[dir_path]"
+::: 
+:::output:
+::: 
+:::  path       <out> Sets the path env variable if required. 
+::: ------------------------------------------------------------------------------
+
+    call :debug-output  :enhance_path_recursive "Adding parent directory - %1"
+    call :enhance_path "%~1" %~2
+
+    for /d %%i in ("%~1%\*") do (
+        call :debug-output  :enhance_path_recursive "Found Subdirectory - %%~fi"
+        call :enhance_path_recursive "%%~fi" %~2
+    )
+
+    exit /b
