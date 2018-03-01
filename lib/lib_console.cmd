@@ -14,67 +14,67 @@ if "%~1" == "/h" (
 exit /b
 
 :debug-output
-::: ==============================================================================
+:::===============================================================================
 :::debug-output - Output a debug message to the console.
 ::: 
 :::include: 
 ::: 
 :::  call "$0"
-:::
+::: 
 :::usage: 
 ::: 
-:::  %lib_console% "debug-output"
+:::  %lib_console% debug-output [caller] [message]
 ::: 
 :::required: 
 ::: 
+:::  [caller]  <in> Script/sub routine name calling debug-output
+::: 
 :::  [message] <in> Message text to display.
 ::: 
-::: ------------------------------------------------------------------------------
+:::-------------------------------------------------------------------------------
 
     if %debug-output% gtr 0 echo DEBUG(%~1): %~2 & echo.
     exit /b
 
 :verbose-output
-::: ==============================================================================
+:::===============================================================================
 :::verbose-output - Output a debug message to the console.
 ::: 
 :::include: 
 ::: 
 :::  call "$0"
-:::
+::: 
 :::usage: 
 ::: 
-:::  %lib_console% "verbose-output"
+:::  %lib_console% verbose-output "[message]"
 ::: 
 :::required: 
 ::: 
 :::  [message] <in> Message text to display.
 ::: 
-::: ------------------------------------------------------------------------------
+:::-------------------------------------------------------------------------------
 
     if %verbose-output% gtr 0 echo %~1
     exit /b
 
 :show_error
-::: ==============================================================================
+:::===============================================================================
 :::show_error - Output an error message to the console.
 ::: 
 :::include: 
 ::: 
 :::  call "$0"
-:::
+::: 
 :::usage: 
 ::: 
-:::  %lib_console% "show_error"
+:::  %lib_console% show_error "[message]"
 ::: 
 :::required: 
 ::: 
 :::  [message] <in> Message text to display.
 ::: 
-::: ------------------------------------------------------------------------------
+:::-------------------------------------------------------------------------------
 
     echo ERROR: %~1
     echo CMDER Shell Initialization has Failed!
     exit /b
-
-

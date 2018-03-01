@@ -11,7 +11,7 @@ if "%~1" == "/h" (
 exit /b
 
 :help
-::: ==============================================================================
+:::===============================================================================
 :::show_subs - shows all sub routines in a .bat/.cmd file with documentation 
 ::: 
 :::include: 
@@ -20,13 +20,13 @@ exit /b
 ::: 
 :::usage: 
 ::: 
-:::       call "lib_base.cmd" show_subs "file"
+:::       %lib_base% show_subs "file"
 ::: 
 :::options: 
 ::: 
 :::       file <in> full path to file containing lib_routines to display
 ::: 
-::: ------------------------------------------------------------------------------
+:::-------------------------------------------------------------------------------
 
     for /f "tokens=* delims=:" %%a in ('type "%~1" ^| findstr /i /r "^:::"') do (
         rem echo a="%%a"

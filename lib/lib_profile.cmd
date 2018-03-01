@@ -14,29 +14,24 @@ if "%~1" == "/h" (
 exit /b
 
 :run_profile_d
-::: ==============================================================================
-:::run_profile_d - Run all scripts in the passd dir path
+:::===============================================================================
+:::run_profile_d - Run all scripts in the passed dir path
 ::: 
 :::include: 
 ::: 
 :::  call "$0"
-:::
+::: 
 :::usage: 
 ::: 
-:::  call "%~DP0lib_path" enhance_path "[dir_path]" [append]
+:::  %lib_profile% "[dir_path]"
 ::: 
 :::required: 
 ::: 
-:::  [dir_path] <in> Fully qualified directory path. Ex: "c:\bin"
-::: 
-:::dptions: 
-::: 
-:::  append     <in> Append instead rather than pre-pend "[dir_path]"
-::: 
-:::output:
+:::  [dir_path] <in> Fully qualified directory path containing init *.cmd|*.bat.
+:::                  Example: "c:\bin"
 ::: 
 :::  path       <out> Sets the path env variable if required. 
-::: ------------------------------------------------------------------------------
+:::-------------------------------------------------------------------------------
 
   if not exist "%~1" (
     mkdir "%~1"

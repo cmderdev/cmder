@@ -14,7 +14,7 @@ if "%~1" == "/h" (
 exit /b
 
 :enhance_path
-::: ==============================================================================
+:::===============================================================================
 :::enhance_path - Add a directory to the path env variable if required.
 ::: 
 :::include: 
@@ -23,7 +23,7 @@ exit /b
 :::
 :::usage: 
 ::: 
-:::  call "%~DP0lib_path" enhance_path "[dir_path]" [append]
+:::  %lib_path% enhance_path "[dir_path]" [append]
 ::: 
 :::required: 
 ::: 
@@ -31,12 +31,12 @@ exit /b
 ::: 
 :::dptions: 
 ::: 
-:::  append     <in> Append instead rather than pre-pend "[dir_path]"
+:::  append     <in> Append to the path env variable rather than pre-pend.
 ::: 
 :::output:
 ::: 
 :::  path       <out> Sets the path env variable if required. 
-::: ------------------------------------------------------------------------------
+:::-------------------------------------------------------------------------------
 
     setlocal enabledelayedexpansion
     if "%~1" neq "" (
@@ -85,7 +85,7 @@ exit /b
     exit /b
 
 :enhance_path_recursive
-::: ==============================================================================
+:::===============================================================================
 :::enhance_path_recursive - Add a directory and subs to the path env variable if
 :::                         required.
 ::: 
@@ -105,12 +105,12 @@ exit /b
 ::: 
 :::  [max_depth] <in> Max recuse depth.  Default: 1
 :::
-:::  append      <in> Append instead rather than pre-pend "[dir_path]"
+:::  append      <in> Append instead to path env variable rather than pre-pend.
 ::: 
 :::output:
 ::: 
 :::  path       <out> Sets the path env variable if required. 
-::: ------------------------------------------------------------------------------
+:::-------------------------------------------------------------------------------
 
     setlocal enabledelayedexpansion
     if "%~1" neq "" (
