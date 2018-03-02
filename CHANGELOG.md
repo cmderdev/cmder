@@ -1,6 +1,118 @@
 # Change Log
 
-## [1.3.2](https://github.com/cmderdev/cmder/tree/1.3.2) (2016-12-01)
+* Removed all sub routines from `init.bat` and made them into importable libraries that can be used in any `*.bat|cmd` file.
+
+## [1.3.6-pre2](https://github.com/cmderdev/cmder) (2018-03-01)
+
+**Updates:**
+
+* Removed all sub routines from `init.bat` and made them into importable libraries that can be used in any `*.bat|cmd` file.
+
+  * Libraries are in `%cmder_root%\vendor\lib`
+  * Import libraries into any `*.bat|cmd` file using `call "%cmder_root%\vendor\lib\[library file name]"`
+  * Call library methods by typing `"%lib_path% enhance_path "c:\bin"`
+  * Get help on library method usage by typing `"%cmder_root%\vendor\lib\[library file name]" /h`
+
+## [1.3.6-pre1](https://github.com/cmderdev/cmder) (2018-03-01)
+
+**Fixed bugs:**
+
+* Fixed Git version check recently added to master.
+
+**Updates:**
+
+* Modified Cmder tasks in default Conemu.xml to allow easily adding command line args for init.bat by adding some quotes.  This resulted in a ton of misc changes to this file.  See Adds below.
+* Reworked `cmder.exe` command line argument handling to make it more flexible and easily added to.
+* Reworked README.md tables to make them more readable in editors
+
+**Implemented enhancements:**
+
+* Added `cmder.exe` command line args documenttion to `README.md`
+* Added `:enhance_path` method to vendor\init.bat that modifies the path only if required.
+   * To prepend: `call :enhance_path "%cmder_root%"`
+   * to append: `call :enhance_path "%cmder_root%" append`
+* Added `:enhance_path_recursive` method to vendor\init.bat that adds a path and all its sub directories to the path if required.  
+   * Max recurse depth default is '1' configurable using `init.bat /max_depth [1-5]`. 6+ results in error. 
+   * To prepend and go 3 levels deep: `call :enhance_path "%cmder_root%" 3`
+   * To append and go 2 levels deep: `call :enhance_path "%cmder_root%" 2 append`
+* Added ability to init.bat to accept command line args and documented them in README.md.  Allows users to change the behaviour of init.bat without editing the file.
+
+| Argument                      | Description                                                                                      | Default                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------   | ------------------------------------- |
+| /c [user cmder root]          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. | not set                               |
+| /d                            | Enables debug output.                                                                            | not set                               |
+| /git_install_root [file path] | User specified Git installation root path.                                                       | '%CMDER_ROOT%\vendor\Git-for-Windows' |
+| /home [home folder]           | User specified folder path to set `%HOME%` environment variable.                                 | '%userprofile%'                       |
+| /max_depth [1-5]              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`   | 1                                     |
+| /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.                                | '%GIT_INSTALL_ROOT%\bin\ssh.exe'      |
+| /user_aliases [file path]     | File path pointing to user aliases.                                                              | '%CMDER_ROOT%\config\user-liases.cmd' |
+| /v                            | Enables verbose output.                                                                          | not set                               |
+
+* Added new `cmder.exe /C \<path\>` argument
+   * To use run Cmder.exe with "/C" command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
+   * To use run with `Cmder as Admin` sessions you must specify "/c" command line argument to `init.bat` in tasks. See [README.md](./Readme.md) for details.
+   * Enables shared Cmder install with Non-Portable Individual User Config
+   * Supported by all supported shells (cmder, powershell, git bash, and external bash)
+   * This will create the following directory structure if it is missing.
+
+      ```
+      c:\users\[username]\cmder_config
+      ├───bin
+      └───config
+          └───profile.d
+      ```
+
+   * Shell init scripts run in the following order
+      1. %cmder_root%\config\profile.d\*.[cmd|ps1|sh]
+      1. %cmder_root%\config\user-profile.[cmd|ps1|sh]
+      1. %userprofile%\cmder_config\config\profile.d\*.[cmd|ps1|sh]
+      1. %userprofile%\cmder_config\config\user-profile.[cmd|ps1|sh]
+
+## [1.3.5](https://github.com/cmderdev/cmder/releases/tag/v1.3.5) (2018-02-11)
+
+This is the first Cmder release that comes with Git for Windows in the 64bit version. If you are still using a 32bit version, you have to fix this yourself.
+
+**Updated components:**
+- Git updated to v2.16.1.windows.4
+- clink updated to 0.4.9 (official version)
+- ConEmu updated to 180206
+
+**Fixed bugs:**
+
+- use /dir Switch instead of CMDER_START (previously [\#921](https://github.com/cmderdev/cmder/pull/921)) [\#1609](https://github.com/cmderdev/cmder/pull/1609) ([Stanzilla](https://github.com/Stanzilla))
+- add config/settings to .gitignore [\#1592](https://github.com/cmderdev/cmder/pull/1592) ([daxgames]((https://github.com/daxgames)))
+- Upgrade #1591 ([daxgames]((https://github.com/daxgames)))
+- Fix startup folder issue [\#1547](https://github.com/cmderdev/cmder/pull/1547) (dr-tony-lin)
+- Fix alias.bat handling "user-aliases.cmd" with spaces [\#1531](https://github.com/cmderdev/cmder/pull/1531) ([Varriount](https://github.com/Varriount))
+- Compatible with Visual Studio Code (cmd) [\#1416](https://github.com/cmderdev/cmder/pull/1416) ([gucong3000](https://github.com/gucong3000))
+
+## [1.3.4](https://github.com/cmderdev/cmder/releases/tag/v1.3.4) (2017-11-03)
+
+We now use a forked version of clink since it's original author is missing and we needed Windows 10 compat.
+
+**Updated components:**
+
+- Git: v2.15.0.windows.1
+
+**Fixed bugs:**
+
+- Fix lamda color after a ConEmu change: [a8d3261](https://github.com/cmderdev/cmder/commit/a8d32611a9b93cfb58f0318ae4b8041bc8a86c68)
+- Compatible with Visual Studio Code (PowerShell): [\#1417](https://github.com/cmderdev/cmder/pull/1417)
+- Make default tasks respect "Startup directory for new process": [b58ff9b](https://github.com/cmderdev/cmder/commit/b58ff9bb539d7f908f427fa34f377e1513fcd825)
+
+
+## [1.3.3](https://github.com/cmderdev/cmder/releases/tag/v1.3.3) (2017-10-28)
+
+We now use a forked version of clink since it's original author is missing and we needed Windows 10 compat.
+
+**Updated components:**
+
+- Git: v2.14.3.windows.1
+- ConEmu: 170910
+- Clink: 0.4.9-FORK
+- Clink-Completions: 0.3.3
+
+## [1.3.2](https://github.com/cmderdev/cmder/releases/tag/v1.3.2) (2016-12-01)
 **Implemented enhancements:**
 
 - Change appveyor.yml to publish all resulting artifacts from builds. [\#717](https://github.com/cmderdev/cmder/issues/717)

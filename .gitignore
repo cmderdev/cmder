@@ -2,6 +2,7 @@
 ## Those files should be taken from their repositary
 
 vendor/*/*
+!vendor/lib/*
 !vendor/*
 !vendor/psmodules/PsGet
 
@@ -13,6 +14,7 @@ build/
 Version v*
 *.bak
 config/user-*
+config/settings
 config/aliases
 config/profile.d
 .github_changelog_generator

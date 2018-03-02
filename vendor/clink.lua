@@ -3,9 +3,10 @@
 -- !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 -- !!! Use "%CMDER_ROOT%\config\<whatever>.lua" to add your lua startup scripts
 
+-- luacheck: globals clink
 
 -- At first, load the original clink.lua file
--- this is needed as we set the script path to this dir and therefore the original 
+-- this is needed as we set the script path to this dir and therefore the original
 -- clink.lua is not loaded.
 local clink_lua_file = clink.get_env('CMDER_ROOT')..'\\vendor\\clink\\clink.lua'
 dofile(clink_lua_file)
@@ -13,11 +14,11 @@ dofile(clink_lua_file)
 -- now add our own things...
 
 ---
- -- Setting the prompt in clink means that commands which rewrite the prompt do
- -- not destroy our own prompt. It also means that started cmds (or batch files
- -- which echo) don't get the ugly '{lamb}' shown.
+-- Setting the prompt in clink means that commands which rewrite the prompt do
+-- not destroy our own prompt. It also means that started cmds (or batch files
+-- which echo) don't get the ugly '{lamb}' shown.
 ---
-function set_prompt_filter()
+local function set_prompt_filter()
     -- get_cwd() is differently encoded than the clink.prompt.value, so everything other than
     -- pure ASCII will get garbled. So try to parse the current directory from the original prompt
     -- and only if that doesn't work, use get_cwd() directly.
@@ -26,7 +27,7 @@ function set_prompt_filter()
     local old_prompt = clink.prompt.value
     local cwd = old_prompt:match('.*(.:[^>]*)>')
     if cwd == nil then cwd = clink.get_cwd() end
-    
+
     -- environment systems like pythons virtualenv change the PROMPT and usually
     -- set some variable. But the variables are differently named and we would never
     -- get them all, so try to parse the env name out of the PROMPT.
@@ -34,11 +35,12 @@ function set_prompt_filter()
     local env = old_prompt:match('.*%(([^%)]+)%).+:')
     -- also check for square brackets
     if env == nil then env = old_prompt:match('.*%[([^%]]+)%].+:') end
-    
+
     -- build our own prompt
     -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
     -- color codes: "\x1b[1;37;40m"
-    local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;30;40m{lamb} \x1b[0m"
+    local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
+    local lambda
     cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
     if env == nil then
         lambda = "λ"
@@ -49,12 +51,12 @@ function set_prompt_filter()
 end
 
 ---
- -- Resolves closest directory location for specified directory.
- -- Navigates subsequently up one level and tries to find specified directory
- -- @param  {string} path    Path to directory will be checked. If not provided
- --                          current directory will be used
- -- @param  {string} dirname Directory name to search for
- -- @return {string} Path to specified directory or nil if such dir not found
+-- Resolves closest directory location for specified directory.
+-- Navigates subsequently up one level and tries to find specified directory
+-- @param  {string} path    Path to directory will be checked. If not provided
+--                          current directory will be used
+-- @param  {string} dirname Directory name to search for
+-- @return {string} Path to specified directory or nil if such dir not found
 local function get_dir_contains(path, dirname)
 
     -- return parent path for specified entry (either file or directory)
@@ -99,24 +101,6 @@ local function get_dir_contains(path, dirname)
     end
 end
 
-local function get_hg_dir(path)
-    return get_dir_contains(path, '.hg')
-end
-
-local function get_svn_dir(path)
-    return get_dir_contains(path, '.svn')
-end
-function get_svn_branch(svn_dir)
-    for line in io.popen("svn info 2>nul"):lines() do
-        local m = line:match("^Relative URL:")
-        if m then
-            return line:sub(line:find("/")+1,line:len())
-        end
-    end
-
-    return false
-end
-
 -- adapted from from clink-completions' git.lua
 local function get_git_dir(path)
 
@@ -127,6 +111,7 @@ local function get_git_dir(path)
         if i then
             prefix = path:sub(1, i-1)
         end
+
         return prefix
     end
 
@@ -158,74 +143,20 @@ local function get_git_dir(path)
         or (parent_path ~= path and get_git_dir(parent_path) or nil)
 end
 
----
- -- Find out current branch
- -- @return {false|mercurial branch name}
----
-function get_hg_branch()
-    for line in io.popen("hg branch 2>nul"):lines() do
-        local m = line:match("(.+)$")
-        if m then
-            return m
-        end
-    end
+local function get_hg_dir(path)
+    return get_dir_contains(path, '.hg')
+end
 
-    return false
+local function get_svn_dir(path)
+    return get_dir_contains(path, '.svn')
 end
 
 ---
- -- Get the status of working dir
- -- @return {bool}
+-- Find out current branch
+-- @return {nil|git branch name}
 ---
-function get_hg_status()
-    for line in io.popen("hg status -0"):lines() do
-       return false
-    end
-    return true
-end
-
-function get_svn_status()
-    for line in io.popen("svn status -q"):lines() do
-       return false
-    end
-    return true
-end
-
-function hg_prompt_filter()
-
-    -- Colors for mercurial status
-    local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[31;1m",
-    }
-
-    if get_hg_dir() then
-        -- if we're inside of mercurial repo then try to detect current branch
-        local branch = get_hg_branch()
-        if branch then
-            -- Has branch => therefore it is a mercurial folder, now figure out status
-            if get_hg_status() then
-                color = colors.clean
-            else
-                color = colors.dirty
-            end
-
-            clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", color.."("..branch..")")
-            return false
-        end
-    end
-
-    -- No mercurial present or not in mercurial file
-    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", "")
-    return false
-end
-
----
- -- Find out current branch
- -- @return {nil|git branch name}
----
-function get_git_branch(git_dir)
-    local git_dir = git_dir or get_git_dir()
+local function get_git_branch(git_dir)
+    git_dir = git_dir or get_git_dir()
 
     -- If git directory not found then we're probably outside of repo
     -- or something went wrong. The same is when head_file is nil
@@ -238,24 +169,86 @@ function get_git_branch(git_dir)
     -- if HEAD matches branch expression, then we're on named branch
     -- otherwise it is a detached commit
     local branch_name = HEAD:match('ref: refs/heads/(.+)')
+
     return branch_name or 'HEAD detached at '..HEAD:sub(1, 7)
 end
 
 ---
- -- Get the status of working dir
- -- @return {bool}
+-- Find out current branch
+-- @return {false|mercurial branch name}
 ---
-function get_git_status()
-    local file = io.popen("git status --no-lock-index --porcelain 2>nul")
+local function get_hg_branch()
+    for line in io.popen("hg branch 2>nul"):lines() do
+        local m = line:match("(.+)$")
+        if m then
+            return m
+        end
+    end
+
+    return false
+end
+
+---
+-- Find out current branch
+-- @return {false|svn branch name}
+---
+local function get_svn_branch(svn_dir)
+    for line in io.popen("svn info 2>nul"):lines() do
+        local m = line:match("^Relative URL:")
+        if m then
+            return line:sub(line:find("/")+1,line:len())
+        end
+    end
+
+    return false
+end
+
+---
+-- Get the status of working dir
+-- @return {bool}
+---
+local function get_git_status()
+    local file = io.popen("git --no-optional-locks status --porcelain 2>nul")
     for line in file:lines() do
         file:close()
         return false
     end
     file:close()
+
     return true
 end
 
-function git_prompt_filter()
+---
+-- Get the status of working dir
+-- @return {bool}
+---
+local function get_hg_status()
+    local file = io.popen("hg status -0")
+    for line in file:lines() do
+        file:close()
+        return false
+    end
+    file:close()
+
+    return true
+end
+
+---
+-- Get the status of working dir
+-- @return {bool}
+---
+function get_svn_status()
+    local file = io.popen("svn status -q")
+    for line in file:lines() do
+        file:close()
+        return false
+    end
+    file:close()
+
+    return true
+end
+
+local function git_prompt_filter()
 
     -- Colors for git status
     local colors = {
@@ -267,6 +260,7 @@ function git_prompt_filter()
     if git_dir then
         -- if we're inside of git repo then try to detect current branch
         local branch = get_git_branch(git_dir)
+        local color
         if branch then
             -- Has branch => therefore it is a git folder, now figure out status
             if get_git_status() then
@@ -285,7 +279,37 @@ function git_prompt_filter()
     return false
 end
 
-function svn_prompt_filter()
+local function hg_prompt_filter()
+
+    -- Colors for mercurial status
+    local colors = {
+        clean = "\x1b[1;37;40m",
+        dirty = "\x1b[31;1m",
+    }
+
+    if get_hg_dir() then
+        -- if we're inside of mercurial repo then try to detect current branch
+        local branch = get_hg_branch()
+        local color
+        if branch then
+            -- Has branch => therefore it is a mercurial folder, now figure out status
+            if get_hg_status() then
+                color = colors.clean
+            else
+                color = colors.dirty
+            end
+
+            clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", color.."("..branch..")")
+            return false
+        end
+    end
+
+    -- No mercurial present or not in mercurial file
+    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", "")
+    return false
+end
+
+local function svn_prompt_filter()
     -- Colors for svn status
     local colors = {
         clean = "\x1b[1;37;40m",
@@ -295,6 +319,7 @@ function svn_prompt_filter()
     if get_svn_dir() then
         -- if we're inside of svn repo then try to detect current branch
         local branch = get_svn_branch()
+        local color
         if branch then
             if get_svn_status() then
                 color = colors.clean
@@ -311,6 +336,7 @@ function svn_prompt_filter()
     clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", "")
     return false
 end
+
 -- insert the set_prompt at the very beginning so that it runs first
 clink.prompt.register_filter(set_prompt_filter, 1)
 clink.prompt.register_filter(hg_prompt_filter, 50)
@@ -327,4 +353,3 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
         dofile(filename)
     end
 end
-
