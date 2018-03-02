@@ -316,6 +316,116 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	RegCloseKey(root);
 }
 
+struct cmderOptions
+{
+	std::wstring cmderCfgRoot = L"";
+	std::wstring cmderStart = L"";
+	std::wstring cmderTask = L"";
+	std::wstring cmderRegScope = L"USER";
+	bool cmderSingle = false;
+	bool registerApp = false;
+	bool unRegisterApp = false;
+	bool error = false;
+
+};
+
+cmderOptions GetOption()
+{
+	cmderOptions cmderOptions;
+	LPWSTR *szArgList;
+	int argCount;
+
+	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
+	/*
+	if (szArgList == NULL)
+	{
+		MessageBox(NULL, L"Unable to parse command line", L"Error", MB_OK);
+		return 10;
+	}
+	*/
+
+	/*
+	 f (argCount == 2 && szArgList[1][0] != L'/')
+	{
+		// only a single argument: this should be a path...
+		if (PathFileExists(szArgList[1]))
+		{
+			cmderOptions.cmderStart = szArgList[1];
+		}
+	}
+	else
+	{
+	*/
+		for (int i = 1; i < argCount; i++)
+		{
+			// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
+
+			if (_wcsicmp(L"/c", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderCfgRoot = szArgList[i + 1];
+				i++;
+			}
+			else if (_wcsicmp(L"/start", szArgList[i]) == 0)
+			{
+				if (PathFileExists(szArgList[i + 1]))
+				{
+					cmderOptions.cmderStart = szArgList[i + 1];
+					i++;
+				}
+				else {
+					MessageBox(NULL, szArgList[i + 1], L"/START - Folder doses not exist!", MB_OK);
+				}
+			}
+			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderTask = szArgList[i + 1];
+				i++;
+			}
+			else if (_wcsicmp(L"/single", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderSingle = true;
+			}
+			else if (_wcsicmp(L"/register", szArgList[i]) == 0)
+			{
+				cmderOptions.registerApp = true;
+				cmderOptions.unRegisterApp = false;
+				if (szArgList[i + 1] != NULL)
+				{ 
+					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					{
+						cmderOptions.cmderRegScope = szArgList[i + 1];
+						i++;
+					}
+				}
+			}
+			else if (_wcsicmp(L"/unregister", szArgList[i]) == 0)
+			{
+				cmderOptions.unRegisterApp = true;
+				cmderOptions.registerApp = false;
+				if (szArgList[i + 1] != NULL)
+				{
+					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					{
+						cmderOptions.cmderRegScope = szArgList[i + 1];
+						i++;
+					}
+				}
+			}
+			else if (cmderOptions.cmderStart == L"" && PathFileExists(szArgList[i]))
+			{
+				cmderOptions.cmderStart = szArgList[i];
+			}
+			else {
+				MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+				cmderOptions.error = true;
+			}
+		//}
+	}
+
+	LocalFree(szArgList);
+
+	return cmderOptions;
+}
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPTSTR    lpCmdLine,
@@ -325,86 +435,24 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nCmdShow);
 
-	LPWSTR *szArgList;
-	int argCount;
+	cmderOptions cmderOptions = GetOption();
 
-	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
-	if (szArgList == NULL)
-	{
-		MessageBox(NULL, L"Unable to parse command line", L"Error", MB_OK);
-		return 10;
+	if (cmderOptions.registerApp == true ) {
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
-
-	std::wstring cmderCfgRoot = L"";
-	std::wstring cmderStart = L"";
-	std::wstring cmderTask = L"";
-	std::wstring cmderRegScope = L"USER";
-	bool cmderSingle = false;
-	bool registerApp = false;
-	bool unRegisterApp = false;
-
-	for (int i = 1; i < argCount; i++)
+	else if (cmderOptions.unRegisterApp == true )
 	{
-		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
-
-		if (wcscmp(L"/C", (wchar_t *)szArgList[i]) == 0)
-		{
-			cmderCfgRoot = szArgList[i + 1];
-			i++;
-		}
-		else if (wcscmp(L"/START", (wchar_t *)szArgList[i]) == 0)
-		{
-			cmderStart = szArgList[i + 1];
-			i++;
-		}
-		else if (wcscmp(L"/TASK", (wchar_t *)szArgList[i]) == 0)
-		{
-			cmderTask = szArgList[i + 1];
-			i++;
-		}
-		else if (wcscmp(L"/SINGLE", (wchar_t *)szArgList[i]) == 0)
-		{
-			cmderSingle = true;
-		}
-		else if (wcscmp(L"/REGISTER", (wchar_t *)szArgList[i]) == 0)
-		{
-			registerApp = true;
-			unRegisterApp = false;
-			if (wcscmp(L"ALL", (wchar_t *)szArgList[i]) == 0 || wcscmp(L"USER", (wchar_t *)szArgList[i]) == 0)
-			{
-				cmderRegScope = szArgList[i + 1];
-				i++;
-			}
-		}
-		else if (wcscmp(L"/UNREGISTER", (wchar_t *)szArgList[i]) == 0)
-		{
-			unRegisterApp = true;
-			registerApp = false;
-			if (wcscmp(L"ALL", (wchar_t *)szArgList[i]) == 0 || wcscmp(L"USER", (wchar_t *)szArgList[i]) == 0)
-			{
-				cmderRegScope = szArgList[i + 1];
-				i++;
-			}
-		}
-		// else
-		// {
-		// 	MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /C <path>\n  /START <path>\n  /SINGLE <path>\n  /TASK <name>\n /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
-		// 	return 1;
-		// }
+		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
-
-	if ( registerApp == true ) {
-		RegisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		RegisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
-	}
-	else if ( unRegisterApp == true )
+	else if (cmderOptions.error == true)
 	{
-		UnregisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		UnregisterShellMenu(cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		return 1;
 	}
 	else
 	{
-		StartCmder(cmderStart, cmderSingle, cmderTask, cmderCfgRoot);
+		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot);
 	}
 	
 	return 0;

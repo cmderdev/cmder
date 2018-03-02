@@ -260,7 +260,7 @@ call "%user-aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    call :verbose-output init.bat - Running Git for Windows one time Post Install....
+    call :verbose-output Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -316,7 +316,7 @@ exit /b
 :verbose-output
     if %debug-output% gtr 0 (
       call :debug-output :verbose-output - %*
-    ) else (
+    ) else if %verbose-output% gtr 0 (
       echo %*
     )
     exit /b
@@ -343,7 +343,6 @@ exit /b
 :: specific to git version comparing
 ::
 :read_version
-
     :: clear the variables
     set GIT_VERSION_%~1=
 
@@ -393,7 +392,6 @@ exit /b
     exit /b
 
 :compare_versions
-
     :: checks all major, minor, patch and build variables for the given arguments.
     :: whichever binary that has the most recent version will be used based on the return code.
 
@@ -532,3 +530,91 @@ exit /b
 
     endlocal & set "PATH=%PATH%"
     exit /b
+
+::
+:: specific to git version comparing
+::
+:read_version
+
+    :: clear the variables
+    set GIT_VERSION_%~1=
+
+    :: set the executable path
+    set "git_executable=%~2\git.exe"
+
+    :: check if the executable actually exists
+    if not exist "%git_executable%" (
+        :: return a negative error code if the executable doesn't exist
+        exit /b -255
+    )
+
+    :: get the git version in the provided directory
+    for /F "delims=" %%F in ('%git_executable% --version 2^>nul') do @(
+        set "GIT_VERSION_%~1=%%F"
+    )
+
+    :: parse the returned string
+    call :validate_version "%~1" !GIT_VERSION_%~1!
+
+goto :eof
+
+:parse_version
+
+    :: process a `git version x.x.x.xxxx.x` formatted string
+    for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
+        set "%~1_MAJOR=%%A"
+        set "%~1_MINOR=%%B"
+        set "%~1_PATCH=%%C"
+        set "%~1_BUILD=%%D"
+    )
+
+goto :eof
+
+:validate_version
+
+    :: check if we have a valid version string
+    if /I "%~2 %~3"=="GIT VERSION" (
+
+        :: now parse the version information into the corresponding variables
+        call :parse_version %~1 %~4
+
+        :: ... and maybe display it, for debugging purposes.
+        call :verbose-output Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
+
+    ) else (
+        :: invalid format returned, use the vendored git instead
+        echo Invalid git version at "%git_executable%" detected!
+        call :verbose-output Returned version: %~2 %~3 %~4
+
+        rem or directly call the VENDORED_GIT
+        set test_dir=
+        exit /b -127
+    )
+
+goto :eof
+
+:compare_versions
+
+    :: checks all major, minor, patch and build variables for the given arguments.
+    :: whichever binary that has the most recent version will be used based on the return code.
+
+    :: call :verbose-output Comparing:
+    :: call :verbose-output %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
+    :: call :verbose-output %~2: !%~2_MAJOR!.!%~2_MINOR!.!%~2_PATCH!.!%~2_BUILD!
+
+    if !%~1_MAJOR! GTR !%~2_MAJOR! (exit /b  1)
+    if !%~1_MAJOR! LSS !%~2_MAJOR! (exit /b -1)
+
+    if !%~1_MINOR! GTR !%~2_MINOR! (exit /b  1)
+    if !%~1_MINOR! LSS !%~2_MINOR! (exit /b -1)
+
+    if !%~1_PATCH! GTR !%~2_PATCH! (exit /b  1)
+    if !%~1_PATCH! LSS !%~2_PATCH! (exit /b -1)
+
+    if !%~1_BUILD! GTR !%~2_BUILD! (exit /b  1)
+    if !%~1_BUILD! LSS !%~2_BUILD! (exit /b -1)
+
+    :: looks like we have the same versions.
+    exit /b 0
+
+goto :eof
