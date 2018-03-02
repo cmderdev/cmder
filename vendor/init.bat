@@ -260,7 +260,7 @@ call "%user-aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    call :verbose-output init.bat - Running Git for Windows one time Post Install....
+    call :verbose-output Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -316,7 +316,7 @@ exit /b
 :verbose-output
     if %debug-output% gtr 0 (
       call :debug-output :verbose-output - %*
-    ) else (
+    ) else if %verbose-output% gtr 0 (
       echo %*
     )
     exit /b
@@ -343,7 +343,6 @@ exit /b
 :: specific to git version comparing
 ::
 :read_version
-
     :: clear the variables
     set GIT_VERSION_%~1=
 
@@ -393,7 +392,6 @@ exit /b
     exit /b
 
 :compare_versions
-
     :: checks all major, minor, patch and build variables for the given arguments.
     :: whichever binary that has the most recent version will be used based on the return code.
 
