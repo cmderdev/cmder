@@ -29,7 +29,7 @@ exit /b
 ::: 
 :::  [dir_path] <in> Fully qualified directory path. Ex: "c:\bin"
 ::: 
-:::dptions: 
+:::options: 
 ::: 
 :::  append     <in> Append to the path env variable rather than pre-pend.
 ::: 
@@ -101,7 +101,7 @@ exit /b
 ::: 
 :::  [dir_path] <in> Fully qualified directory path. Ex: "c:\bin"
 ::: 
-:::dptions: 
+:::options: 
 ::: 
 :::  [max_depth] <in> Max recuse depth.  Default: 1
 :::
