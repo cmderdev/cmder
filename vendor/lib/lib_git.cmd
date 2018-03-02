@@ -1,8 +1,10 @@
 @echo off
 
+
 call "%~dp0lib_base.cmd"
 call "%%~dp0lib_console.cmd"
 set lib_git=call "%~dp0lib_git.cmd"
+
 
 if "%~1" == "/h" (
     %lib_base% help "%0"
@@ -14,7 +16,7 @@ exit /b
 
 :read_version
 ::: ==============================================================================
-:::enhance_path - Add a directory to the path env variable if required.
+:::read_version - 
 ::: 
 :::include: 
 ::: 
@@ -22,7 +24,7 @@ exit /b
 :::
 :::usage: 
 ::: 
-:::  call "%~DP0lib_path" enhance_path "[dir_path]" [append]
+:::  call "%~DP0lib_path" read_version "[dir_path]" [append]
 ::: 
 :::required: 
 ::: 
@@ -46,17 +48,17 @@ exit /b
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        echo "%git_executable%" does not exist!
+        %lib_console% show_error "%git_executable%" does not exist!
         exit /b -255
     )
 
     :: get the git version in the provided directory
-    for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do (
-        if "%%F %%G" == "git version" (
-            set "GIT_VERSION_%~1=%%H"
-            %lib_console% debug-output :read_version "Env Var - GIT_VERSION_%~1=%%H"
+    for /F "tokens=1,2,3 usebackq" %%A in (`"%git_executable%" --version 2^>nul`) do (
+        if /i "%%A %%B" == "git version" (
+            set "GIT_VERSION_%~1=%%C"
+            %lib_console% debug-output :read_version "Env Var - GIT_VERSION_%~1=%%C"
         ) else (
-            echo "git --version" returned an inproper version string!
+            %lib_console% show_error "git --version" returned an inproper version string!
             pause
             exit /b
         )
