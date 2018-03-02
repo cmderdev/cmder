@@ -2,6 +2,7 @@
 ## Those files should be taken from their repositary
 
 vendor/*/*
+!vendor/lib/*
 !vendor/*
 !vendor/psmodules/PsGet
 
