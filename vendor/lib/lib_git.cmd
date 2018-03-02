@@ -51,7 +51,7 @@ exit /b
     )
 
     :: get the git version in the provided directory
-    for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do @(
+    for /F "tokens=1,2,3 usebackq" %%F in (`"%git_executable%" --version 2^>nul`) do (
         if "%%F %%G" == "git version" (
             set "GIT_VERSION_%~1=%%H"
             %lib_console% debug-output :read_version "Env Var - GIT_VERSION_%~1=%%H"
