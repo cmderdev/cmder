@@ -139,16 +139,19 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 
     :: get the version information for the user provided git binary
     setlocal enabledelayedexpansion
-    call :read_version USER !test_dir!
+    call :read_version USER "!test_dir!"
 
     if !errorlevel! geq 0 (
-
         :: compare the user git version against the vendored version
         setlocal enabledelayedexpansion
         call :compare_versions USER VENDORED
 
         :: use the user provided git if its version is greater than, or equal to the vendored git
-        if !errorlevel! geq 0 (
+        if !errorlevel! geq 0 if "!test_dir:~-4!" == "\cmd" (
+            set "GIT_INSTALL_ROOT=!test_dir:~0,-4!"
+            set test_dir=
+            goto :FOUND_GIT
+        ) else if !errorlevel! geq 0 (
             set "GIT_INSTALL_ROOT=!test_dir!"
             set test_dir=
             goto :FOUND_GIT
