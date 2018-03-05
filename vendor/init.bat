@@ -138,16 +138,14 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     popd
 
     :: get the version information for the user provided git binary
-    setlocal enabledelayedexpansion
     call :read_version USER "!test_dir!"
 
     if !errorlevel! geq 0 (
         :: compare the user git version against the vendored version
-        setlocal enabledelayedexpansion
         call :compare_versions USER VENDORED
 
         :: use the user provided git if its version is greater than, or equal to the vendored git
-        if !errorlevel! geq 0 if "!test_dir:~-4!" == "\cmd" (
+        if !errorlevel! geq 0 if exist "!test_dir:~0,-4!\cmd\git.exe" (
             set "GIT_INSTALL_ROOT=!test_dir:~0,-4!"
             set test_dir=
             goto :FOUND_GIT
@@ -184,6 +182,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
+    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" append
     call :enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
