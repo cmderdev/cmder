@@ -110,9 +110,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 :FOUND_GIT
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
-    rem add the unix commands at the end to not shadow windows commands like more
-    call :verbose-output Enhancing PATH with unix commands from git in "%GIT_INSTALL_ROOT%\usr\bin"
-    set "PATH=%PATH%;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
+    call :git-path 64 || call :git-path 32
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
@@ -219,6 +217,23 @@ exit /b
 :verbose-output
     if %verbose-output% gtr 0 echo %*
     exit /b
+
+goto :eof
+
+::
+:: Enhancing PATH with unix commands from git
+::
+:git-path
+
+    if exist "%GIT_INSTALL_ROOT%\mingw%1\bin" (
+        call :verbose-output Enhancing PATH with unix commands from git in "%GIT_INSTALL_ROOT%\mingw%1\bin", "%GIT_INSTALL_ROOT%\usr\bin"
+        set "PATH=%PATH%;%GIT_INSTALL_ROOT%\mingw%1\bin;%GIT_INSTALL_ROOT%\usr\bin;%GIT_INSTALL_ROOT%\usr\share\vim\vim74"
+        exit /b 0
+    ) else (
+        exit /b 1
+    )
+
+goto :eof
 
 ::
 :: specific to git version comparing
