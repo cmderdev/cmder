@@ -40,7 +40,7 @@ local function set_prompt_filter()
     -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
     -- color codes: "\x1b[1;37;40m"
     local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
-    local lambda = "$"
+    local lambda = "λ"
     cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
     if env ~= nil then
         lambda = "("..env..") "..lambda
