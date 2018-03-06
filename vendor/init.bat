@@ -182,7 +182,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" append
+    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" call :enhance_path "!GIT_INSTALL_ROOT!\cmd" append
     call :enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
