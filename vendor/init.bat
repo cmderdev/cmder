@@ -90,8 +90,10 @@ if defined CMDER_USER_CONFIG (
 :: Pick right version of clink
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set architecture=86
+    set architecture_bits=32
 ) else (
     set architecture=64
+    set architecture_bits=64
 )
 
 :: Tell the user about the clink config files...
@@ -183,7 +185,12 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
     if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" call :enhance_path "!GIT_INSTALL_ROOT!\cmd" append
-    call :enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
+    if exist "!GIT_INSTALL_ROOT!\mingw32" (
+        call :enhance_path "!GIT_INSTALL_ROOT!\mingw32" append
+    ) else if exist "!GIT_INSTALL_ROOT!\mingw64"
+        call :enhance_path "!GIT_INSTALL_ROOT!\mingw64" append
+    )
+    if exist "!GIT_INSTALL_ROOT!\usr\bin" call :enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
@@ -419,7 +426,12 @@ exit /b
 :enhance_path
     setlocal enabledelayedexpansion
     if "%~1" neq "" (
-        set "add_path=%~1"
+        if exist "%~1" (
+            set "add_path=%~1"
+        ) else (
+            call :show_error :enhance_path - The path specified. '%~1', does not exist!
+            exit 1
+        )
     ) else (
         call :show_error You must specify a directory to add to the path!
         exit 1
