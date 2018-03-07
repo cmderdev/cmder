@@ -187,7 +187,7 @@ if defined GIT_INSTALL_ROOT (
     if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" call :enhance_path "!GIT_INSTALL_ROOT!\cmd" append
     if exist "!GIT_INSTALL_ROOT!\mingw32" (
         call :enhance_path "!GIT_INSTALL_ROOT!\mingw32" append
-    ) else if exist "!GIT_INSTALL_ROOT!\mingw64"
+    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
         call :enhance_path "!GIT_INSTALL_ROOT!\mingw64" append
     )
     if exist "!GIT_INSTALL_ROOT!\usr\bin" call :enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
