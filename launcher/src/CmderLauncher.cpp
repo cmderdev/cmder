@@ -380,20 +380,17 @@ cmderOptions GetOption()
 
 		if (_wcsicmp(L"/c", szArgList[i]) == 0)
 		{
-			// TCHAR buff[MAX_PATH];
-			// const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", buff, MAX_PATH);
+			TCHAR userProfile[MAX_PATH];
+			const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
 
-			// cmderOptions.cmderCfgRoot = buff;
+			wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
+			PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg");
 
-			if (szArgList[i + 1] != NULL) {
-				// std::wregex base_regex(L"^[a-z]{1}\:{1}\\|\\\\");
-				// std::wsmatch wideMatch;
-				// std::wstring target(szArgList[i + 1]);
+			cmderOptions.cmderCfgRoot = cmderCfgRoot;
 
-				// if (regex_search(target, base_regex)) {
-					cmderOptions.cmderCfgRoot = szArgList[i + 1];
-					i++;
-				// :w
+			if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/') {
+				cmderOptions.cmderCfgRoot = szArgList[i + 1];
+				i++;
 			}
 		}
 		else if (_wcsicmp(L"/start", szArgList[i]) == 0)
