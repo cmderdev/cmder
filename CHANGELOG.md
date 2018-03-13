@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.3.6-pre1](https://github.com/cmderdev/cmder) (2018-03-01)
+## [1.3.6-pre1](https://github.com/cmderdev/cmder/tree/v1.3.6-pre1) (2018-03-01)
 
 **Fixed bugs:**
 
