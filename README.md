@@ -160,7 +160,6 @@ You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CM
 | PowerShell    | $ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1        |
 | Bash/Mintty   | $CMDER_ROOT/config/profile.d/*.sh                 |
 
-
 ### Aliases
 #### Cmder(Cmd.exe) Aliases
 You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`.
