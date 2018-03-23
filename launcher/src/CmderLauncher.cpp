@@ -208,12 +208,14 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
 
+  /*
 	if (streqi(cmderStart.c_str(), L""))
 	{
 		TCHAR buff[MAX_PATH];
 		const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", buff, MAX_PATH);
 		cmderStart = buff;
 	}
+  */
 
 	if (is_single_mode)
 	{
