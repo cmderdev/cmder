@@ -5,8 +5,8 @@
 #include <vector>
 #include <shlobj.h>
 
-#include <regex>
-#include <iostream>
+#include <regex> 
+#include <iostream> 
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -15,6 +15,8 @@
 #endif
 
 #define USE_TASKBAR_API (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
+
+#define XP (_WIN32_WINNT < _WIN32_WINNT_VISTA)
 
 #define MB_TITLE L"Cmder Launcher"
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
@@ -138,7 +140,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu.xml file to ConEmu-%COMPUTERNAME%.xml backup location! Restart Cmder as Administrator."
+					? L"Failed to copy ConEmu.xml file to ConEmu-%COMPUTERNAME%.xml backup location! Restart Cmder as administrator."
 					: L"Failed to copy ConEmu.xml file to ConEmu-%COMPUTERNAME%.xml backup location!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
@@ -149,11 +151,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu-%COMPUTERNAME%.xml file to vendored ConEmu.xml location! Restart Cmder as Administrator."
+					? L"Failed to copy ConEmu-%COMPUTERNAME%.xml file to vendored ConEmu.xml location! Restart Cmder as administrator."
 					: L"Failed to copy ConEmu-%COMPUTERNAME%.xml file to vendored ConEmu.xml location!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
 		}
+
 	}
 	else if (PathFileExists(userCfgPath)) {
 		if (PathFileExists(cfgPath)) {
@@ -161,7 +164,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu.xml file to backup location! Restart Cmder as Administrator."
+					? L"Failed to copy ConEmu.xml file to backup location! Restart Cmder as administrator."
 					: L"Failed to copy ConEmu.xml file to backup location!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
@@ -172,7 +175,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu.xml file to vendored ConEmu.xml location! Restart Cmder as Administrator."
+					? L"Failed to copy ConEmu.xml file to vendored ConEmu.xml location! Restart Cmder as administrator."
 					: L"Failed to copy ConEmu.xml file to vendored ConEmu.xml location!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
@@ -183,7 +186,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		{
 			MessageBox(NULL,
 				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to copy ConEmu.xml file to user-conemu.xml backup location! Restart Cmder as Administrator."
+				? L"Failed to copy ConEmu.xml file to user-conemu.xml backup location! Restart Cmder as administrator."
 				: L"Failed to copy ConEmu.xml file to user-conemu.xml backup location!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
@@ -193,7 +196,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		{
 			MessageBox(NULL,
 				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to copy Cmder default ConEmu.xml file to vendored ConEmu.xml location! Restart Cmder as Administrator."
+				? L"Failed to copy Cmder default ConEmu.xml file to vendored ConEmu.xml location! Restart Cmder as administrator."
 				: L"Failed to copy Cmder default ConEmu.xml file to vendored ConEmu.xml location!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
@@ -207,13 +210,15 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	else {
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
-
+	
+	/*
 	if (streqi(cmderStart.c_str(), L""))
 	{
 		TCHAR buff[MAX_PATH];
 		const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", buff, MAX_PATH);
 		cmderStart = buff;
 	}
+	*/
 
 	if (is_single_mode)
 	{
@@ -306,33 +311,33 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 
 	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
-	wchar_t commandStr[MAX_PATH + 20] = { 0 };
-	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+wchar_t commandStr[MAX_PATH + 20] = { 0 };
+swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
 
-	// Now that we have `commandStr`, it's OK to change `exePath`...
-	PathRemoveFileSpec(exePath);
+// Now that we have `commandStr`, it's OK to change `exePath`...
+PathRemoveFileSpec(exePath);
 
-	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
+PathCombine(icoPath, exePath, L"icons\\cmder.ico");
 
-	// Now set the registry keys
-	HKEY root = GetRootKey(opt);
+// Now set the registry keys
+HKEY root = GetRootKey(opt);
 
-	HKEY cmderKey;
-	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+HKEY cmderKey;
+FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 
-	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
-	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
+FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
+FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
 
-	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
+FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
 
-	HKEY command;
-	FAIL_ON_ERROR(RegCreateKeyEx(cmderKey, L"command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
+HKEY command;
+FAIL_ON_ERROR(RegCreateKeyEx(cmderKey, L"command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
 
-	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
+FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
 
-	RegCloseKey(command);
-	RegCloseKey(cmderKey);
-	RegCloseKey(root);
+RegCloseKey(command);
+RegCloseKey(cmderKey);
+RegCloseKey(root);
 }
 
 void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
@@ -340,7 +345,11 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	HKEY root = GetRootKey(opt);
 	HKEY cmderKey;
 	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+#if XP
+	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
+#else
 	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
+#endif
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
 }
@@ -355,6 +364,7 @@ struct cmderOptions
 	bool registerApp = false;
 	bool unRegisterApp = false;
 	bool error = false;
+
 };
 
 cmderOptions GetOption()
@@ -409,7 +419,7 @@ cmderOptions GetOption()
 			cmderOptions.registerApp = true;
 			cmderOptions.unRegisterApp = false;
 			if (szArgList[i + 1] != NULL)
-			{
+			{ 
 				if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
 				{
 					cmderOptions.cmderRegScope = szArgList[i + 1];
@@ -444,6 +454,7 @@ cmderOptions GetOption()
 
 	return cmderOptions;
 }
+
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPTSTR    lpCmdLine,
@@ -455,11 +466,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	cmderOptions cmderOptions = GetOption();
 
-	if (cmderOptions.registerApp == true) {
+	if (cmderOptions.registerApp == true ) {
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
-	else if (cmderOptions.unRegisterApp == true)
+	else if (cmderOptions.unRegisterApp == true )
 	{
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
@@ -472,6 +483,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	{
 		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot);
 	}
-
+	
 	return 0;
 }
