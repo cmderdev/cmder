@@ -484,7 +484,7 @@
 			<value name="DndRKey" type="hex" data="a2"/>
 			<value name="WndDragKey" type="dword" data="00121101"/>
 			<key name="Tasks" modified="2018-02-22 06:02:12" build="171109">
-				<value name="Count" type="long" data="8"/>
+				<value name="Count" type="long" data="9"/>
 				<key name="Task1" modified="2018-02-22 06:02:12" build="171109">
 					<value name="Name" type="string" data="{cmd::Cmder as Admin}"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
