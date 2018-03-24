@@ -351,3 +351,25 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
         dofile(filename)
     end
 end
+
+local cmder_config_dir = clink.get_env('CMDER_ROOT')..'/config/'
+for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
+    -- Skip files that starts with _. This could be useful if some files should be ignored
+    if not string.match(lua_module, '^_.*') then
+        local filename = cmder_config_dir..lua_module
+        -- use dofile instead of require because require caches loaded modules
+        -- so config reloading using Alt-Q won't reload updated modules.
+        dofile(filename)
+    end
+end
+
+local cmder_user_config_dir = clink.get_env('CMDER_USER_CONFIG')..'/'
+for _,lua_module in ipairs(clink.find_files(cmder_user_config_dir..'*.lua')) do
+    -- Skip files that starts with _. This could be useful if some files should be ignored
+    if not string.match(lua_module, '^_.*') then
+        local filename = cmder_user_config_dir..lua_module
+        -- use dofile instead of require because require caches loaded modules
+        -- so config reloading using Alt-Q won't reload updated modules.
+        dofile(filename)
+    end
+end
