@@ -125,7 +125,7 @@ if($Compile) {
         throw "msbuild failed to build the executable."
     }
     else {
-        Write-Verbose "successfully built Cmder $Version!"
+        Write-Verbose "successfully built Cmder v$Version!"
     }
     Pop-Location
 } else {
