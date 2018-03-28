@@ -91,7 +91,7 @@ function Create-RC($version, $path) {
 	foreach ($fragment in $version) {
 		if ( !$fragment ) { break }
 		elseif ($index -lt $pattern.length) {
-			$resource = $resource.Replace( "{" + $pattern[$index++] + "}", $fragment )
+			$resource = $resource.Replace( "{" + $pattern[$index++] + "}", '"' + $fragment + '"' )
 		}
 	}
 	
