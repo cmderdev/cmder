@@ -62,7 +62,7 @@ function Digest-Hash($path) {
     return Invoke-Expression "md5sum $path"
 }
 
-function Get-Version-Str($file) {
+function Get-VersionStr($file) {
 
 	# Define the regular expression to match the version string from changelog
 	[regex]$regex = '^## \[(?<version>[\w\-\.]+)\]\([^\n()]+\)\s+\([^\n()]+\)$';

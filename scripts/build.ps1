@@ -65,7 +65,7 @@ Push-Location -Path $saveTo
 $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 # Get the version string
-$Version = Get-Version-Str ($PSScriptRoot + '\..\' + 'CHANGELOG.md')
+$Version = Get-VersionStr ($PSScriptRoot + '\..\' + 'CHANGELOG.md')
 
 # Check for requirements
 Ensure-Exists $sourcesPath
