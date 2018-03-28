@@ -75,9 +75,10 @@ function Get-Version-Str($file) {
 
 function Create-RC($version, $path) {
 
+	$string   = $version
+
 	if ( !(Test-Path "$path.sample") ) {
-		Write-Error "Invalid path provided for resources file."
-		return
+		throw "Invalid path provided for resources file."
 	}
 
 	$resource = Get-Content -Path "$path.sample"
@@ -93,6 +94,9 @@ function Create-RC($version, $path) {
 			$resource = $resource.Replace( "{" + $pattern[$index++] + "}", $fragment )
 		}
 	}
+	
+	# Add the version string
+	$resource = $resource.Replace( "{Cmder-Version-Str}", $string )
 
 	# Write the results
 	Set-Content -Path $path -Value $resource
