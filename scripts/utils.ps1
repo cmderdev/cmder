@@ -73,16 +73,16 @@ function Get-Version-Str($file) {
 	return $version
 }
 
-function Create-RC($version, $path) {
+function Create-RC($string, $path) {
 
-	$string   = $version
+	$version  = $string + '.0.0.0.0' # padding for version string
 
 	if ( !(Test-Path "$path.sample") ) {
 		throw "Invalid path provided for resources file."
 	}
 
 	$resource = Get-Content -Path "$path.sample"
-	$pattern  = @( "Cmder-Major-Version", "Cmder-Minor-Version", "Cmder-Revision-Version" )
+	$pattern  = @( "Cmder-Major-Version", "Cmder-Minor-Version", "Cmder-Revision-Version", "Cmder-Build-Version" )
 	$index    = 0
 
 	# Replace all non-numeric characters to dots and split to array
@@ -90,13 +90,13 @@ function Create-RC($version, $path) {
 
 	foreach ($fragment in $version) {
 		if ( !$fragment ) { break }
-		elseif ($index -lt $pattern.length) {
-			$resource = $resource.Replace( "{" + $pattern[$index++] + "}", '"' + $fragment + '"' )
+		elseif ($index -le $pattern.length) {
+			$resource = $resource.Replace( "{" + $pattern[$index++] + "}", $fragment )
 		}
 	}
 	
 	# Add the version string
-	$resource = $resource.Replace( "{Cmder-Version-Str}", $string )
+	$resource = $resource.Replace( "{Cmder-Version-Str}", '"' + $string + '"' )
 
 	# Write the results
 	Set-Content -Path $path -Value $resource
