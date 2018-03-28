@@ -124,7 +124,9 @@ if($Compile) {
     if ($LastExitCode -ne 0) {
         throw "msbuild failed to build the executable."
     }
-    else Write-Verbose "successfully built Cmder $Version!"
+    else {
+        Write-Verbose "successfully built Cmder $Version!"
+    }
     Pop-Location
 } else {
     Write-Warning "You are not building a launcher, Use -Compile"
