@@ -62,6 +62,43 @@ function Digest-Hash($path) {
     return Invoke-Expression "md5sum $path"
 }
 
+function Get-Version-Str($file) {
+
+	# Define the regular expression to match the version string from changelog
+	[regex]$regex = '^## \[(?<version>[\w\-\.]+)\]\([^\n()]+\)\s+\([^\n()]+\)$';
+
+	# Find the first match of the version string which means the latest version
+	$version = Select-String -Path $file -Pattern $regex | Select-Object -First 1 | % { $_.Matches.Groups[1].Value }
+
+	return $version
+}
+
+function Create-RC($version, $path) {
+
+	if ( !(Test-Path "$path.sample") ) {
+		Write-Error "Invalid path provided for resources file."
+		return
+	}
+
+	$resource = Get-Content -Path "$path.sample"
+	$pattern  = @( "Cmder-Major-Version", "Cmder-Minor-Version", "Cmder-Revision-Version" )
+	$index    = 0
+
+	# Replace all non-numeric characters to dots and split to array
+	$version = $version -replace '[^0-9]+','.' -split '\.'
+
+	foreach ($fragment in $version) {
+		if ( !$fragment ) { break }
+		elseif ($index -lt $pattern.length) {
+			$resource = $resource.Replace( "{" + $pattern[$index++] + "}", $fragment )
+		}
+	}
+
+	# Write the results
+	Set-Content -Path $path -Value $resource
+
+}
+
 function Register-Cmder() {
     [CmdletBinding()]
     Param
