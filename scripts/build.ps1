@@ -120,7 +120,7 @@ Pop-Location
 if($Compile) {
     Push-Location -Path $launcher
     Create-RC $Version ($launcher + '\src\version.rc2');
-    msbuild CmderLauncher.vcxproj /p:configuration=Release
+    msbuild CmderLauncher.vcxproj /t:Clean,Build /p:configuration=Release
     if ($LastExitCode -ne 0) {
         throw "msbuild failed to build the executable."
     }
