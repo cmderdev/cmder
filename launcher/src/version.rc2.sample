@@ -12,6 +12,7 @@
 #define CMDER_MAJOR_VERSION         {Cmder-Major-Version}
 #define CMDER_MINOR_VERSION         {Cmder-Minor-Version}
 #define CMDER_REVISION_VERSION      {Cmder-Revision-Version}
+#define CMDER_VERSION_STR           {Cmder-Version-Str}
 
 #define CMDER_PRODUCT_NAME_STR      "Cmder"
 #define CMDER_FILE_DESCRIPTION_STR  "Cmder: Lovely Console Emulator."
