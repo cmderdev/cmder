@@ -1,6 +1,14 @@
-// Microsoft Visual C++ generated resource script.
-//
+/*                  _           
+  ___ _ __ ___   __| | ___ _ __ 
+ / __| '_ ` _ \ / _` |/ _ \ '__|
+| (__| | | | | | (_| |  __/ |   
+ \___|_| |_| |_|\__,_|\___|_|   
+=============================================================================
+ The Cmder Console Emulator Project
+*/
+                                
 #include "resource.h"
+#include "version.rc2"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -53,6 +61,45 @@ END
 IDI_CMDER               ICON                    "..\\..\\icons\\cmder.ico"
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION CMDER_MAJOR_VERSION,CMDER_MINOR_VERSION,CMDER_REVISION_VERSION
+ PRODUCTVERSION CMDER_MAJOR_VERSION,CMDER_MINOR_VERSION,CMDER_REVISION_VERSION
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+ FILEFLAGS (CMDER_DEBUGFLAG | CMDER_BUILDFLAGS)
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "100904b0"
+        BEGIN
+            VALUE "CompanyName", CMDER_COMPANY_NAME_STR "\0"
+            VALUE "FileDescription", CMDER_FILE_DESCRIPTION_STR "\0"
+            VALUE "FileVersion", CMDER_VERSION_STR "\0"
+            VALUE "InternalName", CMDER_INTERNAL_NAME_STR "\0"
+            VALUE "LegalCopyright", "Copyright (C) " CMDER_COPYRIGHT_YEAR_STR " " CMDER_COMPANY_NAME_STR "\0"
+            VALUE "OriginalFilename", CMDER_ORIGINAL_FILENAME_STR "\0"
+            VALUE "ProductName", CMDER_PRODUCT_NAME_STR "\0"
+            VALUE "ProductVersion", CMDER_VERSION_STR "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x1009, 1200
+    END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+
+// Manifest
+1 24 DISCARDABLE "Cmder.manifest"
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
