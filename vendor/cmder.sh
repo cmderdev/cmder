@@ -7,6 +7,20 @@
 # Add system specific users customizations to $HOME/.bashrc, these 
 # customizations will not follow Cmder to another machine.
 
+function runProfiled {
+  unset profile_d_scripts
+  pushd "${1}" >/dev/null
+  profile_d_scripts=$(ls *.sh 2>/dev/null)
+
+  if [ ! "x${profile_d_scripts}" = "x" ] ; then
+    for x in ${profile_d_scripts} ; do
+      echo Sourcing "${1}/${x}"...
+      . "${1}/${x}"
+    done
+  fi
+  popd >/dev/null
+}
+
 # We do this for bash as admin sessions since $CMDER_ROOT is not being set
 if [ "$CMDER_ROOT" == "" ] ; then
     case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
@@ -42,24 +56,28 @@ if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
 fi
 
 if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
-  unset profile_d_scripts
-  pushd "${CMDER_ROOT}/config/profile.d" >/dev/null
-  profile_d_scripts=$(ls *.sh 2>/dev/null)
+  runProfiled  "${CMDER_ROOT}/config/profile.d"
+fi
 
-  if [ ! "x${profile_d_scripts}" = "x" ] ; then
-    for x in ${profile_d_scripts} ; do
-      # echo Sourcing "${CMDER_ROOT}/config/profile.d/${x}"...
-      . "${CMDER_ROOT}/config/profile.d/${x}"
-    done
-  fi
-  popd >/dev/null
+if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
+  runProfiled  "${CMDER_USER_CONFIG}/profile.d"
 fi
 
 if [ -f "${CMDER_ROOT}/config/user-profile.sh" ] ; then
     . "${CMDER_ROOT}/config/user-profile.sh"
+fi
+
+if [ -f "${CMDER_USER_CONFIG}/user-profile.sh" ] ; then
+    . "${CMDER_USER_CONFIG}/user-profile.sh"
 else
-    echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
-    cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
+    if [ "${CMDER_USER_CONFIG}" != "" ] ; then
+      initialProfile="${CMDER_USER_CONFIG}/user-profile.sh"
+    else
+      initialProfile="${CMDER_ROOT}/config/user-profile.sh"
+    fi
+
+    echo Creating user startup file: "${initialProfile}"
+    cat <<-eof >"${initialProfile}"
 # use this file to run your own startup commands for msys2 bash'
 
 # To add a new vendor to the path, do something like:

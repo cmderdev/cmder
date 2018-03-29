@@ -9,6 +9,10 @@ if(!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
 }
 
+if ($ENV:CMDER_USER_CONFIG) {
+    # write-host "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '$ENV:CMDER_USER_CONFIG'!"
+}
+
 # We do this for Powershell as Admin Sessions because CMDER_ROOT is not beng set.
 if (! $ENV:CMDER_ROOT ) {
     if ( $ENV:ConEmuDir ) {
@@ -20,6 +24,10 @@ if (! $ENV:CMDER_ROOT ) {
 
 # Remove trailing '\'
 $ENV:CMDER_ROOT = (($ENV:CMDER_ROOT).trimend("\"))
+
+# do not load bundled psget if a module installer is already available
+# -> recent PowerShell versions include PowerShellGet out of the box
+$moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue | Out-Null)
 
 # do not load bundled psget if a module installer is already available
 # -> recent PowerShell versions include PowerShellGet out of the box
@@ -163,9 +171,31 @@ foreach ($x in Get-ChildItem *.ps1) {
 }
 popd
 
+# Drop *.ps1 files into "$ENV:CMDER_USER_CONFIG\config\profile.d"
+# to source them at startup.  Requires using cmder.exe /C [cmder_user_root_path] argument
+if ($ENV:CMDER_USER_CONFIG -ne "" -and -not (test-path "$ENV:CMDER_USER_CONFIG\profile.d")) {
+    pushd $ENV:CMDER_USER_CONFIG\profile.d
+    foreach ($x in Get-ChildItem *.ps1) {
+      # write-host write-host Sourcing $x
+      . $x
+    }
+    popd
+}
+    
+
+
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
-if(Test-Path $CmderUserProfilePath) {
+if (Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
+    . "$CmderUserProfilePath"
+
+}
+
+if ($ENV:CMDER_USER_CONFIG) {
+    $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user-profile.ps1"
+}
+
+if (Test-Path $CmderUserProfilePath) {
     . "$CmderUserProfilePath"
 } else {
 # This multiline string cannot be indented, for this reason I've not indented the whole block

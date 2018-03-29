@@ -2,7 +2,8 @@ launcher
 .gitignore
 .gitattributes
 .git
-*.rb
+.github
+*.md
 build
 scripts
 config\.history
@@ -19,4 +20,3 @@ appveyor.yml
 vendor\cmder.sh
 vendor\git-prompt.sh
 config\user-*
-.github_changelog_generator
