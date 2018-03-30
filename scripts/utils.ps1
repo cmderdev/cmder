@@ -72,7 +72,7 @@ function Get-VersionStr() {
     {
 
         # Determine if the current diesctory is a git repository
-        $GitPresent = Invoke-Expression "git rev-parse --is-inside-work-tree" -erroraction SilentlyContinue 2>$null
+        $GitPresent = Invoke-Expression "git rev-parse --is-inside-work-tree" -erroraction SilentlyContinue
 
         if ( $GitPresent -eq 'true' )
         {
