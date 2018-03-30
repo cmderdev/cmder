@@ -65,7 +65,7 @@ function Digest-Hash($path) {
 function Get-VersionStr() {
 
     # Clear existing variable
-    Clear-Variable -name string
+    if ($string) { Clear-Variable -name string }
 
     # Determine if git is available
     if (Get-Command "git.exe" -ErrorAction SilentlyContinue)
