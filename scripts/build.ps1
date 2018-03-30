@@ -58,14 +58,14 @@ $ScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 $cmder_root = $ScriptRoot.replace("\scripts","")
 
 # Dot source util functions into this scope
-. ".\utils.ps1"
+. "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
 
 Push-Location -Path $saveTo
 $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
 # Get the version string
-$Version = Get-VersionStr ($PSScriptRoot + '\..\' + 'CHANGELOG.md')
+$version = Get-VersionStr
 
 # Check for requirements
 Ensure-Exists $sourcesPath
@@ -119,13 +119,13 @@ Pop-Location
 
 if($Compile) {
     Push-Location -Path $launcher
-    Create-RC $Version ($launcher + '\src\version.rc2');
+    Create-RC $version ($launcher + '\src\version.rc2');
     msbuild CmderLauncher.vcxproj /t:Clean,Build /p:configuration=Release
     if ($LastExitCode -ne 0) {
         throw "msbuild failed to build the executable."
     }
     else {
-        Write-Verbose "successfully built Cmder v$Version!"
+        Write-Verbose "successfully built Cmder v$version!"
     }
     Pop-Location
 } else {

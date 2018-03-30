@@ -62,7 +62,45 @@ function Digest-Hash($path) {
     return Invoke-Expression "md5sum $path"
 }
 
-function Get-VersionStr($file) {
+function Get-VersionStr() {
+
+    # Clear existing variable
+    Clear-Variable -name string
+
+    # Determine if git is available
+    if (Get-Command "git.exe" -ErrorAction SilentlyContinue)
+    {
+
+        # Determine if the current diesctory is a git repository
+        $GitPresent = Invoke-Expression "git rev-parse --is-inside-work-tree" -erroraction SilentlyContinue 2>$null
+
+        if ( $GitPresent -eq 'true' )
+        {
+            $string = Invoke-Expression "git describe --abbrev=0 --tags"
+        }
+
+    }
+
+    # Fallback used when Git is not available
+    if ( -not($string) )
+    {
+        $string = Parse-Changelog ($PSScriptRoot + '\..\' + 'CHANGELOG.md')
+    }
+
+    # Add build number, if AppVeyor is present
+    if ( $Env:APPVEYOR -eq 'True' )
+    {
+        $string = $string + '.' + $Env:APPVEYOR_BUILD_NUMBER
+    }
+
+    # Remove starting 'v' characters
+    $string = $string -replace '^v+','' # normalize version string
+
+    return $string
+
+}
+
+function Parse-Changelog($file) {
 
 	# Define the regular expression to match the version string from changelog
 	[regex]$regex = '^## \[(?<version>[\w\-\.]+)\]\([^\n()]+\)\s+\([^\n()]+\)$';
@@ -75,7 +113,7 @@ function Get-VersionStr($file) {
 
 function Create-RC($string, $path) {
 
-	$version  = $string + '.0.0.0.0' # padding for version string
+    $version  = $string + '.0.0.0.0' # padding for version string
 
 	if ( !(Test-Path "$path.sample") ) {
 		throw "Invalid path provided for resources file."
