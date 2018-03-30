@@ -126,6 +126,9 @@ if($Compile) {
     }
     else {
         Write-Verbose "successfully built Cmder v$version!"
+        if ( $Env:APPVEYOR -eq 'True' ) {
+            Add-AppveyorMessage -Message "Building Cmder v$version was successfull." -Category Information
+        }
     }
     Pop-Location
 } else {
