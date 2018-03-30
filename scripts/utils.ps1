@@ -102,42 +102,42 @@ function Get-VersionStr() {
 
 function Parse-Changelog($file) {
 
-	# Define the regular expression to match the version string from changelog
-	[regex]$regex = '^## \[(?<version>[\w\-\.]+)\]\([^\n()]+\)\s+\([^\n()]+\)$';
+    # Define the regular expression to match the version string from changelog
+    [regex]$regex = '^## \[(?<version>[\w\-\.]+)\]\([^\n()]+\)\s+\([^\n()]+\)$';
 
-	# Find the first match of the version string which means the latest version
-	$version = Select-String -Path $file -Pattern $regex | Select-Object -First 1 | % { $_.Matches.Groups[1].Value }
+    # Find the first match of the version string which means the latest version
+    $version = Select-String -Path $file -Pattern $regex | Select-Object -First 1 | % { $_.Matches.Groups[1].Value }
 
-	return $version
+    return $version
 }
 
 function Create-RC($string, $path) {
 
     $version  = $string + '.0.0.0.0' # padding for version string
 
-	if ( !(Test-Path "$path.sample") ) {
-		throw "Invalid path provided for resources file."
-	}
+    if ( !(Test-Path "$path.sample") ) {
+        throw "Invalid path provided for resources file."
+    }
 
-	$resource = Get-Content -Path "$path.sample"
-	$pattern  = @( "Cmder-Major-Version", "Cmder-Minor-Version", "Cmder-Revision-Version", "Cmder-Build-Version" )
-	$index    = 0
+    $resource = Get-Content -Path "$path.sample"
+    $pattern  = @( "Cmder-Major-Version", "Cmder-Minor-Version", "Cmder-Revision-Version", "Cmder-Build-Version" )
+    $index    = 0
 
-	# Replace all non-numeric characters to dots and split to array
-	$version = $version -replace '[^0-9]+','.' -split '\.'
+    # Replace all non-numeric characters to dots and split to array
+    $version = $version -replace '[^0-9]+','.' -split '\.'
 
-	foreach ($fragment in $version) {
-		if ( !$fragment ) { break }
-		elseif ($index -le $pattern.length) {
-			$resource = $resource.Replace( "{" + $pattern[$index++] + "}", $fragment )
-		}
-	}
-	
-	# Add the version string
-	$resource = $resource.Replace( "{Cmder-Version-Str}", '"' + $string + '"' )
+    foreach ($fragment in $version) {
+        if ( !$fragment ) { break }
+        elseif ($index -le $pattern.length) {
+            $resource = $resource.Replace( "{" + $pattern[$index++] + "}", $fragment )
+        }
+    }
+    
+    # Add the version string
+    $resource = $resource.Replace( "{Cmder-Version-Str}", '"' + $string + '"' )
 
-	# Write the results
-	Set-Content -Path $path -Value $resource
+    # Write the results
+    Set-Content -Path $path -Value $resource
 
 }
 
