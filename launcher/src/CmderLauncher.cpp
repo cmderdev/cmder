@@ -217,12 +217,13 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			swprintf_s(args, L"%s /single /Icon \"%s\" /Title Cmder /dir \"%s\"", args, icoPath, cmderStart.c_str());
 		}
 	}
-	else
-	{
-		swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\"", icoPath, path.c_str());
-	}
-	if (!taskName.empty()) {
-		swprintf_s(args, L"%s /run {%s}", args, taskName.c_str());
+	else {
+		if (!streqi(cmderTask.c_str(), L"")) {
+			swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\" /run {%s}", icoPath, cmderStart.c_str(), cmderTask.c_str());
+		}
+		else {
+			swprintf_s(args, L"%s /Icon \"%s\" /Title Cmder /dir \"%s\"", args, icoPath, cmderStart.c_str());
+		}
 	}
 
 	// Environment Variables are not a reliable method of communicating between processes. Registry seems like a better choice:
