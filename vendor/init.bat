@@ -287,11 +287,6 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 if not defined HOME set "HOME=%USERPROFILE%"
 %lib_console% debug-output init.bat "Env Var - HOME=%HOME%"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 9f870b5678910db6640821f81f30b9d001c7ec13
 :: Move to the correct location. This checks first for a registry key set by cmder.exe, but will also fall back on environment variables.
 set KEY_NAME="HKEY_CURRENT_USER\SOFTWARE\cmder"
 set VALUE_NAME=CMDER_START
@@ -314,8 +309,6 @@ if defined CMDER_START_REGISTRY (
     )
 )
 
-
->>>>>>> #420 and #577 - use registry for CMDER_START
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
     call "%CMDER_ROOT%\config\user-profile.cmd"
