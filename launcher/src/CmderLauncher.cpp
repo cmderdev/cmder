@@ -217,8 +217,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			swprintf_s(args, L"%s /single /Icon \"%s\" /Title Cmder /dir \"%s\"", args, icoPath, cmderStart.c_str());
 		}
 	}
-	else
-	{
+	else {
 		if (!streqi(cmderTask.c_str(), L"")) {
 			swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\" /run {%s}", icoPath, cmderStart.c_str(), cmderTask.c_str());
 		}
@@ -227,14 +226,16 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		}
 	}
 
-	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	if (wcscmp(userConfigDirPath, configDirPath) != 0)
+	// Environment Variables are not a reliable method of communicating between processes. Registry seems like a better choice:
+	HKEY cmderStartRegistryKey;
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\cmder", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &cmderStartRegistryKey, 0) == ERROR_SUCCESS)
 	{
-		SetEnvironmentVariable(L"CMDER_USER_CONFIG", userConfigDirPath);
-		SetEnvironmentVariable(L"CMDER_USER_BIN", userBinDirPath);
+		RegSetValueEx(cmderStartRegistryKey, L"CMDER_START", 0, REG_SZ, (const BYTE*)path.c_str(), path.size() * 2);
+		RegCloseKey(cmderStartRegistryKey);
 	}
-
-	// Ensure EnvironmentVariables are propagated.
+	else {
+		MessageBox(NULL, _T("Error trying to set CMDER_START in registry!"), _T("Error"), MB_OK);
+	}
 
 	STARTUPINFO si = { 0 };
 
