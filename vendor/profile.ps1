@@ -88,8 +88,6 @@ function checkGit($Path) {
     }
 }
 
-<<<<<<< HEAD
-=======
 # Move to the wanted location
 # This is either a env variable set by the user or the result of
 # cmder.exe setting this variable due to a commandline argument or a "cmder here"
@@ -116,11 +114,6 @@ if ( $cmderStart ) {
     Set-Location -Path "${env:HOME}"
 }
 
-
-<<<<<<< HEAD
->>>>>>> #420 and #577 - use registry for CMDER_START
-=======
->>>>>>> 9f870b5678910db6640821f81f30b9d001c7ec13
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     Set-PSReadlineOption -ExtraPromptLineCount 1
 }
