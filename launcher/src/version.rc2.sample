@@ -1,0 +1,27 @@
+
+/**
+ * WARNING: do NOT modify this file! the content of this file should be
+ *          automatically genereted before AppVeyor builds using the
+ *          respective .ps1 Powershell scripts.
+ *
+ */
+
+/////////////////////////////////////////////////////////////////////////////
+// Define the version numbers and build information manually here:
+
+#define CMDER_MAJOR_VERSION         {Cmder-Major-Version}
+#define CMDER_MINOR_VERSION         {Cmder-Minor-Version}
+#define CMDER_REVISION_VERSION      {Cmder-Revision-Version}
+#define CMDER_BUILD_VERSION         {Cmder-Build-Version}
+#define CMDER_VERSION_STR           {Cmder-Version-Str}
+
+#define CMDER_PRODUCT_NAME_STR      "Cmder"
+#define CMDER_FILE_DESCRIPTION_STR  "Cmder: Lovely Console Emulator."
+#define CMDER_INTERNAL_NAME_STR     "Cmder"
+#define CMDER_ORIGINAL_FILENAME_STR "Cmder.exe"
+#define CMDER_COMPANY_NAME_STR      "Samuel Vasko"
+#define CMDER_COPYRIGHT_YEAR_STR    "2016"
+
+#define CMDER_DEBUGFLAG             0x0L  // set to 0x1L to enable debug mode
+#define CMDER_BUILDFLAGS            0x0L
+/////////////////////////////////////////////////////////////////////////////
