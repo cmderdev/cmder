@@ -14,7 +14,7 @@ function runProfiled {
 
   if [ ! "x${profile_d_scripts}" = "x" ] ; then
     for x in ${profile_d_scripts} ; do
-      echo Sourcing "${1}/${x}"...
+      # echo Sourcing "${1}/${x}"...
       . "${1}/${x}"
     done
   fi
@@ -63,21 +63,21 @@ if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
   runProfiled  "${CMDER_USER_CONFIG}/profile.d"
 fi
 
+initialConfig="${CMDER_ROOT}/config/user-profile.sh"
 if [ -f "${CMDER_ROOT}/config/user-profile.sh" ] ; then
     . "${CMDER_ROOT}/config/user-profile.sh"
 fi
 
-if [ -f "${CMDER_USER_CONFIG}/user-profile.sh" ] ; then
+if [ "${CMDER_USER_CONFIG}" != "" ] ; then
+  initialConfig="${CMDER_USER_CONFIG}/user-profile.sh"
+  if [ -f "${CMDER_USER_CONFIG}/user-profile.sh" ] ; then
     . "${CMDER_USER_CONFIG}/user-profile.sh"
-else
-    if [ "${CMDER_USER_CONFIG}" != "" ] ; then
-      initialProfile="${CMDER_USER_CONFIG}/user-profile.sh"
-    else
-      initialProfile="${CMDER_ROOT}/config/user-profile.sh"
-    fi
+  fi
+fi
 
-    echo Creating user startup file: "${initialProfile}"
-    cat <<-eof >"${initialProfile}"
+if [ ! -f "${initialConfig}" ] ; then
+    echo Creating user startup file: "${initialConfig}"
+    cat <<-eof >"${initialCodfig}"
 # use this file to run your own startup commands for msys2 bash'
 
 # To add a new vendor to the path, do something like:
