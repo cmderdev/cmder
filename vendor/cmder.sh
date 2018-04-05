@@ -4,7 +4,7 @@
 # these customizations will follow Cmder if $CMDER_ROOT is copied
 # to another machine.
 #
-# Add system specific users customizations to $HOME/.bashrc, these 
+# Add system specific users customizations to $HOME/.bashrc, these
 # customizations will not follow Cmder to another machine.
 
 function runProfiled {
@@ -77,7 +77,7 @@ fi
 
 if [ ! -f "${initialConfig}" ] ; then
     echo Creating user startup file: "${initialConfig}"
-    cat <<-eof >"${initialCodfig}"
+    cat <<-eof >"${initialConfig}"
 # use this file to run your own startup commands for msys2 bash'
 
 # To add a new vendor to the path, do something like:
