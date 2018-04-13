@@ -302,8 +302,8 @@ if defined CMDER_USER_CONFIG (
 )
 
 if not exist "%initialConfig%" (
-    (
     echo Creating user startup file: "%initialConfig%"
+    (
 echo :: use this file to run your own startup commands
 echo :: use  in front of the command to prevent printing the command
 echo.
