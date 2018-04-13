@@ -46,7 +46,7 @@ exit /b
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        %lib_console% debug-output :reda_version "%git_executable% does not exist."
+        %lib_console% debug-output :read_version "%git_executable% does not exist."
         exit /b -255
     )
 
