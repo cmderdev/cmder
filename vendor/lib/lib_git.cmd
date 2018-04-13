@@ -45,17 +45,20 @@ exit /b
     %lib_console% debug-output :read_version "Env Var - git_executable=%git_executable%"
 
     :: check if the executable actually exists
-    if exist "%git_executable%" (
-        :: get the git version in the provided directory
-        for /F "tokens=1,2,3 usebackq" %%A in (`"%git_executable%" --version 2^>nul`) do (
-            if /i "%%A %%B" == "git version" (
-                set "GIT_VERSION_%~1=%%C"
-                %lib_console% debug-output :read_version "Env Var - GIT_VERSION_%~1=%%C"
-            ) else (
-                %lib_console% show_error "git --version" returned an inproper version string!
-                pause
-                exit /b
-            )
+    if not exist "%git_executable%" (
+        %lib_console% debug-output :reda_version "%git_executable% does not exist."
+        exit /b -255
+    )
+
+    :: get the git version in the provided directory
+    for /F "tokens=1,2,3 usebackq" %%A in (`"%git_executable%" --version 2^>nul`) do (
+        if /i "%%A %%B" == "git version" (
+            set "GIT_VERSION_%~1=%%C"
+            %lib_console% debug-output :read_version "Env Var - GIT_VERSION_%~1=%%C"
+        ) else (
+            %lib_console% show_error "git --version" returned an inproper version string!
+            pause
+            exit /b
         )
     )
 
