@@ -76,5 +76,4 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     echo ERROR: %~1
-    echo CMDER Shell Initialization has Failed!
     exit /b
