@@ -69,6 +69,19 @@ for /f "delims== tokens=1,2 usebackq" %%G in (`echo "%_x%"`) do (
   set alias_value=%%H
 )
 
+:: create with multiple parameters
+if [%1] == [] and [%2] == [] (
+  set _x=%1=%2
+  :: if command create was submitted
+  if [%1] == "create" and [%3] (
+    set _x=%2=%3
+  )
+  for /f "delims== tokens=1,* usebackq" %%G in (`echo "%_x%"`) do (
+    set alias_name=%%G
+    set alias_value=%%H
+  )
+)
+
 :: leading quotes added while validating
 set alias_name=%alias_name:~1%
 
@@ -114,12 +127,14 @@ echo.
 echo.	alias [options] [alias=full command]
 echo. 
 echo.Options:
-echo. 
-echo.     /d [alias]     Delete an [alias].
-echo.     /f [macrofile] Path to the [macrofile] you want to store the new alias in.
-echo.                    Default: %cmder_root%\config\user-aliases.cmd
-echo.     /reload        Reload the aliases file.  Can be used with /f argument.
-echo.                    Default: %cmder_root%\config\user-aliases.cmd
+echo.
+echo.     [alias=command] Create an [alias].
+echo.                     Multiple parameter syntax: create [alias] [full command]
+echo.     /d [alias]      Delete an [alias].
+echo.     /f [macrofile]  Path to the [macrofile] you want to store the new alias in.
+echo.                     Default: %cmder_root%\config\user-aliases.cmd
+echo.     /reload         Reload the aliases file.  Can be used with /f argument.
+echo.                     Default: %cmder_root%\config\user-aliases.cmd
 echo.
 echo.	If alias is called with no parameters, it will display the list of existing aliases.
 echo.
