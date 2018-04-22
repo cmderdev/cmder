@@ -334,6 +334,7 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	HKEY cmderKey;
 	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
+	RegDeleteKeyEx(root, keyBaseName, KEY_ALL_ACCESS, NULL);
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
 }

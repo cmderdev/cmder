@@ -140,7 +140,7 @@ popd
 
 # Drop *.ps1 files into "$ENV:CMDER_USER_CONFIG\config\profile.d"
 # to source them at startup.  Requires using cmder.exe /C [cmder_user_root_path] argument
-if ($ENV:CMDER_USER_CONFIG -ne "" -and -not (test-path "$ENV:CMDER_USER_CONFIG\profile.d")) {
+if ($ENV:CMDER_USER_CONFIG -ne "" -and (test-path "$ENV:CMDER_USER_CONFIG\profile.d")) {
     pushd $ENV:CMDER_USER_CONFIG\profile.d
     foreach ($x in Get-ChildItem *.ps1) {
       # write-host write-host Sourcing $x
