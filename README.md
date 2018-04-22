@@ -309,7 +309,7 @@ In the `plugins` array, you can add `'hyperterm-monokai'`, `'hyper-tab-icons'` a
 
 Here's a demo of Cmder on Hyper:
 
-![Cmder on Hyper](https://i.imgur.com/dCFqcnF.png)
+<img src="https://i.imgur.com/dCFqcnF.png" width="500" alt="Cmder on Hyper" />
 
 ## Upgrading
 
