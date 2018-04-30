@@ -290,14 +290,14 @@ if not defined HOME set "HOME=%USERPROFILE%"
 set "initialConfig=%CMDER_ROOT%\config\user-profile.cmd"
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
-    call "%CMDER_ROOT%\config\user-profile.cmd"
+    call "%CMDER_ROOT%\config\user-profile.cmd" %*
 )
 
 if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user-profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user-profile.cmd" (
       REM Create this file and place your own command in there
-      call "%CMDER_USER_CONFIG%\user-profile.cmd"
+      call "%CMDER_USER_CONFIG%\user-profile.cmd" %*
   )
 )
 
