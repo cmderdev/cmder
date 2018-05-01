@@ -10,6 +10,7 @@
 set verbose-output=0
 set debug-output=0
 set max_depth=1
+set "CMDER_FLAGS="
 
 :: Find root dir
 if not defined CMDER_ROOT (
@@ -80,8 +81,9 @@ call "%cmder_root%\vendor\lib\lib_profile"
     ) else if /i "%1" == "/svn_ssh" (
         set SVN_SSH=%2
         shift
+    ) else (
+      set "CMDER_FLAGS=%CMDER_FLAGS% %1"
     )
-    set "CMDER_FLAGS=%CMDER_FLAGS% %1"
     shift
 goto var_loop
 
@@ -318,7 +320,14 @@ echo.
 echo :: you can add your plugins to the cmder path like so
 echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
 echo.
-echo :: pass your custom arguments to init.bat, and you can parse them like so
+echo :: Pass custom arguments to init.bat, and you can parse them like so:
+echo :: If found...
+echo :: echo %* | find /i "/noautorun">nul
+echo :: if "%ERRORLEVEL%" == "0" (
+echo ::   call vsCode
+echo :: )
+echo.
+echo :: If NOT found...
 echo :: echo %* | find /i "/noautorun">nul
 echo :: if "%ERRORLEVEL%" == "1" (
 echo ::   call vsCode
