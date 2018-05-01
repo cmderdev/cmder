@@ -64,7 +64,9 @@
   - Post a screenshot or the command the triggered the problem, if applicable.
   - Avoid using ambiguous phrases like: doesn't work, there'a problem, etc.
     Help us reproduce the issue by explaining what went wrong, and what did you expect to happen.
-  - Read the following page to avoid posting a bad issue: https://conemu.github.io/en/BadIssue.html
+  - We at Cmder only understand the English language.
+    Please avoid posting your issue in Russian and Chinese as we can't understand them.
+  - ⚠ Read the following page to avoid posting a bad issue: https://conemu.github.io/en/BadIssue.html
 -->
 
 ### Purpose of the issue
@@ -73,4 +75,4 @@
 - [ ] Question
 
 ### Description of the issue 
-
+<!-- Provide a clear, simple description of your issue here -->
