@@ -251,65 +251,7 @@ Cmder by default comes with a vendored ConEmu installation as the underlying ter
 
 However, Cmder can in fact run in a variety of other terminal emulators, and even integrated IDEs. Assuming you have the latest version of Cmder, follow the following instructions to get Cmder working with your own terminal emulator.
 
-#### VS Code Terminal
-To run Cmder as the VS Code terminal, you may follow these steps:
-
-1. In the **Visual Studio Code** environment, press <kbd>Ctrl + ,</kbd> (Control-Comma) to open the _Preferences_ → _User Settings_.
-2. Append or modify the following variables into your configuration file:
-
-```
-  "terminal.integrated.shell.windows": "cmd.exe",
-
-  "terminal.integrated.shellArgs.windows": [
-      "/k", "[cmder_root]\\vendor\\init.bat"
-  ],
-```
-
-(Substitude `[cmder_root]` with your Cmder installation directory.)
-
-3. Press <kbd>Ctrl + `</kbd> (Control-Tilde) to open VS Code's terminal.
-   You may now use Cmder with VS Code.
-
-For more information/issues, read our [guide](https://github.com/cmderdev/cmder/issues/1704). Here's a [demo](https://imgur.com/RKN3Avl).
-
-#### Android Studio, PHPStorm and other IntelliJ-based IDEs
-To run Cmder as any IntelliJ-based IDEs, you may follow these steps:
-
-1. Create a new `cmder_shell.bat` file in your Cmder installation directory, with the following contents:
-`@cmd.exe /k %0\..\vendor\init.bat`
-
-2. In your IDE environment, press <kbd>Ctrl + Alt + S</kbd> and type `terminal` in the search box.
-3. In the **Shell path**, change _cmd.exe_ to the following:
-`[cmder_root]\cmder_shell.bat`
-
-(Substitude `[cmder_root]` with your Cmder installation directory.)
-
-4. Press <kbd>Alt + F12</kbd> to open the IDE's terminal with Cmder.
-
-For more information/issues and a demo, read our guide [here](https://github.com/cmderdev/cmder/issues/282) and [here](https://github.com/cmderdev/cmder/issues/1267).
-
-#### Hyper
-Hyper is new type of terminal emulator, built with web-technologies and can be used as an alternative to ConEmu as ther terminal emulator.  To run Cmder with Hyper instead of ConEmu, follow these steps:
-
-1. If you're not using a recent version of Hyper, update to the latest version.
-1. In your **Hyper** terminal environment, press <kbd>Ctrl + ,</kbd> (Control-Comma) to open the _Preferences_ config file.  Alternatively, you may edit the file from `%userprofile%\.hyper.js` with your favorite text editor.
-3. Navigate to the near end of the configuration file, find and modify these vriables according to the values provided here:
-
-```
-    shell: 'cmd.exe',
-    shellArgs: ['/k', '[cmder_root]\\vendor\\init.bat'],
-    env: { 'TERM':'cygwin' }, // required for git-for-windows
-```
-
-(Substitude `[cmder_root]` with your Cmder installation directory.)
-
-**Recommended Optional Steps:**
-
-In the `plugins` array, you can add `'hyperterm-monokai'`, `'hyper-tab-icons'` and `'hyper-statusline'` plugins to use the monokai color scheme and get a more Cmder-like user interface.
-
-Here's a demo of Cmder on Hyper:
-
-<img src="https://i.imgur.com/dCFqcnF.png" width="500" alt="Cmder on Hyper" />
+For instructions on how to integrate Cmder with your IDE, please read our [Wiki section](https://github.com/cmderdev/cmder/wiki#cmder-integration).
 
 ## Upgrading
 
