@@ -81,6 +81,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
         set SVN_SSH=%2
         shift
     )
+    set "CMDER_FLAGS=%CMDER_FLAGS% %1"
     shift
 goto var_loop
 
@@ -290,14 +291,14 @@ if not defined HOME set "HOME=%USERPROFILE%"
 set "initialConfig=%CMDER_ROOT%\config\user-profile.cmd"
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
-    call "%CMDER_ROOT%\config\user-profile.cmd" %*
+    call "%CMDER_ROOT%\config\user-profile.cmd" %CMDER_FLAGS%
 )
 
 if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user-profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user-profile.cmd" (
       REM Create this file and place your own command in there
-      call "%CMDER_USER_CONFIG%\user-profile.cmd" %*
+      call "%CMDER_USER_CONFIG%\user-profile.cmd" %CMDER_FLAGS%
   )
 )
 
@@ -316,6 +317,12 @@ echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
 echo.
 echo :: you can add your plugins to the cmder path like so
 echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
+echo.
+echo :: pass your custom arguments to init.bat, and you can parse them like so
+echo :: echo %* | find /i "/noautorun">nul
+echo :: if "%ERRORLEVEL%" == "1" (
+echo ::   call vsCode
+echo :: )
 echo.
 echo @echo off
 ) >"%initialConfig%"
