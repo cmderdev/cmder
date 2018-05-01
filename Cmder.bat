@@ -1,7 +1,7 @@
 @echo off
 SET CMDER_ROOT=%~dp0
 
-:: Remove trailing '\'
+:: Remove Trailing '\'
 @if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
 
 if exist "%~1" (

@@ -2,7 +2,8 @@ launcher
 .gitignore
 .gitattributes
 .git
-*.rb
+.github
+*.md
 build
 scripts
 config\.history

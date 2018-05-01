@@ -1,8 +1,8 @@
 @echo off
 
 
-if "%aliases%" == "" (
-  set ALIASES=%CMDER_ROOT%\config\user-aliases.cmd
+if "%ALIASES%" == "" (
+  set ALIASES="%CMDER_ROOT%\config\user-aliases.cmd"
 )
 
 setlocal enabledelayedexpansion
@@ -21,7 +21,7 @@ goto parseargument
   set currentarg=%~1
 
   if /i "%currentarg%" equ "/f" (
-    set aliases=%~2
+    set ALIASES=%~2
     shift
     goto :do_shift
   ) else if /i "%currentarg%" == "/reload" (
@@ -50,21 +50,21 @@ goto parseargument
   )
 rem #endregion parseargument
 
-if "%aliases%" neq "%CMDER_ROOT%\config\user-aliases.cmd" (
-  set _x=!_x:/f %aliases% =!
+if "%ALIASES%" neq "%CMDER_ROOT%\config\user-aliases.cmd" (
+  set _x=!_x:/f "%ALIASES%" =!
 
-  if not exist "%aliases%" (
-    echo ;= @echo off>"%aliases%"
-    echo ;= rem Call DOSKEY and use this file as the macrofile>>"%aliases%"
-    echo ;= %%SystemRoot%%\system32\doskey /listsize=1000 /macrofile=%%0%%>>"%aliases%"
-    echo ;= rem In batch mode, jump to the end of the file>>"%aliases%"
-    echo ;= goto:eof>>"%aliases%"
-    echo ;= Add aliases below here>>"%aliases%"
+  if not exist "%ALIASES%" (
+    echo ;= @echo off>"%ALIASES%"
+    echo ;= rem Call DOSKEY and use this file as the macrofile>>"%ALIASES%"
+    echo ;= %%SystemRoot%%\system32\doskey /listsize=1000 /macrofile=%%0%%>>"%ALIASES%"
+    echo ;= rem In batch mode, jump to the end of the file>>"%ALIASES%"
+    echo ;= goto:eof>>"%ALIASES%"
+    echo ;= Add aliases below here>>"%ALIASES%"
   )
 )
 
 :: validate alias
-for /f "delims== tokens=1,2 usebackq" %%G in (`echo "%_x%"`) do (
+for /f "delims== tokens=1,* usebackq" %%G in (`echo "%_x%"`) do (
   set alias_name=%%G
   set alias_value=%%H
 )
@@ -96,7 +96,7 @@ set del_alias=%~1
 findstr /b /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
 type "%ALIASES%".tmp > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey %del_alias%=
-doskey /macrofile=%ALIASES%
+doskey /macrofile="%ALIASES%"
 goto:eof
 
 :p_reload
@@ -110,11 +110,11 @@ exit /b
 
 :p_help
 echo.Usage:
-echo. 
+echo.
 echo.	alias [options] [alias=full command]
-echo. 
+echo.
 echo.Options:
-echo. 
+echo.
 echo.     /d [alias]     Delete an [alias].
 echo.     /f [macrofile] Path to the [macrofile] you want to store the new alias in.
 echo.                    Default: %cmder_root%\config\user-aliases.cmd

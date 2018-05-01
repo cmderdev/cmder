@@ -68,6 +68,9 @@ $ErrorActionPreference = "Stop"
 Push-Location -Path $saveTo
 $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
 
+# Get the version string
+$version = Get-VersionStr
+
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
@@ -120,9 +123,16 @@ Pop-Location
 
 if($Compile) {
     Push-Location -Path $launcher
-    msbuild CmderLauncher.vcxproj /p:configuration=Release
+    Create-RC $version ($launcher + '\src\version.rc2');
+    msbuild CmderLauncher.vcxproj /t:Clean,Build /p:configuration=Release
     if ($LastExitCode -ne 0) {
         throw "msbuild failed to build the executable."
+    }
+    else {
+        Write-Verbose "successfully built Cmder v$version!"
+        if ( $Env:APPVEYOR -eq 'True' ) {
+            Add-AppveyorMessage -Message "Building Cmder v$version was successful." -Category Information
+        }
     }
     Pop-Location
 } else {

@@ -4,8 +4,22 @@
 # these customizations will follow Cmder if $CMDER_ROOT is copied
 # to another machine.
 #
-# Add system specific users customizations to $HOME/.bashrc, these 
+# Add system specific users customizations to $HOME/.bashrc, these
 # customizations will not follow Cmder to another machine.
+
+function runProfiled {
+  unset profile_d_scripts
+  pushd "${1}" >/dev/null
+  profile_d_scripts=$(ls *.sh 2>/dev/null)
+
+  if [ ! "x${profile_d_scripts}" = "x" ] ; then
+    for x in ${profile_d_scripts} ; do
+      # echo Sourcing "${1}/${x}"...
+      . "${1}/${x}"
+    done
+  fi
+  popd >/dev/null
+}
 
 # We do this for bash as admin sessions since $CMDER_ROOT is not being set
 if [ "$CMDER_ROOT" == "" ] ; then
@@ -38,28 +52,32 @@ export PATH
 # Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
 # to source them at startup.
 if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
-  mkdir -p ${CMDER_ROOT}/config/profile.d
+  mkdir -p "${CMDER_ROOT}/config/profile.d"
 fi
 
 if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
-  unset profile_d_scripts
-  pushd ${CMDER_ROOT}/config/profile.d >/dev/null
-  profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh 2>/dev/null)
-
-  if [ ! "x${profile_d_scripts}" = "x" ] ; then
-    for x in ${profile_d_scripts} ; do
-      # echo Sourcing "${x}"...
-      . $x
-    done
-  fi
-  popd >/dev/null
+  runProfiled  "${CMDER_ROOT}/config/profile.d"
 fi
 
-if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
-    . ${CMDER_ROOT}/config/user-profile.sh
-else
-    echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
-    cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
+if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
+  runProfiled  "${CMDER_USER_CONFIG}/profile.d"
+fi
+
+initialConfig="${CMDER_ROOT}/config/user-profile.sh"
+if [ -f "${CMDER_ROOT}/config/user-profile.sh" ] ; then
+    . "${CMDER_ROOT}/config/user-profile.sh"
+fi
+
+if [ "${CMDER_USER_CONFIG}" != "" ] ; then
+  initialConfig="${CMDER_USER_CONFIG}/user-profile.sh"
+  if [ -f "${CMDER_USER_CONFIG}/user-profile.sh" ] ; then
+    . "${CMDER_USER_CONFIG}/user-profile.sh"
+  fi
+fi
+
+if [ ! -f "${initialConfig}" ] ; then
+    echo Creating user startup file: "${initialConfig}"
+    cat <<-eof >"${initialConfig}"
 # use this file to run your own startup commands for msys2 bash'
 
 # To add a new vendor to the path, do something like:

@@ -22,6 +22,25 @@
 # # from outside Cmder.
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 
+function runProfiled {
+  unset profile_d_scripts
+  pushd "${1}" >/dev/null
+
+  if [ ! "x${ZSH_VERSION}" = "x"  ]; then
+    profile_d_scripts=$(ls *.zsh 2>/dev/null)
+  elif [ ! "x${BASH_VERSION}" = "x"  ]; then
+    profile_d_scripts=$(ls *.sh 2>/dev/null)
+  fi
+
+  if [ ! "x${profile_d_scripts}" = "x" ] ; then
+    for x in ${profile_d_scripts} ; do
+      echo Sourcing "${1}/${x}"...
+      . "${1}/${x}"
+    done
+  fi
+  popd >/dev/null
+}
+
 # Check that we haven't already been sourced.
 [[ -z ${CMDER_EXINIT} ]] && CMDER_EXINIT="1" || return
 
@@ -51,32 +70,33 @@ if [ ! "$CMDER_ROOT" = "" ] ; then
   # Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
   # to source them at startup.
   if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
-    mkdir -p ${CMDER_ROOT}/config/profile.d
+    mkdir -p "${CMDER_ROOT}/config/profile.d"
   fi
   
   if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
-    unset profile_d_scripts
-    pushd ${CMDER_ROOT}/config/profile.d >/dev/null
-    if [ ! "x${ZSH_VERSION}" = "x"  ]; then
-      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.zsh 2>/dev/null)
-    elif [ ! "x${BASH_VERSION}" = "x"  ]; then
-      profile_d_scripts=$(ls ${CMDER_ROOT}/config/profile.d/*.sh 2>/dev/null)
-    fi
-  
-    if [ ! "x${profile_d_scripts}" = "x" ] ; then
-      for x in ${profile_d_scripts} ; do
-        # echo Sourcing "${x}"...
-        . $x
-      done
-    fi
-    popd >/dev/null
+    runProfiled  "${CMDER_ROOT}/config/profile.d"
   fi
   
-  if [ -f ${CMDER_ROOT}/config/user-profile.sh ] ; then
-    . ${CMDER_ROOT}/config/user-profile.sh
+  if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
+    runProfiled  "${CMDER_USER_CONFIG}/profile.d"
+  fi
+
+ 
+  if [ -f "${CMDER_ROOT}/config/user-profile.sh" ] ; then
+    . "${CMDER_ROOT}/config/user-profile.sh"
+  fi
+  
+  if [ -f "${CMDER_USER_CONFIG}/user-profile.sh" ] ; then
+      . "${CMDER_USER_CONFIG}/user-profile.sh"
   else
-    echo Creating user startup file: "${CMDER_ROOT}/config/user-profile.sh"
-    cat <<-eof >"${CMDER_ROOT}/config/user-profile.sh"
+      if [ "${CMDER_USER_CONFIG}" != "" ] ; then
+        initialProfile="${CMDER_USER_CONFIG}/user-profile.sh"
+      else
+        initialProfile="${CMDER_ROOT}/config/user-profile.sh"
+      fi
+  
+      echo Creating user startup file: "${initialProfile}"
+    cat <<-eof >"${initialProfile}"
 # use this file to run your own startup commands for msys2 bash'
 
 # To add a new vendor to the path, do something like:
