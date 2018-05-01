@@ -197,15 +197,15 @@ if defined GIT_INSTALL_ROOT (
     ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
         %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64" append
     )
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
+    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" append
 
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
 
 :NO_GIT
-endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-%lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=!GIT_INSTALL_ROOT!"
+%lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=!GIT_INSTALL_ROOT!"
 
 :: Enhance Path
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
