@@ -94,7 +94,7 @@ foreach ($s in $sources) {
     if ((test-path $s.name) -eq $false) {
       write-host $("Downloading '" + $s.url + "' to '" + $vend + "\" + $tempArchive + "'...")
       Download-File -Url $s.url -File $vend\$tempArchive -ErrorAction Stop
-      
+
       write-host $("Extracting '" + $vend + "\" + $tempArchive + "' to '" + $s.name + "'...")
       Extract-Archive $tempArchive $s.name
 
@@ -108,7 +108,7 @@ foreach ($s in $sources) {
             if (-not (test-path $bash_shared_aliases)) {
               "# this is a shared aliases for the bash shell" | out-file $bash_shared_aliases -Encoding ASCII
             }
-  
+
             $aliases = get-content $bash_shared_aliases
             $new_alias = $( "alias " + $shared_alias.name + "='" + $shell.value + "'")
             if ($aliases -notcontains $new_alias) {
@@ -125,7 +125,7 @@ foreach ($s in $sources) {
               ";= set aliases=%cmder_root%\config\profile.d\shared-aliases.cmd" | out-file -Encoding ASCII -append $cmder_shared_aliases
               ";= goto :eof" | out-file -Encoding ASCII -append $cmder_shared_aliases
             }
-  
+
             $aliases = get-content $cmder_shared_aliases
             $new_alias = $( $shared_alias.name + "=" + $shell.value)
             if ($aliases -notcontains $new_alias) {
@@ -137,7 +137,7 @@ foreach ($s in $sources) {
             if (-not (test-path $posh_shared_aliases)) {
               "# this is a shared aliases for Powershell" | out-file $posh_shared_aliases
             }
-            
+
             $aliases = get-content $posh_shared_aliases
             $new_alias = $( "new-alias " + $shared_alias.name + " '" + $($shell.value -replace "/","\") + "' -erroraction silentlycontinue")
             if ($aliases -notcontains $new_alias) {
@@ -148,14 +148,14 @@ foreach ($s in $sources) {
           }
         }
       }
-  
+
       foreach ($shared_profile in $s.shared_profile.psobject.properties) {
         foreach ($shell in $shared_profile.value.psobject.properties) {
           if ($shell.name -eq "sh") {
             if (-not (test-path $bash_shared_profile)) {
               "# this is a shared profile for the bash shell" | out-file $bash_shared_profile -Encoding ASCII
             }
-  
+
             $profile_lines = get-content $bash_shared_profile
             if ($profile_lines -notcontains $shell.value) {
               write-host $("`nWriting to '" + $bash_shared_profile + "'")
@@ -166,7 +166,7 @@ foreach ($s in $sources) {
             if (-not (test-path $cmder_shared_profile)) {
               "REM this is a shared profile for the cmd shell" | out-file $cmder_shared_profile -Encoding ASCII
             }
-  
+
             $profile_lines = get-content $cmder_shared_profile
             if ($profile_lines -notcontains $shell.value) {
               write-host $("`nWriting to '" + $cmder_shared_profile + "'")
@@ -177,7 +177,7 @@ foreach ($s in $sources) {
             if (-not (test-path $posh_shared_profile)) {
               "# this is a shared profile for Powershell" | out-file $posh_shared_profile
             }
-            
+
             $profile_lines = get-content $posh_shared_profile
             if ($profile_lines -notcontains $shell.value) {
               write-host $("`nWriting to '" + $posh_shared_profile + "'")
@@ -187,7 +187,7 @@ foreach ($s in $sources) {
           }
         }
       }
-  
+
       foreach ($post_command in $s.post_commands) {
         write-host $("`nRunning '" + $post_command + "'...")
         invoke-expression $post_command
