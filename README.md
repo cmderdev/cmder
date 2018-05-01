@@ -152,17 +152,6 @@ Single user portable configuration is possible using the cmder specific shell co
 
 Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file if it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
 
-### Cmder Shell User Config
-Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
-
-| Shell         | Cmder Portable User Config                |
-| ------------- | ----------------------------------------- |
-| Cmder         | %CMDER_ROOT%\\config\\user-profile.cmd    |
-| PowerShell    | $ENV:CMDER_ROOT\\config\\user-profile.ps1 |
-| Bash/Mintty   | $CMDER_ROOT/config/user-profile.sh        |
-
-Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file if it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
-
 You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CMDER_ROOT%\config\profile.d folder to add startup config to Cmder.
 
 | Shell         | Cmder 'Profile.d' Scripts                         |
