@@ -10,6 +10,8 @@ Cmder is a **software package** created out of pure frustration over absence of 
 
 The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
 
+The Cmder's user interface is also designed to be more eye pleasing, and you can compare the main differences between Cmder and ConEmu [here](https://conemu.github.io/en/cmder.html).
+
 ## Installation
 ### Single User Portable Config
 
@@ -79,7 +81,7 @@ In a file explorer window right click in or on a directory to see "Cmder Here" i
 * <kbd>Ctrl</kbd> + <kbd>R</kbd> : History search
 * <kbd>Shift</kbd> + Mouse : Select and copy text from buffer
 
-(Some shortcuts are not yet documented, though they exist - please document them here)
+_(Some shortcuts are not yet documented, though they exist - please document them here)_
 
 ## Features
 
@@ -88,7 +90,7 @@ You can open multiple tabs each containing one of the following shells:
 
 | Task                | Shell          | Description                                                                                                  |
 | ----                | -----          | -----------                                                                                                  |
-| Cmder               | cmd.exe        | Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink(GNU Readline), and Aliases.               |
+| Cmder               | cmd.exe        | Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink (GNU Readline), and Aliases.              |
 | Cmder as Admin      | cmd.exe        | Administrative Windows 'cmd.exe' Cmder shell.                                                                |
 | PowerShell          | powershell.exe | Windows PowerShell enhanced with Git and Git aware prompt .                                                  |
 | PowerShell as Admin | powershell.exe | Administrative Windows 'powershell.exe' Cmder shell.                                                         |
@@ -99,9 +101,13 @@ You can open multiple tabs each containing one of the following shells:
 
 Cmder, PowerShell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
 
-Mintty tabs use a program called 'mintty' as the terminal that is not based on the Windows Console API so some differences in functionality are normal, as a result mintty specific config is done via the '[%USERPROFILE%|$HOME]/.minttyrc' file.
+⚠ *NOTE:* Only the full edition of Cmder comes with a pre-installed bash, using a vendored [git-for-windows](https://gitforwindows.org/) installation. The pre-configured Bash tabs may not work on Cmder mini eidition without additional configuration.
 
-Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings. For more on Mintty and its config click [here](https://github.com/mintty/mintty).
+You may however, choose to use an external installation of bash, such as Microsoft's [Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (called WSL) or the [Cygwin](https://cygwin.com/) project which provides POSIX support on windows.
+
+⚠ *NOTE:* Mintty tabs use a program called 'mintty' as the terminal emulator that is not based on the Windows Console API, rather it's rendered graphically by ConEmu. Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings.  As such, some differences in functionality are to be expected, such as Cmder not being able to apply a system-wide configuration to it. 
+
+As a result mintty specific config is done via the '[%USERPROFILE%|$HOME]/.minttyrc' file.  You may read more about Mintty and its config file [here](https://github.com/mintty/mintty).
 
 An example of setting Cmder portable terminal colors for mintty:
 
@@ -113,6 +119,8 @@ git clone https://github.com/karlin/mintty-colors-solarized.git
 cd mintty-colors-solarized/
 echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-profile.sh
 ```
+
+You may find some Monokai color schemes for mintty to match Cmder [here](https://github.com/PhilipDaniels/mintty/blob/master/themes/Monokai) or [here](https://github.com/oumu/mintty-color-schemes/blob/master/base16-monokai-mod.minttyrc).
 
 ### Changing Cmder Default 'cmd.exe' Shell Startup Behaviour Using Task Arguments
 
@@ -211,7 +219,9 @@ Cmder is by default shipped with a vendored Git installation.  On each instance 
 
 You may use your favorite version of Git by including its path in the `%PATH%` enviroment variable.  Moreover, the **Mini** edition of Cmder (found on the [downloads page](https://github.com/cmderdev/cmder/releases)) excludes any vendored Git binaries.
 
-### Using external Cygwin/Babun, MSys2, or Git for Windows SDK with Cmder.
+### Using external Cygwin/Babun, MSys2, WSL, or Git for Windows SDK with Cmder.
+
+You may run bash (the default shell used on Linux, macOS and GNU/Hurd) externally on Cmder, using the following instructions:
 
 1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'.
 1. Click the '+' button to add a task.
@@ -219,7 +229,7 @@ You may use your favorite version of Git by including its path in the `%PATH%` e
 1. Provide task parameters, this is optional.
 1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console``` to the `Commands` text box.
 
-Recommended Optional Steps:
+**Recommended Optional Steps:**
 
 Copy the 'vendor/cmder_exinit' file to the Cygwin/Babun, MSys2, or Git for Windows SDK environments ```/etc/profile.d/``` folder to use portable settings in the $CMDER_ROOT/config folder.
 
@@ -236,9 +246,16 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
+### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs 
+Cmder by default comes with a vendored ConEmu installation as the underlying terminal emulator, as stated [here](https://conemu.github.io/en/cmder.html).
+
+However, Cmder can in fact run in a variety of other terminal emulators, and even integrated IDEs. Assuming you have the latest version of Cmder, follow the following instructions to get Cmder working with your own terminal emulator.
+
+For instructions on how to integrate Cmder with your IDE, please read our [Wiki section](https://github.com/cmderdev/cmder/wiki#cmder-integration).
+
 ## Upgrading
 
-The process of upgrading Cmder depends on the version/build you are currently running
+The process of upgrading Cmder depends on the version/build you are currently running.
 
 If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer version of Cmder, follow the below process: 
 
