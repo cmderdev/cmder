@@ -320,17 +320,15 @@ echo.
 echo :: you can add your plugins to the cmder path like so
 echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
 echo.
-echo :: Pass custom arguments to init.bat, and you can parse them like so:
-echo :: If found...
-echo :: echo %* | find /i "/noautorun">nul
-echo :: if "%ERRORLEVEL%" == "0" (
-echo ::   call vsCode
-echo :: )
+echo :: arguments in this batch are passed from init.bat, you can parse them like so:
 echo.
-echo :: If NOT found...
-echo :: echo %* | find /i "/noautorun">nul
-echo :: if "%ERRORLEVEL%" == "1" (
-echo ::   call vsCode
+echo :: echo %* | find /i "/customOption">nul
+echo :: if "%ERRORLEVEL%" == "0" (
+echo ::   echo found /customOption.
+echo ::   do something.
+echo :: ) else (
+echo ::   echo not found /customOption.
+echo ::   do something.
 echo :: )
 echo.
 echo @echo off
