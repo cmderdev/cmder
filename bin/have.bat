@@ -4,7 +4,7 @@ setlocal
 if "%~1" equ "" goto :wrongSyntax
 
 if not defined CMDER_USER_FLAGS (
-  exit /b
+  set "CMDER_USER_FLAGS= "
 )
 
 set "haveBatNOT=false"

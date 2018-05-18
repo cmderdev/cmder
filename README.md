@@ -294,7 +294,7 @@ And here's the related fragment of my `user-profile.cmd`:
 
 ```batch
 
-call have NOT "/noautorun" "cmd /c "start %cmder_root%\bin\vsCode\Code.exe --user-data-dir %vsCodeUserData% --extensions-dir %vsCodeExtensionsDir% %* %vsCodeUserData%\code.code-workspace"
+call have NOT "/noautorun" "cmd /c start %cmder_root%\bin\vsCode\Code.exe --user-data-dir %vsCodeUserData% --extensions-dir %vsCodeExtensionsDir% %* %vsCodeUserData%\code.code-workspace"
 
 ```
 
