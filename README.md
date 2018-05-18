@@ -236,14 +236,76 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
+### Handling with custom arguments when using init.bat
+
+You can pass custom arguments to `init.bat` and use `have.bat` (or `have` for shortcut) to detect it.
+
+It is useful when you have multiple modes to execute cmder.
+
+If you use
+
+```batch
+
+init.bat /startNotepad
+
+```
+
+to start init.bat with custom argument(`/startNotepad`) and put
+
+```batch
+
+call have "/startNotepad" "cmd /c start notepad.exe"`
+
+```
+
+into `/config/user-profile.cmd`, then `notepad.exe` will be executed, and once you use
+
+```batch
+
+init.bat
+
+```
+
+the `notepad.exe` won't be executed.
+
+Detailed usage of `have` can be seen by typing `have /?` in cmder.
+
+This feature is usually for external execution.
+
+In my case, I use `cmder` as an **entry point** of my portable working system,
+
+and I [integrated VSCode with cmder](https://github.com/cmderdev/cmder/wiki/Seamless-VS-Code-Integration), it will **automatic execute VSCode** when I use `cmder.exe` to start.
+
+And when using integrated console in VSCode, VSCode **won't be executed again** as I use
+
+```json
+
+"terminal.integrated.shellArgs.windows": [
+  "/k",
+  "%cmder_root%\\vendor\\init.bat",
+  "/noautorun"
+],
+
+```
+
+for `terminal.integrated.shellArgs.windows`,
+
+And here's the related fragment of my `user-profile.cmd`:
+
+```batch
+
+call have NOT "/noautorun" "cmd /c "start %cmder_root%\bin\vsCode\Code.exe --user-data-dir %vsCodeUserData% --extensions-dir %vsCodeExtensionsDir% %* %vsCodeUserData%\code.code-workspace"
+
+```
+
 ## Upgrading
 
 The process of upgrading Cmder depends on the version/build you are currently running
 
-If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer version of Cmder, follow the below process: 
+If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer version of Cmder, follow the below process:
 
 1. Exit all Cmder sessions and relaunch `[cmder_root]/cmder.exe`, this backs up your existing `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
-   
+
    * The `[cmder_root]/config/user-conemu.xml` contains any custom settings you have made using the 'Setup Tasks' settings dialog.
 
 2. Exit all Cmder sessions and backup any files you have manually edited under `[cmder_root]/vendor`.
@@ -253,7 +315,7 @@ If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer ver
 3.  Delete the `[cmder_root]/vendor` folder.
 4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
 
-If you do not have a `[cmder_root]/config/user-conemu.xml`, you are running an older version of cmder, follow the below process: 
+If you do not have a `[cmder_root]/config/user-conemu.xml`, you are running an older version of cmder, follow the below process:
 
 1. Exit all Cmder sessions and backup `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
 
