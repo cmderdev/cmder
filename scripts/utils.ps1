@@ -200,6 +200,8 @@ function Download-File {
         $Url,
         $File
     )
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    
     # I think this is the problem
     $File = $File -Replace "/", "\"
     Write-Verbose "Downloading from $Url to $File"
