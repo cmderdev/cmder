@@ -310,9 +310,10 @@ if not exist "%initialConfig%" (
 echo :: use this file to run your own startup commands
 echo :: use in front of the command to prevent printing the command
 echo.
-echo :: the next one lines is for "have" shortcut, a custom arguments handler
+echo :: the next two lines is for "%%flag_exists%%" shortcut, a custom arguments handler
 echo :: don't remove it if you need it
-echo set "CMDER_USER_FLAGS=%*"
+echo set "CMDER_USER_FLAGS=%%*"
+echo call "%%cmder_root%%\vendor\lib\flag_exists"
 echo.
 echo :: uncomment this to have the ssh agent load when cmder starts
 echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
@@ -325,9 +326,9 @@ echo :: you can add your plugins to the cmder path like so
 echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
 echo.
 echo :: arguments in this batch are passed from init.bat, you can quickly parse them like so:
-echo :: more useage can be seen by typing "have /?"
+echo :: more useage can be seen by typing "%%flag_exists%% /?"
 echo.
-echo :: have "/customOption" "your custom command"
+echo :: %%flag_exists%% "/customOption" "your custom command"
 echo.
 echo @echo off
 ) >"%initialConfig%"

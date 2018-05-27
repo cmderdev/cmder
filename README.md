@@ -105,7 +105,7 @@ Cmder, PowerShell, and Bash tabs all run on top of the Windows Console API and w
 
 You may however, choose to use an external installation of bash, such as Microsoft's [Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (called WSL) or the [Cygwin](https://cygwin.com/) project which provides POSIX support on windows.
 
-⚠ *NOTE:* Mintty tabs use a program called 'mintty' as the terminal emulator that is not based on the Windows Console API, rather it's rendered graphically by ConEmu. Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings.  As such, some differences in functionality are to be expected, such as Cmder not being able to apply a system-wide configuration to it. 
+⚠ *NOTE:* Mintty tabs use a program called 'mintty' as the terminal emulator that is not based on the Windows Console API, rather it's rendered graphically by ConEmu. Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings.  As such, some differences in functionality are to be expected, such as Cmder not being able to apply a system-wide configuration to it.
 
 As a result mintty specific config is done via the '[%USERPROFILE%|$HOME]/.minttyrc' file.  You may read more about Mintty and its config file [here](https://github.com/mintty/mintty).
 
@@ -248,7 +248,7 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 
 ### Handling with custom arguments when using init.bat
 
-You can pass custom arguments to `init.bat` and use `have.bat` (or `have` for shortcut) to detect it.
+You can pass custom arguments to `init.bat` and use `%flag_exists%` to detect it.
 
 It is useful when you have multiple modes to execute cmder.
 
@@ -264,7 +264,7 @@ to start init.bat with custom argument(`/startNotepad`) and put
 
 ```batch
 
-call have "/startNotepad" "cmd /c start notepad.exe"`
+call %flag_exists% "/startNotepad" "cmd /c start notepad.exe"`
 
 ```
 
@@ -278,7 +278,7 @@ init.bat
 
 the `notepad.exe` won't be executed.
 
-Detailed usage of `have` can be seen by typing `have /?` in cmder.
+Detailed usage of `%flag_exists%` can be seen by typing `%flag_exists% /?` in cmder.
 
 This feature is usually for external execution.
 
@@ -304,11 +304,11 @@ And here's the related fragment of my `user-profile.cmd`:
 
 ```batch
 
-call have NOT "/noautorun" "cmd /c start %cmder_root%\bin\vsCode\Code.exe --user-data-dir %vsCodeUserData% --extensions-dir %vsCodeExtensionsDir% %* %vsCodeUserData%\code.code-workspace"
+call %flag_exists% NOT "/noautorun" "cmd /c start %cmder_root%\bin\vsCode\Code.exe --user-data-dir %vsCodeUserData% --extensions-dir %vsCodeExtensionsDir% %* %vsCodeUserData%\code.code-workspace"
 
 ```
 
-### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs 
+### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs
 Cmder by default comes with a vendored ConEmu installation as the underlying terminal emulator, as stated [here](https://conemu.github.io/en/cmder.html).
 
 However, Cmder can in fact run in a variety of other terminal emulators, and even integrated IDEs. Assuming you have the latest version of Cmder, follow the following instructions to get Cmder working with your own terminal emulator.
