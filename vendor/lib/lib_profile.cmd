@@ -19,7 +19,7 @@ exit /b
 :::
 :::include:
 :::
-:::  call "$0"
+:::  call "lib_profile.cmd"
 :::
 :::usage:
 :::
