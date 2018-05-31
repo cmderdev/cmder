@@ -7,7 +7,7 @@ set lib_git=call "%~dp0lib_git.cmd"
 
 
 if "%~1" == "/h" (
-    %lib_base% help "%0"
+    %lib_base% help "%~0"
 ) else if "%1" neq "" (
     call :%*
 )
