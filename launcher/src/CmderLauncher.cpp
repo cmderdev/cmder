@@ -433,7 +433,25 @@ cmderOptions GetOption()
 			cmderOptions.error = true;
 		}
 	}
-
+	
+	if (cmderOptions.cmderStart == L"") 
+	{
+		TCHAR currentWorkingDir[MAX_PATH];
+		if (GetCurrentDirectory(MAX_PATH, currentWorkingDir) == 0)
+		{
+			MessageBox(NULL, L"Failed querying current directory", MB_TITLE, MB_OK);
+			cmderOptions.error = true;
+		}
+		else if (PathFileExists(currentWorkingDir)) 
+		{
+			cmderOptions.cmderStart = currentWorkingDir;
+		}
+		else 
+		{
+			MessageBox(NULL, currentWorkingDir, L"Current working diectory doses not exist!", MB_OK);
+		}
+	}
+	
 	LocalFree(szArgList);
 
 	return cmderOptions;
