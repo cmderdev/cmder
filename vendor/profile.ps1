@@ -155,16 +155,16 @@ $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if (Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
     . "$CmderUserProfilePath"
-
 }
 
 if ($ENV:CMDER_USER_CONFIG) {
     $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user-profile.ps1"
+    if (Test-Path $CmderUserProfilePath) {
+      . "$CmderUserProfilePath"
+    }
 }
 
-if (Test-Path $CmderUserProfilePath) {
-    . "$CmderUserProfilePath"
-} else {
+if (! (Test-Path $CmderUserProfilePath) ) {
 # This multiline string cannot be indented, for this reason I've not indented the whole block
 
 Write-Host -BackgroundColor Darkgreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
