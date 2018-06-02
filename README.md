@@ -18,7 +18,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
 2. Extract the archive. *Note: This path should not be `C:\Program Files` or anywhere else that would require Administrator access for modifying configuration files*
 3. (optional) Place your own executable files into the `%cmder_root%\bin` folder to be injected into your PATH.
-4. Run Cmder.exe
+4. Run `Cmder.exe`
 
 ### Shared Cmder install with Non-Portable Individual User Config
 1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
@@ -26,7 +26,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 3. (optional) Place your own executable files into the `%cmder_root%\bin` folder to be injected into your PATH.
 4. (optional) Create `%userprofile%\cmder_config\bin` folder to be injected into individual users PATH.  Default is to auto create this on first run.
 5. (optional) Place your own executable files into the `%userprofile%\cmder_config\bin` folder to be injected into your PATH.
-6. Run Cmder.exe with "/C" command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
+6. Run `Cmder.exe` with `/C` command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
    * This will create the following directory structure if it is missing.
 
      ```
@@ -43,10 +43,10 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
 | Argument            | Description                                                             |
 | ------------------- | ----------------------------------------------------------------------- |
-| /C [user_root_path] | Individual user Cmder root folder.  Example: %userprofile%\cmder_config |
-| /SINGLE             | Start Cmder is single mode.                                             |
-| /START [start_path] | Folder path to start in.                                                |
-| /TASK [task_name]   | Task to start after launch.                                             |
+| `/C [user_root_path]` | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config` |
+| `/SINGLE`             | Start Cmder is single mode.                                             |
+| `/START [start_path]` | Folder path to start in.                                                |
+| `/TASK [task_name]`   | Task to start after launch.                                             |
 
 ## Context Menu Integration
 
@@ -90,14 +90,14 @@ You can open multiple tabs each containing one of the following shells:
 
 | Task                | Shell          | Description                                                                                                  |
 | ----                | -----          | -----------                                                                                                  |
-| Cmder               | cmd.exe        | Windows 'cmd.exe' shell enhanced with Git, Git aware prompt, Clink (GNU Readline), and Aliases.              |
-| Cmder as Admin      | cmd.exe        | Administrative Windows 'cmd.exe' Cmder shell.                                                                |
-| PowerShell          | powershell.exe | Windows PowerShell enhanced with Git and Git aware prompt .                                                  |
-| PowerShell as Admin | powershell.exe | Administrative Windows 'powershell.exe' Cmder shell.                                                         |
-| Bash                | bash.exe       | Unix/Linux like bash shell running on Windows.                                                               |
-| Bash as Admin       | bash.exe       | Administrative Unix/Linux like bash shell running on Windows.                                                |
-| Mintty              | bash.exe       | Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences                |
-| Mintty as Admin     | bash.exe       | Administrative Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences |
+| Cmder               | `cmd.exe`        | Windows `cmd.exe` shell enhanced with Git, Git aware prompt, Clink (GNU Readline), and Aliases.              |
+| Cmder as Admin      | `cmd.exe`        | Administrative Windows 'cmd.exe' Cmder shell.                                                                |
+| PowerShell          | `powershell.exe` | Windows PowerShell enhanced with Git and Git aware prompt .                                                  |
+| PowerShell as Admin | `powershell.exe` | Administrative Windows `powershell.exe` Cmder shell.                                                         |
+| Bash                | `bash.exe`       | Unix/Linux like bash shell running on Windows.                                                               |
+| Bash as Admin       | `bash.exe`       | Administrative Unix/Linux like bash shell running on Windows.                                                |
+| Mintty              | `bash.exe`       | Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences                |
+| Mintty as Admin     | `bash.exe`       | Administrative Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences |
 
 Cmder, PowerShell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
 
@@ -107,7 +107,7 @@ You may however, choose to use an external installation of bash, such as Microso
 
 ⚠ *NOTE:* Mintty tabs use a program called 'mintty' as the terminal emulator that is not based on the Windows Console API, rather it's rendered graphically by ConEmu. Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings.  As such, some differences in functionality are to be expected, such as Cmder not being able to apply a system-wide configuration to it. 
 
-As a result mintty specific config is done via the '[%USERPROFILE%|$HOME]/.minttyrc' file.  You may read more about Mintty and its config file [here](https://github.com/mintty/mintty).
+As a result mintty specific config is done via the `[%USERPROFILE%|$HOME]/.minttyrc` file.  You may read more about Mintty and its config file [here](https://github.com/mintty/mintty).
 
 An example of setting Cmder portable terminal colors for mintty:
 
@@ -122,7 +122,7 @@ echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh
 
 You may find some Monokai color schemes for mintty to match Cmder [here](https://github.com/PhilipDaniels/mintty/blob/master/themes/Monokai) or [here](https://github.com/oumu/mintty-color-schemes/blob/master/base16-monokai-mod.minttyrc).
 
-### Changing Cmder Default 'cmd.exe' Shell Startup Behaviour Using Task Arguments
+### Changing Cmder Default `cmd.exe` Shell Startup Behaviour Using Task Arguments
 
 1. Press <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd>
 1. Click either:
@@ -140,36 +140,36 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 
 | Argument                      | Description                                                                                      | Default                               |
 | ----------------------------- | ----------------------------------------------------------------------------------------------   | ------------------------------------- |
-| /c [user cmder root]          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. | not set                               |
-| /d                            | Enables debug output.                                                                            | not set                               |
-| /git_install_root [file path] | User specified Git installation root path.                                                       | '%CMDER_ROOT%\vendor\Git-for-Windows' |
-| /home [home folder]           | User specified folder path to set `%HOME%` environment variable.                                 | '%userprofile%'                       |
-| /max_depth [1-5]              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`   | 1                                     |
-| /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.                                | '%GIT_INSTALL_ROOT%\bin\ssh.exe'      |
-| /user_aliases [file path]     | File path pointing to user aliases.                                                              | '%CMDER_ROOT%\config\user-liases.cmd' |
-| /v                            | Enables verbose output.                                                                          | not set                               |
+| `/c [user cmder root]`          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. | not set                               |
+| `/d`                            | Enables debug output.                                                                            | not set                               |
+| `/git_install_root [file path]` | User specified Git installation root path.                                                       | `%CMDER_ROOT%\vendor\Git-for-Windows` |
+| `/home [home folder]`           | User specified folder path to set `%HOME%` environment variable.                                 | `%userprofile%`                       |
+| `/max_depth [1-5]`              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`   | 1                                     |
+| `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                                | `%GIT_INSTALL_ROOT%\bin\ssh.exe`      |
+| `/user_aliases [file path]`     | File path pointing to user aliases.                                                              | `%CMDER_ROOT%\config\user-liases.cmd` |
+| `/v`                            | Enables verbose output.                                                                          | not set                               |
 
 ### Cmder Shell User Config
 Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
 
 | Shell         | Cmder Portable User Config                |
 | ------------- | ----------------------------------------- |
-| Cmder         | %CMDER_ROOT%\\config\\user-profile.cmd    |
-| PowerShell    | $ENV:CMDER_ROOT\\config\\user-profile.ps1 |
-| Bash/Mintty   | $CMDER_ROOT/config/user-profile.sh        |
+| Cmder         | `%CMDER_ROOT%\\config\\user-profile.cmd`    |
+| PowerShell    | `$ENV:CMDER_ROOT\\config\\user-profile.ps1` |
+| Bash/Mintty   | `$CMDER_ROOT/config/user-profile.sh`        |
 
-Note: Bash and Mintty sessions will also source the '$HOME/.bashrc' file if it exists after it sources '$CMDER_ROOT/config/user-profile.sh'.
+Note: Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user-profile.sh`.
 
-You can write *.cmd|*.bat, *.ps1, and *.sh scripts and just drop them in the %CMDER_ROOT%\config\profile.d folder to add startup config to Cmder.
+You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in the `%CMDER_ROOT%\config\profile.d` folder to add startup config to Cmder.
 
-| Shell         | Cmder 'Profile.d' Scripts                         |
+| Shell         | Cmder `Profile.d` Scripts                         |
 | ------------- | --------------------------------------------------|
-| Cmder         | %CMDER_ROOT%\\config\\profile.d\\\*.bat and *.cmd |
-| PowerShell    | $ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1        |
-| Bash/Mintty   | $CMDER_ROOT/config/profile.d/*.sh                 |
+| Cmder         | `%CMDER_ROOT%\\config\\profile.d\\\*.bat and *.cmd` |
+| PowerShell    | `$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1`        |
+| Bash/Mintty   | `$CMDER_ROOT/config/profile.d/*.sh`                 |
 
 ### Aliases
-#### Cmder(Cmd.exe) Aliases
+#### Cmder(`Cmd.exe`) Aliases
 You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`.
 
 Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
@@ -178,22 +178,22 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by '$CMDER_ROOT/vendor/init.bat'.  Anyhing stored in '%CMDER_ROOT%' will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anyhing stored in `%CMDER_ROOT%` will be a portable setting and will follow cmder to another machine.
 
-* '%CMDER_ROOT%\\config\\profile.d\\\*.cmd and \*.bat'
-* '%CMDER_ROOT%\\config\\user-aliases.cmd'
-* '%CMDER_ROOT%\\config\\user-profile.cmd'
+* `%CMDER_ROOT%\\config\\profile.d\\\*.cmd` and `\*.bat`
+* `%CMDER_ROOT%\\config\\user-aliases.cmd`
+* `%CMDER_ROOT%\\config\\user-profile.cmd`
 
 #### Bash.exe|Mintty.exe Aliases
 Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by '$CMDER_ROOT/vendor/git-for-windows/etc/profile.d/cmder.sh'.  Anyhing stored in '$CMDER_ROOT' will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$CMDER_ROOT/vendor/git-for-windows/etc/profile.d/cmder.sh`.  Anyhing stored in `$CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
 
-* '$CMDER_ROOT/config/profile.d/*.sh'
-* '$CMDER_ROOT/config/user-profile.sh'
-* '$HOME/.bashrc'
+* `$CMDER_ROOT/config/profile.d/*.sh`
+* `$CMDER_ROOT/config/user-profile.sh`
+* `$HOME/.bashrc`
 
 If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will be portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
@@ -202,7 +202,7 @@ PowerShell has native simple alias support, for example `[new-alias | set-alias]
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by '$ENV:CMDER_ROOT\\vendor\\user-profile.ps1'.  Anyhing stored in '$ENV:CMDER_ROOT' will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$ENV:CMDER_ROOT\\vendor\\user-profile.ps1`.  Anyhing stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
 
 * '$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1'
 * '$ENV:CMDER_ROOT\\config\\user-profile.ps1'
@@ -223,22 +223,22 @@ You may use your favorite version of Git by including its path in the `%PATH%` e
 
 You may run bash (the default shell used on Linux, macOS and GNU/Hurd) externally on Cmder, using the following instructions:
 
-1. Setup a new task by pressing '<kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>'.
-1. Click the '+' button to add a task.
+1. Setup a new task by pressing <kbd>Win</kbd> +<kbd>Alt</kbd> + <kbd>T</kbd>.
+1. Click the `+` button to add a task.
 1. Name the new task in the top text box.
 1. Provide task parameters, this is optional.
-1. Add ```cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console``` to the `Commands` text box.
+1. Add `cmd /c "[path_to_external_env]\bin\bash --login -i" -new_console` to the `Commands` text box.
 
 **Recommended Optional Steps:**
 
-Copy the 'vendor/cmder_exinit' file to the Cygwin/Babun, MSys2, or Git for Windows SDK environments ```/etc/profile.d/``` folder to use portable settings in the $CMDER_ROOT/config folder.
+Copy the `vendor/cmder_exinit` file to the Cygwin/Babun, MSys2, or Git for Windows SDK environments `/etc/profile.d/` folder to use portable settings in the `$CMDER_ROOT/config` folder.
 
-Note: MinGW could work if the init scripts include profile.d but this has not been tested.
+Note: MinGW could work if the init scripts include `profile.d` but this has not been tested.
 
 The destination file extension depends on the shell you use in that environment.  For example:
 
-* bash - Copy to /etc/profile.d/cmder_exinit.sh
-* zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
+* bash - Copy to `/etc/profile.d/cmder_exinit.sh`
+* zsh  - Copy to `/etc/profile.d/cmder_exinit.zsh`
 
 Uncomment and edit the below line in the script to use Cmder config even when launched from outside Cmder.
 
@@ -265,7 +265,7 @@ If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer ver
 
 2. Exit all Cmder sessions and backup any files you have manually edited under `[cmder_root]/vendor`.
 
-   * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in '[cmder_root]/config' folder.
+   * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in `[cmder_root]/config` folder.
 
 3.  Delete the `[cmder_root]/vendor` folder.
 4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
@@ -276,7 +276,7 @@ If you do not have a `[cmder_root]/config/user-conemu.xml`, you are running an o
 
 2. Backup any files you have manually edited under `[cmder_root]/vendor`.
 
-   * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in '[cmder_root]/config' folder.
+   * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in `[cmder_root]/config` folder.
 
 3.  Delete the `[cmder_root]/vendor` folder.
 4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
