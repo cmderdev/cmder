@@ -41,6 +41,13 @@ local function set_prompt_filter()
     -- color codes: "\x1b[1;37;40m"
     local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
     local lambda = "λ"
+    local function sanitize_dir(str)
+        str = string.gsub(str, "+", " ")
+        str = string.gsub(str, "%%(%x%x)", function(h) return string.char(tonumber(h,16)) end)
+        str = string.gsub(str, "\r\n", "\n")
+        return str
+    end
+    cmder_prompt = sanitize_dir(cmder_prompt)
     cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
     if env ~= nil then
         lambda = "("..env..") "..lambda
@@ -235,7 +242,7 @@ end
 -- Get the status of working dir
 -- @return {bool}
 ---
-function get_svn_status()
+local function get_svn_status()
     local file = io.popen("svn status -q")
     for line in file:lines() do
         file:close()
