@@ -280,35 +280,8 @@ the `notepad.exe` won't be executed.
 
 Detailed usage of `%flag_exists%` can be seen by typing `%flag_exists% /?` in cmder.
 
-This feature is usually for external execution.
-
-In my case, I use `cmder` as an **entry point** of my portable working system,
-
-and I [integrated VSCode with cmder](https://github.com/cmderdev/cmder/wiki/Seamless-VS-Code-Integration), it will **automatic execute VSCode** when I use `cmder.exe` to start.
-
-And when using integrated console in VSCode, VSCode **won't be executed again** as I use
-
-```json
-
-"terminal.integrated.shellArgs.windows": [
-  "/k",
-  "%cmder_root%\\vendor\\init.bat",
-  "/noautorun"
-],
-
-```
-
-for `terminal.integrated.shellArgs.windows`,
-
-And here's the related fragment of my `user-profile.cmd`:
-
-```batch
-
-call %flag_exists% NOT "/noautorun" "cmd /c start %cmder_root%\bin\vsCode\Code.exe --user-data-dir %vsCodeUserData% --extensions-dir %vsCodeExtensionsDir% %* %vsCodeUserData%\code.code-workspace"
-
-```
-
 ### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs
+
 Cmder by default comes with a vendored ConEmu installation as the underlying terminal emulator, as stated [here](https://conemu.github.io/en/cmder.html).
 
 However, Cmder can in fact run in a variety of other terminal emulators, and even integrated IDEs. Assuming you have the latest version of Cmder, follow the following instructions to get Cmder working with your own terminal emulator.
