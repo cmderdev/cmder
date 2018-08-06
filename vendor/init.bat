@@ -7,10 +7,11 @@
 :: !!! Use "%CMDER_ROOT%\config\user-profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
+endlocal
 set verbose-output=0
 set debug-output=0
 set max_depth=1
-set "CMDER_FLAGS="
+set "CMDER_USER_FLAGS= "
 
 :: Find root dir
 if not defined CMDER_ROOT (
@@ -82,7 +83,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
         set SVN_SSH=%2
         shift
     ) else (
-      set "CMDER_FLAGS=%CMDER_FLAGS% %1"
+      set "CMDER_USER_FLAGS=%1 %CMDER_USER_FLAGS%"
     )
     shift
 goto var_loop
@@ -293,14 +294,14 @@ if not defined HOME set "HOME=%USERPROFILE%"
 set "initialConfig=%CMDER_ROOT%\config\user-profile.cmd"
 if exist "%CMDER_ROOT%\config\user-profile.cmd" (
     REM Create this file and place your own command in there
-    call "%CMDER_ROOT%\config\user-profile.cmd" %CMDER_FLAGS%
+    call "%CMDER_ROOT%\config\user-profile.cmd"
 )
 
 if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user-profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user-profile.cmd" (
       REM Create this file and place your own command in there
-      call "%CMDER_USER_CONFIG%\user-profile.cmd" %CMDER_FLAGS%
+      call "%CMDER_USER_CONFIG%\user-profile.cmd"
   )
 )
 
@@ -312,8 +313,7 @@ echo :: use in front of the command to prevent printing the command
 echo.
 echo :: the next two lines is for "%%flag_exists%%" shortcut, a custom arguments handler
 echo :: don't remove it if you need it
-echo set "CMDER_USER_FLAGS=%%*"
-echo call "%%cmder_root%%\vendor\lib\flag_exists"
+echo call "%%cmder_root%%\vendor\lib\flag_exists" "/setPath"
 echo.
 echo :: uncomment this to have the ssh agent load when cmder starts
 echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
@@ -328,7 +328,7 @@ echo.
 echo :: arguments in this batch are passed from init.bat, you can quickly parse them like so:
 echo :: more useage can be seen by typing "%%flag_exists%% /?"
 echo.
-echo :: %%flag_exists%% "/customOption" "your custom command"
+echo :: %%flag_exists%% "/customOption" "command/program"
 echo.
 echo @echo off
 ) >"%initialConfig%"

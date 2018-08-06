@@ -148,6 +148,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 | /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.                                | '%GIT_INSTALL_ROOT%\bin\ssh.exe'      |
 | /user_aliases [file path]     | File path pointing to user aliases.                                                              | '%CMDER_ROOT%\config\user-liases.cmd' |
 | /v                            | Enables verbose output.                                                                          | not set                               |
+| (custom arguments)            | User defined arguments processed by `flag_exists`. Type `%flag_exists% /?` for more useage.      | not set                               |
 
 ### Cmder Shell User Config
 Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
@@ -278,7 +279,7 @@ init.bat
 
 the `notepad.exe` won't be executed.
 
-Detailed usage of `%flag_exists%` can be seen by typing `%flag_exists% /?` in cmder.
+To see detailed usage of `%flag_exists%`, type `%flag_exists% /?` in cmder.
 
 ### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs
 
