@@ -44,7 +44,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | Argument            | Description                                                             |
 | ------------------- | ----------------------------------------------------------------------- |
 | /C [user_root_path] | Individual user Cmder root folder.  Example: %userprofile%\cmder_config |
-| /SINGLE             | Start Cmder is single mode.                                             |
+| /SINGLE             | Start Cmder in single mode.                                             |
 | /START [start_path] | Folder path to start in.                                                |
 | /TASK [task_name]   | Task to start after launch.                                             |
 
