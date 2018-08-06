@@ -133,12 +133,14 @@ if not defined TERM set TERM=cygwin
 :: * test if a git is in path and if yes, use that
 :: * last, use our vendored git
 :: also check that we have a recent enough version of git by examining the version string
+setlocal enabledelayedexpansion
 if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT)
 )
 
+%lib_console% debug-output init.bat "Looking for Git install root..."
+
 :: get the version information for vendored git binary
-setlocal enabledelayedexpansion
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
 %lib_git% validate_version VENDORED !GIT_VERSION_VENDORED!
 
@@ -207,11 +209,16 @@ if defined GIT_INSTALL_ROOT (
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 )
 
-:NO_GIT
-endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=!GIT_INSTALL_ROOT!"
-%lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=!GIT_INSTALL_ROOT!"
+endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+%lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+%lib_console% debug-output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
+goto :PATH_ENHANCE
 
-:: Enhance Path
+:NO_GIT
+:: Skip this if GIT WAS FOUND else we did 'endlocal' above!
+endlocal
+
+:PATH_ENHANCE
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
 if defined CMDER_USER_BIN (
   %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
