@@ -265,7 +265,7 @@ to start init.bat with custom argument(`/startNotepad`) and put
 
 ```batch
 
-call %flag_exists% "/startNotepad" "cmd /c start notepad.exe"`
+call %flag_exists% "/startNotepad" "start" "notepad.exe"`
 
 ```
 
