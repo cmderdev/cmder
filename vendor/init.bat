@@ -320,7 +320,7 @@ echo :: use in front of the command to prevent printing the command
 echo.
 echo :: the next two lines is for "%%flag_exists%%" shortcut, a custom arguments handler
 echo :: don't remove it if you need it
-echo call "%%cmder_root%%\vendor\lib\flag_exists" "/setPath"
+echo call "%%cmder_root%%/vendor/lib/flag_exists" "/setPath"
 echo.
 echo :: uncomment this to have the ssh agent load when cmder starts
 echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
