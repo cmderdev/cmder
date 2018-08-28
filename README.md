@@ -178,7 +178,7 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anyhing stored in `%CMDER_ROOT%` will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow cmder to another machine.
 
 * `%CMDER_ROOT%\\config\\profile.d\\\*.cmd` and `\*.bat`
 * `%CMDER_ROOT%\\config\\user-aliases.cmd`
@@ -202,7 +202,7 @@ PowerShell has native simple alias support, for example `[new-alias | set-alias]
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$ENV:CMDER_ROOT\\vendor\\user-profile.ps1`.  Anyhing stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$ENV:CMDER_ROOT\\vendor\\user-profile.ps1`.  Anything stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
 
 * '$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1'
 * '$ENV:CMDER_ROOT\\config\\user-profile.ps1'
