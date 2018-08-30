@@ -386,7 +386,7 @@ cmderOptions GetOption()
 				i++;
 			}
 			else {
-				MessageBox(NULL, szArgList[i + 1], L"/START - Folder doses not exist!", MB_OK);
+				MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
 			}
 		}
 		else if (_wcsicmp(L"/task", szArgList[i]) == 0)
