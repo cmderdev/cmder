@@ -1,4 +1,4 @@
-# Copy this file to your non integrated *nix-like environment, 
+# Copy this file to your non integrated *nix-like environment,
 # Cygwin/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
 # folder to integrate the externally installed Unix like environment
 # into Cmder so it has access to settings stored in Cmder/config
@@ -15,7 +15,7 @@
 # These customizations will follow Cmder if $CMDER_ROOT is copied
 # to another machine.
 #
-# Add system specific users customizations to $HOME/.bashrc, these 
+# Add system specific users customizations to $HOME/.bashrc, these
 # customizations will not follow Cmder to another machine.
 
 # # Uncomment and edit the CMDER_ROOT line to use Cmder/config even when launched
@@ -58,45 +58,55 @@ fi
 if [ ! "$CMDER_ROOT" = "" ] ; then
   # Remove any trailing '/'
   CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
-  
+
   echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"."
-  
+
   export CMDER_ROOT
-  
+
   PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
-   
+
   export PATH
-  
+
   # Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
   # to source them at startup.
   if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
     mkdir -p "${CMDER_ROOT}/config/profile.d"
   fi
-  
+
   if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
     runProfiled  "${CMDER_ROOT}/config/profile.d"
   fi
-  
+
   if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
     runProfiled  "${CMDER_USER_CONFIG}/profile.d"
   fi
 
- 
-  if [ -f "${CMDER_ROOT}/config/user-profile.sh" ] ; then
-    . "${CMDER_ROOT}/config/user-profile.sh"
+
+  # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
+  if [ -f "$CMDER_ROOT/config/user-profile.sh" ] ; then
+    mv "$CMDER_ROOT/config/user-profile.sh" "$CMDER_ROOT/config/user_profile.sh"
   fi
-  
-  if [ -f "${CMDER_USER_CONFIG}/user-profile.sh" ] ; then
-      . "${CMDER_USER_CONFIG}/user-profile.sh"
-  else
-      if [ "${CMDER_USER_CONFIG}" != "" ] ; then
-        initialProfile="${CMDER_USER_CONFIG}/user-profile.sh"
-      else
-        initialProfile="${CMDER_ROOT}/config/user-profile.sh"
-      fi
-  
-      echo Creating user startup file: "${initialProfile}"
-    cat <<-eof >"${initialProfile}"
+
+  CmderUserProfilePath="${CMDER_ROOT}/config/user_profile.sh"
+  if [ -f "${CMDER_ROOT}/config/user_profile.sh" ] ; then
+      . "${CMDER_ROOT}/config/user_profile.sh"
+  fi
+
+  if [ "${CMDER_USER_CONFIG}" != "" ] ; then
+    # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
+    if [ -f "$CMDER_USER_CONFIG/user-profile.sh" ] ; then
+      mv "$CMDER_USER_CONFIG/user-profile.sh" "$CMDER_USER_CONFIG/user_profile.sh"
+    fi
+
+    CmderUserProfilePath="${CMDER_USER_CONFIG}/user_profile.sh"
+    if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ] ; then
+      . "${CMDER_USER_CONFIG}/user_profile.sh"
+    fi
+  fi
+
+  if [ ! -f "${CmderUserProfilePath}" ] ; then
+      echo Creating user startup file: "${CmderUserProfilePath}"
+      cat <<-eof >"${CmderUserProfilePath}"
 # use this file to run your own startup commands for msys2 bash'
 
 # To add a new vendor to the path, do something like:

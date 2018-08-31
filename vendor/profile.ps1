@@ -2,7 +2,7 @@
 # Created as part of cmder project
 
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
-# !!! Use "%CMDER_ROOT%\config\user-profile.ps1" to add your own startup commands
+# !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
 
 # Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
@@ -97,7 +97,7 @@ $env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
 
 #
 # Prompt Section
-#   Users should modify their user-profile.ps1 as it will be safe from updates.
+#   Users should modify their user_profile.ps1 as it will be safe from updates.
 #
 
 # Pre assign the hooks so the first run of cmder gets a working prompt.
@@ -149,16 +149,24 @@ if ($ENV:CMDER_USER_CONFIG -ne "" -and (test-path "$ENV:CMDER_USER_CONFIG\profil
     popd
 }
     
+# Renaming to "config\user_profile.ps1" to "user_profile.ps1" for consistency.
+if (test-path "$env:CMDER_ROOT\config\user-profile.ps1") {
+  rename-item  "$env:CMDER_ROOT\config\user-profile.ps1" user_profile.ps1
+}
 
-
-$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user_profile.ps1"
 if (Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
     Import-Module "$CmderUserProfilePath"
 }
 
 if ($ENV:CMDER_USER_CONFIG) {
-    $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user-profile.ps1"
+    # Renaming to "$env:CMDER_USER_CONFIG\user-profile.ps1" to "user_profile.ps1" for consistency.
+    if (test-path "$env:CMDER_USER_CONFIG\user-profile.ps1") {
+      rename-item  "$env:CMDER_USER_CONFIG\user-profile.ps1" user_profile.ps1
+    }
+
+    $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user_profile.ps1"
     if (Test-Path $CmderUserProfilePath) {
       Import-Module "$CmderUserProfilePath"
     }

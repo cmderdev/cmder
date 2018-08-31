@@ -14,8 +14,10 @@ build/
 Version v*
 *.bak
 config/user-*
+config/user_*
 config/settings
 config/aliases
 config/profile.d
 .github_changelog_generator
 launcher/.vs
+launcher/src/version.rc2

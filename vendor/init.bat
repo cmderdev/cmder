@@ -4,7 +4,7 @@
 :: Created as part of cmder project
 
 :: !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
-:: !!! Use "%CMDER_ROOT%\config\user-profile.cmd" to add your own startup commands
+:: !!! Use "%CMDER_ROOT%\config\user_profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
 set verbose-output=0
@@ -294,17 +294,17 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 if not defined HOME set "HOME=%USERPROFILE%"
 %lib_console% debug-output init.bat "Env Var - HOME=%HOME%"
 
-set "initialConfig=%CMDER_ROOT%\config\user-profile.cmd"
-if exist "%CMDER_ROOT%\config\user-profile.cmd" (
+set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
+if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
-    call "%CMDER_ROOT%\config\user-profile.cmd"
+    call "%CMDER_ROOT%\config\user_profile.cmd"
 )
 
 if defined CMDER_USER_CONFIG (
-  set "initialConfig=%CMDER_USER_CONFIG%\user-profile.cmd"
-  if exist "%CMDER_USER_CONFIG%\user-profile.cmd" (
+  set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
+  if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
       REM Create this file and place your own command in there
-      call "%CMDER_USER_CONFIG%\user-profile.cmd"
+      call "%CMDER_USER_CONFIG%\user_profile.cmd"
   )
 )
 
