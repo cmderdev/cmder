@@ -245,24 +245,24 @@ if not defined user-aliases (
 :: The aliases environment variable is used by alias.bat to id
 :: the default file to store new aliases in.
 if not defined aliases (
-  set "aliases=%user_aliases%"
+  set "aliases=%user-aliases%"
 )
 
 :: Make sure we have a self-extracting user-aliases.cmd file
 setlocal enabledelayedexpansion
-if not exist "%user_aliases%" (
-    echo Creating initial user-aliases store in "%user_aliases%"...
-    copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user_aliases%"
+if not exist "%user-aliases%" (
+    echo Creating initial user-aliases store in "%user-aliases%"...
+    copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
 ) else (
-    type "%user_aliases%" | findstr /i ";= Add aliases below here" >nul
+    type "%user-aliases%" | findstr /i ";= Add aliases below here" >nul
     if "!errorlevel!" == "1" (
-        echo Creating initial user-aliases store in "%user_aliases%"...
+        echo Creating initial user-aliases store in "%user-aliases%"...
         if defined CMDER_USER_CONFIG (
-            copy "%user_aliases%" "%user_aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user_aliases%"
+            copy "%user-aliases%" "%user-aliases%.old_format"
+            copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
         ) else (
-            copy "%user_aliases%" "%user_aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user_aliases%"
+            copy "%user-aliases%" "%user-aliases%.old_format"
+            copy "%CMDER_ROOT%\vendor\user-aliases.cmd.example" "%user-aliases%"
         )
     )
 )
@@ -270,15 +270,15 @@ if not exist "%user_aliases%" (
 :: Update old 'user-aliases' to new self executing 'user-aliases.cmd'
 if exist "%CMDER_ROOT%\config\aliases" (
   echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
-  type "%CMDER_ROOT%\config\aliases" >> "%user_aliases%" && del "%CMDER_ROOT%\config\aliases"
-) else if exist "%user_aliases%.old_format" (
-  echo Updating old "%user_aliases%" to new format...
-  type "%user_aliases%.old_format" >> "%user_aliases%" && del "%user_aliases%.old_format"
+  type "%CMDER_ROOT%\config\aliases" >> "%user-aliases%" && del "%CMDER_ROOT%\config\aliases"
+) else if exist "%user-aliases%.old_format" (
+  echo Updating old "%user-aliases%" to new format...
+  type "%user-aliases%.old_format" >> "%user-aliases%" && del "%user-aliases%.old_format"
 )
 endlocal
 
 :: Add aliases to the environment
-call "%user_aliases%"
+call "%user-aliases%"
 
 :: See vendor\git-for-windows\README.portable for why we do this
 :: Basically we need to execute this post-install.bat because we are
