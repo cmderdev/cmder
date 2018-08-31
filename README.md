@@ -117,7 +117,7 @@ From a bash/mintty shell:
 cd $CMDER_ROOT/vendor
 git clone https://github.com/karlin/mintty-colors-solarized.git
 cd mintty-colors-solarized/
-echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user-profile.sh
+echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user_profile.sh
 ```
 
 You may find some Monokai color schemes for mintty to match Cmder [here](https://github.com/PhilipDaniels/mintty/blob/master/themes/Monokai) or [here](https://github.com/oumu/mintty-color-schemes/blob/master/base16-monokai-mod.minttyrc).
@@ -154,11 +154,11 @@ Single user portable configuration is possible using the cmder specific shell co
 
 | Shell         | Cmder Portable User Config                |
 | ------------- | ----------------------------------------- |
-| Cmder         | `%CMDER_ROOT%\\config\\user-profile.cmd`    |
-| PowerShell    | `$ENV:CMDER_ROOT\\config\\user-profile.ps1` |
-| Bash/Mintty   | `$CMDER_ROOT/config/user-profile.sh`        |
+| Cmder         | `%CMDER_ROOT%\\config\\user_profile.cmd`    |
+| PowerShell    | `$ENV:CMDER_ROOT\\config\\user_profile.ps1` |
+| Bash/Mintty   | `$CMDER_ROOT/config/user_profile.sh`        |
 
-Note: Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user-profile.sh`.
+Note: Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user_profile.sh`.
 
 You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in the `%CMDER_ROOT%\config\profile.d` folder to add startup config to Cmder.
 
@@ -182,7 +182,7 @@ Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything
 
 * `%CMDER_ROOT%\\config\\profile.d\\\*.cmd` and `\*.bat`
 * `%CMDER_ROOT%\\config\\user-aliases.cmd`
-* `%CMDER_ROOT%\\config\\user-profile.cmd`
+* `%CMDER_ROOT%\\config\\user_profile.cmd`
 
 #### Bash.exe|Mintty.exe Aliases
 Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.
@@ -192,26 +192,26 @@ To make an alias and/or any other profile settings permanent add it to one of th
 Note: These are loaded in this order by `$CMDER_ROOT/vendor/git-for-windows/etc/profile.d/cmder.sh`.  Anything stored in `$CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
 
 * `$CMDER_ROOT/config/profile.d/*.sh`
-* `$CMDER_ROOT/config/user-profile.sh`
+* `$CMDER_ROOT/config/user_profile.sh`
 * `$HOME/.bashrc`
 
-If you add bash aliases to `$CMDER_ROOT/config/user-profile.sh` they will be portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
+If you add bash aliases to `$CMDER_ROOT/config/user_profile.sh` they will be portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
 #### PowerShell.exe Aliases
 PowerShell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in PowerShell sessions.  Type `get-help [new-alias|set-alias] -full` for help on PowerShell aliases.
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$ENV:CMDER_ROOT\\vendor\\user-profile.ps1`.  Anything stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$ENV:CMDER_ROOT\\vendor\\user_profile.ps1`.  Anything stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
 
 * '$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1'
-* '$ENV:CMDER_ROOT\\config\\user-profile.ps1'
+* '$ENV:CMDER_ROOT\\config\\user_profile.ps1'
 
 ### SSH Agent
 
 To start the vendored SSH agent simply call `start-ssh-agent`, which is in the `vendor/git-for-windows/cmd` folder.
 
-If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user-profile.cmd` (usually just uncomment it).
+If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"` in `%CMDER_ROOT%/config/user_profile.cmd` (usually just uncomment it).
 
 ### Vendored Git
 
