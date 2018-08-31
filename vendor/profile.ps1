@@ -134,7 +134,7 @@ if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
 pushd $ENV:CMDER_ROOT\config\profile.d
 foreach ($x in Get-ChildItem *.ps1) {
   # write-host write-host Sourcing $x
-  . $x
+  Import-Module $x
 }
 popd
 
@@ -144,7 +144,7 @@ if ($ENV:CMDER_USER_CONFIG -ne "" -and (test-path "$ENV:CMDER_USER_CONFIG\profil
     pushd $ENV:CMDER_USER_CONFIG\profile.d
     foreach ($x in Get-ChildItem *.ps1) {
       # write-host write-host Sourcing $x
-      . $x
+      Import-Module $x
     }
     popd
 }
@@ -154,13 +154,13 @@ if ($ENV:CMDER_USER_CONFIG -ne "" -and (test-path "$ENV:CMDER_USER_CONFIG\profil
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
 if (Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
-    . "$CmderUserProfilePath"
+    Import-Module "$CmderUserProfilePath"
 }
 
 if ($ENV:CMDER_USER_CONFIG) {
     $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user-profile.ps1"
     if (Test-Path $CmderUserProfilePath) {
-      . "$CmderUserProfilePath"
+      Import-Module "$CmderUserProfilePath"
     }
 }
 
