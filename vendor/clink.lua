@@ -370,7 +370,7 @@ for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
     end
 end
 
-if clink.get_env('CMDER_USER_CONFIG') then 
+if clink.get_env('CMDER_USER_CONFIG') then
   local cmder_user_config_dir = clink.get_env('CMDER_USER_CONFIG')..'/'
   for _,lua_module in ipairs(clink.find_files(cmder_user_config_dir..'*.lua')) do
       -- Skip files that starts with _. This could be useful if some files should be ignored
