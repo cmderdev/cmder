@@ -88,6 +88,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	wchar_t userProfiledDirPath[MAX_PATH] = { 0 };
 	wchar_t userProfilePath[MAX_PATH] = { 0 };
 	wchar_t legacyUserProfilePath[MAX_PATH] = { 0 };
+	wchar_t userAliasesPath[MAX_PATH] = { 0 };
+	wchar_t legacyUserAliasesPath[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
 
 	std::wstring cmderStart = path;
@@ -122,6 +124,20 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		rename(lPr, pR);
 	}
 
+	PathCombine(legacyUserAliasesPath, configDirPath, L"user-aliases.cmd");
+	if (PathFileExists(legacyUserAliasesPath)) {
+		PathCombine(userAliasesPath, configDirPath, L"user_aliases.cmd");
+
+		char      *lPr = (char *)malloc(MAX_PATH);
+		char      *pR = (char *)malloc(MAX_PATH);
+		size_t i;
+		wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+			legacyUserAliasesPath, (size_t)MAX_PATH);
+		wcstombs_s(&i, pR, (size_t)MAX_PATH,
+			userAliasesPath, (size_t)MAX_PATH);
+		rename(lPr, pR);
+	}
+
 	if (wcscmp(userConfigDirPath, L"") == 0)
 	{
 		PathCombine(userConfigDirPath, exeDir, L"config");
@@ -148,6 +164,20 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				legacyUserProfilePath, (size_t)MAX_PATH);
 			wcstombs_s(&i, pR, (size_t)MAX_PATH,
 				userProfilePath, (size_t)MAX_PATH);
+			rename(lPr, pR);
+		}
+
+		PathCombine(legacyUserAliasesPath, userConfigDirPath, L"user-aliases.cmd");
+		if (PathFileExists(legacyUserAliasesPath)) {
+			PathCombine(userAliasesPath, userConfigDirPath, L"user_aliases.cmd");
+
+			char      *lPr = (char *)malloc(MAX_PATH);
+			char      *pR = (char *)malloc(MAX_PATH);
+			size_t i;
+			wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+				legacyUserAliasesPath, (size_t)MAX_PATH);
+			wcstombs_s(&i, pR, (size_t)MAX_PATH,
+				userAliasesPath, (size_t)MAX_PATH);
 			rename(lPr, pR);
 		}
 	}
