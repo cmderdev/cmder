@@ -22,3 +22,4 @@ config/profile.d
 .github_changelog_generator
 launcher/.vs
 launcher/src/version.rc2
+!bin/Readme.md
