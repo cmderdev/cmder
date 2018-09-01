@@ -6,7 +6,7 @@ call "%~dp0lib_base.cmd"
 set lib_console=call "%~dp0lib_console.cmd"
 
 if "%~1" == "/h" (
-    %lib_base% help "%0"
+    %lib_base% help "%~0"
 ) else if "%1" neq "" (
     call :%*
 )
@@ -19,7 +19,7 @@ exit /b
 :::.
 :::include:
 :::.
-:::  call "$0"
+:::  call "lib_console.cmd"
 :::.
 :::usage:
 :::.
@@ -76,5 +76,4 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     echo ERROR: %~1
-    echo CMDER Shell Initialization has Failed!
     exit /b

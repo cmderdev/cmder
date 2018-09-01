@@ -7,7 +7,7 @@ set lib_git=call "%~dp0lib_git.cmd"
 
 
 if "%~1" == "/h" (
-    %lib_base% help "%0"
+    %lib_base% help "%~0"
 ) else if "%1" neq "" (
     call :%*
 )
@@ -20,7 +20,7 @@ exit /b
 :::.
 :::include:
 :::.
-:::  call "$0"
+:::  call "lib_git.cmd"
 :::.
 :::usage:
 :::.
@@ -46,7 +46,7 @@ exit /b
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        %lib_console% show_error "%git_executable%" does not exist!
+        %lib_console% debug-output :read_version "%git_executable% does not exist."
         exit /b -255
     )
 

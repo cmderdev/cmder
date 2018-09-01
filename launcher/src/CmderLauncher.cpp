@@ -9,6 +9,7 @@
 #include <iostream>
 
 #pragma comment(lib, "Shlwapi.lib")
+#pragma warning( disable : 4091 )
 
 #ifndef UNICODE
 #error "Must be compiled with unicode support."
@@ -85,6 +86,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	wchar_t userConfigDirPath[MAX_PATH] = { 0 };
 	wchar_t userBinDirPath[MAX_PATH] = { 0 };
 	wchar_t userProfiledDirPath[MAX_PATH] = { 0 };
+	wchar_t userProfilePath[MAX_PATH] = { 0 };
+	wchar_t legacyUserProfilePath[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
 
 	std::wstring cmderStart = path;
@@ -104,6 +107,21 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
 
 	PathCombine(configDirPath, exeDir, L"config");
+
+	PathCombine(legacyUserProfilePath, configDirPath, L"user-profile.cmd");
+	if (PathFileExists(legacyUserProfilePath)) {
+		PathCombine(userProfilePath, configDirPath, L"user_profile.cmd");
+
+		char      *lPr = (char *)malloc(MAX_PATH);
+		char      *pR = (char *)malloc(MAX_PATH);
+		size_t i;
+		wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+			legacyUserProfilePath, (size_t)MAX_PATH);
+		wcstombs_s(&i, pR, (size_t)MAX_PATH,
+			userProfilePath, (size_t)MAX_PATH);
+		rename(lPr, pR);
+	}
+
 	if (wcscmp(userConfigDirPath, L"") == 0)
 	{
 		PathCombine(userConfigDirPath, exeDir, L"config");
@@ -118,6 +136,20 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userProfiledDirPath, userConfigDirPath, L"profile.d");
 		SHCreateDirectoryEx(0, userProfiledDirPath, 0);
+		
+		PathCombine(legacyUserProfilePath, userConfigDirPath, L"user-profile.cmd");
+		if (PathFileExists(legacyUserProfilePath)) {
+			PathCombine(userProfilePath, userConfigDirPath, L"user_profile.cmd");
+
+			char      *lPr = (char *)malloc(MAX_PATH);
+			char      *pR = (char *)malloc(MAX_PATH);
+			size_t i;
+			wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+				legacyUserProfilePath, (size_t)MAX_PATH);
+			wcstombs_s(&i, pR, (size_t)MAX_PATH,
+				userProfilePath, (size_t)MAX_PATH);
+			rename(lPr, pR);
+		}
 	}
 
 	// Set path to vendored ConEmu config file
@@ -131,7 +163,6 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	ExpandEnvironmentStrings(cpuCfgPath, cpuCfgPath, sizeof(cpuCfgPath) / sizeof(cpuCfgPath[0]));
 
 	PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
-
 	if (PathFileExists(cpuCfgPath)) {
 		if (PathFileExists(cfgPath)) {
 			if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
@@ -334,6 +365,7 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	HKEY cmderKey;
 	// FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
+	RegDeleteKeyEx(root, keyBaseName, KEY_ALL_ACCESS, NULL);
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
 }
@@ -385,7 +417,7 @@ cmderOptions GetOption()
 				i++;
 			}
 			else {
-				MessageBox(NULL, szArgList[i + 1], L"/START - Folder doses not exist!", MB_OK);
+				MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
 			}
 		}
 		else if (_wcsicmp(L"/task", szArgList[i]) == 0)

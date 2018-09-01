@@ -41,11 +41,17 @@ local function set_prompt_filter()
     -- color codes: "\x1b[1;37;40m"
     local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
     local lambda = "λ"
+    cwd = string.gsub(cwd, "%%", "{percent}")
     cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
+
     if env ~= nil then
         lambda = "("..env..") "..lambda
     end
     clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", lambda)
+end
+
+local function percent_prompt_filter()
+    clink.prompt.value = string.gsub(clink.prompt.value, "{percent}", "%%")
 end
 
 ---
@@ -235,7 +241,7 @@ end
 -- Get the status of working dir
 -- @return {bool}
 ---
-function get_svn_status()
+local function get_svn_status()
     local file = io.popen("svn status -q")
     for line in file:lines() do
         file:close()
@@ -340,6 +346,7 @@ clink.prompt.register_filter(set_prompt_filter, 1)
 clink.prompt.register_filter(hg_prompt_filter, 50)
 clink.prompt.register_filter(git_prompt_filter, 50)
 clink.prompt.register_filter(svn_prompt_filter, 50)
+clink.prompt.register_filter(percent_prompt_filter, 51)
 
 local completions_dir = clink.get_env('CMDER_ROOT')..'/vendor/clink-completions/'
 for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do

@@ -6,7 +6,7 @@ call "%%~dp0lib_console"
 set lib_path=call "%~dp0lib_path.cmd"
 
 if "%~1" == "/h" (
-    %lib_base% help "%0"
+    %lib_base% help "%~0"
 ) else if "%1" neq "" (
     call :%*
 )
@@ -19,7 +19,7 @@ exit /b
 :::
 :::include:
 :::
-:::  call "$0"
+:::  call "lib_path.cmd"
 :::
 :::usage:
 :::

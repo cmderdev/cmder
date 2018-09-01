@@ -3,7 +3,7 @@
 set lib_base=call "%~dp0lib_base.cmd"
 
 if "%~1" == "/h" (
-    %lib_base% help "%0"
+    %lib_base% help "%~0"
 ) else if "%1" neq "" (
     call :%*
 )
@@ -16,7 +16,7 @@ exit /b
 :::.
 :::include:
 :::.
-:::       call "$0"
+:::       call "lib_base.cmd"
 :::.
 :::usage:
 :::.
@@ -27,12 +27,9 @@ exit /b
 :::       file <in> full path to file containing lib_routines to display
 :::.
 :::-------------------------------------------------------------------------------
-
     for /f "tokens=* delims=:" %%a in ('type "%~1" ^| findstr /i /r "^:::"') do (
         rem echo a="%%a"
 
-        if "%%a"==" " (
-            echo.
         if "%%a"=="." (
             echo.
         ) else if /i "%%a" == "usage" (

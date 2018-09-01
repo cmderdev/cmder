@@ -4,7 +4,7 @@
 :: Created as part of cmder project
 
 :: !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
-:: !!! Use "%CMDER_ROOT%\config\user-profile.cmd" to add your own startup commands
+:: !!! Use "%CMDER_ROOT%\config\user_profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
 set verbose-output=0
@@ -36,11 +36,11 @@ call "%cmder_root%\vendor\lib\lib_profile"
 :var_loop
     if "%~1" == "" (
         goto :start
-    ) else if "%1"=="/v" (
+    ) else if /i "%1"=="/v" (
         set verbose-output=1
-    ) else if "%1"=="/d" (
+    ) else if /i "%1"=="/d" (
         set debug-output=1
-    ) else if "%1" == "/max_depth" (
+    ) else if /i "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
             set "max_depth=%~2"
             shift
@@ -48,7 +48,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
             %lib_console% show_error "'/max_depth' requires a number between 1 and 5!"
             exit /b
         )
-    ) else if "%1" == "/c" (
+    ) else if /i "%1" == "/c" (
         if exist "%~2" (
             if not exist "%~2\bin" mkdir "%~2\bin"
             set "cmder_user_bin=%~2\bin"
@@ -56,12 +56,12 @@ call "%cmder_root%\vendor\lib\lib_profile"
             set "cmder_user_config=%~2\config"
             shift
         )
-    ) else if "%1" == "/user_aliases" (
+    ) else if /i "%1" == "/user_aliases" (
         if exist "%~2" (
             set "user-aliases=%~2"
             shift
         )
-    ) else if "%1" == "/git_install_root" (
+    ) else if /i "%1" == "/git_install_root" (
         if exist "%~2" (
             set "GIT_INSTALL_ROOT=%~2"
             shift
@@ -69,7 +69,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
             %lib_console% show_error "The Git install root folder "%~2", you specified does not exist!"
             exit /b
         )
-    ) else if "%1" == "/home" (
+    ) else if /i "%1" == "/home" (
         if exist "%~2" (
             set "HOME=%~2"
             shift
@@ -77,7 +77,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
             %lib_console% show_error The home folder "%2", you specified does not exist!
             exit /b
         )
-    ) else if "%1" == "/svn_ssh" (
+    ) else if /i "%1" == "/svn_ssh" (
         set SVN_SSH=%2
         shift
     )
@@ -129,12 +129,14 @@ if not defined TERM set TERM=cygwin
 :: * test if a git is in path and if yes, use that
 :: * last, use our vendored git
 :: also check that we have a recent enough version of git by examining the version string
+setlocal enabledelayedexpansion
 if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT)
 )
 
+%lib_console% debug-output init.bat "Looking for Git install root..."
+
 :: get the version information for vendored git binary
-setlocal enabledelayedexpansion
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
 %lib_git% validate_version VENDORED !GIT_VERSION_VENDORED!
 
@@ -182,7 +184,7 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" 
+    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd"
 ) else (
     goto :NO_GIT
 )
@@ -197,18 +199,26 @@ if defined GIT_INSTALL_ROOT (
     ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
         %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64" append
     )
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" append
+    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" append
 
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
+    for /F "delims=" %%F in ('env /usr/bin/locale -uU 2^>nul') do (
+        set "LANG=%%F"
+    )
 )
 
-:NO_GIT
-endlocal & set "PATH=%PATH%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+endlocal & set "PATH=%PATH%" & set "LANG=%LANG%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 %lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+%lib_console% debug-output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
+goto :PATH_ENHANCE
 
-:: Enhance Path
-%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth% 
+:NO_GIT
+:: Skip this if GIT WAS FOUND else we did 'endlocal' above!
+endlocal
+
+:PATH_ENHANCE
+%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
 if defined CMDER_USER_BIN (
   %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
 )
@@ -287,16 +297,22 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 if not defined HOME set "HOME=%USERPROFILE%"
 %lib_console% debug-output init.bat "Env Var - HOME=%HOME%"
 
-if exist "%CMDER_ROOT%\config\user-profile.cmd" (
+set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
+if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
-    call "%CMDER_ROOT%\config\user-profile.cmd"
+    call "%CMDER_ROOT%\config\user_profile.cmd"
 )
 
-if defined CMDER_USER_CONFIG if exist "%CMDER_USER_CONFIG%\user-profile.cmd" (
-    REM Create this file and place your own command in there
-    call "%CMDER_USER_CONFIG%\user-profile.cmd"
-) else (
-    echo Creating user startup file: "%CMDER_ROOT%\config\user-profile.cmd"
+if defined CMDER_USER_CONFIG (
+  set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
+  if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
+      REM Create this file and place your own command in there
+      call "%CMDER_USER_CONFIG%\user_profile.cmd"
+  )
+)
+
+if not exist "%initialConfig%" (
+    echo Creating user startup file: "%initialConfig%"
     (
 echo :: use this file to run your own startup commands
 echo :: use  in front of the command to prevent printing the command
@@ -312,13 +328,8 @@ echo :: you can add your plugins to the cmder path like so
 echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
 echo.
 echo @echo off
-) >"%temp%\user-profile.tmp"
-
-  if defined CMDER_USER_CONFIG (
-    copy "%temp%\user-profile.tmp" "%CMDER_USER_CONFIG%\user-profile.cmd"
-  ) else (
-    copy "%temp%\user-profile.tmp" "%CMDER_ROOT%\config\user-profile.cmd"
-  )
+) >"%initialConfig%"
 )
 
+set initialConfig=
 exit /b
