@@ -218,6 +218,7 @@ goto :PATH_ENHANCE
 endlocal
 
 :PATH_ENHANCE
+%lib_path% enhance_path "%CMDER_ROOT%\vendor\bin"
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
 if defined CMDER_USER_BIN (
   %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
@@ -329,6 +330,18 @@ echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
 echo.
 echo @echo off
 ) >"%initialConfig%"
+)
+
+if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
+  echo Cmder's 'alias' command has been moved into '%CMDER_ROOT%\vendor\bin\alias.cmd'
+  echo to get rid of this message either:
+  echo.
+  echo Delete the file '%CMDER_ROOT%\bin\alias.bat'
+  echo.
+  echo or
+  echo.
+  echo Rename '%CMDER_ROOT%\bin\alias.bat' to '%CMDER_ROOT%\bin\alias.cmd' if you
+  echo   have customized it and want to continue using it instead of the included version.
 )
 
 set initialConfig=
