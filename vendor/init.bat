@@ -340,8 +340,9 @@ if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cm
   echo.
   echo or
   echo.
-  echo Rename '%CMDER_ROOT%\bin\alias.bat' to '%CMDER_ROOT%\bin\alias.cmd' if you
-  echo   have customized it and want to continue using it instead of the included version.
+  echo If you have customized it and want to continue using it instead of the included version
+  echo   * Rename '%CMDER_ROOT%\bin\alias.bat' to '%CMDER_ROOT%\bin\alias.cmd'.
+  echo   * Search for 'user-aliases' and replace it with 'user_aliases'. 
 )
 
 set initialConfig=
