@@ -7,8 +7,8 @@
 :: !!! Use "%CMDER_ROOT%\config\user_profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
-set verbose-output=0
-set debug-output=0
+set verbose_output=0
+set debug_output=0
 set max_depth=1
 
 :: Find root dir
@@ -37,9 +37,9 @@ call "%cmder_root%\vendor\lib\lib_profile"
     if "%~1" == "" (
         goto :start
     ) else if /i "%1"=="/v" (
-        set verbose-output=1
+        set verbose_output=1
     ) else if /i "%1"=="/d" (
-        set debug-output=1
+        set debug_output=1
     ) else if /i "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
             set "max_depth=%~2"
@@ -85,11 +85,11 @@ call "%cmder_root%\vendor\lib\lib_profile"
 goto var_loop
 
 :start
-%lib_console% debug-output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
-%lib_console% debug-output init.bat "Env Var - debug-output=%debug-output%"
+%lib_console% debug_output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
+%lib_console% debug_output init.bat "Env Var - debug_output=%debug_output%"
 
 if defined CMDER_USER_CONFIG (
-    %lib_console% debug-output init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
+    %lib_console% debug_output init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 )
 
 :: Pick right version of clink
@@ -134,7 +134,7 @@ if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT)
 )
 
-%lib_console% debug-output init.bat "Looking for Git install root..."
+%lib_console% debug_output init.bat "Looking for Git install root..."
 
 :: get the version information for vendored git binary
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
@@ -165,14 +165,14 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
             set test_dir=
             goto :FOUND_GIT
         ) else (
-            call :verbose-output Found old !GIT_VERSION_USER! in "!test_dir!", but not using...
+            call :verbose_output Found old !GIT_VERSION_USER! in "!test_dir!", but not using...
             set test_dir=
         )
     ) else (
 
         :: if the user provided git executable is not found
         if !errorlevel! equ -255 (
-            call :verbose-output No git at "!git_executable!" found.
+            call :verbose_output No git at "!git_executable!" found.
             set test_dir=
         )
 
@@ -209,8 +209,8 @@ if defined GIT_INSTALL_ROOT (
 )
 
 endlocal & set "PATH=%PATH%" & set "LANG=%LANG%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-%lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-%lib_console% debug-output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
+%lib_console% debug_output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+%lib_console% debug_output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
 goto :PATH_ENHANCE
 
 :NO_GIT
@@ -288,7 +288,7 @@ call "%user_aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    %lib_console% verbose-output "Running Git for Windows one time Post Install...."
+    %lib_console% verbose_output "Running Git for Windows one time Post Install...."
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -296,7 +296,7 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-%lib_console% debug-output init.bat "Env Var - HOME=%HOME%"
+%lib_console% debug_output init.bat "Env Var - HOME=%HOME%"
 
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
 if exist "%CMDER_ROOT%\config\user_profile.cmd" (
