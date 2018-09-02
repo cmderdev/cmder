@@ -43,3 +43,24 @@ exit /b
 
     pause
     exit /b
+
+:cmder_shell
+:::===============================================================================
+:::show_subs - shows all sub routines in a .bat/.cmd file with documentation
+:::.
+:::include:
+:::.
+:::       call "lib_base.cmd"
+:::.
+:::usage:
+:::.
+:::       %lib_base% is_cmd
+:::.
+:::options:
+:::.
+:::       file <in> full path to file containing lib_routines to display
+:::.
+:::-------------------------------------------------------------------------------
+    echo %comspec% | find /i "\cmd.exe" > nul && set "CMDER_SHELL=cmd.exe"
+    echo %comspec% | find /i "\tcc.exe" > nul && set "CMDER_SHELL=tcc.exe"
+    exit /b

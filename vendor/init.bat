@@ -33,6 +33,7 @@ call "%cmder_root%\vendor\lib\lib_console"
 call "%cmder_root%\vendor\lib\lib_git"
 call "%cmder_root%\vendor\lib\lib_profile"
 
+
 :var_loop
     if "%~1" == "" (
         goto :start
@@ -85,6 +86,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
 goto var_loop
 
 :start
+%lib_base% cmder_shell
 %lib_console% debug_output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
 %lib_console% debug_output init.bat "Env Var - debug_output=%debug_output%"
 
@@ -101,8 +103,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set architecture_bits=64
 )
 
-REM echo %comspec% |find /i "tcc.exe">nul
-REM if %errorlevel% == 1 (
+if "%CMDER_SHELL%" neq "tcc.exe" (
   :: Tell the user about the clink config files...
   if defined "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\settings" (
       echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
@@ -119,7 +120,7 @@ REM if %errorlevel% == 1 (
   ) else (
       "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
   )
-REM )
+)
 
 :: Prepare for git-for-windows
 
@@ -250,8 +251,7 @@ if not defined user_aliases (
 )
 
 
-echo %comspec% | find /i "tcc.exe">nul
-if "%errorlevel%" == "1" (
+if "%CMDER_SHELL%" neq "tcc.exe" (
   REM The aliases environment variable is used by alias.bat to id
   REM the default file to store new aliases in.
   if not defined aliases (
