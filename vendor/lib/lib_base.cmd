@@ -54,7 +54,7 @@ exit /b
 :::.
 :::usage:
 :::.
-:::       %lib_base% is_cmd
+:::       %lib_base% cmder_shell
 :::.
 :::options:
 :::.
@@ -68,7 +68,7 @@ exit /b
     set CMDER_CLINK=1
     if "%CMDER_SHELL%" equ "tcc" set CMDER_CLINK=0
     if "%CMDER_SHELL%" equ "tccle" set CMDER_CLINK=0
-    
+
     set CMDER_ALIASES=1
     if "%CMDER_SHELL%" equ "tcc" set CMDER_ALIASES=0
     if "%CMDER_SHELL%" equ "tccle" set CMDER_ALIASES=0
