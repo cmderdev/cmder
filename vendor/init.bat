@@ -7,8 +7,8 @@
 :: !!! Use "%CMDER_ROOT%\config\user_profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
-set verbose-output=0
-set debug-output=0
+set verbose_output=0
+set debug_output=0
 set max_depth=1
 
 :: Find root dir
@@ -37,9 +37,9 @@ call "%cmder_root%\vendor\lib\lib_profile"
     if "%~1" == "" (
         goto :start
     ) else if /i "%1"=="/v" (
-        set verbose-output=1
+        set verbose_output=1
     ) else if /i "%1"=="/d" (
-        set debug-output=1
+        set debug_output=1
     ) else if /i "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
             set "max_depth=%~2"
@@ -62,11 +62,11 @@ call "%cmder_root%\vendor\lib\lib_profile"
             shift
         )
     ) else if /i "%1" == "/git_install_root" (
-        if exist "%~2" (
+        if exist "%2\cmd\git.exe" (
             set "GIT_INSTALL_ROOT=%~2"
             shift
         ) else (
-            %lib_console% show_error "The Git install root folder "%~2", you specified does not exist!"
+            %lib_console% show_error "The Git install root folder "%~2\cmd\git.exe", you specified does not exist!"
             exit /b
         )
     ) else if /i "%1" == "/home" (
@@ -85,11 +85,11 @@ call "%cmder_root%\vendor\lib\lib_profile"
 goto var_loop
 
 :start
-%lib_console% debug-output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
-%lib_console% debug-output init.bat "Env Var - debug-output=%debug-output%"
+%lib_console% debug_output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
+%lib_console% debug_output init.bat "Env Var - debug_output=%debug_output%"
 
 if defined CMDER_USER_CONFIG (
-    %lib_console% debug-output init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
+    %lib_console% debug_output init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 )
 
 :: Pick right version of clink
@@ -101,21 +101,24 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set architecture_bits=64
 )
 
-:: Tell the user about the clink config files...
-if defined "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\settings" (
-    echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
-    echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
+echo %comspec% |find /i "tcc.exe">nul
+if %errorlevel% == 1 (
+  :: Tell the user about the clink config files...
+  if defined "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\settings" (
+      echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
+      echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
+  
+  ) else if not exist "%CMDER_ROOT%\config\settings" (
+      echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
+      echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
+  )
 
-} else if not exist "%CMDER_ROOT%\config\settings" (
-    echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
-    echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
-)
-
-:: Run clink
-if defined CMDER_USER_CONFIG (
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
-) else (
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+  :: Run clink
+  if defined CMDER_USER_CONFIG (
+      "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
+  ) else (
+      "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+  )
 )
 
 :: Prepare for git-for-windows
@@ -134,7 +137,7 @@ if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT)
 )
 
-%lib_console% debug-output init.bat "Looking for Git install root..."
+%lib_console% debug_output init.bat "Looking for Git install root..."
 
 :: get the version information for vendored git binary
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
@@ -165,19 +168,18 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
             set test_dir=
             goto :FOUND_GIT
         ) else (
-            call :verbose-output Found old !GIT_VERSION_USER! in "!test_dir!", but not using...
+            call :verbose_output Found old !GIT_VERSION_USER! in "!test_dir!", but not using...
             set test_dir=
         )
     ) else (
 
         :: if the user provided git executable is not found
         if !errorlevel! equ -255 (
-            call :verbose-output No git at "!git_executable!" found.
+            call :verbose_output No git at "!git_executable!" found.
             set test_dir=
         )
 
     )
-
 )
 
 :: our last hope: our own git...
@@ -209,8 +211,8 @@ if defined GIT_INSTALL_ROOT (
 )
 
 endlocal & set "PATH=%PATH%" & set "LANG=%LANG%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-%lib_console% debug-output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-%lib_console% debug-output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
+%lib_console% debug_output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+%lib_console% debug_output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
 goto :PATH_ENHANCE
 
 :NO_GIT
@@ -246,40 +248,44 @@ if not defined user_aliases (
   )
 )
 
-:: The aliases environment variable is used by alias.bat to id
-:: the default file to store new aliases in.
-if not defined aliases (
-  set "aliases=%user_aliases%"
-)
 
-:: Make sure we have a self-extracting user_aliases.cmd file
-setlocal enabledelayedexpansion
-if not exist "%user_aliases%" (
-    echo Creating initial user_aliases store in "%user_aliases%"...
-    copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
-) else (
-    type "%user_aliases%" | findstr /i ";= Add aliases below here" >nul
-    if "!errorlevel!" == "1" (
-        echo Creating initial user_aliases store in "%user_aliases%"...
-        if defined CMDER_USER_CONFIG (
-            copy "%user_aliases%" "%user_aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
-        ) else (
-            copy "%user_aliases%" "%user_aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
-        )
-    )
+echo %comspec% |find /i "tcc.exe">nul
+if %errorlevel% == 1 (
+  :: The aliases environment variable is used by alias.bat to id
+  :: the default file to store new aliases in.
+  if not defined aliases (
+    set "aliases=%user_aliases%"
+  )
+  
+  :: Make sure we have a self-extracting user_aliases.cmd file
+  setlocal enabledelayedexpansion
+  if not exist "%user_aliases%" (
+      echo Creating initial user_aliases store in "%user_aliases%"...
+      copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+  ) else (
+      type "%user_aliases%" | findstr /i ";= Add aliases below here" >nul
+      if "!errorlevel!" == "1" (
+          echo Creating initial user_aliases store in "%user_aliases%"...
+          if defined CMDER_USER_CONFIG (
+              copy "%user_aliases%" "%user_aliases%.old_format"
+              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+          ) else (
+              copy "%user_aliases%" "%user_aliases%.old_format"
+              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+          )
+      )
+  )
+  
+  :: Update old 'user_aliases' to new self executing 'user_aliases.cmd'
+  if exist "%CMDER_ROOT%\config\aliases" (
+    echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
+    type "%CMDER_ROOT%\config\aliases" >> "%user_aliases%" && del "%CMDER_ROOT%\config\aliases"
+  ) else if exist "%user_aliases%.old_format" (
+    echo Updating old "%user_aliases%" to new format...
+    type "%user_aliases%.old_format" >> "%user_aliases%" && del "%user_aliases%.old_format"
+  )
+  endlocal
 )
-
-:: Update old 'user_aliases' to new self executing 'user_aliases.cmd'
-if exist "%CMDER_ROOT%\config\aliases" (
-  echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
-  type "%CMDER_ROOT%\config\aliases" >> "%user_aliases%" && del "%CMDER_ROOT%\config\aliases"
-) else if exist "%user_aliases%.old_format" (
-  echo Updating old "%user_aliases%" to new format...
-  type "%user_aliases%.old_format" >> "%user_aliases%" && del "%user_aliases%.old_format"
-)
-endlocal
 
 :: Add aliases to the environment
 call "%user_aliases%"
@@ -288,7 +294,7 @@ call "%user_aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    %lib_console% verbose-output "Running Git for Windows one time Post Install...."
+    %lib_console% verbose_output "Running Git for Windows one time Post Install...."
     pushd "%GIT_INSTALL_ROOT%\"
     "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
     popd
@@ -296,7 +302,7 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-%lib_console% debug-output init.bat "Env Var - HOME=%HOME%"
+%lib_console% debug_output init.bat "Env Var - HOME=%HOME%"
 
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
 if exist "%CMDER_ROOT%\config\user_profile.cmd" (
@@ -332,7 +338,8 @@ echo @echo off
 ) >"%initialConfig%"
 )
 
-if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
+echo %comspec% |find /i "tcc.exe">nul
+if %errorlevel% == 1 if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
   echo Cmder's 'alias' command has been moved into '%CMDER_ROOT%\vendor\bin\alias.cmd'
   echo to get rid of this message either:
   echo.
