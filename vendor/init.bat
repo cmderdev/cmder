@@ -33,7 +33,6 @@ call "%cmder_root%\vendor\lib\lib_console"
 call "%cmder_root%\vendor\lib\lib_git"
 call "%cmder_root%\vendor\lib\lib_profile"
 
-
 :var_loop
     if "%~1" == "" (
         goto :start
@@ -86,6 +85,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
 goto var_loop
 
 :start
+:: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES
 %lib_base% cmder_shell
 %lib_console% debug_output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
 %lib_console% debug_output init.bat "Env Var - debug_output=%debug_output%"
@@ -103,22 +103,22 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set architecture_bits=64
 )
 
-if "%CMDER_SHELL%" neq "tcc.exe" (
-  :: Tell the user about the clink config files...
-  if defined "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\settings" (
-      echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
-      echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
-  
-  ) else if not exist "%CMDER_ROOT%\config\settings" (
-      echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
-      echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
-  )
+if "%CMDER_CLINK%" == "1" (
+  %lib_console% verbose_output "Injecting Clink..."
 
   :: Run clink
   if defined CMDER_USER_CONFIG (
-      "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
+    if not exist "%CMDER_USER_CONFIG%\settings" (
+      echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
+      echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
+    )
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
   ) else (
-      "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+    if not exist "%CMDER_ROOT%\config\settings" (
+      echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
+      echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
+    )
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
   )
 )
 
@@ -250,8 +250,7 @@ if not defined user_aliases (
   )
 )
 
-
-if "%CMDER_SHELL%" neq "tcc.exe" (
+if "%CMDER_ALIASES%" == "1" (
   REM The aliases environment variable is used by alias.bat to id
   REM the default file to store new aliases in.
   if not defined aliases (
@@ -340,8 +339,8 @@ echo.
 echo @echo off
 ) >"%initialConfig%"
 )
-echo %comspec% | find /i "tcc.exe">nul
-if %errorlevel% == 1 if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
+
+if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
   echo Cmder's 'alias' command has been moved into '%CMDER_ROOT%\vendor\bin\alias.cmd'
   echo to get rid of this message either:
   echo.
