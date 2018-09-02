@@ -258,7 +258,7 @@ if "%CMDER_ALIASES%" == "1" (
   if not defined aliases (
     set "aliases=%user_aliases%"
   )
-  
+
   REM Make sure we have a self-extracting user_aliases.cmd file
   setlocal enabledelayedexpansion
   if not exist "%user_aliases%" (
@@ -277,7 +277,7 @@ if "%CMDER_ALIASES%" == "1" (
           )
       )
   )
-  
+
   :: Update old 'user_aliases' to new self executing 'user_aliases.cmd'
   if exist "%CMDER_ROOT%\config\aliases" (
     echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
@@ -352,7 +352,7 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
   echo.
   echo If you have customized it and want to continue using it instead of the included version
   echo   * Rename '%CMDER_ROOT%\bin\alias.bat' to '%CMDER_ROOT%\bin\alias.cmd'.
-  echo   * Search for 'user-aliases' and replace it with 'user_aliases'. 
+  echo   * Search for 'user-aliases' and replace it with 'user_aliases'.
 )
 
 set initialConfig=
