@@ -101,8 +101,8 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set architecture_bits=64
 )
 
-echo %comspec% |find /i "tcc.exe">nul
-if %errorlevel% == 1 (
+REM echo %comspec% |find /i "tcc.exe">nul
+REM if %errorlevel% == 1 (
   :: Tell the user about the clink config files...
   if defined "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\settings" (
       echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
@@ -119,7 +119,7 @@ if %errorlevel% == 1 (
   ) else (
       "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
   )
-)
+REM )
 
 :: Prepare for git-for-windows
 
@@ -134,7 +134,7 @@ if not defined TERM set TERM=cygwin
 :: also check that we have a recent enough version of git by examining the version string
 setlocal enabledelayedexpansion
 if defined GIT_INSTALL_ROOT (
-    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT)
+    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT
 )
 
 %lib_console% debug_output init.bat "Looking for Git install root..."
@@ -205,7 +205,8 @@ if defined GIT_INSTALL_ROOT (
 
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
-    for /F "delims=" %%F in ('env /usr/bin/locale -uU 2^>nul') do (
+
+    for /F "delims=" %%F in ('env /usr/bin/locale -uU 2') do (
         set "LANG=%%F"
     )
 )
@@ -249,15 +250,15 @@ if not defined user_aliases (
 )
 
 
-echo %comspec% |find /i "tcc.exe">nul
-if %errorlevel% == 1 (
-  :: The aliases environment variable is used by alias.bat to id
-  :: the default file to store new aliases in.
+echo %comspec% | find /i "tcc.exe">nul
+if "%errorlevel%" == "1" (
+  REM The aliases environment variable is used by alias.bat to id
+  REM the default file to store new aliases in.
   if not defined aliases (
     set "aliases=%user_aliases%"
   )
   
-  :: Make sure we have a self-extracting user_aliases.cmd file
+  REM Make sure we have a self-extracting user_aliases.cmd file
   setlocal enabledelayedexpansion
   if not exist "%user_aliases%" (
       echo Creating initial user_aliases store in "%user_aliases%"...
@@ -279,10 +280,12 @@ if %errorlevel% == 1 (
   :: Update old 'user_aliases' to new self executing 'user_aliases.cmd'
   if exist "%CMDER_ROOT%\config\aliases" (
     echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
-    type "%CMDER_ROOT%\config\aliases" >> "%user_aliases%" && del "%CMDER_ROOT%\config\aliases"
+    type "%CMDER_ROOT%\config\aliases" >> "%user_aliases%"
+    del "%CMDER_ROOT%\config\aliases"
   ) else if exist "%user_aliases%.old_format" (
     echo Updating old "%user_aliases%" to new format...
-    type "%user_aliases%.old_format" >> "%user_aliases%" && del "%user_aliases%.old_format"
+    type "%user_aliases%.old_format" >> "%user_aliases%"
+    del "%user_aliases%.old_format"
   )
   endlocal
 )
@@ -337,8 +340,7 @@ echo.
 echo @echo off
 ) >"%initialConfig%"
 )
-
-echo %comspec% |find /i "tcc.exe">nul
+echo %comspec% | find /i "tcc.exe">nul
 if %errorlevel% == 1 if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
   echo Cmder's 'alias' command has been moved into '%CMDER_ROOT%\vendor\bin\alias.cmd'
   echo to get rid of this message either:
