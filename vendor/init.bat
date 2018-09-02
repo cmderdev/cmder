@@ -104,7 +104,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 )
 
 if "%CMDER_CLINK%" == "1" (
-  %lib_console% verbose_output "Injecting Clink..."
+  %lib_console% verbose_output "Injecting Clink!"
 
   :: Run clink
   if defined CMDER_USER_CONFIG (
@@ -120,6 +120,8 @@ if "%CMDER_CLINK%" == "1" (
     )
     "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
   )
+) else (
+  %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
 )
 
 :: Prepare for git-for-windows
