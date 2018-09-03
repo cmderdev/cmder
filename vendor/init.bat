@@ -62,7 +62,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
             shift
         )
     ) else if /i "%1" == "/git_install_root" (
-        if exist "%2" (
+        if exist "%~2" (
             set "GIT_INSTALL_ROOT=%~2"
             shift
         ) else (
