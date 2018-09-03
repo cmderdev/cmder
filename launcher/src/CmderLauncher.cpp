@@ -422,6 +422,7 @@ cmderOptions GetOption()
 
 	for (int i = 1; i < argCount; i++)
 	{
+
 		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
 
 		if (_wcsicmp(L"/c", szArgList[i]) == 0)
@@ -441,6 +442,12 @@ cmderOptions GetOption()
 		}
 		else if (_wcsicmp(L"/start", szArgList[i]) == 0)
 		{
+			int len = wcslen(szArgList[i + 1]);
+			if (wcscmp(&szArgList[i + 1][len - 1], L"\"") == 0)
+			{
+				szArgList[i + 1][len - 1] = '\0';
+			}
+
 			if (PathFileExists(szArgList[i + 1]))
 			{
 				cmderOptions.cmderStart = szArgList[i + 1];
@@ -476,7 +483,7 @@ cmderOptions GetOption()
 		{
 			cmderOptions.unRegisterApp = true;
 			cmderOptions.registerApp = false;
-			if (szArgList[i + 1] != NULL)
+			if (szArgList[i + 1] != NULL) 
 			{
 				if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
 				{
@@ -485,9 +492,22 @@ cmderOptions GetOption()
 				}
 			}
 		}
-		else if (cmderOptions.cmderStart == L"" && PathFileExists(szArgList[i]))
+		else if (cmderOptions.cmderStart == L"")
 		{
-			cmderOptions.cmderStart = szArgList[i];
+			int len = wcslen(szArgList[i]);
+			if (wcscmp(&szArgList[i][len - 1], L"\"") == 0)
+			{
+				szArgList[i][len - 1] = '\0';
+			}
+		
+			if (PathFileExists(szArgList[i]))
+			{
+				cmderOptions.cmderStart = szArgList[i];
+				i++;
+			}
+			else {
+				MessageBox(NULL, szArgList[i], L"Folder does not exist!", MB_OK);
+			}
 		}
 		else {
 			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
