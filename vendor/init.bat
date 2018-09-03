@@ -95,6 +95,8 @@ if defined CMDER_USER_CONFIG (
 )
 
 :: Pick right version of clink
+echo here
+
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set architecture=86
     set architecture_bits=32
@@ -223,6 +225,7 @@ goto :PATH_ENHANCE
 :: Skip this if GIT WAS FOUND else we did 'endlocal' above!
 endlocal
 
+echo here2
 :PATH_ENHANCE
 %lib_path% enhance_path "%CMDER_ROOT%\vendor\bin"
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
@@ -356,4 +359,6 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 )
 
 set initialConfig=
+
+
 exit /b
