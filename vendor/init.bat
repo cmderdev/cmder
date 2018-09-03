@@ -62,11 +62,11 @@ call "%cmder_root%\vendor\lib\lib_profile"
             shift
         )
     ) else if /i "%1" == "/git_install_root" (
-        if exist "%2\cmd\git.exe" (
+        if exist "%2" (
             set "GIT_INSTALL_ROOT=%~2"
             shift
         ) else (
-            %lib_console% show_error "The Git install root folder "%~2\cmd\git.exe", you specified does not exist!"
+            %lib_console% show_error "The Git install root folder "%~2", you specified does not exist!"
             exit /b
         )
     ) else if /i "%1" == "/home" (
