@@ -1,6 +1,8 @@
 
 ## Those files should be taken from their repositary
 
+bin/*/*
+!bin/Readme.md
 vendor/*/*
 !vendor/bin/*
 !vendor/lib/*
@@ -23,4 +25,3 @@ config/profile.d
 .github_changelog_generator
 launcher/.vs
 launcher/src/version.rc2
-!bin/Readme.md
