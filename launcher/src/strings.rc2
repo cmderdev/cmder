@@ -4,9 +4,9 @@
 
 STRINGTABLE
 {
-	IDS_TITLE             L"Cmder Launcher"
+	IDS_TITLE             "Cmder Launcher"
 	
-	IDS_SWITCHES          L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n"
+	IDS_SWITCHES          L"Valid options:\n\n    /c [CMDER User Root Path]\n    /task [ConEmu Task Name]\n    [/start [Start in Path] | [Start in Path]]\n    /single\n\nor, either:\n    /register [USER | ALL]\n    /unregister [USER | ALL]"
 }
 
 /////////////////////////////////////////////////////////////////////////////

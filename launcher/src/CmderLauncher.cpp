@@ -9,6 +9,7 @@
 #include <iostream>
 
 #pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "comctl32.lib")
 #pragma warning( disable : 4091 )
 
 #ifndef UNICODE
@@ -28,6 +29,39 @@
 #define __WFUNCTION__ WIDEN(__FUNCTION__)
 
 #define FAIL_ON_ERROR(x) { DWORD ec; if ((ec = (x)) != ERROR_SUCCESS) { ShowErrorAndExit(ec, __WFUNCTION__, __LINE__); } }
+
+void TaskDialogOpen( PCWSTR mainStr, PCWSTR contentStr )
+{
+
+	HRESULT hr = NULL;
+
+	TASKDIALOGCONFIG tsk = {sizeof(tsk)};
+
+	HWND hOwner = NULL;
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	PCWSTR tskTitle = MAKEINTRESOURCE(IDS_TITLE);
+
+	tsk.hInstance = hInstance;
+	tsk.pszMainIcon = MAKEINTRESOURCE(IDI_CMDER);
+	tsk.pszWindowTitle = tskTitle;
+	tsk.pszMainInstruction = mainStr; 
+	tsk.pszContent = contentStr;
+
+	TASKDIALOG_BUTTON btns[1] = {
+		{ IDOK,     L"OK" }
+	};
+
+	tsk.dwFlags        = TDF_ALLOW_DIALOG_CANCELLATION|TDF_ENABLE_HYPERLINKS;
+	tsk.pButtons       = btns;
+	tsk.cButtons       = _countof(btns);
+
+	tsk.hwndParent     = hOwner;
+
+	int selectedButtonId = IDOK;
+
+	hr = TaskDialogIndirect( &tsk, &selectedButtonId, NULL, NULL );
+
+}
 
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
@@ -465,7 +499,7 @@ cmderOptions GetOption()
 			LoadString(hMod, IDS_SWITCHES, validOptions, 512);
 
 			// display list of valid options on unrecognized parameter
-			MessageBox(NULL, validOptions, MB_TITLE, MB_OK);
+			TaskDialogOpen( L"Unrecognized parameter.", validOptions );
 			cmderOptions.error = true;
 		}
 	}
