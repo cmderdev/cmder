@@ -460,7 +460,12 @@ cmderOptions GetOption()
 			cmderOptions.cmderStart = szArgList[i];
 		}
 		else {
-			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+			wchar_t validOptions[512];
+			HMODULE hMod = GetModuleHandle(NULL);
+			LoadString(hMod, IDS_SWITCHES, validOptions, 512);
+
+			// display list of valid options on unrecognized parameter
+			MessageBox(NULL, validOptions, MB_TITLE, MB_OK);
 			cmderOptions.error = true;
 		}
 	}

@@ -9,6 +9,7 @@
                                 
 #include "resource.h"
 #include "version.rc2"
+#include "strings.rc2"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
