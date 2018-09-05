@@ -357,5 +357,4 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 
 set initialConfig=
 
-
 exit /b
