@@ -88,6 +88,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	wchar_t userProfiledDirPath[MAX_PATH] = { 0 };
 	wchar_t userProfilePath[MAX_PATH] = { 0 };
 	wchar_t legacyUserProfilePath[MAX_PATH] = { 0 };
+	wchar_t userAliasesPath[MAX_PATH] = { 0 };
+	wchar_t legacyUserAliasesPath[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
 
 	std::wstring cmderStart = path;
@@ -122,6 +124,20 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		rename(lPr, pR);
 	}
 
+	PathCombine(legacyUserAliasesPath, configDirPath, L"user-aliases.cmd");
+	if (PathFileExists(legacyUserAliasesPath)) {
+		PathCombine(userAliasesPath, configDirPath, L"user_aliases.cmd");
+
+		char      *lPr = (char *)malloc(MAX_PATH);
+		char      *pR = (char *)malloc(MAX_PATH);
+		size_t i;
+		wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+			legacyUserAliasesPath, (size_t)MAX_PATH);
+		wcstombs_s(&i, pR, (size_t)MAX_PATH,
+			userAliasesPath, (size_t)MAX_PATH);
+		rename(lPr, pR);
+	}
+
 	if (wcscmp(userConfigDirPath, L"") == 0)
 	{
 		PathCombine(userConfigDirPath, exeDir, L"config");
@@ -148,6 +164,20 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				legacyUserProfilePath, (size_t)MAX_PATH);
 			wcstombs_s(&i, pR, (size_t)MAX_PATH,
 				userProfilePath, (size_t)MAX_PATH);
+			rename(lPr, pR);
+		}
+
+		PathCombine(legacyUserAliasesPath, userConfigDirPath, L"user-aliases.cmd");
+		if (PathFileExists(legacyUserAliasesPath)) {
+			PathCombine(userAliasesPath, userConfigDirPath, L"user_aliases.cmd");
+
+			char      *lPr = (char *)malloc(MAX_PATH);
+			char      *pR = (char *)malloc(MAX_PATH);
+			size_t i;
+			wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+				legacyUserAliasesPath, (size_t)MAX_PATH);
+			wcstombs_s(&i, pR, (size_t)MAX_PATH,
+				userAliasesPath, (size_t)MAX_PATH);
 			rename(lPr, pR);
 		}
 	}
@@ -392,6 +422,7 @@ cmderOptions GetOption()
 
 	for (int i = 1; i < argCount; i++)
 	{
+
 		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
 
 		if (_wcsicmp(L"/c", szArgList[i]) == 0)
@@ -411,6 +442,12 @@ cmderOptions GetOption()
 		}
 		else if (_wcsicmp(L"/start", szArgList[i]) == 0)
 		{
+			int len = wcslen(szArgList[i + 1]);
+			if (wcscmp(&szArgList[i + 1][len - 1], L"\"") == 0)
+			{
+				szArgList[i + 1][len - 1] = '\0';
+			}
+
 			if (PathFileExists(szArgList[i + 1]))
 			{
 				cmderOptions.cmderStart = szArgList[i + 1];
@@ -446,7 +483,7 @@ cmderOptions GetOption()
 		{
 			cmderOptions.unRegisterApp = true;
 			cmderOptions.registerApp = false;
-			if (szArgList[i + 1] != NULL)
+			if (szArgList[i + 1] != NULL) 
 			{
 				if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
 				{
@@ -455,9 +492,22 @@ cmderOptions GetOption()
 				}
 			}
 		}
-		else if (cmderOptions.cmderStart == L"" && PathFileExists(szArgList[i]))
+		else if (cmderOptions.cmderStart == L"")
 		{
-			cmderOptions.cmderStart = szArgList[i];
+			int len = wcslen(szArgList[i]);
+			if (wcscmp(&szArgList[i][len - 1], L"\"") == 0)
+			{
+				szArgList[i][len - 1] = '\0';
+			}
+		
+			if (PathFileExists(szArgList[i]))
+			{
+				cmderOptions.cmderStart = szArgList[i];
+				i++;
+			}
+			else {
+				MessageBox(NULL, szArgList[i], L"Folder does not exist!", MB_OK);
+			}
 		}
 		else {
 			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
