@@ -1,7 +1,10 @@
 
 ## Those files should be taken from their repositary
 
+bin/*/*
+!bin/Readme.md
 vendor/*/*
+!vendor/bin/*
 !vendor/lib/*
 !vendor/*
 !vendor/psmodules/PsGet
@@ -14,8 +17,11 @@ build/
 Version v*
 *.bak
 config/user-*
+config/user_*
+config/*.lua
 config/settings
 config/aliases
 config/profile.d
 .github_changelog_generator
 launcher/.vs
+launcher/src/version.rc2

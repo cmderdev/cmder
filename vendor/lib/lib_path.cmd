@@ -57,28 +57,28 @@ exit /b
     set "find_query=%find_query: =\ %"
     set found=0
 
-    %lib_console% debug-output  :enhance_path "Env Var - find_query=%find_query%"
-    echo "%PATH%"|findstr >nul /I /R ";%find_query%\"$"
+    %lib_console% debug_output  :enhance_path "Env Var - find_query=%find_query%"
+    echo "%path%"|findstr >nul /I /R ";%find_query%\"$"
     if "!ERRORLEVEL!" == "0" set found=1
 
-    %lib_console% debug-output  :enhance_path "Env Var 1 - found=!found!"
+    %lib_console% debug_output  :enhance_path "Env Var 1 - found=!found!"
     if "!found!" == "0" (
-        echo "%PATH%"|findstr >nul /i /r ";%find_query%;"
+        echo "%path%"|findstr >nul /i /r ";%find_query%;"
         if "!ERRORLEVEL!" == "0" set found=1
-        %lib_console% debug-output  :enhance_path "Env Var 2 - found=!found!"
+        %lib_console% debug_output  :enhance_path "Env Var 2 - found=!found!"
     )
 
     if "%found%" == "0" (
-        %lib_console% debug-output :enhance_path "BEFORE Env Var - PATH=!path!"
+        %lib_console% debug_output :enhance_path "BEFORE Env Var - PATH=!path!"
         if /i "%position%" == "append" (
-            %lib_console% debug-output :enhance_path "Appending '%add_path%'"
+            %lib_console% debug_output :enhance_path "Appending '%add_path%'"
             set "PATH=%PATH%;%add_path%"
         ) else (
-            %lib_console% debug-output :enhance_path "Prepending '%add_path%'"
+            %lib_console% debug_output :enhance_path "Prepending '%add_path%'"
             set "PATH=%add_path%;%PATH%"
         )
 
-        %lib_console% debug-output  :enhance_path "AFTER Env Var - PATH=!path!"
+        %lib_console% debug_output  :enhance_path "AFTER Env Var - PATH=!path!"
     )
 
     endlocal & set "PATH=%PATH:;;=;%"
@@ -134,20 +134,20 @@ exit /b
 
     if "%depth%" == "" set depth=0
 
-    %lib_console% debug-output  :enhance_path_recursive "Env Var - add_path=%add_path%"
-    %lib_console% debug-output  :enhance_path_recursive "Env Var - position=%position%"
-    %lib_console% debug-output  :enhance_path_recursive "Env Var - max_depth=%max_depth%"
+    %lib_console% debug_output  :enhance_path_recursive "Env Var - add_path=%add_path%"
+    %lib_console% debug_output  :enhance_path_recursive "Env Var - position=%position%"
+    %lib_console% debug_output  :enhance_path_recursive "Env Var - max_depth=%max_depth%"
 
     if %max_depth% gtr !depth! (
-        %lib_console% debug-output :enhance_path_recursive "Adding parent directory - '%add_path%'"
+        %lib_console% debug_output :enhance_path_recursive "Adding parent directory - '%add_path%'"
         call :enhance_path "%add_path%" %position%
         set /a "depth=!depth!+1"
 
         for /d %%i in ("%add_path%\*") do (
-            %lib_console% debug-output  :enhance_path_recursive "Env Var BEFORE - depth=!depth!"
-            %lib_console% debug-output :enhance_path_recursive "Found Subdirectory - '%%~fi'"
+            %lib_console% debug_output  :enhance_path_recursive "Env Var BEFORE - depth=!depth!"
+            %lib_console% debug_output :enhance_path_recursive "Found Subdirectory - '%%~fi'"
             call :enhance_path_recursive "%%~fi" %max_depth% %position%
-            %lib_console% debug-output  :enhance_path_recursive "Env Var AFTER- depth=!depth!"
+            %lib_console% debug_output  :enhance_path_recursive "Env Var AFTER- depth=!depth!"
         )
     )
 
