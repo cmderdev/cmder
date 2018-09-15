@@ -22,7 +22,7 @@ if /i "%currenArgu%" equ "/setPath" (
   set "ccall=call %~dp0cexec.cmd"
   set "cexec=%~dp0cexec.cmd"
 ) else if /i "%currenArgu%" == "/?" (
-  call :help
+  goto :help
 ) else if /i "%currenArgu%" equ "/help" (
   goto :help
 ) else if /i "%currenArgu%" equ "/h" (
