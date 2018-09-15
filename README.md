@@ -247,37 +247,51 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
-### Handling with custom arguments when using init.bat
+### Customizing user sessions using `init.bat` custom arguments. 
 
-You can pass custom arguments to `init.bat` and use `cexec` to detect it.
+You can pass custom arguments to `init.bat` and use `cexec` in your `user_profile.cmd` to evaluate these
+arguments then execute commands based on a particular flag being detected or not.
 
-It is useful when you have multiple modes to execute cmder.
+`init.bat` creates two shortcuts for using `cexec` in your profile scripts.
 
-If you use
+  Evaluate flags, runs commands if found,  and returns to the calling script and continues.
 
-```batch
+  ```
+  ccall=call C:\Users\user\cmderdev\vendor\bin\cexec.cmd
+  ```  
 
-init.bat /startNotepad
+  Example: `%ccall% /startnotepad start notepad.exe`
+  
+  Evaluate flags, runs commands if found, and does not return to the calling script.
 
-```
+  ```
+  cexec=C:\Users\user\cmderdev\vendor\bin\cexec.cmd
+  ```
+  
+  Example: `%cexec% /startnotepad start notepad.exe`
 
-to start init.bat with custom argument(`/startNotepad`) and put
+It is useful when you have multiple tasks to execute `cmder` and need it to initialize
+the session differently depending on the task chosen.
 
-```batch
+To conditionally start `notepad.exe` when you start a specific `cmder` task:
 
-call cexec "/startNotepad" "start" "notepad.exe"`
+* Press <kbd>win</kbd>+<kbd>alt</kbd>+<kbd>t</kbd>
+* Click `+` to add a new task.
+* Add the below to the `Commands` block:
 
-```
+  ```batch
+  
+  cmd.exe /k ""%ConEmuDir%\..\init.bat" /startnotepad"
+  
+  ```
 
-into `/config/user-profile.cmd`, then `notepad.exe` will be executed, and once you use
+* Add the below to your `%cmder_root%\config\user_profile.cmd`
 
-```batch
-
-init.bat
-
-```
-
-the `notepad.exe` won't be executed.
+  ```batch
+  
+  %ccall% "/startNotepad" "start" "notepad.exe"`
+  
+  ```
 
 To see detailed usage of `cexec`, type `cexec /?` in cmder.
 
