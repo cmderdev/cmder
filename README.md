@@ -148,7 +148,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 | `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                              | `%GIT_INSTALL_ROOT%\bin\ssh.exe`      |
 | `/user_aliases [file path]`     | File path pointing to user aliases.                                                              | `%CMDER_ROOT%\config\user-liases.cmd` |
 | `/v`                            | Enables verbose output.                                                                          | not set                               |
-| (custom arguments)              | User defined arguments processed by `flag_exists`. Type `%flag_exists% /?` for more useage.      | not set                               |
+| (custom arguments)              | User defined arguments processed by `cexec`. Type `cexec /?` for more useage.                    | not set                               |
 
 ### Cmder Shell User Config
 Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
@@ -249,7 +249,7 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 
 ### Handling with custom arguments when using init.bat
 
-You can pass custom arguments to `init.bat` and use `%flag_exists%` to detect it.
+You can pass custom arguments to `init.bat` and use `cexec` to detect it.
 
 It is useful when you have multiple modes to execute cmder.
 
@@ -265,7 +265,7 @@ to start init.bat with custom argument(`/startNotepad`) and put
 
 ```batch
 
-call %flag_exists% "/startNotepad" "start" "notepad.exe"`
+call cexec "/startNotepad" "start" "notepad.exe"`
 
 ```
 
@@ -279,7 +279,7 @@ init.bat
 
 the `notepad.exe` won't be executed.
 
-To see detailed usage of `%flag_exists%`, type `%flag_exists% /?` in cmder.
+To see detailed usage of `cexec`, type `cexec /?` in cmder.
 
 ### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs
 

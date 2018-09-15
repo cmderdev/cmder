@@ -29,6 +29,7 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+call "%cmder_root%\vendor\bin\cexec.cmd" /setpath
 call "%cmder_root%\vendor\lib\lib_base"
 call "%cmder_root%\vendor\lib\lib_path"
 call "%cmder_root%\vendor\lib\lib_console"
