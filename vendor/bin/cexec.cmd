@@ -55,12 +55,12 @@ set "feFlagName=%feFlagName% "
 echo %CMDER_USER_FLAGS% | find /i "%feFlagName%">nul
 if "%ERRORLEVEL%" == "0" (
   if "%feNOT%" == "false" (
-    call %feCommand% %feParam%
+    endlocal && call %feCommand% %feParam%
     exit /b 0
   )
 ) else (
   if "%feNOT%" == "true" (
-    call %feCommand% %feParam%
+    endlocal && call %feCommand% %feParam%
     exit /b 0
   )
 )
