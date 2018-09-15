@@ -84,7 +84,7 @@ echo   written by xiazeyu, inspired DRSDavidSoft.
 echo.
 echo Usage:
 echo.
-echo cexec [NOT] flagName command/program [parameters]
+echo cexec /setPath [NOT] flagName command/program [parameters]
 echo.
 echo   /setPath         Generate a global varible %%cexec%% for
 echo                    quicker use. Following arguments will be ignored.
