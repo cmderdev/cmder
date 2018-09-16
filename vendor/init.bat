@@ -7,7 +7,6 @@
 :: !!! Use "%CMDER_ROOT%\config\user_profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
-endlocal
 set verbose_output=0
 set debug_output=0
 set max_depth=1
