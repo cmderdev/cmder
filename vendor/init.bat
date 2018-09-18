@@ -137,14 +137,14 @@ if not defined TERM set TERM=cygwin
 :: also check that we have a recent enough version of git by examining the version string
 setlocal enabledelayedexpansion
 if defined GIT_INSTALL_ROOT (
-    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :FOUND_GIT
+    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
 )
 
 %lib_console% debug_output init.bat "Looking for Git install root..."
 
 :: get the version information for vendored git binary
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
-%lib_git% validate_version VENDORED !GIT_VERSION_VENDORED!
+%lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
 
 :: check if git is in path...
 for /F "delims=" %%F in ('where git.exe 2^>nul') do (
@@ -189,12 +189,22 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
+    %lib_console% debug_output "Using vendored Git from '!GIT_INSTALL_ROOT!..."
     %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd"
+    goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
 )
 
+:SPECIFIED_GIT
+%lib_console% debug_output "Using /GIT_INSTALL_ROOT from '%GIT_INSTALL_ROOT%..."
+goto :CONFIGURE_GIT
+
 :FOUND_GIT
+%lib_console% debug_output "Using found Git from '%GIT_INSTALL_ROOT%..."
+goto :CONFIGURE_GIT
+
+:CONFIGURE_GIT
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
@@ -326,12 +336,12 @@ if not exist "%initialConfig%" (
     echo Creating user startup file: "%initialConfig%"
     (
 echo :: use this file to run your own startup commands
-echo :: use  in front of the command to prevent printing the command
+echo :: use in front of the command to prevent printing the command
 echo.
 echo :: uncomment this to have the ssh agent load when cmder starts
 echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
 echo.
-echo :: uncomment this next two lines to use pageant as the ssh authentication agent
+echo :: uncomment the next two lines to use pageant as the ssh authentication agent
 echo :: SET SSH_AUTH_SOCK=/tmp/.ssh-pageant-auth-sock
 echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
 echo.
@@ -356,5 +366,6 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 )
 
 set initialConfig=
+set CMDER_CONFIGURED=1
 
 exit /b
