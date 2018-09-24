@@ -249,26 +249,26 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 
 ### Customizing user sessions using `init.bat` custom arguments. 
 
-You can pass custom arguments to `init.bat` and use `cexec` in your `user_profile.cmd` to evaluate these
+You can pass custom arguments to `init.bat` and use `cexec.cmd` in your `user_profile.cmd` to evaluate these
 arguments then execute commands based on a particular flag being detected or not.
 
-`init.bat` creates two shortcuts for using `cexec` in your profile scripts.
+`init.bat` creates two shortcuts for using `cexec.cmd` in your profile scripts.
 
-  Evaluate flags, runs commands if found,  and returns to the calling script and continues.
+#### `%ccall%` - Evaluates flags, runs commands if found,  and returns to the calling script and continues.
 
-  ```
-  ccall=call C:\Users\user\cmderdev\vendor\bin\cexec.cmd
-  ```  
+```
+ccall=call C:\Users\user\cmderdev\vendor\bin\cexec.cmd
+```  
 
-  Example: `%ccall% /startnotepad start notepad.exe`
-  
-  Evaluate flags, runs commands if found, and does not return to the calling script.
+Example: `%ccall% /startnotepad start notepad.exe`
 
-  ```
-  cexec=C:\Users\user\cmderdev\vendor\bin\cexec.cmd
-  ```
-  
-  Example: `%cexec% /startnotepad start notepad.exe`
+#### `%cexec%` - Evaluates flags, runs commands if found, and does not return to the calling script.
+
+```
+cexec=C:\Users\user\cmderdev\vendor\bin\cexec.cmd
+```
+
+Example: `%cexec% /startnotepad start notepad.exe`
 
 It is useful when you have multiple tasks to execute `cmder` and need it to initialize
 the session differently depending on the task chosen.
