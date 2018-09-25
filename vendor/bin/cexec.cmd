@@ -86,7 +86,7 @@ echo Usage:
 echo.
 echo cexec /setPath [NOT] flagName command/program [parameters]
 echo.
-echo   /setPath         Generate a global varible %%cexec%% for
+echo   /setPath         Generate a global varibles %%ccall%% and  %%cexec%% for
 echo                    quicker use. Following arguments will be ignored.
 echo.
 echo   NOT              Specifies that cexec should carry out
@@ -113,9 +113,9 @@ echo   caries out actions based on flags that are passed.
 echo.
 echo   Case 1:
 echo.
-echo   The following command in user-profile.cmd would execute "notepad.exe"
+echo   The following command in `user_profile.cmd` would execute "notepad.exe" and continue running the `user_profile.cmd`
 echo.
-echo     call cexec "/startNotepad" "start" "notepad.exe"
+echo     "%ccall%" "/startNotepad" "start" "notepad.exe"
 echo.
 echo   If you pass parameter to init.bat like:
 echo.
@@ -123,9 +123,9 @@ echo     init.bat /startNotepad
 echo.
 echo   Case 2:
 echo.
-echo   The following command in user-profile.cmd would execute "notepad.exe"
+echo   The following command in `user_profile.cmd` would execute "notepad.exe" and stop running the `user_profile.cmd`
 echo.
-echo     call cexec NOT "/dontStartNotepad" "start" "notepad.exe"
+echo     "%cexec%" NOT "/dontStartNotepad" "start" "notepad.exe"
 echo.
 echo   UNLESS you pass parameter to init.bat like:
 echo.
