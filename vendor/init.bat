@@ -353,15 +353,15 @@ echo @echo off
 )
 
 if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
-  echo Cmder's 'alias' command has been moved into '%CMDER_ROOT%\vendor\bin\alias.cmd'
+  echo Cmder's 'alias' command has been moved into "%CMDER_ROOT%\vendor\bin\alias.cmd"
   echo to get rid of this message either:
   echo.
-  echo Delete the file '%CMDER_ROOT%\bin\alias.bat'
+  echo Delete the file "%CMDER_ROOT%\bin\alias.bat"
   echo.
   echo or
   echo.
   echo If you have customized it and want to continue using it instead of the included version
-  echo   * Rename '%CMDER_ROOT%\bin\alias.bat' to '%CMDER_ROOT%\bin\alias.cmd'.
+  echo   * Rename "%CMDER_ROOT%\bin\alias.bat" to "%CMDER_ROOT%\bin\alias.cmd".
   echo   * Search for 'user-aliases' and replace it with 'user_aliases'.
 )
 
