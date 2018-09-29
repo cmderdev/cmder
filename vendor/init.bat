@@ -210,9 +210,9 @@ if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
     if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" append
     if exist "!GIT_INSTALL_ROOT!\mingw32" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32" append
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" append
     ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64" append
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" append
     )
     %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" append
 
