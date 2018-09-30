@@ -10,6 +10,7 @@
 set verbose_output=0
 set debug_output=0
 set max_depth=1
+set "CMDER_USER_FLAGS= "
 
 :: Find root dir
 if not defined CMDER_ROOT (
@@ -27,6 +28,7 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+call "%cmder_root%\vendor\bin\cexec.cmd" /setpath
 call "%cmder_root%\vendor\lib\lib_base"
 call "%cmder_root%\vendor\lib\lib_path"
 call "%cmder_root%\vendor\lib\lib_console"
@@ -80,6 +82,8 @@ call "%cmder_root%\vendor\lib\lib_profile"
     ) else if /i "%1" == "/svn_ssh" (
         set SVN_SSH=%2
         shift
+    ) else (
+      set "CMDER_USER_FLAGS=%1 %CMDER_USER_FLAGS%"
     )
     shift
 goto var_loop
@@ -347,6 +351,11 @@ echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
 echo.
 echo :: you can add your plugins to the cmder path like so
 echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
+echo.
+echo :: arguments in this batch are passed from init.bat, you can quickly parse them like so:
+echo :: more useage can be seen by typing "cexec /?"
+echo.
+echo :: %%ccall%% "/customOption" "command/program"
 echo.
 echo @echo off
 ) >"%initialConfig%"

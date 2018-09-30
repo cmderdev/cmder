@@ -41,12 +41,12 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 ## Cmder.exe Command Line Arguments
 
 
-| Argument            | Description                                                             |
-| ------------------- | ----------------------------------------------------------------------- |
+| Argument            | Description                                                                 |
+| ------------------- | -----------------------------------------------------------------------     |
 | `/C [user_root_path]` | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config` |
-| `/SINGLE`             | Start Cmder is single mode.                                             |
-| `/START [start_path]` | Folder path to start in.                                                |
-| `/TASK [task_name]`   | Task to start after launch.                                             |
+| `/SINGLE`             | Start Cmder in single mode.                                               |
+| `/START [start_path]` | Folder path to start in.                                                  |
+| `/TASK [task_name]`   | Task to start after launch.                                               |
 
 ## Context Menu Integration
 
@@ -105,7 +105,7 @@ Cmder, PowerShell, and Bash tabs all run on top of the Windows Console API and w
 
 You may however, choose to use an external installation of bash, such as Microsoft's [Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (called WSL) or the [Cygwin](https://cygwin.com/) project which provides POSIX support on windows.
 
-⚠ *NOTE:* Mintty tabs use a program called 'mintty' as the terminal emulator that is not based on the Windows Console API, rather it's rendered graphically by ConEmu. Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings.  As such, some differences in functionality are to be expected, such as Cmder not being able to apply a system-wide configuration to it. 
+⚠ *NOTE:* Mintty tabs use a program called 'mintty' as the terminal emulator that is not based on the Windows Console API, rather it's rendered graphically by ConEmu. Mintty differs from the other tabs in that it supports xterm/xterm-256color TERM types, and does not work with ConEmu settings like color schemes and key bindings.  As such, some differences in functionality are to be expected, such as Cmder not being able to apply a system-wide configuration to it.
 
 As a result mintty specific config is done via the `[%USERPROFILE%|$HOME]/.minttyrc` file.  You may read more about Mintty and its config file [here](https://github.com/mintty/mintty).
 
@@ -138,16 +138,17 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 
 ##### Command Line Arguments for `init.bat`
 
-| Argument                      | Description                                                                                      | Default                               |
-| ----------------------------- | ----------------------------------------------------------------------------------------------   | ------------------------------------- |
+| Argument                        | Description                                                                                      | Default                               |
+| -----------------------------   | ----------------------------------------------------------------------------------------------   | ------------------------------------- |
 | `/c [user cmder root]`          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. | not set                               |
 | `/d`                            | Enables debug output.                                                                            | not set                               |
 | `/git_install_root [file path]` | User specified Git installation root path.                                                       | `%CMDER_ROOT%\vendor\Git-for-Windows` |
 | `/home [home folder]`           | User specified folder path to set `%HOME%` environment variable.                                 | `%userprofile%`                       |
 | `/max_depth [1-5]`              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`   | 1                                     |
-| `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                                | `%GIT_INSTALL_ROOT%\bin\ssh.exe`      |
+| `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                              | `%GIT_INSTALL_ROOT%\bin\ssh.exe`      |
 | `/user_aliases [file path]`     | File path pointing to user aliases.                                                              | `%CMDER_ROOT%\config\user-liases.cmd` |
 | `/v`                            | Enables verbose output.                                                                          | not set                               |
+| (custom arguments)              | User defined arguments processed by `cexec`. Type `cexec /?` for more useage.                    | not set                               |
 
 ### Cmder Shell User Config
 Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
@@ -246,7 +247,56 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
-### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs 
+### Customizing user sessions using `init.bat` custom arguments. 
+
+You can pass custom arguments to `init.bat` and use `cexec.cmd` in your `user_profile.cmd` to evaluate these
+arguments then execute commands based on a particular flag being detected or not.
+
+`init.bat` creates two shortcuts for using `cexec.cmd` in your profile scripts.
+
+#### `%ccall%` - Evaluates flags, runs commands if found,  and returns to the calling script and continues.
+
+```
+ccall=call C:\Users\user\cmderdev\vendor\bin\cexec.cmd
+```  
+
+Example: `%ccall% /startnotepad start notepad.exe`
+
+#### `%cexec%` - Evaluates flags, runs commands if found, and does not return to the calling script.
+
+```
+cexec=C:\Users\user\cmderdev\vendor\bin\cexec.cmd
+```
+
+Example: `%cexec% /startnotepad start notepad.exe`
+
+It is useful when you have multiple tasks to execute `cmder` and need it to initialize
+the session differently depending on the task chosen.
+
+To conditionally start `notepad.exe` when you start a specific `cmder` task:
+
+* Press <kbd>win</kbd>+<kbd>alt</kbd>+<kbd>t</kbd>
+* Click `+` to add a new task.
+* Add the below to the `Commands` block:
+
+  ```batch
+  
+  cmd.exe /k ""%ConEmuDir%\..\init.bat" /startnotepad"
+  
+  ```
+
+* Add the below to your `%cmder_root%\config\user_profile.cmd`
+
+  ```batch
+  
+  %ccall% "/startNotepad" "start" "notepad.exe"`
+  
+  ```
+
+To see detailed usage of `cexec`, type `cexec /?` in cmder.
+
+### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs
+
 Cmder by default comes with a vendored ConEmu installation as the underlying terminal emulator, as stated [here](https://conemu.github.io/en/cmder.html).
 
 However, Cmder can in fact run in a variety of other terminal emulators, and even integrated IDEs. Assuming you have the latest version of Cmder, follow the following instructions to get Cmder working with your own terminal emulator.
@@ -257,10 +307,10 @@ For instructions on how to integrate Cmder with your IDE, please read our [Wiki 
 
 The process of upgrading Cmder depends on the version/build you are currently running.
 
-If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer version of Cmder, follow the below process: 
+If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer version of Cmder, follow the below process:
 
 1. Exit all Cmder sessions and relaunch `[cmder_root]/cmder.exe`, this backs up your existing `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
-   
+
    * The `[cmder_root]/config/user-conemu.xml` contains any custom settings you have made using the 'Setup Tasks' settings dialog.
 
 2. Exit all Cmder sessions and backup any files you have manually edited under `[cmder_root]/vendor`.
@@ -270,7 +320,7 @@ If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer ver
 3.  Delete the `[cmder_root]/vendor` folder.
 4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
 
-If you do not have a `[cmder_root]/config/user-conemu.xml`, you are running an older version of cmder, follow the below process: 
+If you do not have a `[cmder_root]/config/user-conemu.xml`, you are running an older version of cmder, follow the below process:
 
 1. Exit all Cmder sessions and backup `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
 
