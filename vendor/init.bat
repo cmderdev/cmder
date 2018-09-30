@@ -7,7 +7,6 @@
 :: !!! Use "%CMDER_ROOT%\config\user_profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
-endlocal
 set verbose_output=0
 set debug_output=0
 set max_depth=1
@@ -29,6 +28,7 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+call "%cmder_root%\vendor\bin\cexec.cmd" /setpath
 call "%cmder_root%\vendor\lib\lib_base"
 call "%cmder_root%\vendor\lib\lib_path"
 call "%cmder_root%\vendor\lib\lib_console"
@@ -332,10 +332,6 @@ if not exist "%initialConfig%" (
 echo :: use this file to run your own startup commands
 echo :: use in front of the command to prevent printing the command
 echo.
-echo :: the next two lines is for "%%flag_exists%%" shortcut, a custom arguments handler
-echo :: don't remove it if you need it
-echo call "%%cmder_root%%/vendor/lib/flag_exists" "/setPath"
-echo.
 echo :: uncomment this to have the ssh agent load when cmder starts
 echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
 echo.
@@ -347,9 +343,9 @@ echo :: you can add your plugins to the cmder path like so
 echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
 echo.
 echo :: arguments in this batch are passed from init.bat, you can quickly parse them like so:
-echo :: more useage can be seen by typing "%%flag_exists%% /?"
+echo :: more useage can be seen by typing "cexec /?"
 echo.
-echo :: %%flag_exists%% "/customOption" "command/program"
+echo :: %%ccall%% "/customOption" "command/program"
 echo.
 echo @echo off
 ) >"%initialConfig%"

@@ -19,7 +19,8 @@ set "currenArgu=%~1"
 if /i "%currenArgu%" equ "/setPath" (
   :: set %flag_exists% shortcut
   endlocal
-  set "flag_exists=%~dp0flag_exists"
+  set "ccall=call %~dp0cexec.cmd"
+  set "cexec=%~dp0cexec.cmd"
 ) else if /i "%currenArgu%" == "/?" (
   goto :help
 ) else if /i "%currenArgu%" equ "/help" (
@@ -54,15 +55,17 @@ set "feFlagName=%feFlagName% "
 echo %CMDER_USER_FLAGS% | find /i "%feFlagName%">nul
 if "%ERRORLEVEL%" == "0" (
   if "%feNOT%" == "false" (
-    call %feCommand% %feParam%
+    endlocal && call %feCommand% %feParam%
+    exit /b 0
   )
 ) else (
   if "%feNOT%" == "true" (
-    call %feCommand% %feParam%
+    endlocal && call %feCommand% %feParam%
+    exit /b 0
   )
 )
 endlocal
-exit /b
+exit /b 1
 
 :wrongSyntax
 echo The syntax of the command is incorrect.
@@ -74,22 +77,22 @@ exit /b
 
 :help
 echo.
-echo %%flag_exists%%
+echo CExec - Conditional Exec
 echo.
 echo Handles with custom arguments for cmder's init.bat.
 echo   written by xiazeyu, inspired DRSDavidSoft.
 echo.
 echo Usage:
 echo.
-echo %%flag_exists%% [/setPath] [NOT] flagName command/program [parameters]
+echo cexec /setPath [NOT] flagName command/program [parameters]
 echo.
-echo   setPath          Generate a global varible %%flag_exists%% for
+echo   /setPath         Generate a global varibles %%ccall%% and  %%cexec%% for
 echo                    quicker use. Following arguments will be ignored.
 echo.
-echo   NOT              Specifies that %%flag_exists%% should carry out
+echo   NOT              Specifies that cexec should carry out
 echo                    the command only if the flag is missing.
 echo.
-echo   flagName         Specifies which flag name is to detect. It's recommand
+echo   /[flagName]      Specifies which flag name is to detect. It's recommand
 echo                    to use a pair of double quotation marks to wrap
 echo                    your flag name to avoid exceed expectation.
 echo.
@@ -104,24 +107,25 @@ echo                    to wrap your flag name to avoid exceed expectation.
 echo.
 echo Examples:
 echo.
-echo   these examples are expected to be writted in /config/user-profile.cmd
-echo   it will use the environment varible "CMDER_USER_FLAGS"
+echo   These examples are expected to be written in %cmder_root%/config/user-profile.cmd
+echo   CExec evaluates the environment varible "CMDER_USER_FLAGS" and conditionally
+echo   caries out actions based on flags that are passed.
 echo.
 echo   Case 1:
 echo.
-echo   The following command in user-profile.cmd would execute "notepad.exe"
+echo   The following command in `user_profile.cmd` would execute "notepad.exe" and continue running the `user_profile.cmd`
 echo.
-echo     call %%flag_exists%% "/startNotepad" "start" "notepad.exe"
+echo     "%ccall%" "/startNotepad" "start" "notepad.exe"
 echo.
-echo   if you pass parameter to init.bat like:
+echo   If you pass parameter to init.bat like:
 echo.
 echo     init.bat /startNotepad
 echo.
 echo   Case 2:
 echo.
-echo   The following command in user-profile.cmd would execute "notepad.exe"
+echo   The following command in `user_profile.cmd` would execute "notepad.exe" and stop running the `user_profile.cmd`
 echo.
-echo     call %%flag_exists%% NOT "/dontStartNotepad" "start" "notepad.exe"
+echo     "%cexec%" NOT "/dontStartNotepad" "start" "notepad.exe"
 echo.
 echo   UNLESS you pass parameter to init.bat like:
 echo.
