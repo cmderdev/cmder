@@ -154,7 +154,16 @@ if defined GIT_INSTALL_ROOT (
 for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     :: get the absolute path to the user provided git binary
     pushd %%~dpF
-    set "test_dir=!CD!"
+    :: check if there's shim - and if yes follow the path
+    if exist git.shim (
+        for /F "tokens=2 delims== " %%I in (git.shim) do (
+            pushd %%~dpI
+            set "test_dir=!CD!"
+            popd
+        )
+    ) else (
+        set "test_dir=!CD!"
+    )
     popd
 
     :: get the version information for the user provided git binary
