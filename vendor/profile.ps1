@@ -93,7 +93,7 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
 }
 
 # Enhance Path
-$env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
+$env:Path = "$Env:CMDER_ROOT\bin;$Env:CMDER_ROOT\vendor\bin;$env:Path;$Env:CMDER_ROOT"
 
 #
 # Prompt Section
@@ -165,6 +165,8 @@ if ($ENV:CMDER_USER_CONFIG) {
     if (test-path "$env:CMDER_USER_CONFIG\user-profile.ps1") {
       rename-item  "$env:CMDER_USER_CONFIG\user-profile.ps1" user_profile.ps1
     }
+
+    $env:Path = "$Env:CMDER_USER_CONFIG\bin;$env:Path"
 
     $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user_profile.ps1"
     if (Test-Path $CmderUserProfilePath) {

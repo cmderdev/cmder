@@ -45,7 +45,7 @@ if [[ ! "$PATH" =~ "${GIT_INSTALL_ROOT}/bin:" ]] ; then
   PATH=${GIT_INSTALL_ROOT}/bin:$PATH
 fi
 
-PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
+PATH=${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}
 
 export PATH
 
@@ -79,6 +79,8 @@ if [ "${CMDER_USER_CONFIG}" != "" ] ; then
   if [ -f "$CMDER_USER_CONFIG/user-profile.sh" ] ; then
     mv "$CMDER_USER_CONFIG/user-profile.sh" "$CMDER_USER_CONFIG/user_profile.sh"
   fi
+
+  export PATH=${CMDER_USER_CONFIG}/bin:$PATH
 
   CmderUserProfilePath="${CMDER_USER_CONFIG}/user_profile.sh"
   if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ] ; then
