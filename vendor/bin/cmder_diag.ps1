@@ -29,7 +29,7 @@ get-childitem env: |ft -autosize -wrap
 
 write-host ''
 write-host ------------------------------------
-write-host which git
+write-host get-command git
 write-host ------------------------------------
 get-command git
 
