@@ -29,10 +29,6 @@ $ENV:CMDER_ROOT = (($ENV:CMDER_ROOT).trimend("\"))
 # -> recent PowerShell versions include PowerShellGet out of the box
 $moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue | Out-Null)
 
-# do not load bundled psget if a module installer is already available
-# -> recent PowerShell versions include PowerShellGet out of the box
-$moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue | Out-Null)
-
 # Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
