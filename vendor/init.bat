@@ -1,5 +1,7 @@
 @echo off
 
+set cmder_init_start=%time%
+
 :: Init Script for cmd.exe
 :: Created as part of cmder project
 
@@ -38,6 +40,8 @@ call "%cmder_root%\vendor\lib\lib_profile"
 :var_loop
     if "%~1" == "" (
         goto :start
+    ) else if /i "%1"=="/t" (
+        set time_init=1
     ) else if /i "%1"=="/v" (
         set verbose_output=1
     ) else if /i "%1"=="/d" (
@@ -386,4 +390,10 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 set initialConfig=
 set CMDER_CONFIGURED=1
 
+set cmder_init_end=%time%
+
+
+if %time_init% gtr 0 (
+  %lib_base% timer %cmder_init_start% %cmder_init_end%
+)
 exit /b
