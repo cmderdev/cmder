@@ -223,6 +223,21 @@ local function get_git_status()
 end
 
 ---
+-- Gets the conflict status
+-- @return {bool} indicating true for conflict, false for no conflicts
+---
+function get_git_conflict()
+    local file = io.popen("git diff --name-only --diff-filter=U 2>nul")
+    for line in file:lines() do
+        file:close()
+        return true;
+    end
+    file:close()
+    return false
+end
+
+
+---
 -- Get the status of working dir
 -- @return {bool}
 ---
@@ -257,7 +272,8 @@ local function git_prompt_filter()
     -- Colors for git status
     local colors = {
         clean = "\x1b[1;37;40m",
-        dirty = "\x1b[31;1m",
+        dirty = "\x1b[33;3m",
+        conflict = "\x1b[31;1m"
     }
 
     local git_dir = get_git_dir()
@@ -267,11 +283,17 @@ local function git_prompt_filter()
         local color
         if branch then
             -- Has branch => therefore it is a git folder, now figure out status
-            if get_git_status() then
+            local gitStatus = get_git_status()
+            local gitConflict = get_git_conflict()
+
+            color = colors.dirty
+            if gitStatus then
                 color = colors.clean
-            else
-                color = colors.dirty
             end
+
+            if gitConflict then
+                color = colors.conflict
+            end 
 
             clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..branch..")")
             return false
@@ -368,26 +390,12 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
     end
 end
 
-local cmder_config_dir = clink.get_env('CMDER_ROOT')..'/config/'
-for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
-    -- Skip files that starts with _. This could be useful if some files should be ignored
-    if not string.match(lua_module, '^_.*') then
-        local filename = cmder_config_dir..lua_module
-        -- use dofile instead of require because require caches loaded modules
-        -- so config reloading using Alt-Q won't reload updated modules.
-        dofile(filename)
-    end
-end
-
 if clink.get_env('CMDER_USER_CONFIG') then
-  local cmder_user_config_dir = clink.get_env('CMDER_USER_CONFIG')..'/'
-  for _,lua_module in ipairs(clink.find_files(cmder_user_config_dir..'*.lua')) do
-      -- Skip files that starts with _. This could be useful if some files should be ignored
-      if not string.match(lua_module, '^_.*') then
-          local filename = cmder_user_config_dir..lua_module
-          -- use dofile instead of require because require caches loaded modules
-          -- so config reloading using Alt-Q won't reload updated modules.
-          dofile(filename)
-      end
+  local cmder_config_dir = clink.get_env('CMDER_ROOT')..'/config/'
+  for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
+    local filename = cmder_config_dir..lua_module
+    -- use dofile instead of require because require caches loaded modules
+    -- so config reloading using Alt-Q won't reload updated modules.
+    dofile(filename)
   end
 end

@@ -53,8 +53,8 @@ exit /b
     :: get the git version in the provided directory
     for /F "tokens=1,2,3 usebackq" %%A in (`"%git_executable%" --version 2^>nul`) do (
         if /i "%%A %%B" == "git version" (
-            set "GIT_VERSION_%~1=%%C"
-            %lib_console% debug_output :read_version "Env Var - GIT_VERSION_%~1=%%C"
+            set "GIT_VERSION=%%C"
+            %lib_console% debug_output :read_version "Env Var - GIT_VERSION_%~1=!GIT_VERSION!"
         ) else (
             %lib_console% show_error "git --version" returned an inproper version string!
             pause
@@ -62,7 +62,7 @@ exit /b
         )
     )
 
-    endlocal & set GIT_VERSION%~1=!GIT_VERSION%~1!
+    endlocal & set "GIT_VERSION_%~1=%GIT_VERSION%"
     exit /b
 
 :parse_version
@@ -92,6 +92,7 @@ exit /b
 
     setlocal enabledelayedexpansion
     :: process a `x.x.x.xxxx.x` formatted string
+    %lib_console% debug_output :parse_version "ARGV[1]=%~1, ARGV[2]=%~2"
     for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
         set "%~1_MAJOR=%%A"
         set "%~1_MINOR=%%B"
@@ -121,6 +122,7 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     :: now parse the version information into the corresponding variables
+    %lib_console% debug_output :validate_version "ARGV[1]=%~1, ARGV[2]=%~2"
     call :parse_version %~1 %~2
 
     :: ... and maybe display it, for debugging purposes.
@@ -148,9 +150,9 @@ exit /b
     :: checks all major, minor, patch and build variables for the given arguments.
     :: whichever binary that has the most recent version will be used based on the return code.
 
-    :: %lib_console% debug_output Comparing:
-    :: %lib_console% debug_output %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
-    :: %lib_console% debug_output %~2: !%~2_MAJOR!.!%~2_MINOR!.!%~2_PATCH!.!%~2_BUILD!
+    %lib_console% debug_output Comparing:
+    %lib_console% debug_output %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
+    %lib_console% debug_output %~2: !%~2_MAJOR!.!%~2_MINOR!.!%~2_PATCH!.!%~2_BUILD!
 
     if !%~1_MAJOR! GTR !%~2_MAJOR! (exit /b  1)
     if !%~1_MAJOR! LSS !%~2_MAJOR! (exit /b -1)
