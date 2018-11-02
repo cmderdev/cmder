@@ -91,7 +91,7 @@ You can open multiple tabs each containing one of the following shells:
 | Task                | Shell          | Description                                                                                                  |
 | ----                | -----          | -----------                                                                                                  |
 | Cmder               | `cmd.exe`        | Windows `cmd.exe` shell enhanced with Git, Git aware prompt, Clink (GNU Readline), and Aliases.              |
-| Cmder as Admin      | `cmd.exe`        | Administrative Windows 'cmd.exe' Cmder shell.                                                                |
+| Cmder as Admin      | `cmd.exe`        | Administrative Windows `cmd.exe` Cmder shell.                                                                |
 | PowerShell          | `powershell.exe` | Windows PowerShell enhanced with Git and Git aware prompt .                                                  |
 | PowerShell as Admin | `powershell.exe` | Administrative Windows `powershell.exe` Cmder shell.                                                         |
 | Bash                | `bash.exe`       | Unix/Linux like bash shell running on Windows.                                                               |
@@ -101,7 +101,7 @@ You can open multiple tabs each containing one of the following shells:
 
 Cmder, PowerShell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
 
-⚠ *NOTE:* Only the full edition of Cmder comes with a pre-installed bash, using a vendored [git-for-windows](https://gitforwindows.org/) installation. The pre-configured Bash tabs may not work on Cmder mini eidition without additional configuration.
+⚠ *NOTE:* Only the full edition of Cmder comes with a pre-installed bash, using a vendored [git-for-windows](https://gitforwindows.org/) installation. The pre-configured Bash tabs may not work on Cmder mini edition without additional configuration.
 
 You may however, choose to use an external installation of bash, such as Microsoft's [Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (called WSL) or the [Cygwin](https://cygwin.com/) project which provides POSIX support on windows.
 
@@ -128,7 +128,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 1. Click either:
   * `1. {cmd::Cmder as Admin}`
   * `2. {cmd::Cmder}`
-1. Add command line argumentswhere specified below:
+1. Add command line arguments where specified below:
 
   *Note: Pay attention to the quotes!*
 
@@ -146,7 +146,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 | `/home [home folder]`           | User specified folder path to set `%HOME%` environment variable.                                 | `%userprofile%`                       |
 | `/max_depth [1-5]`              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`   | 1                                     |
 | `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                              | `%GIT_INSTALL_ROOT%\bin\ssh.exe`      |
-| `/user_aliases [file path]`     | File path pointing to user aliases.                                                              | `%CMDER_ROOT%\config\user-liases.cmd` |
+| `/user_aliases [file path]`     | File path pointing to user aliases.                                                              | `%CMDER_ROOT%\config\user-aliases.cmd` |
 | `/v`                            | Enables verbose output.                                                                          | not set                               |
 | (custom arguments)              | User defined arguments processed by `cexec`. Type `cexec /?` for more useage.                    | not set                               |
 
@@ -155,8 +155,8 @@ Single user portable configuration is possible using the cmder specific shell co
 
 | Shell         | Cmder Portable User Config                |
 | ------------- | ----------------------------------------- |
-| Cmder         | `%CMDER_ROOT%\\config\\user_profile.cmd`    |
-| PowerShell    | `$ENV:CMDER_ROOT\\config\\user_profile.ps1` |
+| Cmder         | `%CMDER_ROOT%\config\user_profile.cmd`    |
+| PowerShell    | `$ENV:CMDER_ROOT\config\user_profile.ps1` |
 | Bash/Mintty   | `$CMDER_ROOT/config/user_profile.sh`        |
 
 Note: Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user_profile.sh`.
@@ -165,15 +165,15 @@ You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in t
 
 | Shell         | Cmder `Profile.d` Scripts                         |
 | ------------- | --------------------------------------------------|
-| Cmder         | `%CMDER_ROOT%\\config\\profile.d\\\*.bat and *.cmd` |
-| PowerShell    | `$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1`        |
+| Cmder         | `%CMDER_ROOT%\config\profile.d\*.bat and *.cmd` |
+| PowerShell    | `$ENV:CMDER_ROOT\config\profile.d\*.ps1`        |
 | Bash/Mintty   | `$CMDER_ROOT/config/profile.d/*.sh`                 |
 
 ### Aliases
 #### Cmder(`Cmd.exe`) Aliases
 You can define simple aliases for `cmd.exe` sessions with a command like `alias name=command`.  Cmd.exe aliases support optional parameters through the `$1-9` or the `$*` special characters so the alias `vi=vim.exe $*` typed as `vi [filename]` will open `[filename]` in `vim.exe`.
 
-Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for 'cmd.exe'
+Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true) for additional details on complex aliases/macros for `cmd.exe`
 
 Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\user-aliases.cmd` file
 
@@ -181,9 +181,9 @@ To make an alias and/or any other profile settings permanent add it to one of th
 
 Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow cmder to another machine.
 
-* `%CMDER_ROOT%\\config\\profile.d\\\*.cmd` and `\*.bat`
-* `%CMDER_ROOT%\\config\\user-aliases.cmd`
-* `%CMDER_ROOT%\\config\\user_profile.cmd`
+* `%CMDER_ROOT%\config\profile.d\*.cmd` and `\*.bat`
+* `%CMDER_ROOT%\config\user-aliases.cmd`
+* `%CMDER_ROOT%\config\user_profile.cmd`
 
 #### Bash.exe|Mintty.exe Aliases
 Bash shells support simple and complex aliases with optional parameters natively so they work a little different.  Typing `alias name=command` will create an alias only for the current running session.
@@ -203,10 +203,10 @@ PowerShell has native simple alias support, for example `[new-alias | set-alias]
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$ENV:CMDER_ROOT\\vendor\\user_profile.ps1`.  Anything stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$ENV:CMDER_ROOT\vendor\user_profile.ps1`.  Anything stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
 
-* '$ENV:CMDER_ROOT\\config\\profile.d\\\*.ps1'
-* '$ENV:CMDER_ROOT\\config\\user_profile.ps1'
+* `$ENV:CMDER_ROOT\config\profile.d\*.ps1`
+* `$ENV:CMDER_ROOT\config\user_profile.ps1`
 
 ### SSH Agent
 
