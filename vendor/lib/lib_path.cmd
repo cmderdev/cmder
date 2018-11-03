@@ -52,6 +52,15 @@ exit /b
         set "position="
     )
 
+    if "%fast_init%" == "1" (
+      if "%position%" == "append" (
+        set "PATH=%PATH%;%add_path%"
+      ) else (
+        set "PATH=%add_path%;%PATH%"
+      )
+      goto :end_enhance_path
+    )
+
     set found=0
     set "find_query=%add_path%"
     set "find_query=%find_query:\=\\%"
@@ -85,6 +94,7 @@ exit /b
         %lib_console% debug_output  :enhance_path "AFTER Env Var - PATH=!path!"
     )
 
+    :end_enhance_path
     endlocal & set "PATH=%PATH:;;=;%"
     exit /b
 
@@ -115,7 +125,6 @@ exit /b
 :::.
 :::  path       <out> Sets the path env variable if required.
 :::-------------------------------------------------------------------------------
-
     setlocal enabledelayedexpansion
     if "%~1" neq "" (
         set "add_path=%~1"
@@ -134,6 +143,11 @@ exit /b
         set "position=%~3"
     ) else (
         set "position="
+    )
+
+    if "%fast_init%" == "1" (
+      call :enhance_path "%add_path%" %position%
+      exit /b
     )
 
     if "%depth%" == "" set depth=0

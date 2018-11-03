@@ -1,6 +1,6 @@
 @echo off
 
-rem set args=%*
+if "%fast_init%" == "1" exit /b
 
 call "%~dp0lib_base.cmd"
 set lib_console=call "%~dp0lib_console.cmd"
