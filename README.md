@@ -142,7 +142,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 | -----------------------------   | ----------------------------------------------------------------------------------------------                          | -------------------------------------  |
 | `/c [user cmder root]`          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment.                        | not set                                |
 | `/d`                            | Enables debug output.                                                                                                   | not set                                |
-| `/f`                            | Enables Cmder Fast Init Mode. See pull request [#1492](https://github.com/cmderdev/cmder/pull/1942) for more details. | not set                                |
+| `/f`                            | Enables Cmder Fast Init Mode. See pull request [#1492](https://github.com/cmderdev/cmder/pull/1942) for more details. | not set                                |
 | `/git_install_root [file path]` | User specified Git installation root path.                                                                              | `%CMDER_ROOT%\vendor\Git-for-Windows`  |
 | `/home [home folder]`           | User specified folder path to set `%HOME%` environment variable.                                                        | `%userprofile%`                        |
 | `/max_depth [1-5]`              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`                          | 1                                      |
