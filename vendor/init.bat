@@ -150,7 +150,7 @@ if not defined TERM set TERM=cygwin
 setlocal enabledelayedexpansion
 if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
-) else if "%skip_detection%" == "1" (
+) else if "%fast_init%" == "1" (
     if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
       %lib_console% debug_output "Skipping Git Auto-Detect!"
       goto :VENDORED_GIT
