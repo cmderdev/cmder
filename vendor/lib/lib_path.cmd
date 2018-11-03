@@ -96,7 +96,6 @@ exit /b
 
     :end_enhance_path
     endlocal & set "PATH=%PATH:;;=;%"
-    echo %PATH%
     exit /b
 
 :enhance_path_recursive
