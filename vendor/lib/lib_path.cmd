@@ -96,6 +96,7 @@ exit /b
 
     :end_enhance_path
     endlocal & set "PATH=%PATH:;;=;%"
+    echo %PATH%
     exit /b
 
 :enhance_path_recursive
@@ -147,7 +148,7 @@ exit /b
 
     if "%fast_init%" == "1" (
       call :enhance_path "%add_path%" %position%
-      exit /b
+      goto :end_enhance_path_recursive
     )
 
     if "%depth%" == "" set depth=0
@@ -169,5 +170,6 @@ exit /b
         )
     )
 
+    :end_enhance_path_recursive
     endlocal & set "PATH=%PATH%"
     exit /b

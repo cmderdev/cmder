@@ -216,7 +216,6 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
     %lib_console% debug_output "Using vendored Git from '!GIT_INSTALL_ROOT!..."
-    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd"
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
