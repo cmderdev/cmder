@@ -11,6 +11,7 @@ set cmder_init_start=%time%
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
 set verbose_output=0
 set debug_output=0
+set time_init=0
 set max_depth=1
 set "CMDER_USER_FLAGS= "
 
