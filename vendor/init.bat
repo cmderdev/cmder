@@ -12,6 +12,7 @@ set cmder_init_start=%time%
 set verbose_output=0
 set debug_output=0
 set time_init=0
+set fast_init=0
 set max_depth=1
 set "CMDER_USER_FLAGS= "
 
@@ -41,7 +42,9 @@ call "%cmder_root%\vendor\lib\lib_profile"
 :var_loop
     if "%~1" == "" (
         goto :start
-    ) else if /i "%1"=="/t" (
+    ) else if /i "%1" == "/f" (
+        set fast_init=1
+    ) else if /i "%1" == "/t" (
         set time_init=1
     ) else if /i "%1"=="/v" (
         set verbose_output=1
@@ -147,6 +150,11 @@ if not defined TERM set TERM=cygwin
 setlocal enabledelayedexpansion
 if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
+) else if "%fast_init%" == "1" (
+    if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
+      %lib_console% debug_output "Skipping Git Auto-Detect!"
+      goto :VENDORED_GIT
+    )
 )
 
 %lib_console% debug_output init.bat "Looking for Git install root..."
@@ -208,7 +216,6 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
     %lib_console% debug_output "Using vendored Git from '!GIT_INSTALL_ROOT!..."
-    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd"
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
