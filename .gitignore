@@ -22,6 +22,7 @@ config/*.lua
 config/settings
 config/aliases
 config/profile.d
+config/conemu-*.xml
 .github_changelog_generator
 launcher/.vs
 launcher/src/version.rc2
