@@ -110,8 +110,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	PathCombine(configDirPath, exeDir, L"config");
 
+	/*
+	Convert legacy user-profile.cmd to new name user_profile.cmd
+	*/
 	PathCombine(legacyUserProfilePath, configDirPath, L"user-profile.cmd");
-	if (PathFileExists(legacyUserProfilePath)) {
+	if (PathFileExists(legacyUserProfilePath))
+	{
 		PathCombine(userProfilePath, configDirPath, L"user_profile.cmd");
 
 		char      *lPr = (char *)malloc(MAX_PATH);
@@ -124,8 +128,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		rename(lPr, pR);
 	}
 
+	/*
+	Convert legacy user-aliases.cmd to new name user_aliases.cmd
+	*/
 	PathCombine(legacyUserAliasesPath, configDirPath, L"user-aliases.cmd");
-	if (PathFileExists(legacyUserAliasesPath)) {
+	if (PathFileExists(legacyUserAliasesPath))
+	{
 		PathCombine(userAliasesPath, configDirPath, L"user_aliases.cmd");
 
 		char      *lPr = (char *)malloc(MAX_PATH);
@@ -137,13 +145,18 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			userAliasesPath, (size_t)MAX_PATH);
 		rename(lPr, pR);
 	}
-
+	
+	/*
+	Was -c [path] specified?
+	*/
 	if (wcscmp(userConfigDirPath, L"") == 0)
 	{
+		// No - It wasn't. 
 		PathCombine(userConfigDirPath, exeDir, L"config");
 	}
 	else
 	{
+		// Yes - It was.
 		PathCombine(userBinDirPath, userConfigDirPath, L"bin");
 		SHCreateDirectoryEx(0, userBinDirPath, 0);
 
@@ -152,9 +165,13 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userProfiledDirPath, userConfigDirPath, L"profile.d");
 		SHCreateDirectoryEx(0, userProfiledDirPath, 0);
-		
+
+		/*
+		Convert legacy user-profile.cmd to new name user_profile.cmd
+		*/
 		PathCombine(legacyUserProfilePath, userConfigDirPath, L"user-profile.cmd");
-		if (PathFileExists(legacyUserProfilePath)) {
+		if (PathFileExists(legacyUserProfilePath))
+		{
 			PathCombine(userProfilePath, userConfigDirPath, L"user_profile.cmd");
 
 			char      *lPr = (char *)malloc(MAX_PATH);
@@ -167,8 +184,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			rename(lPr, pR);
 		}
 
+		/*
+		Convert legacy user-aliases.cmd to new name user_aliases.cmd
+		*/
 		PathCombine(legacyUserAliasesPath, userConfigDirPath, L"user-aliases.cmd");
-		if (PathFileExists(legacyUserAliasesPath)) {
+		if (PathFileExists(legacyUserAliasesPath))
+		{
 			PathCombine(userAliasesPath, userConfigDirPath, L"user_aliases.cmd");
 
 			char      *lPr = (char *)malloc(MAX_PATH);
@@ -186,104 +207,119 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
 
 	// Set path to Cmder default ConEmu config file
-	PathCombine(defaultCfgPath, exeDir, L"config\\ConEmu.xml");
+	PathCombine(defaultCfgPath, exeDir, L"vendor\\ConEmu.xml.default");
 
 	// Check for machine-specific then user config source file.
 	PathCombine(cpuCfgPath, userConfigDirPath, L"ConEmu-%COMPUTERNAME%.xml");
 	ExpandEnvironmentStrings(cpuCfgPath, cpuCfgPath, sizeof(cpuCfgPath) / sizeof(cpuCfgPath[0]));
 
+	// Set path to Cmder user ConEmu config file
 	PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
-	if (PathFileExists(cpuCfgPath)) {
-		if (PathFileExists(cfgPath)) {
+
+	if (PathFileExists(cpuCfgPath)) // config/ConEmu-%COMPUTERNAME%.xml file exists, use it.
+	{
+		if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml file exists, copy vendor/conemu-maximus5/ConEmu.xml to config/ConEmu-%COMPUTERNAME%.xml.
+		{
 			if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu.xml file to ConEmu-%COMPUTERNAME%.xml backup location! Restart Cmder as Administrator."
-					: L"Failed to copy ConEmu.xml file to ConEmu-%COMPUTERNAME%.xml backup location!", MB_TITLE, MB_ICONSTOP);
+					? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml! Access Denied."
+					: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
 		}
-		else
+		else // vendor/conemu-maximus5/ConEmu.xml config file does not exist, copy config/ConEmu-%COMPUTERNAME%.xml to vendor/conemu-maximus5/ConEmu.xml file
 		{
 			if (!CopyFile(cpuCfgPath, cfgPath, FALSE))
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu-%COMPUTERNAME%.xml file to vendored ConEmu.xml location! Restart Cmder as Administrator."
-					: L"Failed to copy ConEmu-%COMPUTERNAME%.xml file to vendored ConEmu.xml location!", MB_TITLE, MB_ICONSTOP);
+					? L"Failed to copy conig/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+					: L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
 		}
 	}
-	else if (PathFileExists(userCfgPath)) {
-		if (PathFileExists(cfgPath)) {
+	else if (PathFileExists(userCfgPath)) // config/user_conemu.xml exists, use it. 
+	{
+		if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml.
+		{
 			if (!CopyFile(cfgPath, userCfgPath, FALSE))
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu.xml file to backup location! Restart Cmder as Administrator."
-					: L"Failed to copy ConEmu.xml file to backup location!", MB_TITLE, MB_ICONSTOP);
+					? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml! Access Denied."
+					: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
 		}
-		else
+		else // vendor/conemu-maximus5/ConEmu.xml does not exist, copy config/user-conemu.xml to vendor/conemu-maximus5/ConEmu.xml
 		{
 			if (!CopyFile(userCfgPath, cfgPath, FALSE))
 			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy ConEmu.xml file to vendored ConEmu.xml location! Restart Cmder as Administrator."
-					: L"Failed to copy ConEmu.xml file to vendored ConEmu.xml location!", MB_TITLE, MB_ICONSTOP);
+					? L"Failed to copy config/user-conemu.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+					: L"Failed to copy config/user-conemu.xml file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
 		}
 	}
-	else if (PathFileExists(cfgPath)) {
+	else if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
+	{
 		if (!CopyFile(cfgPath, userCfgPath, FALSE))
 		{
 			MessageBox(NULL,
 				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to copy ConEmu.xml file to user-conemu.xml backup location! Restart Cmder as Administrator."
-				: L"Failed to copy ConEmu.xml file to user-conemu.xml backup location!", MB_TITLE, MB_ICONSTOP);
+				? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml! Access Denied."
+				: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
 	}
-	else {
-		if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
+	else // vendor/ConEmu.xml config exists, copy Cmder vendor/ConEmu.xml file to vendor/conemu-maximus5/ConEmu.xml.
+	{
+		if ( ! CopyFile(defaultCfgPath, cfgPath, FALSE))
 		{
+			ShowErrorAndExit(GetLastError(), __WFUNCTION__, __LINE__);
 			MessageBox(NULL,
 				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to copy Cmder default ConEmu.xml file to vendored ConEmu.xml location! Restart Cmder as Administrator."
-				: L"Failed to copy Cmder default ConEmu.xml file to vendored ConEmu.xml location!", MB_TITLE, MB_ICONSTOP);
+				? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+				: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
 	}
 
 	SYSTEM_INFO sysInfo;
 	GetNativeSystemInfo(&sysInfo);
-	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) {
+	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+	{
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu64.exe");
 	}
-	else {
+	else
+	{
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
 
 	if (is_single_mode)
 	{
-		if (!streqi(cmderTask.c_str(), L"")) {
+		if (!streqi(cmderTask.c_str(), L""))
+		{
 			swprintf_s(args, L"%s /single /Icon \"%s\" /Title Cmder /dir \"%s\" /run {%s}", args, icoPath, cmderStart.c_str(), cmderTask.c_str());
 		}
-		else {
+		else
+		{
 			swprintf_s(args, L"%s /single /Icon \"%s\" /Title Cmder /dir \"%s\"", args, icoPath, cmderStart.c_str());
 		}
 	}
 	else
 	{
-		if (!streqi(cmderTask.c_str(), L"")) {
+		if (!streqi(cmderTask.c_str(), L""))
+		{
 			swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\" /run {%s}", icoPath, cmderStart.c_str(), cmderTask.c_str());
 		}
-		else {
+		else
+		{
 			swprintf_s(args, L"%s /Icon \"%s\" /Title Cmder /dir \"%s\"", args, icoPath, cmderStart.c_str());
 		}
 	}
@@ -424,7 +460,6 @@ cmderOptions GetOption()
 	{
 
 		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
-
 		if (_wcsicmp(L"/c", szArgList[i]) == 0)
 		{
 			TCHAR userProfile[MAX_PATH];
@@ -435,7 +470,8 @@ cmderOptions GetOption()
 
 			cmderOptions.cmderCfgRoot = cmderCfgRoot;
 
-			if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/') {
+			if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/')
+			{
 				cmderOptions.cmderCfgRoot = szArgList[i + 1];
 				i++;
 			}
@@ -453,7 +489,8 @@ cmderOptions GetOption()
 				cmderOptions.cmderStart = szArgList[i + 1];
 				i++;
 			}
-			else {
+			else
+			{
 				MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
 			}
 		}
@@ -505,11 +542,13 @@ cmderOptions GetOption()
 				cmderOptions.cmderStart = szArgList[i];
 				i++;
 			}
-			else {
+			else
+			{
 				MessageBox(NULL, szArgList[i], L"Folder does not exist!", MB_OK);
 			}
 		}
-		else {
+		else 
+		{
 			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 			cmderOptions.error = true;
 		}
@@ -531,7 +570,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	cmderOptions cmderOptions = GetOption();
 
-	if (cmderOptions.registerApp == true) {
+	if (cmderOptions.registerApp == true)
+	{
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
