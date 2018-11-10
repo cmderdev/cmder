@@ -1,6 +1,5 @@
 @echo off
 
-
 call "%~dp0lib_base.cmd"
 call "%%~dp0lib_console"
 set lib_profile=call "%~dp0lib_profile.cmd"
@@ -39,8 +38,9 @@ exit /b
 
   pushd "%~1"
   for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-    %lib_console% verbose-output "Calling '%~1\%%x'..."
+    %lib_console% verbose_output "Calling '%~1\%%x'..."
     call "%~1\%%x"
   )
   popd
   exit /b
+

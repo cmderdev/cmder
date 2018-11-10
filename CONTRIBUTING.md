@@ -11,7 +11,7 @@ If you follow them your contribution will likely be pulled in quicker.
 
 ## Making Changes
 
-* Make changes in your seperate branch.
+* Make changes in your separate branch.
 * Check for unnecessary whitespace with `git diff --check` before committing.
 * Make sure your commit messages are easy to understand
 * Squash your 'Correcting mistakes' commits if you have a lot of them. (See the 'Squashing Commits' link below)
@@ -35,4 +35,4 @@ If you follow them your contribution will likely be pulled in quicker.
 
 * [Squashing Commits](http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html)
 * [General GitHub documentation](http://help.github.com/)
-* [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
+* [GitHub pull request documentation](http://help.github.com/articles/creating-a-pull-request/)

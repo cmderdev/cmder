@@ -2,7 +2,7 @@
 # Created as part of cmder project
 
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
-# !!! Use "%CMDER_ROOT%\config\user-profile.ps1" to add your own startup commands
+# !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
 
 # Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
@@ -24,10 +24,6 @@ if (! $ENV:CMDER_ROOT ) {
 
 # Remove trailing '\'
 $ENV:CMDER_ROOT = (($ENV:CMDER_ROOT).trimend("\"))
-
-# do not load bundled psget if a module installer is already available
-# -> recent PowerShell versions include PowerShellGet out of the box
-$moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue | Out-Null)
 
 # do not load bundled psget if a module installer is already available
 # -> recent PowerShell versions include PowerShellGet out of the box
@@ -93,11 +89,11 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
 }
 
 # Enhance Path
-$env:Path = "$Env:CMDER_ROOT\bin;$env:Path;$Env:CMDER_ROOT"
+$env:Path = "$Env:CMDER_ROOT\bin;$Env:CMDER_ROOT\vendor\bin;$env:Path;$Env:CMDER_ROOT"
 
 #
 # Prompt Section
-#   Users should modify their user-profile.ps1 as it will be safe from updates.
+#   Users should modify their user_profile.ps1 as it will be safe from updates.
 #
 
 # Pre assign the hooks so the first run of cmder gets a working prompt.
@@ -134,7 +130,7 @@ if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
 pushd $ENV:CMDER_ROOT\config\profile.d
 foreach ($x in Get-ChildItem *.ps1) {
   # write-host write-host Sourcing $x
-  . $x
+  Import-Module $x
 }
 popd
 
@@ -144,27 +140,37 @@ if ($ENV:CMDER_USER_CONFIG -ne "" -and (test-path "$ENV:CMDER_USER_CONFIG\profil
     pushd $ENV:CMDER_USER_CONFIG\profile.d
     foreach ($x in Get-ChildItem *.ps1) {
       # write-host write-host Sourcing $x
-      . $x
+      Import-Module $x
     }
     popd
 }
     
+# Renaming to "config\user_profile.ps1" to "user_profile.ps1" for consistency.
+if (test-path "$env:CMDER_ROOT\config\user-profile.ps1") {
+  rename-item  "$env:CMDER_ROOT\config\user-profile.ps1" user_profile.ps1
+}
 
-
-$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user-profile.ps1"
+$CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user_profile.ps1"
 if (Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
-    . "$CmderUserProfilePath"
-
+    Import-Module "$CmderUserProfilePath"
 }
 
 if ($ENV:CMDER_USER_CONFIG) {
-    $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user-profile.ps1"
+    # Renaming to "$env:CMDER_USER_CONFIG\user-profile.ps1" to "user_profile.ps1" for consistency.
+    if (test-path "$env:CMDER_USER_CONFIG\user-profile.ps1") {
+      rename-item  "$env:CMDER_USER_CONFIG\user-profile.ps1" user_profile.ps1
+    }
+
+    $env:Path = "$Env:CMDER_USER_CONFIG\bin;$env:Path"
+
+    $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user_profile.ps1"
+    if (Test-Path $CmderUserProfilePath) {
+      Import-Module "$CmderUserProfilePath"
+    }
 }
 
-if (Test-Path $CmderUserProfilePath) {
-    . "$CmderUserProfilePath"
-} else {
+if (! (Test-Path $CmderUserProfilePath) ) {
 # This multiline string cannot be indented, for this reason I've not indented the whole block
 
 Write-Host -BackgroundColor Darkgreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
