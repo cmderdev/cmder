@@ -110,8 +110,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	PathCombine(configDirPath, exeDir, L"config");
 
+	/*
+	Convert legacy user-profile.cmd to new name user_profile.cmd
+	*/
 	PathCombine(legacyUserProfilePath, configDirPath, L"user-profile.cmd");
-	if (PathFileExists(legacyUserProfilePath)) {
+	if (PathFileExists(legacyUserProfilePath))
+	{
 		PathCombine(userProfilePath, configDirPath, L"user_profile.cmd");
 
 		char      *lPr = (char *)malloc(MAX_PATH);
@@ -124,8 +128,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		rename(lPr, pR);
 	}
 
+	/*
+	Convert legacy user-aliases.cmd to new name user_aliases.cmd
+	*/
 	PathCombine(legacyUserAliasesPath, configDirPath, L"user-aliases.cmd");
-	if (PathFileExists(legacyUserAliasesPath)) {
+	if (PathFileExists(legacyUserAliasesPath))
+	{
 		PathCombine(userAliasesPath, configDirPath, L"user_aliases.cmd");
 
 		char      *lPr = (char *)malloc(MAX_PATH);
@@ -137,13 +145,18 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			userAliasesPath, (size_t)MAX_PATH);
 		rename(lPr, pR);
 	}
-
+	
+	/*
+	Was -c [path] specified?
+	*/
 	if (wcscmp(userConfigDirPath, L"") == 0)
 	{
+		// No - It wasn't. 
 		PathCombine(userConfigDirPath, exeDir, L"config");
 	}
 	else
 	{
+		// Yes - It was.
 		PathCombine(userBinDirPath, userConfigDirPath, L"bin");
 		SHCreateDirectoryEx(0, userBinDirPath, 0);
 
@@ -152,9 +165,13 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userProfiledDirPath, userConfigDirPath, L"profile.d");
 		SHCreateDirectoryEx(0, userProfiledDirPath, 0);
-		
+
+		/*
+		Convert legacy user-profile.cmd to new name user_profile.cmd
+		*/
 		PathCombine(legacyUserProfilePath, userConfigDirPath, L"user-profile.cmd");
-		if (PathFileExists(legacyUserProfilePath)) {
+		if (PathFileExists(legacyUserProfilePath))
+		{
 			PathCombine(userProfilePath, userConfigDirPath, L"user_profile.cmd");
 
 			char      *lPr = (char *)malloc(MAX_PATH);
@@ -167,8 +184,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			rename(lPr, pR);
 		}
 
+		/*
+		Convert legacy user-aliases.cmd to new name user_aliases.cmd
+		*/
 		PathCombine(legacyUserAliasesPath, userConfigDirPath, L"user-aliases.cmd");
-		if (PathFileExists(legacyUserAliasesPath)) {
+		if (PathFileExists(legacyUserAliasesPath))
+		{
 			PathCombine(userAliasesPath, userConfigDirPath, L"user_aliases.cmd");
 
 			char      *lPr = (char *)malloc(MAX_PATH);
@@ -186,15 +207,19 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
 
 	// Set path to Cmder default ConEmu config file
-	PathCombine(defaultCfgPath, exeDir, L"config\\ConEmu.xml");
+	PathCombine(defaultCfgPath, exeDir, L"config\\vendor\\ConEmu.xml.default");
 
 	// Check for machine-specific then user config source file.
 	PathCombine(cpuCfgPath, userConfigDirPath, L"ConEmu-%COMPUTERNAME%.xml");
 	ExpandEnvironmentStrings(cpuCfgPath, cpuCfgPath, sizeof(cpuCfgPath) / sizeof(cpuCfgPath[0]));
 
+	// Set path to Cmder user ConEmu config file
 	PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
-	if (PathFileExists(cpuCfgPath)) {
-		if (PathFileExists(cfgPath)) {
+
+	if (PathFileExists(cpuCfgPath)) // If machine-specific ConEmu config file exists - use it.
+	{
+		if (PathFileExists(cfgPath)) // If vendor ConEmu config file exists - back it up to config/ConEmu-%COMPUTERNAME%.xml.
+		{
 			if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
 			{
 				MessageBox(NULL,
@@ -204,7 +229,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				exit(1);
 			}
 		}
-		else
+		else // If vendor ConEmu config file does not exists - Copy machine-specific config/ConEmu-%COMPUTERNAME%.xml to vendor ConEmu.xml file
 		{
 			if (!CopyFile(cpuCfgPath, cfgPath, FALSE))
 			{
@@ -216,8 +241,10 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			}
 		}
 	}
-	else if (PathFileExists(userCfgPath)) {
-		if (PathFileExists(cfgPath)) {
+	else if (PathFileExists(userCfgPath)) // If config/user_conemu.xml exists use it. 
+	{
+		if (PathFileExists(cfgPath)) // If vendor conemu.xml exits back it up to config/user_conemu.xml.
+		{
 			if (!CopyFile(cfgPath, userCfgPath, FALSE))
 			{
 				MessageBox(NULL,
@@ -227,7 +254,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				exit(1);
 			}
 		}
-		else
+		else // If vendor conemu.xml does not exist copy user_conemu.xml to vendor conemu.xml
 		{
 			if (!CopyFile(userCfgPath, cfgPath, FALSE))
 			{
@@ -239,7 +266,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			}
 		}
 	}
-	else if (PathFileExists(cfgPath)) {
+	else if (PathFileExists(cfgPath)) // If vendor conemu.xml exists copy config/user_conemu.xml
+	{
 		if (!CopyFile(cfgPath, userCfgPath, FALSE))
 		{
 			MessageBox(NULL,
@@ -249,7 +277,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			exit(1);
 		}
 	}
-	else {
+	else // No previous conemu.xml config exists use the default.
+	{
 		if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
 		{
 			MessageBox(NULL,
@@ -262,28 +291,34 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	SYSTEM_INFO sysInfo;
 	GetNativeSystemInfo(&sysInfo);
-	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) {
+	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+	{
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu64.exe");
 	}
-	else {
+	else
+	{
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
 
 	if (is_single_mode)
 	{
-		if (!streqi(cmderTask.c_str(), L"")) {
+		if (!streqi(cmderTask.c_str(), L""))
+		{
 			swprintf_s(args, L"%s /single /Icon \"%s\" /Title Cmder /dir \"%s\" /run {%s}", args, icoPath, cmderStart.c_str(), cmderTask.c_str());
 		}
-		else {
+		else
+		{
 			swprintf_s(args, L"%s /single /Icon \"%s\" /Title Cmder /dir \"%s\"", args, icoPath, cmderStart.c_str());
 		}
 	}
 	else
 	{
-		if (!streqi(cmderTask.c_str(), L"")) {
+		if (!streqi(cmderTask.c_str(), L""))
+		{
 			swprintf_s(args, L"/Icon \"%s\" /Title Cmder /dir \"%s\" /run {%s}", icoPath, cmderStart.c_str(), cmderTask.c_str());
 		}
-		else {
+		else
+		{
 			swprintf_s(args, L"%s /Icon \"%s\" /Title Cmder /dir \"%s\"", args, icoPath, cmderStart.c_str());
 		}
 	}
@@ -435,7 +470,8 @@ cmderOptions GetOption()
 
 			cmderOptions.cmderCfgRoot = cmderCfgRoot;
 
-			if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/') {
+			if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/')
+			{
 				cmderOptions.cmderCfgRoot = szArgList[i + 1];
 				i++;
 			}
@@ -453,7 +489,8 @@ cmderOptions GetOption()
 				cmderOptions.cmderStart = szArgList[i + 1];
 				i++;
 			}
-			else {
+			else
+			{
 				MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
 			}
 		}
@@ -505,11 +542,13 @@ cmderOptions GetOption()
 				cmderOptions.cmderStart = szArgList[i];
 				i++;
 			}
-			else {
+			else
+			{
 				MessageBox(NULL, szArgList[i], L"Folder does not exist!", MB_OK);
 			}
 		}
-		else {
+		else 
+		{
 			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 			cmderOptions.error = true;
 		}
@@ -531,7 +570,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	cmderOptions cmderOptions = GetOption();
 
-	if (cmderOptions.registerApp == true) {
+	if (cmderOptions.registerApp == true)
+	{
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
