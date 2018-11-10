@@ -295,7 +295,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 					: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml!", MB_TITLE, MB_ICONSTOP);
 				exit(1);
 			}
-			else // vendor/ConEmu.xml config exists, copy Cmder vendor/ConEmu.xml file to vendor/conemu-maximus5/ConEmu.xml.
+			else // vendor/ConEmu.xml config exists, copy Cmder vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml.
 			{
 				if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
 				{
