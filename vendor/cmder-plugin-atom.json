@@ -1,18 +1,18 @@
 [
   {
     "name": "atom",
-    "version": "v1.26.1",
-    "url": "https://github.com/atom/atom/releases/download/v1.26.1/atom-windows.zip",
+    "version": "v1.32,2",
+    "url": "https://github.com/atom/atom/releases/download/v1.32.2/atom-windows.zip",
     "shared_alias": {
       "atom": {
-        "sh": "$cmder_root/vendor/atom/atom",
-        "cmder": "%CMDER_ROOT%/vendor/atom/atom $*",
-        "posh": "$env:cmder_root/vendor/atom/atom"
+        "sh": "$cmder_root/vendor/atom/Atom/atom",
+        "cmder": "%CMDER_ROOT%/vendor/atom/Atom/atom $*",
+        "posh": "$env:cmder_root/vendor/atom/Atom/atom"
       },
       "apm": {
-        "sh": "$cmder_root/vendor/atom/resources/app/apm/bin/apm",
-        "cmder": "%CMDER_ROOT%/vendor/atom/resources/app/apm/bin/apm $*",
-        "posh": "$env:cmder_root/vendor/atom/resources/app/apm/bin/apm"
+        "sh": "$cmder_root/vendor/atom/Atom/resources/app/apm/bin/apm",
+        "cmder": "%CMDER_ROOT%/vendor/atom/Atom/resources/app/apm/bin/apm $*",
+        "posh": "$env:cmder_root/vendor/atom/Atom/resources/app/apm/bin/apm"
       }
     },
     "shared_profile": {
@@ -26,12 +26,12 @@
       "$env:ATOM_HOME='./atom'"
     ],
     "post_commands": [
-      "# ./atom/resources/app/apm/bin/apm config set http_proxy http://proxy_host:proxy_port",
-      "# ./atom/resources/app/apm/bin/apm config set https_proxy http://proxy_host:proxy_port",
-      "# ./atom/resources/app/apm/bin/apm config set proxy http://proxy_host:proxy_port",
-      "# ./atom/resources/app/apm/bin/apm config set strict-ssl=false",
-      "./atom/resources/app/apm/bin/apm install vim-mode",
-      "./atom/resources/app/apm/bin/apm install ex-mode"
+      "# ./atom/Atom/resources/app/apm/bin/apm config set http_proxy http://proxy_host:proxy_port",
+      "# ./atom/Atom/resources/app/apm/bin/apm config set https_proxy http://proxy_host:proxy_port",
+      "# ./atom/Atom/resources/app/apm/bin/apm config set proxy http://proxy_host:proxy_port",
+      "# ./atom/Atom/resources/app/apm/bin/apm config set strict-ssl=false",
+      "./atom/Atom/resources/app/apm/bin/apm install vim-mode",
+      "./atom/Atom/resources/app/apm/bin/apm install ex-mode"
     ]
   }
 ]
