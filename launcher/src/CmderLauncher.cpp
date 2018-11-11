@@ -149,7 +149,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	}
 	
 	/*
-	Was -c [path] specified?
+	Was /c [path] specified?
 	*/
 	if (wcscmp(userConfigDirPath, L"") == 0)
 	{
@@ -220,7 +220,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	if (PathFileExists(cpuCfgPath)) // config/ConEmu-%COMPUTERNAME%.xml file exists, use it.
 	{
-		if (cfgRoot.length() == 0) // '-C [PATH]' was NOT specified
+		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
 			if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml file exists, copy vendor/conemu-maximus5/ConEmu.xml to config/ConEmu-%COMPUTERNAME%.xml.
 			{
@@ -245,7 +245,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				}
 			}
 		}
-		else // '-C [PATH]' was specified, don't copy anything and use existing conemu-%COMPUTERNAME%.xml to start comemu.
+		else // '/c [path]' was specified, don't copy anything and use existing conemu-%COMPUTERNAME%.xml to start comemu.
 		{
 			PathCombine(userConEmuCfgPath, userConfigDirPath, L"ConEmu-%COMPUTERNAME%.xml");
 			ExpandEnvironmentStrings(userConEmuCfgPath, userConEmuCfgPath, sizeof(userConEmuCfgPath) / sizeof(userConEmuCfgPath[0]));
@@ -253,7 +253,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	}
 	else if (PathFileExists(userCfgPath)) // config/user_conemu.xml exists, use it. 
 	{
-		if (cfgRoot.length() == 0) // '-C [PATH]' was NOT specified
+		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
 			if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml.
 			{
@@ -278,12 +278,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				}
 			}
 		}
-		else // '-C [PATH]' was specified, don't copy anything and use existing user_conemu.xml to start comemu.
+		else // '/c [path]' was specified, don't copy anything and use existing user_conemu.xml to start comemu.
 		{
 			PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 		}
 	}
-	else if (cfgRoot.length() == 0) // '-C [PATH]' was NOT specified 
+	else if (cfgRoot.length() == 0) // '/c [path]' was NOT specified 
 	{
 		if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
 		{
@@ -321,7 +321,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
-	else // '-C [PATH]' was specified and 'vendor/ConEmu.xml.default' config exists, copy Cmder 'vendor/ConEmu.xml.default' file to '[user specified path]/config/user_ConEmu.xml'.
+	else // '/c [path]' was specified and 'vendor/ConEmu.xml.default' config exists, copy Cmder 'vendor/ConEmu.xml.default' file to '[user specified path]/config/user_ConEmu.xml'.
 	{
 		if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
 		{
