@@ -41,12 +41,15 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 ## Cmder.exe Command Line Arguments
 
 
-| Argument            | Description                                                                 |
-| ------------------- | -----------------------------------------------------------------------     |
-| `/C [user_root_path]` | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config` |
-| `/SINGLE`             | Start Cmder in single mode.                                               |
-| `/START [start_path]` | Folder path to start in.                                                  |
-| `/TASK [task_name]`   | Task to start after launch.                                               |
+| Argument                  | Description                                                                              |
+| -------------------       | -----------------------------------------------------------------------                  |
+| `/C [user_root_path]`     | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config`                |
+| `/M`                      | Use `conemu-%computername%.xml` for ConEmu settings storage instead of `user_conemu.xml` |
+| `/REGISTER [ALL, USER]`   | Register a Windows Shell Menu shortcut.                                                  |
+| `/UNREGISTER [ALL, USER]` | Un-register a Windows Shell Menu shortcut.                                               |
+| `/SINGLE`                 | Start Cmder in single mode.                                                              |
+| `/START [start_path]`     | Folder path to start in.                                                                 |
+| `/TASK [task_name]`       | Task to start after launch.                                                              |
 
 ## Context Menu Integration
 

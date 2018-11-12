@@ -442,8 +442,10 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
-void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
+void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgRoot = L"")
 {
+	wchar_t userConfigDirPath[MAX_PATH] = { 0 };
+
 	// First, get the paths we will use
 
 	wchar_t exePath[MAX_PATH] = { 0 };
@@ -452,7 +454,16 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
-	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+
+	if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
+	{
+		swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+	}
+	else {
+		std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
+		userConfigDirPath[cfgRoot.length()] = 0;
+		swprintf_s(commandStr, L"\"%s\" /c \"%s\" \"%%V\"", exePath, userConfigDirPath);
+	}
 
 	// Now that we have `commandStr`, it's OK to change `exePath`...
 	PathRemoveFileSpec(exePath);
@@ -635,8 +646,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	if (cmderOptions.registerApp == true)
 	{
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot);
 	}
 	else if (cmderOptions.unRegisterApp == true)
 	{
