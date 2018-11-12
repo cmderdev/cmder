@@ -247,6 +247,18 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		}
 		else // '/c [path]' was specified, don't copy anything and use existing conemu-%COMPUTERNAME%.xml to start comemu.
 		{
+			if (use_user_cfg == false && PathFileExists(cfgPath) && !PathFileExists(cpuCfgPath)) // vendor/conemu-maximus5/ConEmu.xml file exists, copy vendor/conemu-maximus5/ConEmu.xml to config/ConEmu-%COMPUTERNAME%.xml.
+			{
+				if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
+				{
+					MessageBox(NULL,
+						(GetLastError() == ERROR_ACCESS_DENIED)
+						? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml! Access Denied."
+						: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml!", MB_TITLE, MB_ICONSTOP);
+					exit(1);
+				}
+			}
+
 			PathCombine(userConEmuCfgPath, userConfigDirPath, L"ConEmu-%COMPUTERNAME%.xml");
 			ExpandEnvironmentStrings(userConEmuCfgPath, userConEmuCfgPath, sizeof(userConEmuCfgPath) / sizeof(userConEmuCfgPath[0]));
 		}
@@ -504,101 +516,104 @@ cmderOptions GetOption()
 	{
 
 		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
-		if (_wcsicmp(L"/c", szArgList[i]) == 0)
-		{
-			TCHAR userProfile[MAX_PATH];
-			const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
+		if (cmderOptions.error == false) {
+			if (_wcsicmp(L"/c", szArgList[i]) == 0)
+			{
+				TCHAR userProfile[MAX_PATH];
+				const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
 
-			wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
-			PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg");
+				wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
+				PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg");
 
-			cmderOptions.cmderCfgRoot = cmderCfgRoot;
+				cmderOptions.cmderCfgRoot = cmderCfgRoot;
 
-			if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/')
-			{
-				cmderOptions.cmderCfgRoot = szArgList[i + 1];
-				i++;
-			}
-		}
-		else if (_wcsicmp(L"/start", szArgList[i]) == 0)
-		{
-			int len = wcslen(szArgList[i + 1]);
-			if (wcscmp(&szArgList[i + 1][len - 1], L"\"") == 0)
-			{
-				szArgList[i + 1][len - 1] = '\0';
-			}
-
-			if (PathFileExists(szArgList[i + 1]))
-			{
-				cmderOptions.cmderStart = szArgList[i + 1];
-				i++;
-			}
-			else
-			{
-				MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
-			}
-		}
-		else if (_wcsicmp(L"/task", szArgList[i]) == 0)
-		{
-			cmderOptions.cmderTask = szArgList[i + 1];
-			i++;
-		}
-		else if (_wcsicmp(L"/single", szArgList[i]) == 0)
-		{
-			cmderOptions.cmderSingle = true;
-		}
-		else if (_wcsicmp(L"/m", szArgList[i]) == 0)
-		{
-			cmderOptions.cmderUserCfg = false;
-		}
-		else if (_wcsicmp(L"/register", szArgList[i]) == 0)
-		{
-			cmderOptions.registerApp = true;
-			cmderOptions.unRegisterApp = false;
-			if (szArgList[i + 1] != NULL)
-			{
-				if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+				if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/')
 				{
-					cmderOptions.cmderRegScope = szArgList[i + 1];
+					cmderOptions.cmderCfgRoot = szArgList[i + 1];
 					i++;
 				}
 			}
-		}
-		else if (_wcsicmp(L"/unregister", szArgList[i]) == 0)
-		{
-			cmderOptions.unRegisterApp = true;
-			cmderOptions.registerApp = false;
-			if (szArgList[i + 1] != NULL) 
+			else if (_wcsicmp(L"/start", szArgList[i]) == 0)
 			{
-				if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+				int len = wcslen(szArgList[i + 1]);
+				if (wcscmp(&szArgList[i + 1][len - 1], L"\"") == 0)
 				{
-					cmderOptions.cmderRegScope = szArgList[i + 1];
+					szArgList[i + 1][len - 1] = '\0';
+				}
+
+				if (PathFileExists(szArgList[i + 1]))
+				{
+					cmderOptions.cmderStart = szArgList[i + 1];
 					i++;
 				}
+				else
+				{
+					MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
+				}
 			}
-		}
-		else if (cmderOptions.cmderStart == L"")
-		{
-			int len = wcslen(szArgList[i]);
-			if (wcscmp(&szArgList[i][len - 1], L"\"") == 0)
+			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
 			{
-				szArgList[i][len - 1] = '\0';
-			}
-		
-			if (PathFileExists(szArgList[i]))
-			{
-				cmderOptions.cmderStart = szArgList[i];
+				cmderOptions.cmderTask = szArgList[i + 1];
 				i++;
+			}
+			else if (_wcsicmp(L"/single", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderSingle = true;
+			}
+			else if (_wcsicmp(L"/m", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderUserCfg = false;
+			}
+			else if (_wcsicmp(L"/register", szArgList[i]) == 0)
+			{
+				cmderOptions.registerApp = true;
+				cmderOptions.unRegisterApp = false;
+				if (szArgList[i + 1] != NULL)
+				{
+					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					{
+						cmderOptions.cmderRegScope = szArgList[i + 1];
+						i++;
+					}
+				}
+			}
+			else if (_wcsicmp(L"/unregister", szArgList[i]) == 0)
+			{
+				cmderOptions.unRegisterApp = true;
+				cmderOptions.registerApp = false;
+				if (szArgList[i + 1] != NULL)
+				{
+					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					{
+						cmderOptions.cmderRegScope = szArgList[i + 1];
+						i++;
+					}
+				}
+			}
+			else if (cmderOptions.cmderStart == L"")
+			{
+				int len = wcslen(szArgList[i]);
+				if (wcscmp(&szArgList[i][len - 1], L"\"") == 0)
+				{
+					szArgList[i][len - 1] = '\0';
+				}
+
+				if (PathFileExists(szArgList[i]))
+				{
+					cmderOptions.cmderStart = szArgList[i];
+					i++;
+				}
+				else
+				{
+					MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+					cmderOptions.error = true;
+				}
 			}
 			else
 			{
-				MessageBox(NULL, szArgList[i], L"Folder does not exist!", MB_OK);
+				MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+				cmderOptions.error = true;
 			}
-		}
-		else 
-		{
-			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
-			cmderOptions.error = true;
 		}
 	}
 
