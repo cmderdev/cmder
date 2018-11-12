@@ -13,6 +13,8 @@ vendor/*/*
 config/*
 !config/Readme.md
 
+config_user/*
+
 Thumbs.db
 *.exe
 *.dll

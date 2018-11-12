@@ -69,7 +69,7 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring cfgRoot = L"")
+void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true)
 {
 #if USE_TASKBAR_API
 	wchar_t appId[MAX_PATH] = { 0 };
@@ -218,7 +218,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	// Set path to Cmder user ConEmu config file
 	PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 
-	if (PathFileExists(cpuCfgPath)) // config/ConEmu-%COMPUTERNAME%.xml file exists, use it.
+	if ( PathFileExists(cpuCfgPath) || use_user_cfg == false ) // config/ConEmu-%COMPUTERNAME%.xml file exists or /m was specified on command line, use machine specific config.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
@@ -486,6 +486,7 @@ struct cmderOptions
 	std::wstring cmderTask = L"";
 	std::wstring cmderRegScope = L"USER";
 	bool cmderSingle = false;
+	bool cmderUserCfg = true;
 	bool registerApp = false;
 	bool unRegisterApp = false;
 	bool error = false;
@@ -546,6 +547,10 @@ cmderOptions GetOption()
 		{
 			cmderOptions.cmderSingle = true;
 		}
+		else if (_wcsicmp(L"/m", szArgList[i]) == 0)
+		{
+			cmderOptions.cmderUserCfg = false;
+		}
 		else if (_wcsicmp(L"/register", szArgList[i]) == 0)
 		{
 			cmderOptions.registerApp = true;
@@ -592,7 +597,7 @@ cmderOptions GetOption()
 		}
 		else 
 		{
-			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+			MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 			cmderOptions.error = true;
 		}
 	}
@@ -629,7 +634,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else
 	{
-		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot);
+		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg);
 	}
 
 	return 0;
