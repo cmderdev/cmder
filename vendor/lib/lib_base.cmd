@@ -27,7 +27,7 @@ exit /b
 :::       file <in> full path to file containing lib_routines to display
 :::.
 :::-------------------------------------------------------------------------------
-    for /f "tokens=* delims=:" %%a in ('type "%~1" ^| findstr /i /r "^:::"') do (
+    for /f "tokens=* delims=:" %%a in ('type "%~1" ^| %WINDIR%\System32\findstr /i /r "^:::"') do (
         rem echo a="%%a"
 
         if "%%a"=="." (
@@ -61,9 +61,9 @@ exit /b
 :::       file <in> full path to file containing lib_routines to display
 :::.
 :::-------------------------------------------------------------------------------
-    echo %comspec% | find /i "\cmd.exe" > nul && set "CMDER_SHELL=cmd"
-    echo %comspec% | find /i "\tcc.exe" > nul && set "CMDER_SHELL=tcc"
-    echo %comspec% | find /i "\tccle" > nul && set "CMDER_SHELL=tccle"
+    echo %comspec% | %WINDIR%\System32\find /i "\cmd.exe" > nul && set "CMDER_SHELL=cmd"
+    echo %comspec% | %WINDIR%\System32\find /i "\tcc.exe" > nul && set "CMDER_SHELL=tcc"
+    echo %comspec% | %WINDIR%\System32\find /i "\tccle" > nul && set "CMDER_SHELL=tccle"
 
     set CMDER_CLINK=1
     if "%CMDER_SHELL%" equ "tcc" set CMDER_CLINK=0
