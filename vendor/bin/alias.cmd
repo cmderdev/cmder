@@ -40,7 +40,7 @@ goto parseargument
   ) else if "%currentarg%" neq "" (
     if "%~2" equ "" (
       :: Show the specified alias
-      doskey /macros | findstr /b %currentarg%= && exit /b
+      doskey /macros | %WINDIR%\System32\findstr /b %currentarg%= && exit /b
       echo insufficient parameters.
       goto :p_help
     ) else (
@@ -85,7 +85,7 @@ if not ["%_temp%"] == ["%alias_name%"] (
 )
 
 :: replace already defined alias
-findstr /b /v /i "%alias_name%=" "%ALIASES%" >> "%ALIASES%.tmp"
+%WINDIR%\System32\findstr /b /v /i "%alias_name%=" "%ALIASES%" >> "%ALIASES%.tmp"
 echo %alias_name%=%alias_value% >> "%ALIASES%.tmp" && type "%ALIASES%.tmp" > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey /macrofile="%ALIASES%"
 endlocal
@@ -93,7 +93,7 @@ exit /b
 
 :p_del
 set del_alias=%~1
-findstr /b /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
+%WINDIR%\System32\findstr /b /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
 type "%ALIASES%".tmp > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey %del_alias%=
 doskey /macrofile="%ALIASES%"
@@ -105,7 +105,7 @@ echo Aliases reloaded
 exit /b
 
 :p_show
-doskey /macros|findstr /v /r "^;=" | sort
+doskey /macros|%WINDIR%\System32\findstr /v /r "^;=" | sort
 exit /b
 
 :p_help
