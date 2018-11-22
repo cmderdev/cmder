@@ -300,7 +300,7 @@ if "%CMDER_ALIASES%" == "1" (
       echo Creating initial user_aliases store in "%user_aliases%"...
       copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
   ) else (
-      type "%user_aliases%" | findstr /i ";= Add aliases below here" >nul
+      type "%user_aliases%" | %WINDIR%\System32\findstr /i ";= Add aliases below here" >nul
       if "!errorlevel!" == "1" (
           echo Creating initial user_aliases store in "%user_aliases%"...
           if defined CMDER_USER_CONFIG (
