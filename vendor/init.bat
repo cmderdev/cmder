@@ -1,6 +1,6 @@
 @echo off
 
-set cmder_init_start=%time%
+set CMDER_INIT_START=%time%
 
 :: Init Script for cmd.exe
 :: Created as part of cmder project
@@ -346,6 +346,7 @@ if not defined HOME set "HOME=%USERPROFILE%"
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
 if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
+    %lib_console% debug_output init.bat "Calling - %CMDER_ROOT%\config\user_profile.cmd"
     call "%CMDER_ROOT%\config\user_profile.cmd"
 )
 
@@ -353,6 +354,7 @@ if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
       REM Create this file and place your own command in there
+      %lib_console% debug_output init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd
       call "%CMDER_USER_CONFIG%\user_profile.cmd"
   )
 )
@@ -398,9 +400,9 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 set initialConfig=
 set CMDER_CONFIGURED=1
 
-set cmder_init_end=%time%
+set CMDER_INIT_END=%time%
 
 if %time_init% gtr 0 (
-  "%cmder_root%\vendor\bin\timer.cmd" %cmder_init_start% %cmder_init_end%
+  "%cmder_root%\vendor\bin\timer.cmd" %CMDER_INIT_START% %CMDER_INIT_END%
 )
 exit /b
