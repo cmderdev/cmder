@@ -319,6 +319,16 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				}
 			}
 		}
+		else {
+			if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
+			{
+				MessageBox(NULL,
+					(GetLastError() == ERROR_ACCESS_DENIED)
+					? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+					: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+				exit(1);
+			}
+		}
 	}
 	else if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
 	{
