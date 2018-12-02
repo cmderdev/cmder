@@ -14,6 +14,7 @@ set debug_output=0
 set time_init=0
 set fast_init=0
 set max_depth=1
+set prefer_windows_commands=1
 set "CMDER_USER_FLAGS= "
 
 :: Find root dir
@@ -89,6 +90,9 @@ call "%cmder_root%\vendor\lib\lib_profile"
         )
     ) else if /i "%1" == "/svn_ssh" (
         set SVN_SSH=%2
+        shift
+    ) else if /i "%1" == "/prefer_nix" (
+        set prefer_windows_commands=0
         shift
     ) else (
       set "CMDER_USER_FLAGS=%1 %CMDER_USER_FLAGS%"
@@ -233,18 +237,25 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" append
-    if exist "!GIT_INSTALL_ROOT!\mingw32" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" append
-    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" append
+    if "%prefer_windows_commands%" == "1" (
+        echo PREFERRING WINDOWS COMMANDS
+        set "path_position=append"
+    ) else (
+        echo PREFERRING UNIX COMMANDS
+        set "path_position="
     )
-    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" append
 
+    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" !path_position!
+    if exist "!GIT_INSTALL_ROOT!\mingw32" (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" !path_position!
+    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" !path_position!
+    )
+    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" !path_position!
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 
-    for /F "delims=" %%F in ('env /usr/bin/locale -uU 2') do (
+    for /F "delims=" %%F in ('%GIT_INSTALL_ROOT%\usr\bin\env /usr/bin/locale -uU 2') do (
         set "LANG=%%F"
     )
 )
