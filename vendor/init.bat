@@ -238,10 +238,10 @@ goto :CONFIGURE_GIT
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
     if "%prefer_windows_commands%" == "1" (
-        echo PREFERRING WINDOWS COMMANDS
+        %lib_console% debug_output init.bat "Preferring Windows commands"
         set "path_position=append"
     ) else (
-        echo PREFERRING UNIX COMMANDS
+        %lib_console% debug_output init.bat "Preferring *nix commands"
         set "path_position="
     )
 
