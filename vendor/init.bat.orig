@@ -254,6 +254,11 @@ if defined GIT_INSTALL_ROOT (
     %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" !path_position!
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
+<<<<<<< HEAD
+
+    for /F "delims=" %%F in ('%GIT_INSTALL_ROOT%\usr\bin\env /usr/bin/locale -uU 2') do (
+        set "LANG=%%F"
+=======
     
     if not defined LANG (
         :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
@@ -264,6 +269,7 @@ if defined GIT_INSTALL_ROOT (
         for /F "delims=" %%F in ('!git_locale! -uU 2') do (
             set "LANG=%%F"
         )
+>>>>>>> 3163d6d1c3b8b027390f35fa618cfab37d73a865
     )
 )
 
