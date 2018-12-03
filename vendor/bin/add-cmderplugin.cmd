@@ -1,2 +1,2 @@
-@echo off
-powershell -command "& {%cmder_root%\vendor\bin\add-cmderplugin.ps1 %*}"
+@ech off
+powershell -executionpolicy bypass -command "& {%cmder_root%\vendor\bin\add-cmderplugin.ps1 %*}"
