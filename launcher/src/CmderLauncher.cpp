@@ -452,7 +452,7 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
-void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgRoot = L"")
+void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgRoot, bool single)
 {
 	wchar_t userConfigDirPath[MAX_PATH] = { 0 };
 
@@ -464,15 +464,22 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
+	wchar_t baseCommandStr[MAX_PATH + 20] = { 0 };
+	if (!single) {
+		swprintf_s(baseCommandStr, L"\"%s\"", exePath);
+	}
+	else {
+		swprintf_s(baseCommandStr, L"\"%s\" /single", exePath);
+	}
 
 	if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 	{
-		swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+		swprintf_s(commandStr, L"%s \"%%V\"", baseCommandStr);
 	}
 	else {
 		std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
 		userConfigDirPath[cfgRoot.length()] = 0;
-		swprintf_s(commandStr, L"\"%s\" /c \"%s\" \"%%V\"", exePath, userConfigDirPath);
+		swprintf_s(commandStr, L"%s /c \"%s\" \"%%V\"", baseCommandStr, userConfigDirPath);
 	}
 
 	// Now that we have `commandStr`, it's OK to change `exePath`...
@@ -656,8 +663,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	if (cmderOptions.registerApp == true)
 	{
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot);
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
 	}
 	else if (cmderOptions.unRegisterApp == true)
 	{
