@@ -90,12 +90,7 @@ fi
 
 if [ ! -f "${CmderUserProfilePath}" ] ; then
     echo Creating user startup file: "${CmderUserProfilePath}"
-    cat <<-eof >"${CmderUserProfilePath}"
-# use this file to run your own startup commands for msys2 bash'
-
-# To add a new vendor to the path, do something like:
-# export PATH=\${CMDER_ROOT}/vendor/whatever:\${PATH}
-eof
+    cp "${CMDER_ROOT}/vendor/user_profile.sh.default" "${CmderUserProfilePath}"
 fi
 
 # Source the users .bashrc file if it exists
