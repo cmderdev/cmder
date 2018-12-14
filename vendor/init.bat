@@ -14,7 +14,8 @@ set debug_output=0
 set time_init=0
 set fast_init=0
 set max_depth=1
-set prefer_windows_commands=1
+:: Add *nix tools to end of path. 0 turns off *nix tools.
+set nix_tools=1
 set "CMDER_USER_FLAGS= "
 
 :: Find root dir
@@ -79,6 +80,20 @@ call "%cmder_root%\vendor\lib\lib_profile"
         ) else (
             %lib_console% show_error "The Git install root folder "%~2", you specified does not exist!"
             exit /b
+        )
+    ) else if /i "%1"=="/nix_tools" (
+        if "%2" equ "0" (
+            REM Do not add *nix tools to path
+            set nix_tools=0
+            shift
+        ) else if "%2" equ "1" (
+            REM Add *nix tools to end of path
+            set nix_tools=1
+            shift
+        ) else if "%2" equ "2" (
+            REM Add *nix tools to front of path
+            set nix_tools=2
+            shift
         )
     ) else if /i "%1" == "/home" (
         if exist "%~2" (
@@ -237,7 +252,7 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    if "%prefer_windows_commands%" == "1" (
+    if %nix_tools% equ 1 (
         %lib_console% debug_output init.bat "Preferring Windows commands"
         set "path_position=append"
     ) else (
@@ -251,7 +266,11 @@ if defined GIT_INSTALL_ROOT (
     ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
         %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" !path_position!
     )
-    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" !path_position!
+
+    if %nix_tools% geq 1 (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" !path_position!
+    )
+
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
     
