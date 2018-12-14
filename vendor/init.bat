@@ -106,9 +106,6 @@ call "%cmder_root%\vendor\lib\lib_profile"
     ) else if /i "%1" == "/svn_ssh" (
         set SVN_SSH=%2
         shift
-    ) else if /i "%1" == "/prefer_nix" (
-        set prefer_windows_commands=0
-        shift
     ) else (
       set "CMDER_USER_FLAGS=%1 %CMDER_USER_FLAGS%"
     )
