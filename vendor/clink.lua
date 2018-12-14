@@ -179,21 +179,6 @@ end
 
 ---
 -- Find out current branch
--- @return {false|mercurial branch name}
----
-local function get_hg_branch()
-    for line in io.popen("hg branch 2>nul"):lines() do
-        local m = line:match("(.+)$")
-        if m then
-            return m
-        end
-    end
-
-    return false
-end
-
----
--- Find out current branch
 -- @return {false|svn branch name}
 ---
 local function get_svn_branch(svn_dir)
@@ -234,22 +219,6 @@ function get_git_conflict()
     end
     file:close()
     return false
-end
-
-
----
--- Get the status of working dir
--- @return {bool}
----
-local function get_hg_status()
-    local file = io.popen("hg status -0")
-    for line in file:lines() do
-        file:close()
-        return false
-    end
-    file:close()
-
-    return true
 end
 
 ---
@@ -319,7 +288,7 @@ local function hg_prompt_filter()
 
         -- 'hg id' gives us BOTH the branch name AND an indicator that there
         -- are uncommitted changes, in one fast(er) call
-        local pipe = io.popen("hg id 2>&1")
+        local pipe = io.popen("hg id -ib 2>&1")
         local output = pipe:read('*all')
         local rc = { pipe:close() }
 
@@ -335,8 +304,8 @@ local function hg_prompt_filter()
             end
             -- if the repo hash ends with '+', the wc has uncommitted changes
             if string.sub(items[1], -1, -1) == "+" then color = colors.dirty end
-            -- substitute the branch in directly -- already WITH parentheses.  :)
-            result = color .. items[2] -- string.sub(items[2], 1, string.len(items[2]) - 1)
+            -- substitute the branch in directly
+            result = color.."("..items[2]..")"
         end
     end
 
