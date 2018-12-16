@@ -298,7 +298,7 @@ if defined CMDER_USER_CONFIG (
 :: scripts run above by setting the 'aliases' env variable.
 ::
 :: Note: If overriding default aliases store file the aliases
-:: must also be self executing, see '.\user_aliases.cmd.example',
+:: must also be self executing, see '.\user_aliases.cmd.default',
 :: and be in profile.d folder.
 if not defined user_aliases (
   if defined CMDER_USER_CONFIG (
@@ -319,17 +319,17 @@ if "%CMDER_ALIASES%" == "1" (
   setlocal enabledelayedexpansion
   if not exist "%user_aliases%" (
       echo Creating initial user_aliases store in "%user_aliases%"...
-      copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+      copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
   ) else (
       type "%user_aliases%" | %WINDIR%\System32\findstr /i ";= Add aliases below here" >nul
       if "!errorlevel!" == "1" (
           echo Creating initial user_aliases store in "%user_aliases%"...
           if defined CMDER_USER_CONFIG (
               copy "%user_aliases%" "%user_aliases%.old_format"
-              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
           ) else (
               copy "%user_aliases%" "%user_aliases%.old_format"
-              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
           )
       )
   )
@@ -382,27 +382,7 @@ if defined CMDER_USER_CONFIG (
 
 if not exist "%initialConfig%" (
     echo Creating user startup file: "%initialConfig%"
-    (
-echo :: use this file to run your own startup commands
-echo :: use in front of the command to prevent printing the command
-echo.
-echo :: uncomment this to have the ssh agent load when cmder starts
-echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
-echo.
-echo :: uncomment the next two lines to use pageant as the ssh authentication agent
-echo :: SET SSH_AUTH_SOCK=/tmp/.ssh-pageant-auth-sock
-echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
-echo.
-echo :: you can add your plugins to the cmder path like so
-echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
-echo.
-echo :: arguments in this batch are passed from init.bat, you can quickly parse them like so:
-echo :: more useage can be seen by typing "cexec /?"
-echo.
-echo :: %%ccall%% "/customOption" "command/program"
-echo.
-echo @echo off
-) >"%initialConfig%"
+    copy "%CMDER_ROOT%\vendor\user_profile.cmd.default" "%initialConfig%"
 )
 
 if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
