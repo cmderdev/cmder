@@ -90,6 +90,10 @@ call "%cmder_root%\vendor\lib\lib_profile"
             REM Add *nix tools to end of path
             set nix_tools=1
             shift
+        ) else if "%2" equ "2" (
+            REM Add *nix tools to front of path
+            set nix_tools=2
+            shift
         )
     ) else if /i "%1" == "/home" (
         if exist "%~2" (
@@ -245,14 +249,23 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" append
-    if exist "!GIT_INSTALL_ROOT!\mingw32" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" append
-    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" append
-    )
     if %nix_tools% equ 1 (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" append
+        %lib_console% debug_output init.bat "Preferring Windows commands"
+        set "path_position=append"
+    ) else (
+        %lib_console% debug_output init.bat "Preferring *nix commands"
+        set "path_position="
+    )
+
+    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" !path_position!
+    if exist "!GIT_INSTALL_ROOT!\mingw32" (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" !path_position!
+    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" !path_position!
+    )
+
+    if %nix_tools% geq 1 (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" !path_position!
     )
 
     :: define SVN_SSH so we can use git svn with ssh svn repositories
