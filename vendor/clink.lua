@@ -14,6 +14,14 @@ dofile(clink_lua_file)
 -- now add our own things...
 
 ---
+-- Makes a string safe to use as the replacement in string.gsub
+---
+local function verbatim(s)
+    s = string.gsub(s, "%%", "%%%%")
+    return s
+end
+
+---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
 -- not destroy our own prompt. It also means that started cmds (or batch files
 -- which echo) don't get the ugly '{lamb}' shown.
@@ -41,13 +49,12 @@ local function set_prompt_filter()
     -- color codes: "\x1b[1;37;40m"
     local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
     local lambda = "λ"
-    cwd = string.gsub(cwd, "%%", "{percent}")
-    cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
+    cmder_prompt = string.gsub(cmder_prompt, "{cwd}", verbatim(cwd))
 
     if env ~= nil then
         lambda = "("..env..") "..lambda
     end
-    clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", lambda)
+    clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", verbatim(lambda))
 end
 
 local function percent_prompt_filter()
@@ -295,7 +302,7 @@ local function git_prompt_filter()
                 color = colors.conflict
             end 
 
-            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..branch..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
             return false
         end
     end
@@ -340,7 +347,7 @@ local function hg_prompt_filter()
         end
     end
 
-    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", result)
+    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", verbatim(result))
     return false
 end
 
@@ -362,7 +369,7 @@ local function svn_prompt_filter()
                 color = colors.dirty
             end
 
-            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", color.."("..branch..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", color.."("..verbatim(branch)..")")
             return false
         end
     end
