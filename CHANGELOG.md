@@ -171,6 +171,11 @@
 
 ## [1.3.6](https://github.com/cmderdev/cmder/tree/v1.3.6) (2018-05-30)
 
+**Updated components:**
+
+* Git updated to v2.17.1.windows.2
+* ConEmu updated to 180528
+
 ## [1.3.6-pre2](https://github.com/cmderdev/cmder/tree/v1.3.6-pre2) (2018-03-01)
 
 **Updated components:**
