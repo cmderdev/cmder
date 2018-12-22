@@ -5,7 +5,7 @@
 ### Fixes
 
 * Fix uncommenting `call ssh-agent` in `user_profile.cmd` breaks Cmder prompt. [#1990](https://github.com/cmderdev/cmder/issues/1990), [#1807](https://github.com/cmderdev/cmder/issues/1807), [#1785](https://github.com/cmderdev/cmder/issues/1785), [#1885](https://github.com/cmderdev/cmder/issues/1885)
-  * Pull Request: [#1995](https://github.com/cmderdev/cmder/issues/1995) fix sshagent call in user_profile.cmd.default
+  * Pull Request: [#1999](https://github.com/cmderdev/cmder/issues/1999) fix ssh-agent call in user_profile.cmd.default
 * Unable to use '%' character in git branch names [#1779](https://github.com/cmderdev/cmder/issues/1779)
   * Pull Request: [#1991](https://github.com/cmderdev/cmder/issues/1991) add percent escaping for string.gsub 
 * sort command, unix vs windows (/usr/bin/sort vs sort.exe) [#1931](https://github.com/cmderdev/cmder/issues/1931)
