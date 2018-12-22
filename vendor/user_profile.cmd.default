@@ -2,7 +2,7 @@
 :: use in front of the command to prevent printing the command
 
 :: uncomment this to have the ssh agent load when cmder starts
-:: call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd" /k exit
+:: call "%GIT_INSTALL_ROOT%/cmd/start-ssh-agent.cmd"
 
 :: uncomment the next two lines to use pageant as the ssh authentication agent
 :: SET SSH_AUTH_SOCK=/tmp/.ssh-pageant-auth-sock
