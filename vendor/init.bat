@@ -41,9 +41,6 @@ call "%cmder_root%\vendor\lib\lib_console"
 call "%cmder_root%\vendor\lib\lib_git"
 call "%cmder_root%\vendor\lib\lib_profile"
 
-if defined VSCODE_CWD (
-  goto start
-)
 :var_loop
     if "%~1" == "" (
         goto :start
@@ -54,7 +51,9 @@ if defined VSCODE_CWD (
     ) else if /i "%1"=="/v" (
         set verbose_output=1
     ) else if /i "%1"=="/d" (
-        set debug_output=1
+        if not defined VSCODE_CWD (
+            set debug_output=1
+        )
     ) else if /i "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
             set "max_depth=%~2"
