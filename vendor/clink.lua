@@ -17,8 +17,8 @@ dofile(clink_lua_file)
 -- Makes a string safe to use as the replacement in string.gsub
 ---
 local function verbatim(s)
-    s = string.gsub(s, "%%", "%%%%")
-    return s
+--     s = string.gsub(s, "%%", "%%%%")
+    return decodeURI(s)
 end
 
 ---
@@ -413,4 +413,14 @@ if clink.get_env('CMDER_USER_CONFIG') then
     -- so config reloading using Alt-Q won't reload updated modules.
     dofile(filename)
   end
+end
+
+function decodeURI(s)
+    s = string.gsub(s, '%%(%x%x)', function(h) return string.char(tonumber(h, 16)) end)
+    return s
+end
+
+function encodeURI(s)
+    s = string.gsub(s, "([^%w%.%- ])", function(c) return string.format("%%%02X", string.byte(c)) end)
+    return string.gsub(s, " ", "+")
 end
