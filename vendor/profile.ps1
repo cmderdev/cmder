@@ -128,9 +128,14 @@ if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
 }
 
 pushd $ENV:CMDER_ROOT\config\profile.d
-foreach ($x in Get-ChildItem *.ps1) {
+foreach ($x in Get-ChildItem *.psm1) {
   # write-host write-host Sourcing $x
   Import-Module $x
+}
+
+foreach ($x in Get-ChildItem *.ps1) {
+  # write-host write-host Sourcing $x
+  . $x
 }
 popd
 
@@ -138,9 +143,14 @@ popd
 # to source them at startup.  Requires using cmder.exe /C [cmder_user_root_path] argument
 if ($ENV:CMDER_USER_CONFIG -ne "" -and (test-path "$ENV:CMDER_USER_CONFIG\profile.d")) {
     pushd $ENV:CMDER_USER_CONFIG\profile.d
-    foreach ($x in Get-ChildItem *.ps1) {
+    foreach ($x in Get-ChildItem *.psm1) {
       # write-host write-host Sourcing $x
       Import-Module $x
+    }
+
+    foreach ($x in Get-ChildItem *.ps1) {
+      # write-host write-host Sourcing $x
+      . $x
     }
     popd
 }
@@ -153,7 +163,7 @@ if (test-path "$env:CMDER_ROOT\config\user-profile.ps1") {
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user_profile.ps1"
 if (Test-Path $CmderUserProfilePath) {
     # Create this file and place your own command in there.
-    Import-Module "$CmderUserProfilePath"
+    . "$CmderUserProfilePath" # user_profile.ps1 is not a module DO NOT USE import-module
 }
 
 if ($ENV:CMDER_USER_CONFIG) {
@@ -166,46 +176,13 @@ if ($ENV:CMDER_USER_CONFIG) {
 
     $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user_profile.ps1"
     if (Test-Path $CmderUserProfilePath) {
-      Import-Module "$CmderUserProfilePath"
+      . "$CmderUserProfilePath" # user_profile.ps1 is not a module DO NOT USE import-module
     }
 }
 
 if (! (Test-Path $CmderUserProfilePath) ) {
-# This multiline string cannot be indented, for this reason I've not indented the whole block
-
-Write-Host -BackgroundColor Darkgreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
-
-$UserProfileTemplate = @'
-# Use this file to run your own startup commands
-
-## Prompt Customization
-<#
-.SYNTAX
-    <PrePrompt><CMDER DEFAULT>
-    λ <PostPrompt> <repl input>
-.EXAMPLE
-    <PrePrompt>N:\Documents\src\cmder [master]
-    λ <PostPrompt> |
-#>
-
-[ScriptBlock]$PrePrompt = {
-
-}
-
-# Replace the cmder prompt entirely with this.
-# [ScriptBlock]$CmderPrompt = {}
-
-[ScriptBlock]$PostPrompt = {
-
-}
-
-## <Continue to add your own>
-
-
-'@
-
-New-Item -ItemType File -Path $CmderUserProfilePath -Value $UserProfileTemplate > $null
-
+    Write-Host -BackgroundColor Darkgreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
+    Copy-Item "$env:CMDER_ROOT\vendor\user_profile.ps1.default" -Destination $CmderUserProfilePath
 }
 
 # Once Created these code blocks cannot be overwritten

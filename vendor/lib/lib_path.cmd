@@ -68,14 +68,14 @@ exit /b
 
     if "%CMDER_CONFIGURED%" == "1" (
       %lib_console% debug_output  :enhance_path "Env Var - find_query=%find_query%"
-      echo "%path%"|findstr >nul /I /R ";%find_query%\"$"
+      echo "%path%"|%WINDIR%\System32\findstr >nul /I /R ";%find_query%\"$"
       if "!ERRORLEVEL!" == "0" set found=1
     )
     %lib_console% debug_output  :enhance_path "Env Var 1 - found=!found!"
 
     if "!found!" == "0" (
         if "%CMDER_CONFIGURED%" == "1" (
-            echo "%path%"|findstr >nul /i /r ";%find_query%;"
+            echo "%path%"|%WINDIR%\System32\findstr >nul /i /r ";%find_query%;"
             if "!ERRORLEVEL!" == "0" set found=1
         )
         %lib_console% debug_output  :enhance_path "Env Var 2 - found=!found!"

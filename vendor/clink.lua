@@ -14,6 +14,14 @@ dofile(clink_lua_file)
 -- now add our own things...
 
 ---
+-- Makes a string safe to use as the replacement in string.gsub
+---
+local function verbatim(s)
+    s = string.gsub(s, "%%", "%%%%")
+    return s
+end
+
+---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
 -- not destroy our own prompt. It also means that started cmds (or batch files
 -- which echo) don't get the ugly '{lamb}' shown.
@@ -41,13 +49,12 @@ local function set_prompt_filter()
     -- color codes: "\x1b[1;37;40m"
     local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
     local lambda = "λ"
-    cwd = string.gsub(cwd, "%%", "{percent}")
-    cmder_prompt = string.gsub(cmder_prompt, "{cwd}", cwd)
+    cmder_prompt = string.gsub(cmder_prompt, "{cwd}", verbatim(cwd))
 
     if env ~= nil then
         lambda = "("..env..") "..lambda
     end
-    clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", lambda)
+    clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", verbatim(lambda))
 end
 
 local function percent_prompt_filter()
@@ -295,7 +302,7 @@ local function git_prompt_filter()
                 color = colors.conflict
             end 
 
-            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..branch..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
             return false
         end
     end
@@ -317,15 +324,19 @@ local function hg_prompt_filter()
             dirty = "\x1b[31;1m",
         }
 
-        -- 'hg id' gives us BOTH the branch name AND an indicator that there
-        -- are uncommitted changes, in one fast(er) call
-        local pipe = io.popen("hg id 2>&1")
+        -- 'hg id -ib' gives us BOTH the branch name AND an indicator that there
+        -- are uncommitted changes, in one fast(er) call compared to "hg status"
+        local pipe = io.popen("hg id -ib 2>&1")
         local output = pipe:read('*all')
         local rc = { pipe:close() }
 
+        -- strip the trailing newline from the branch name
+        local n = #output
+        while n > 0 and output:find("^%s", n) do n = n - 1 end
+        output = output:sub(1, n)
+
         if output ~= nil and
            string.sub(output,1,7) ~= "abort: " and             -- not an HG working copy
-           string.sub(output,1,12) ~= "000000000000" and       -- empty wc (needs update)
            (not string.find(output, "is not recognized")) then -- 'hg' not in path
             local color = colors.clean
             -- split elements on space delimiter
@@ -335,12 +346,16 @@ local function hg_prompt_filter()
             end
             -- if the repo hash ends with '+', the wc has uncommitted changes
             if string.sub(items[1], -1, -1) == "+" then color = colors.dirty end
-            -- substitute the branch in directly -- already WITH parentheses.  :)
-            result = color .. items[2] -- string.sub(items[2], 1, string.len(items[2]) - 1)
+            -- substitute the branch in directly
+            if items[2] ~= nil then
+                result = color .. "(" .. items[2] .. ")"
+            else
+                result = color .. "*"
+            end
         end
     end
 
-    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", result)
+    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", verbatim(result))
     return false
 end
 
@@ -362,7 +377,7 @@ local function svn_prompt_filter()
                 color = colors.dirty
             end
 
-            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", color.."("..branch..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", color.."("..verbatim(branch)..")")
             return false
         end
     end

@@ -41,12 +41,15 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 ## Cmder.exe Command Line Arguments
 
 
-| Argument            | Description                                                                 |
-| ------------------- | -----------------------------------------------------------------------     |
-| `/C [user_root_path]` | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config` |
-| `/SINGLE`             | Start Cmder in single mode.                                               |
-| `/START [start_path]` | Folder path to start in.                                                  |
-| `/TASK [task_name]`   | Task to start after launch.                                               |
+| Argument                  | Description                                                                              |
+| -------------------       | -----------------------------------------------------------------------                  |
+| `/C [user_root_path]`     | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config`                |
+| `/M`                      | Use `conemu-%computername%.xml` for ConEmu settings storage instead of `user_conemu.xml` |
+| `/REGISTER [ALL, USER]`   | Register a Windows Shell Menu shortcut.                                                  |
+| `/UNREGISTER [ALL, USER]` | Un-register a Windows Shell Menu shortcut.                                               |
+| `/SINGLE`                 | Start Cmder in single mode.                                                              |
+| `/START [start_path]`     | Folder path to start in.                                                                 |
+| `/TASK [task_name]`       | Task to start after launch.                                                              |
 
 ## Context Menu Integration
 
@@ -146,6 +149,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 | `/git_install_root [file path]` | User specified Git installation root path.                                                                                                         | `%CMDER_ROOT%\vendor\Git-for-Windows`  |
 | `/home [home folder]`           | User specified folder path to set `%HOME%` environment variable.                                                                                   | `%userprofile%`                        |
 | `/max_depth [1-5]`              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`                                                     | 1                                      |
+| `/nix_tools [0-2]`              | Define how `*nix` tools are added to the path.  Prefer Windows Tools: 1, Prefer *nix Tools: 2, No `/usr/bin` in `%PATH%`: 0                        | 1                                      |
 | `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                                                                                | `%GIT_INSTALL_ROOT%\bin\ssh.exe`       |
 | `/user_aliases [file path]`     | File path pointing to user aliases.                                                                                                                | `%CMDER_ROOT%\config\user-aliases.cmd` |
 | `/v`                            | Enables verbose output.                                                                                                                            | not set                                |
