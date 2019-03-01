@@ -324,15 +324,19 @@ local function hg_prompt_filter()
             dirty = "\x1b[31;1m",
         }
 
-        -- 'hg id' gives us BOTH the branch name AND an indicator that there
-        -- are uncommitted changes, in one fast(er) call
-        local pipe = io.popen("hg id 2>&1")
+        -- 'hg id -ib' gives us BOTH the branch name AND an indicator that there
+        -- are uncommitted changes, in one fast(er) call compared to "hg status"
+        local pipe = io.popen("hg id -ib 2>&1")
         local output = pipe:read('*all')
         local rc = { pipe:close() }
 
+        -- strip the trailing newline from the branch name
+        local n = #output
+        while n > 0 and output:find("^%s", n) do n = n - 1 end
+        output = output:sub(1, n)
+
         if output ~= nil and
            string.sub(output,1,7) ~= "abort: " and             -- not an HG working copy
-           string.sub(output,1,12) ~= "000000000000" and       -- empty wc (needs update)
            (not string.find(output, "is not recognized")) then -- 'hg' not in path
             local color = colors.clean
             -- split elements on space delimiter
@@ -342,8 +346,12 @@ local function hg_prompt_filter()
             end
             -- if the repo hash ends with '+', the wc has uncommitted changes
             if string.sub(items[1], -1, -1) == "+" then color = colors.dirty end
-            -- substitute the branch in directly -- already WITH parentheses.  :)
-            result = color .. items[2] -- string.sub(items[2], 1, string.len(items[2]) - 1)
+            -- substitute the branch in directly
+            if items[2] ~= nil then
+                result = color .. "(" .. items[2] .. ")"
+            else
+                result = color .. "*"
+            end
         end
     end
 
