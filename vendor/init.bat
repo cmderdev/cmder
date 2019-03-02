@@ -140,12 +140,14 @@ if "%CMDER_CLINK%" == "1" (
   if defined CMDER_USER_CONFIG (
     if not exist "%CMDER_USER_CONFIG%\settings" (
       echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
+      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\settings"
       echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
     )
     "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
   ) else (
     if not exist "%CMDER_ROOT%\config\settings" (
       echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
+      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\settings"
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
     "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
