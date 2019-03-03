@@ -312,11 +312,11 @@ For instructions on how to integrate Cmder with your IDE, please read our [Wiki 
 
 The process of upgrading Cmder depends on the version/build you are currently running.
 
-If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer version of Cmder, follow the below process:
+If you have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running a newer version of Cmder, follow the below process:
 
-1. Exit all Cmder sessions and relaunch `[cmder_root]/cmder.exe`, this backs up your existing `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
+1. Exit all Cmder sessions and relaunch `[cmder_root]/cmder.exe`, this backs up your existing `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user[-|_]conemu.xml`.
 
-   * The `[cmder_root]/config/user-conemu.xml` contains any custom settings you have made using the 'Setup Tasks' settings dialog.
+   * The `[cmder_root]/config/user[-|_]conemu.xml` contains any custom settings you have made using the 'Setup Tasks' settings dialog.
 
 2. Exit all Cmder sessions and backup any files you have manually edited under `[cmder_root]/vendor`.
 
@@ -325,9 +325,9 @@ If you have a `[cmder_root]/config/user-conemu.xml`, you are running a newer ver
 3.  Delete the `[cmder_root]/vendor` folder.
 4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
 
-If you do not have a `[cmder_root]/config/user-conemu.xml`, you are running an older version of cmder, follow the below process:
+If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running an older version of cmder, follow the below process:
 
-1. Exit all Cmder sessions and backup `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user-conemu.xml`.
+1. Exit all Cmder sessions and backup `[cmder_root]/vendor/conemu-maximus5/conemu.xml` to `[cmder_root]/config/user[-|_]conemu.xml`.
 
 2. Backup any files you have manually edited under `[cmder_root]/vendor`.
 

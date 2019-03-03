@@ -324,26 +324,26 @@ local function hg_prompt_filter()
             dirty = "\x1b[31;1m",
         }
 
-        -- 'hg id' gives us BOTH the branch name AND an indicator that there
-        -- are uncommitted changes, in one fast(er) call
-        local pipe = io.popen("hg id 2>&1")
+        local pipe = io.popen("hg branch 2>&1")
         local output = pipe:read('*all')
         local rc = { pipe:close() }
 
-        if output ~= nil and
-           string.sub(output,1,7) ~= "abort: " and             -- not an HG working copy
-           string.sub(output,1,12) ~= "000000000000" and       -- empty wc (needs update)
-           (not string.find(output, "is not recognized")) then -- 'hg' not in path
+        -- strip the trailing newline from the branch name
+        local n = #output
+        while n > 0 and output:find("^%s", n) do n = n - 1 end
+        local branch = output:sub(1, n)
+
+        if branch ~= nil and
+           string.sub(branch,1,7) ~= "abort: " and             -- not an HG working copy
+           (not string.find(branch, "is not recognized")) then -- 'hg' not in path
             local color = colors.clean
-            -- split elements on space delimiter
-            local items = {}
-            for i in string.gmatch(output, "%S+") do
-                table.insert(items, i)
-            end
-            -- if the repo hash ends with '+', the wc has uncommitted changes
-            if string.sub(items[1], -1, -1) == "+" then color = colors.dirty end
-            -- substitute the branch in directly -- already WITH parentheses.  :)
-            result = color .. items[2] -- string.sub(items[2], 1, string.len(items[2]) - 1)
+
+            local pipe = io.popen("hg status -amrd 2>&1")
+            local output = pipe:read('*all')
+            local rc = { pipe:close() }
+
+            if output ~= nil and output ~= "" then color = colors.dirty end
+            result = color .. "(" .. branch .. ")"
         end
     end
 

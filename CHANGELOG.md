@@ -1,5 +1,20 @@
 # Change Log
 
+## [Unreleased]
+
+### Fixes
+
+* Pull Request: [#2002](https://github.com/cmderdev/cmder/pull/2002)
+  * Updated the HG prompt code to use the '-ib' option to 'hg id' so the branch name is always available, regardless of the state of the working copy
+
+### Changes
+
+* Pull Request: [#2055](https://github.com/cmderdev/cmder/pull/2055)
+  * Upgrade git to 2.21.0
+  * Provide default settings for Clink that updates the history file in real time
+    * Turn this on in existing Cmder using `clink set history_io 1`
+  * Allow clink disable by setting CMDER_CLINK=0 before starting task
+
 ## [1.3.11](https://github.com/cmderdev/cmder/tree/v1.3.11) (2018-12-22)
 
 ### Fixes
