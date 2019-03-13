@@ -1,6 +1,6 @@
 @echo off
 
-set cmder_init_start=%time%
+set CMDER_INIT_START=%time%
 
 :: Init Script for cmd.exe
 :: Created as part of cmder project
@@ -14,6 +14,8 @@ set debug_output=0
 set time_init=0
 set fast_init=0
 set max_depth=1
+:: Add *nix tools to end of path. 0 turns off *nix tools.
+set nix_tools=1
 set "CMDER_USER_FLAGS= "
 
 :: Find root dir
@@ -49,7 +51,9 @@ call "%cmder_root%\vendor\lib\lib_profile"
     ) else if /i "%1"=="/v" (
         set verbose_output=1
     ) else if /i "%1"=="/d" (
-        set debug_output=1
+        if not defined VSCODE_CWD (
+            set debug_output=1
+        )
     ) else if /i "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
             set "max_depth=%~2"
@@ -78,6 +82,20 @@ call "%cmder_root%\vendor\lib\lib_profile"
         ) else (
             %lib_console% show_error "The Git install root folder "%~2", you specified does not exist!"
             exit /b
+        )
+    ) else if /i "%1"=="/nix_tools" (
+        if "%2" equ "0" (
+            REM Do not add *nix tools to path
+            set nix_tools=0
+            shift
+        ) else if "%2" equ "1" (
+            REM Add *nix tools to end of path
+            set nix_tools=1
+            shift
+        ) else if "%2" equ "2" (
+            REM Add *nix tools to front of path
+            set nix_tools=2
+            shift
         )
     ) else if /i "%1" == "/home" (
         if exist "%~2" (
@@ -122,12 +140,14 @@ if "%CMDER_CLINK%" == "1" (
   if defined CMDER_USER_CONFIG (
     if not exist "%CMDER_USER_CONFIG%\settings" (
       echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
+      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\settings"
       echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
     )
     "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
   ) else (
     if not exist "%CMDER_ROOT%\config\settings" (
       echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
+      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\settings"
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
     "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
@@ -233,19 +253,37 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 if defined GIT_INSTALL_ROOT (
     rem add the unix commands at the end to not shadow windows commands like more
-    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" append
-    if exist "!GIT_INSTALL_ROOT!\mingw32" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" append
-    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" append
+    if %nix_tools% equ 1 (
+        %lib_console% debug_output init.bat "Preferring Windows commands"
+        set "path_position=append"
+    ) else (
+        %lib_console% debug_output init.bat "Preferring *nix commands"
+        set "path_position="
     )
-    %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" append
+
+    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" !path_position!
+    if exist "!GIT_INSTALL_ROOT!\mingw32" (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" !path_position!
+    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" !path_position!
+    )
+
+    if %nix_tools% geq 1 (
+        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" !path_position!
+    )
 
     :: define SVN_SSH so we can use git svn with ssh svn repositories
     if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
-
-    for /F "delims=" %%F in ('env /usr/bin/locale -uU 2') do (
-        set "LANG=%%F"
+    
+    if not defined LANG (
+        :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
+        if not defined git_locale if exist "!GIT_INSTALL_ROOT!\usr\bin\locale.exe" set git_locale="!GIT_INSTALL_ROOT!\usr\bin\locale.exe"
+        if not defined git_locale for /F "delims=" %%F in ('where locale.exe 2^>nul') do (if not defined git_locale  set git_locale="%%F")
+        if not defined git_locale if exist "!GIT_INSTALL_ROOT!\usr\bin\env.exe" set git_locale="!GIT_INSTALL_ROOT!\usr\bin\env.exe" /usr/bin/locale
+        if not defined git_locale set git_locale=env /usr/bin/locale
+        for /F "delims=" %%F in ('!git_locale! -uU 2') do (
+            set "LANG=%%F"
+        )
     )
 )
 
@@ -277,7 +315,7 @@ if defined CMDER_USER_CONFIG (
 :: scripts run above by setting the 'aliases' env variable.
 ::
 :: Note: If overriding default aliases store file the aliases
-:: must also be self executing, see '.\user_aliases.cmd.example',
+:: must also be self executing, see '.\user_aliases.cmd.default',
 :: and be in profile.d folder.
 if not defined user_aliases (
   if defined CMDER_USER_CONFIG (
@@ -298,17 +336,17 @@ if "%CMDER_ALIASES%" == "1" (
   setlocal enabledelayedexpansion
   if not exist "%user_aliases%" (
       echo Creating initial user_aliases store in "%user_aliases%"...
-      copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+      copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
   ) else (
-      type "%user_aliases%" | findstr /i ";= Add aliases below here" >nul
+      type "%user_aliases%" | %WINDIR%\System32\findstr /i ";= Add aliases below here" >nul
       if "!errorlevel!" == "1" (
           echo Creating initial user_aliases store in "%user_aliases%"...
           if defined CMDER_USER_CONFIG (
               copy "%user_aliases%" "%user_aliases%.old_format"
-              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
           ) else (
               copy "%user_aliases%" "%user_aliases%.old_format"
-              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.example" "%user_aliases%"
+              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
           )
       )
   )
@@ -346,6 +384,7 @@ if not defined HOME set "HOME=%USERPROFILE%"
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
 if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
+    %lib_console% debug_output init.bat "Calling - %CMDER_ROOT%\config\user_profile.cmd"
     call "%CMDER_ROOT%\config\user_profile.cmd"
 )
 
@@ -353,33 +392,14 @@ if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
       REM Create this file and place your own command in there
+      %lib_console% debug_output init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd
       call "%CMDER_USER_CONFIG%\user_profile.cmd"
   )
 )
 
 if not exist "%initialConfig%" (
     echo Creating user startup file: "%initialConfig%"
-    (
-echo :: use this file to run your own startup commands
-echo :: use in front of the command to prevent printing the command
-echo.
-echo :: uncomment this to have the ssh agent load when cmder starts
-echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-agent.cmd"
-echo.
-echo :: uncomment the next two lines to use pageant as the ssh authentication agent
-echo :: SET SSH_AUTH_SOCK=/tmp/.ssh-pageant-auth-sock
-echo :: call "%%GIT_INSTALL_ROOT%%/cmd/start-ssh-pageant.cmd"
-echo.
-echo :: you can add your plugins to the cmder path like so
-echo :: set "PATH=%%CMDER_ROOT%%\vendor\whatever;%%PATH%%"
-echo.
-echo :: arguments in this batch are passed from init.bat, you can quickly parse them like so:
-echo :: more useage can be seen by typing "cexec /?"
-echo.
-echo :: %%ccall%% "/customOption" "command/program"
-echo.
-echo @echo off
-) >"%initialConfig%"
+    copy "%CMDER_ROOT%\vendor\user_profile.cmd.default" "%initialConfig%"
 )
 
 if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
@@ -398,9 +418,9 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 set initialConfig=
 set CMDER_CONFIGURED=1
 
-set cmder_init_end=%time%
+set CMDER_INIT_END=%time%
 
 if %time_init% gtr 0 (
-  "%cmder_root%\vendor\bin\timer.cmd" %cmder_init_start% %cmder_init_end%
+  "%cmder_root%\vendor\bin\timer.cmd" %CMDER_INIT_START% %CMDER_INIT_END%
 )
 exit /b

@@ -52,7 +52,7 @@ set "feFlagName=%feFlagName% "
 :: echo %feCommand%
 :: echo %feParam%
 :: echo.
-echo %CMDER_USER_FLAGS% | find /i "%feFlagName%">nul
+echo %CMDER_USER_FLAGS% | %WINDIR%\System32\find /i "%feFlagName%">nul
 if "%ERRORLEVEL%" == "0" (
   if "%feNOT%" == "false" (
     endlocal && call %feCommand% %feParam%

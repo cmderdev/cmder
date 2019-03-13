@@ -1,5 +1,188 @@
 # Change Log
 
+## [Unreleased]
+
+### Fixes
+
+* Pull Request: [#2002](https://github.com/cmderdev/cmder/pull/2002)
+  * Updated the HG prompt code to use the '-ib' option to 'hg id' so the branch name is always available, regardless of the state of the working copy
+
+### Changes
+
+* Pull Request: [#2055](https://github.com/cmderdev/cmder/pull/2055)
+  * Upgrade git to 2.21.0
+  * Provide default settings for Clink that updates the history file in real time
+    * Turn this on in existing Cmder using `clink set history_io 1`
+  * Allow clink disable by setting CMDER_CLINK=0 before starting task
+
+## [1.3.11](https://github.com/cmderdev/cmder/tree/v1.3.11) (2018-12-22)
+
+### Fixes
+
+* Fix uncommenting `call ssh-agent` in `user_profile.cmd` breaks Cmder prompt. [#1990](https://github.com/cmderdev/cmder/issues/1990), [#1807](https://github.com/cmderdev/cmder/issues/1807), [#1785](https://github.com/cmderdev/cmder/issues/1785), [#1885](https://github.com/cmderdev/cmder/issues/1885)
+  * Pull Request: [#1999](https://github.com/cmderdev/cmder/issues/1999) fix ssh-agent call in user_profile.cmd.default
+* Unable to use '%' character in git branch names [#1779](https://github.com/cmderdev/cmder/issues/1779)
+  * Pull Request: [#1991](https://github.com/cmderdev/cmder/issues/1991) add percent escaping for string.gsub 
+* sort command, unix vs windows (/usr/bin/sort vs sort.exe) [#1931](https://github.com/cmderdev/cmder/issues/1931)
+  * Pull Request: [#1988](https://github.com/cmderdev/cmder/issues/1988) Prefer /nix_tools option
+
+### Adds
+
+* [#1988](https://github.com/cmderdev/cmder/issues/1988) Prefer /nix_tools option
+* [#1982](https://github.com/cmderdev/cmder/issues/1982) make /register work with /single
+* [#1975](https://github.com/cmderdev/cmder/issues/1975) Add `/nix_tools 0` option to init.bat to prevent adding !GIT_INSTALL_ROOT!\usr\bin to PATH
+
+
+### Changes
+
+* [#1987](https://github.com/cmderdev/cmder/issues/1987) Use default files for default user profiles
+
+## [1.3.10](https://github.com/cmderdev/cmder/tree/v1.3.10) (2018-11-30)
+
+### Fixes
+
+* Replaces Cmder Release v1.3.9 which has been removed.
+* /c now completely separates user config including Conemu configuration. This enables true multi-user Cmder with no configuration collisions. See PR #1949.
+* Fix #1959 Start cmder "find" errors. See PR #1961.
+* Fix #1956 Git detection should use env from git install root. See PR #1969
+
+### Adds
+
+* /m initially creates %cmder_root%/config/conemu-%computername%.xml for users that want per computer Conemu configuration with shared init scripts. See PR #1949.
+* /register now recognizes /c [path] and creates an appropriate Cmder Here shell context menu. See PR #1949.
+
+## [1.3.8](https://github.com/cmderdev/cmder/tree/v1.3.8) (2018-11-10)
+
+### Fixes
+
+* Fix \vendor\bin\timer.cmd was unexpected at this time. on session start.
+
+## [1.3.7](https://github.com/cmderdev/cmder/tree/v1.3.7) (2018-11-10)
+## Updated components
+
+* ConEmu to 180626
+* Update Git to 2.19.0
+
+## Fixes:
+
+* Cmder now opens in the in the current working dir
+
+## Commits
+### Aaron Arney (1):
+
+* Update README
+
+### Arion Roberto Krause (1):
+
+* Fixed typo
+
+### Benjamin Staneck (8):
+
+* Revert "replace user-aliases with user_aliases"
+* replace user-aliases with user_aliases
+* better fix for #1265
+* Revert "sanitize dir before assigning to prompt"
+* sanitize dir before assigning to prompt
+* Update CHANGELOG.md
+
+### Bob Hood (1):
+
+* Refactored the Mercurial prompt code to be more efficient.
+
+### David Refoua (1):
+
+* fix some spelling issues
+
+### Dax T Games (30):
+
+* Revert "Ignore %cmder_root%\config (#1945)"
+* Ignore %cmder_root%\config (#1945)
+* Add /f for fast init. (#1942)
+* add diag helper scripts and adds to the path (#1918)
+* Fix #1806 #1675 (#1870)
+* Profile.ps1 (#1796)
+* Fix lib base (#1794)
+* Little Changes
+* Fixed move of default conemu.xml to the vendor folder
+* ignore all of config folder
+* move default comemu.xml to vendor folder
+* fixes
+* more headers
+* init.bat update for cexec
+* git prompt yellow
+* fix user lua and git detection
+* allow conditionally setting environment variables
+* added exit codes
+* flag_exists.cmd to flag_exec.cmd, also to lib as an option
+* fixed
+* handle start dir args with trailing "
+* cleanup
+* '.gitignore'
+* verbose output
+* cmder_shell settings
+* add cmder_shell method
+* replace - with \_ in debug-output and verbose-output
+* Trying to get tcc working
+* move user-aliases.cmd to user_aliases.cmd
+* move bin\alias.bat to vendor\bin\alias.cmd
+* fix /unregister
+
+### Dmitri S. Guskov (2):
+
+* Powershell 5.1 compatibility
+* Update profile.ps1
+
+### Gregory Lucas (1):
+
+* Initialize time_init to fix init error message
+
+### Josef Pihrt (2):
+
+* Fix typos, remove escaping inside inline code, replace single quote with backtick
+* Fix typo and broken link
+
+### Merlin (1):
+
+* Remove duplicate Install-Module detection
+
+### Nicolas Arnaud-Cormos (1):
+
+* Ensure the right git path is found in case of shim.
+
+### Thorsten Sommer (1):
+
+* Fixed spelling
+
+### gaoslin (1):
+
+* Update init.bat
+
+### leochien0102 (1):
+
+* fix the 'was unexpected at this time.'
+
+### xiazeyu (4):
+
+* chore: unite slash
+* docs: update to latest useage
+* refactor: reduce global varible useage, fixed quote issue, added parameters support
+* doc: fix typo
+
+### xiazeyu_2011 (8):
+
+* docs: migrated instructions to the wiki pages
+* rename /bin/have.bat to /vendor/lib/flag_exists.cmd
+* fix: bug when no argument is passed in
+* docs: update doc for have.bat
+* feat: add have.bat as a wrapper
+* Optimize comments of using arguments in user-profile.cmd
+* fix conflict with init.bat build-in command parser, update user-profile.cmd
+* Pass arguments to user-profile.cmd
+
+刘祺 (1):
+
+* add LANG support
+
 ## [1.3.6](https://github.com/cmderdev/cmder/tree/v1.3.6) (2018-05-30)
 **Updated components:**
 
