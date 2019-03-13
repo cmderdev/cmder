@@ -5,21 +5,21 @@
     "url": "https://github.com/atom/atom/releases/download/v1.32.2/atom-windows.zip",
     "shared_alias": {
       "atom": {
-        "sh": "$cmder_root/vendor/atom/Atom/atom",
-        "cmder": "%CMDER_ROOT%/vendor/atom/Atom/atom $*",
-        "posh": "$env:cmder_root/vendor/atom/Atom/atom"
+        "sh": "\"$cmder_root/vendor/atom/Atom/atom\"",
+        "cmder": "\"%CMDER_ROOT%\\vendor\\atom\\Atom\\atom $*\"",
+        "posh": "\"$env:cmder_root\\vendor\\atom\\Atom\\atom\""
       },
       "apm": {
-        "sh": "$cmder_root/vendor/atom/Atom/resources/app/apm/bin/apm",
-        "cmder": "%CMDER_ROOT%/vendor/atom/Atom/resources/app/apm/bin/apm $*",
-        "posh": "$env:cmder_root/vendor/atom/Atom/resources/app/apm/bin/apm"
+        "sh": "\"$cmder_root/vendor/atom/Atom/resources/app/apm/bin/apm\"",
+        "cmder": "\"%CMDER_ROOT%\\vendor\\atom\\Atom\\resources\\app\\apm\\bin\\apm $*\"",
+        "posh": "\"$env:cmder_root\\vendor\\atom\\Atom\\resources\\app\\apm\\bin\\apm\""
       }
     },
     "shared_profile": {
       "atom_home": {
-        "sh": "export ATOM_HOME=$cmder_root/vendor/atom",
-        "cmder": "set ATOM_HOME=%CMDER_ROOT%/vendor/atom",
-        "posh": "$env:ATOM_HOME=$ENV:cmder_root/vendor/atom"
+        "sh": "export ATOM_HOME=\"$cmder_root/vendor/atom\"",
+        "cmder": "set ATOM_HOME=\"%CMDER_ROOT%\\vendor\\atom\"",
+        "posh": "$env:ATOM_HOME=\"$ENV:cmder_root\\vendor\\atom\""
       }
     },
     "pre_commands": [

@@ -5,9 +5,9 @@
     "url": "https://download.sublimetext.com/Sublime%20Text%20Build%203176%20x64.zip",
     "shared_alias": {
       "sublime_text": {
-        "sh": "$cmder_root/vendor/sublime_text_3/sublime_text",
-        "cmder": "%CMDER_ROOT%/vendor/sublime_text_3/sublime_text $*",
-        "posh": "$env:cmder_root/vendor/sublime_text_3/sublime_text"
+        "sh": "\"$cmder_root/vendor/sublime_text_3/sublime_text\"",
+        "cmder": "\"%CMDER_ROOT%\\vendor\\sublime_text_3\\sublime_text\" $*",
+        "posh": "\"$env:cmder_root\\vendor\\sublime_text_3\\sublime_text\""
       }
     },
     "shared_profile": {
