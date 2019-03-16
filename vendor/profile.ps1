@@ -27,7 +27,7 @@ $ENV:CMDER_ROOT = (($ENV:CMDER_ROOT).trimend("\"))
 
 # do not load bundled psget if a module installer is already available
 # -> recent PowerShell versions include PowerShellGet out of the box
-$moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue | Out-Null)
+$moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue)
 
 # Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
@@ -96,31 +96,6 @@ $env:Path = "$Env:CMDER_ROOT\bin;$Env:CMDER_ROOT\vendor\bin;$env:Path;$Env:CMDER
 #   Users should modify their user_profile.ps1 as it will be safe from updates.
 #
 
-# Pre assign the hooks so the first run of cmder gets a working prompt.
-[ScriptBlock]$PrePrompt = {}
-[ScriptBlock]$PostPrompt = {}
-[ScriptBlock]$CmderPrompt = {
-    $Host.UI.RawUI.ForegroundColor = "White"
-    Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-    checkGit($pwd.ProviderPath)
-}
-
-<#
-This scriptblock runs every time the prompt is returned.
-Explicitly use functions from MS namespace to protect from being overridden in the user session.
-Custom prompt functions are loaded in as constants to get the same behaviour
-#>
-[ScriptBlock]$Prompt = {
-    $realLASTEXITCODE = $LASTEXITCODE
-    $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
-    PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
-    CmderPrompt
-    Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
-    PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
-    $global:LASTEXITCODE = $realLASTEXITCODE
-    return " "
-}
-
 # Drop *.ps1 files into "$ENV:CMDER_ROOT\config\profile.d"
 # to source them at startup.
 if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
@@ -154,7 +129,7 @@ if ($ENV:CMDER_USER_CONFIG -ne "" -and (test-path "$ENV:CMDER_USER_CONFIG\profil
     }
     popd
 }
-    
+
 # Renaming to "config\user_profile.ps1" to "user_profile.ps1" for consistency.
 if (test-path "$env:CMDER_ROOT\config\user-profile.ps1") {
   rename-item  "$env:CMDER_ROOT\config\user-profile.ps1" user_profile.ps1
@@ -185,11 +160,47 @@ if (! (Test-Path $CmderUserProfilePath) ) {
     Copy-Item "$env:CMDER_ROOT\vendor\user_profile.ps1.default" -Destination $CmderUserProfilePath
 }
 
-# Once Created these code blocks cannot be overwritten
-Set-Item -Path function:\PrePrompt   -Value $PrePrompt   -Options Constant
-Set-Item -Path function:\CmderPrompt -Value $CmderPrompt -Options Constant
-Set-Item -Path function:\PostPrompt  -Value $PostPrompt  -Options Constant
+# Only set the prompt if it is currently set to the default
+# This allows users to configure the prompt in their user_profile.ps1 or config\profile.d\*.ps1
+if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionState.Path.CurrentLocation\)\$\(' -and `
+  $(get-command prompt).Definition -match '\(\$nestedPromptLevel \+ 1\)\) ";') {
+  # Pre assign the hooks so the first run of cmder gets a working prompt.
+  [ScriptBlock]$PrePrompt = {}
+  [ScriptBlock]$PostPrompt = {}
+  [ScriptBlock]$CmderPrompt = {
+      $Host.UI.RawUI.ForegroundColor = "White"
+      Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
+      checkGit($pwd.ProviderPath)
+  }
 
-# Functions can be made constant only at creation time
-# ReadOnly at least requires `-force` to be overwritten
-Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly
+  <#
+  This scriptblock runs every time the prompt is returned.
+  Explicitly use functions from MS namespace to protect from being overridden in the user session.
+  Custom prompt functions are loaded in as constants to get the same behaviour
+  #>
+  [ScriptBlock]$Prompt = {
+      $realLASTEXITCODE = $LASTEXITCODE
+      $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
+      PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
+      CmderPrompt
+      Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
+      PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
+      $global:LASTEXITCODE = $realLASTEXITCODE
+      return " "
+  }
+
+
+  # Once Created these code blocks cannot be overwritten
+  # if (-not $(get-command PrePrompt).Options -match 'Constant') {Set-Item -Path function:\PrePrompt   -Value $PrePrompt   -Options Constant}
+  # if (-not $(get-command CmderPrompt).Options -match 'Constant') {Set-Item -Path function:\CmderPrompt -Value $CmderPrompt -Options Constant}
+  # if (-not $(get-command PostPrompt).Options -match 'Constant') {Set-Item -Path function:\PostPrompt  -Value $PostPrompt  -Options Constant}
+
+  Set-Item -Path function:\PrePrompt   -Value $PrePrompt   -Options Constant
+  Set-Item -Path function:\CmderPrompt -Value $CmderPrompt -Options Constant
+  Set-Item -Path function:\PostPrompt  -Value $PostPrompt  -Options Constant
+
+  # Functions can be made constant only at creation time
+  # ReadOnly at least requires `-force` to be overwritten
+  # if (!$(get-command Prompt).Options -match 'ReadOnly') {Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly}
+  Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly
+}
