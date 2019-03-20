@@ -44,6 +44,11 @@
 
     (Be sure to also check “Closed” issues in the labels section!)
     
+  • If you have a request to provide auto-complete support for a new tool,
+    please post your request here:
+    
+    https://github.com/vladimir-kotikov/clink-completions/issues
+    
   • If you are having an issue with any of the **upstream technologies**
     that are used by Cmder, please make sure that the issue is reproducible
     _only_ when used in combination with Cmder.
@@ -52,9 +57,9 @@
        - Clink, the default shell in Cmder
        - ConEmu, the terminal emulator
        - Git/MinGW, which also provide *NIX tools
-       - clink-completions, which provide autocomplete
+       - clink-completions, which provide autocompletion
     
-    The issues related to upstream technologies are marked as 👆 [name].
+    The issues related to upstream technologies are labeled as 👆 [name].
     
     We'll try our best to help you -- but we recommend creating an issue
     specifically at each of the corresponding repositories for the best
@@ -78,7 +83,7 @@
 
 <!-- 
   Some tips on how to write a better report:
-  - Put an `x` into all the boxes [ ] relevant to your issue (correct example: [x] • not like this: [ x] or [x ]).
+  - Put an `x` into all the boxes [ ] relevant to your issue (correct example: [x] -- not like this: [ x] or [x ]).
   - Use the *Preview* tab to see how your issue will actually look like, before sending it.
   - Make sure the description is worded well enough to be understood, and with as much context and examples as possible.
   - Post a screenshot or the command the triggered the problem, if applicable.
@@ -97,6 +102,8 @@
 
 ### Version Information
 <!-- Please write your Cmder and ConEmu version here -->
+
+<!-- If applicable, write down your Windows edition too (e.g. Windows 10 Pro 1809) -->
 
 ### Description of the issue 
 <!-- Provide a clear, simple description of your issue here -->
