@@ -36,26 +36,21 @@ if(-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderMod
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
 
-try {
-    Get-command -Name "vim" -ErrorAction Stop >$null
-} catch {
-    # # You could do this but it may be a little drastic and introduce a lot of
-    # # unix tool overlap with powershel unix like aliases
-    # $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\usr\bin")
-    # set-alias -name "vi" -value "vim"
-    # # I think the below is safer.
+function Configure-Git($GIT_INSTALL_ROOT){
+  $env:Path += $(";" + $GIT_INSTALL_ROOT + "\cmd")
 
-    new-alias -name "vim" -value $($ENV:CMDER_ROOT + "\vendor\git-for-windows\usr\bin\vim.exe")
-    new-alias -name "vi" -value vim
-}
-
-try {
-    # Check if git is on PATH, i.e. Git already installed on system
-    Get-command -Name "git" -ErrorAction Stop >$null
-} catch {
-    $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\cmd")
-    # for bash.exe, which in the cmd version is found as <GIT>\usr\bin\bash.exe
-    $env:Path += $(";" + $env:CMDER_ROOT + "\vendor\git-for-windows\bin")
+  # Add "$GIT_INSTALL_ROOT\usr\bin" to the path if exists and not done already
+  $GIT_INSTALL_ROOT_ESC=$GIT_INSTALL_ROOT.replace('\','\\')
+  if ((test-path "$GIT_INSTALL_ROOT\usr\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\usr\\bin")) {
+      $env:path = "$env:path;$GIT_INSTALL_ROOT\usr\bin"
+  }
+  
+  # Add "$GIT_INSTALL_ROOT\mingw[32|64]\bin" to the path if exists and not done already
+  if ((test-path "$GIT_INSTALL_ROOT\mingw32\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw32\\bin")) {
+      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw32\bin"
+  } elseif ((test-path "$GIT_INSTALL_ROOT\mingw64\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw64\\bin")) {
+      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw64\bin"
+  }
 }
 
 $gitLoaded = $false
@@ -82,6 +77,19 @@ function checkGit($Path) {
     if ($SplitPath) {
         checkGit($SplitPath)
     }
+}
+
+try {
+    # Check if git is on PATH, i.e. Git already installed on system
+    Get-command -Name "git" -ErrorAction Stop >$null
+} catch {
+    if (test-path "$env:CMDER_ROOT\vendor\git-for-windows") {
+        Configure-Git "$env:CMDER_ROOT\vendor\git-for-windows"
+    }
+}
+
+if ( Get-command -Name "vim" -ErrorAction silentlycontinue) {
+    new-alias -name "vi" -value vim
 }
 
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
@@ -170,7 +178,9 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
   [ScriptBlock]$CmderPrompt = {
       $Host.UI.RawUI.ForegroundColor = "White"
       Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-      checkGit($pwd.ProviderPath)
+      if (get-command git -erroraction silentlycontinue) {
+          checkGit($pwd.ProviderPath)
+      }
   }
 
   <#
