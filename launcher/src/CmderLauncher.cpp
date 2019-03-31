@@ -3,17 +3,19 @@
 #include <Shlwapi.h>
 #include "resource.h"
 #include <vector>
+#include <shlobj.h>
 
+#include <regex>
+#include <iostream>
 
 #pragma comment(lib, "Shlwapi.lib")
+#pragma warning( disable : 4091 )
 
 #ifndef UNICODE
 #error "Must be compiled with unicode support."
 #endif
 
 #define USE_TASKBAR_API (_WIN32_WINNT >= _WIN32_WINNT_WIN7)
-
-#define XP (_WIN32_WINNT < _WIN32_WINNT_VISTA)
 
 #define MB_TITLE L"Cmder Launcher"
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
@@ -31,7 +33,7 @@ void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
 	wchar_t * buffer;
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL, ec, 0, (LPWSTR) &buffer, 0, NULL) == 0)
+		NULL, ec, 0, (LPWSTR)&buffer, 0, NULL) == 0)
 	{
 		buffer = L"Unknown error. FormatMessage failed.";
 	}
@@ -54,34 +56,6 @@ typedef struct _option
 
 typedef std::pair<std::wstring, std::wstring> optpair;
 
-
-optpair GetOption()
-{
-	wchar_t * cmd = GetCommandLine();
-	int argc;
-	wchar_t ** argv = CommandLineToArgvW(cmd, &argc);
-	optpair pair;
-
-	if (argc == 1)
-	{
-		// no commandline argument...
-		pair = optpair(L"/START", L"");
-	}
-	else if (argc == 2 && argv[1][0] != L'/')
-	{
-		// only a single argument: this should be a path...
-		pair = optpair(L"/START", argv[1]);
-	}
-	else
-	{
-		pair = optpair(argv[1], argc > 2 ? argv[2] : L"");
-	}
-
-	LocalFree(argv);
-
-	return pair;
-}
-
 bool FileExists(const wchar_t * filePath)
 {
 	HANDLE hFile = CreateFile(filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
@@ -95,7 +69,7 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring path, bool is_single_mode)
+void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true)
 {
 #if USE_TASKBAR_API
 	wchar_t appId[MAX_PATH] = { 0 };
@@ -103,9 +77,28 @@ void StartCmder(std::wstring path, bool is_single_mode)
 	wchar_t exeDir[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 	wchar_t cfgPath[MAX_PATH] = { 0 };
-	wchar_t oldCfgPath[MAX_PATH] = { 0 };
+	wchar_t backupCfgPath[MAX_PATH] = { 0 };
+	wchar_t cpuCfgPath[MAX_PATH] = { 0 };
+	wchar_t userCfgPath[MAX_PATH] = { 0 };
+	wchar_t defaultCfgPath[MAX_PATH] = { 0 };
 	wchar_t conEmuPath[MAX_PATH] = { 0 };
+	wchar_t configDirPath[MAX_PATH] = { 0 };
+	wchar_t userConfigDirPath[MAX_PATH] = { 0 };
+	wchar_t userBinDirPath[MAX_PATH] = { 0 };
+	wchar_t userProfiledDirPath[MAX_PATH] = { 0 };
+	wchar_t userProfilePath[MAX_PATH] = { 0 };
+	wchar_t legacyUserProfilePath[MAX_PATH] = { 0 };
+	wchar_t userAliasesPath[MAX_PATH] = { 0 };
+	wchar_t legacyUserAliasesPath[MAX_PATH] = { 0 };
 	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
+	wchar_t userConEmuCfgPath[MAX_PATH] = { 0 };
+
+
+	std::wstring cmderStart = path;
+	std::wstring cmderTask = taskName;
+
+	std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
+	userConfigDirPath[cfgRoot.length()] = 0;
 
 	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
 
@@ -117,73 +110,309 @@ void StartCmder(std::wstring path, bool is_single_mode)
 
 	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
 
-	// Check for machine-specific config file.
-	PathCombine(oldCfgPath, exeDir, L"config\\ConEmu-%COMPUTERNAME%.xml");
-	ExpandEnvironmentStrings(oldCfgPath, oldCfgPath, sizeof(oldCfgPath) / sizeof(oldCfgPath[0]));
-	if (!PathFileExists(oldCfgPath)) {
-		PathCombine(oldCfgPath, exeDir, L"config\\ConEmu.xml");
+	PathCombine(configDirPath, exeDir, L"config");
+
+	/*
+	Convert legacy user-profile.cmd to new name user_profile.cmd
+	*/
+	PathCombine(legacyUserProfilePath, configDirPath, L"user-profile.cmd");
+	if (PathFileExists(legacyUserProfilePath))
+	{
+		PathCombine(userProfilePath, configDirPath, L"user_profile.cmd");
+
+		char      *lPr = (char *)malloc(MAX_PATH);
+		char      *pR = (char *)malloc(MAX_PATH);
+		size_t i;
+		wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+			legacyUserProfilePath, (size_t)MAX_PATH);
+		wcstombs_s(&i, pR, (size_t)MAX_PATH,
+			userProfilePath, (size_t)MAX_PATH);
+		rename(lPr, pR);
 	}
 
-	// Check for machine-specific config file.
-	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu-%COMPUTERNAME%.xml");
-	ExpandEnvironmentStrings(cfgPath, cfgPath, sizeof(cfgPath) / sizeof(cfgPath[0]));
-	if (!PathFileExists(cfgPath)) {
-		PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
+	/*
+	Convert legacy user-aliases.cmd to new name user_aliases.cmd
+	*/
+	PathCombine(legacyUserAliasesPath, configDirPath, L"user-aliases.cmd");
+	if (PathFileExists(legacyUserAliasesPath))
+	{
+		PathCombine(userAliasesPath, configDirPath, L"user_aliases.cmd");
+
+		char      *lPr = (char *)malloc(MAX_PATH);
+		char      *pR = (char *)malloc(MAX_PATH);
+		size_t i;
+		wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+			legacyUserAliasesPath, (size_t)MAX_PATH);
+		wcstombs_s(&i, pR, (size_t)MAX_PATH,
+			userAliasesPath, (size_t)MAX_PATH);
+		rename(lPr, pR);
+	}
+	
+	/*
+	Was /c [path] specified?
+	*/
+	if (wcscmp(userConfigDirPath, L"") == 0)
+	{
+		// No - It wasn't. 
+		PathCombine(userConfigDirPath, exeDir, L"config");
+	}
+	else
+	{
+		// Yes - It was.
+		PathCombine(userBinDirPath, userConfigDirPath, L"bin");
+		SHCreateDirectoryEx(0, userBinDirPath, 0);
+
+		PathCombine(userConfigDirPath, userConfigDirPath, L"config");
+		SHCreateDirectoryEx(0, userConfigDirPath, 0);
+
+		PathCombine(userProfiledDirPath, userConfigDirPath, L"profile.d");
+		SHCreateDirectoryEx(0, userProfiledDirPath, 0);
+
+		/*
+		Convert legacy user-profile.cmd to new name user_profile.cmd
+		*/
+		PathCombine(legacyUserProfilePath, userConfigDirPath, L"user-profile.cmd");
+		if (PathFileExists(legacyUserProfilePath))
+		{
+			PathCombine(userProfilePath, userConfigDirPath, L"user_profile.cmd");
+
+			char      *lPr = (char *)malloc(MAX_PATH);
+			char      *pR = (char *)malloc(MAX_PATH);
+			size_t i;
+			wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+				legacyUserProfilePath, (size_t)MAX_PATH);
+			wcstombs_s(&i, pR, (size_t)MAX_PATH,
+				userProfilePath, (size_t)MAX_PATH);
+			rename(lPr, pR);
+		}
+
+		/*
+		Convert legacy user-aliases.cmd to new name user_aliases.cmd
+		*/
+		PathCombine(legacyUserAliasesPath, userConfigDirPath, L"user-aliases.cmd");
+		if (PathFileExists(legacyUserAliasesPath))
+		{
+			PathCombine(userAliasesPath, userConfigDirPath, L"user_aliases.cmd");
+
+			char      *lPr = (char *)malloc(MAX_PATH);
+			char      *pR = (char *)malloc(MAX_PATH);
+			size_t i;
+			wcstombs_s(&i, lPr, (size_t)MAX_PATH,
+				legacyUserAliasesPath, (size_t)MAX_PATH);
+			wcstombs_s(&i, pR, (size_t)MAX_PATH,
+				userAliasesPath, (size_t)MAX_PATH);
+			rename(lPr, pR);
+		}
+	}
+
+	// Set path to vendored ConEmu config file
+	PathCombine(cfgPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.xml");
+
+	// Set path to Cmder default ConEmu config file
+	PathCombine(defaultCfgPath, exeDir, L"vendor\\ConEmu.xml.default");
+
+	// Check for machine-specific then user config source file.
+	PathCombine(cpuCfgPath, userConfigDirPath, L"ConEmu-%COMPUTERNAME%.xml");
+	ExpandEnvironmentStrings(cpuCfgPath, cpuCfgPath, sizeof(cpuCfgPath) / sizeof(cpuCfgPath[0]));
+
+	// Set path to Cmder user ConEmu config file
+	PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
+
+	if ( PathFileExists(cpuCfgPath) || use_user_cfg == false ) // config/ConEmu-%COMPUTERNAME%.xml file exists or /m was specified on command line, use machine specific config.
+	{
+		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
+		{
+			if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml file exists, copy vendor/conemu-maximus5/ConEmu.xml to config/ConEmu-%COMPUTERNAME%.xml.
+			{
+				if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
+				{
+					MessageBox(NULL,
+						(GetLastError() == ERROR_ACCESS_DENIED)
+						? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml! Access Denied."
+						: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml!", MB_TITLE, MB_ICONSTOP);
+					exit(1);
+				}
+			}
+			else // vendor/conemu-maximus5/ConEmu.xml config file does not exist, copy config/ConEmu-%COMPUTERNAME%.xml to vendor/conemu-maximus5/ConEmu.xml file
+			{
+				if (!CopyFile(cpuCfgPath, cfgPath, FALSE))
+				{
+					MessageBox(NULL,
+						(GetLastError() == ERROR_ACCESS_DENIED)
+						? L"Failed to copy conig/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+						: L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+					exit(1);
+				}
+			}
+		}
+		else // '/c [path]' was specified, don't copy anything and use existing conemu-%COMPUTERNAME%.xml to start comemu.
+		{
+			if (use_user_cfg == false && PathFileExists(cfgPath) && !PathFileExists(cpuCfgPath)) // vendor/conemu-maximus5/ConEmu.xml file exists, copy vendor/conemu-maximus5/ConEmu.xml to config/ConEmu-%COMPUTERNAME%.xml.
+			{
+				if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
+				{
+					MessageBox(NULL,
+						(GetLastError() == ERROR_ACCESS_DENIED)
+						? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml! Access Denied."
+						: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml!", MB_TITLE, MB_ICONSTOP);
+					exit(1);
+				}
+			}
+
+			PathCombine(userConEmuCfgPath, userConfigDirPath, L"ConEmu-%COMPUTERNAME%.xml");
+			ExpandEnvironmentStrings(userConEmuCfgPath, userConEmuCfgPath, sizeof(userConEmuCfgPath) / sizeof(userConEmuCfgPath[0]));
+		}
+	}
+	else if (PathFileExists(userCfgPath)) // config/user_conemu.xml exists, use it. 
+	{
+		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
+		{
+			if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml.
+			{
+				if (!CopyFile(cfgPath, userCfgPath, FALSE))
+				{
+					MessageBox(NULL,
+						(GetLastError() == ERROR_ACCESS_DENIED)
+						? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml! Access Denied."
+						: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml!", MB_TITLE, MB_ICONSTOP);
+					exit(1);
+				}
+			}
+			else // vendor/conemu-maximus5/ConEmu.xml does not exist, copy config/user-conemu.xml to vendor/conemu-maximus5/ConEmu.xml
+			{
+				if (!CopyFile(userCfgPath, cfgPath, FALSE))
+				{
+					MessageBox(NULL,
+						(GetLastError() == ERROR_ACCESS_DENIED)
+						? L"Failed to copy config/user-conemu.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+						: L"Failed to copy config/user-conemu.xml file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+					exit(1);
+				}
+			}
+		}
+		else // '/c [path]' was specified, don't copy anything and use existing user_conemu.xml to start comemu.
+		{
+			PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
+		}
+	}
+	else if (cfgRoot.length() == 0) // '/c [path]' was NOT specified 
+	{
+		if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
+		{
+			if (!CopyFile(cfgPath, userCfgPath, FALSE))
+			{
+				MessageBox(NULL,
+					(GetLastError() == ERROR_ACCESS_DENIED)
+					? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml! Access Denied."
+					: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml!", MB_TITLE, MB_ICONSTOP);
+				exit(1);
+			}
+			else // vendor/ConEmu.xml.default config exists, copy Cmder vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml.
+			{
+				if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
+				{
+					MessageBox(NULL,
+						(GetLastError() == ERROR_ACCESS_DENIED)
+						? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+						: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+					exit(1);
+				}
+			}
+		}
+		else {
+			if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
+			{
+				MessageBox(NULL,
+					(GetLastError() == ERROR_ACCESS_DENIED)
+					? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+					: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+				exit(1);
+			}
+		}
+	}
+	else if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
+	{
+		if (!CopyFile(cfgPath, userCfgPath, FALSE))
+		{
+			MessageBox(NULL,
+				(GetLastError() == ERROR_ACCESS_DENIED)
+				? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml! Access Denied."
+				: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/user-conemu.xml!", MB_TITLE, MB_ICONSTOP);
+			exit(1);
+		}
+
+		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
+	}
+	else // '/c [path]' was specified and 'vendor/ConEmu.xml.default' config exists, copy Cmder 'vendor/ConEmu.xml.default' file to '[user specified path]/config/user_ConEmu.xml'.
+	{
+		if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
+		{
+			MessageBox(NULL,
+				(GetLastError() == ERROR_ACCESS_DENIED)
+				? L"Failed to copy vendor/ConEmu.xml.default file to [user specified path]/config/user_ConEmu.xml! Access Denied."
+				: L"Failed to copy vendor/ConEmu.xml.default file to [user specified path]/config/user_ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+			exit(1);
+		}
+		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
 
 	SYSTEM_INFO sysInfo;
 	GetNativeSystemInfo(&sysInfo);
-	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) {
+	if (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+	{
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu64.exe");
 	}
-	else {
+	else
+	{
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
 
-	if (FileExists(oldCfgPath) && !FileExists(cfgPath))
+	swprintf_s(args, L"%s /Icon \"%s\" /Title Cmder", args, icoPath);
+
+	if (!streqi(cmderStart.c_str(), L""))
 	{
-		if (!CopyFile(oldCfgPath, cfgPath, FALSE))
-		{
-			MessageBox(NULL,
-				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to copy ConEmu.xml file to new location! Restart cmder as administrator."
-				: L"Failed to copy ConEmu.xml file to new location!", MB_TITLE, MB_ICONSTOP);
-			exit(1);
-		}
+		swprintf_s(args, L"%s /dir \"%s\"", args, cmderStart.c_str());
 	}
 
 	if (is_single_mode)
 	{
-		swprintf_s(args, L"/single /Icon \"%s\" /Title Cmder", icoPath);
+		swprintf_s(args, L"%s /single", args);
 	}
-	else
+
+	if (!streqi(cmderTask.c_str(), L""))
 	{
-		swprintf_s(args, L"/Icon \"%s\" /Title Cmder", icoPath);
+		swprintf_s(args, L"%s /run {%s}", args, cmderTask.c_str());
+	}
+
+	if (cfgRoot.length() != 0)
+	{
+		swprintf_s(args, L"%s  -loadcfgfile \"%s\"", args, userConEmuCfgPath);
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
-	if (!streqi(path.c_str(), L""))
+	if (wcscmp(userConfigDirPath, configDirPath) != 0)
 	{
-		if (!SetEnvironmentVariable(L"CMDER_START", path.c_str())) {
-			MessageBox(NULL, _T("Error trying to set CMDER_START to given path!"), _T("Error"), MB_OK);
-		}
+		SetEnvironmentVariable(L"CMDER_USER_CONFIG", userConfigDirPath);
+		SetEnvironmentVariable(L"CMDER_USER_BIN", userBinDirPath);
 	}
+
 	// Ensure EnvironmentVariables are propagated.
-	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG, 5000, NULL);
-	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 5000, NULL); // For Windows >= 8
 
 	STARTUPINFO si = { 0 };
+
 	si.cb = sizeof(STARTUPINFO);
 #if USE_TASKBAR_API
 	si.lpTitle = appId;
 	si.dwFlags = STARTF_TITLEISAPPID;
 #endif
-
 	PROCESS_INFORMATION pi;
 	if (!CreateProcess(conEmuPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
-		MessageBox(NULL, _T("Unable to create the ConEmu Process!"), _T("Error"), MB_OK);
+		MessageBox(NULL, _T("Unable to create the ConEmu process!"), _T("Error"), MB_OK);
 		return;
 	}
+
+	LRESULT lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL);
+	lr = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)L"Environment", SMTO_ABORTIFHUNG | SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL); // For Windows >= 8
 }
 
 bool IsUserOnly(std::wstring opt)
@@ -213,8 +442,7 @@ HKEY GetRootKey(std::wstring opt)
 
 	if (IsUserOnly(opt))
 	{
-		FAIL_ON_ERROR(RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Classes", 0, NULL,
-			REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &root, NULL));
+		FAIL_ON_ERROR(RegCreateKeyEx(HKEY_CURRENT_USER, L"Software\\Classes", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &root, NULL));
 	}
 	else
 	{
@@ -224,8 +452,10 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
-void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
+void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgRoot, bool single)
 {
+	wchar_t userConfigDirPath[MAX_PATH] = { 0 };
+
 	// First, get the paths we will use
 
 	wchar_t exePath[MAX_PATH] = { 0 };
@@ -234,7 +464,23 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	GetModuleFileName(NULL, exePath, sizeof(exePath));
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
-	swprintf_s(commandStr, L"\"%s\" \"%%V\"", exePath);
+	wchar_t baseCommandStr[MAX_PATH + 20] = { 0 };
+	if (!single) {
+		swprintf_s(baseCommandStr, L"\"%s\"", exePath);
+	}
+	else {
+		swprintf_s(baseCommandStr, L"\"%s\" /single", exePath);
+	}
+
+	if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
+	{
+		swprintf_s(commandStr, L"%s \"%%V\"", baseCommandStr);
+	}
+	else {
+		std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
+		userConfigDirPath[cfgRoot.length()] = 0;
+		swprintf_s(commandStr, L"%s /c \"%s\" \"%%V\"", baseCommandStr, userConfigDirPath);
+	}
 
 	// Now that we have `commandStr`, it's OK to change `exePath`...
 	PathRemoveFileSpec(exePath);
@@ -242,13 +488,10 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	PathCombine(icoPath, exePath, L"icons\\cmder.ico");
 
 	// Now set the registry keys
-
 	HKEY root = GetRootKey(opt);
 
 	HKEY cmderKey;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(root, keyBaseName, 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
+	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 
 	FAIL_ON_ERROR(RegSetValue(cmderKey, L"", REG_SZ, L"Cmder Here", NULL));
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"NoWorkingDirectory", 0, REG_SZ, (BYTE *)L"", 2));
@@ -256,9 +499,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	FAIL_ON_ERROR(RegSetValueEx(cmderKey, L"Icon", 0, REG_SZ, (BYTE *)icoPath, wcslen(icoPath) * sizeof(wchar_t)));
 
 	HKEY command;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(cmderKey, L"command", 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
+	FAIL_ON_ERROR(RegCreateKeyEx(cmderKey, L"command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
 
 	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
 
@@ -271,16 +512,142 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 {
 	HKEY root = GetRootKey(opt);
 	HKEY cmderKey;
-	FAIL_ON_ERROR(
-		RegCreateKeyEx(root, keyBaseName, 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
-#if XP
-	FAIL_ON_ERROR(SHDeleteKey(cmderKey, NULL));
-#else
+	FAIL_ON_ERROR(RegCreateKeyEx(root, keyBaseName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &cmderKey, NULL));
 	FAIL_ON_ERROR(RegDeleteTree(cmderKey, NULL));
-#endif
+	RegDeleteKeyEx(root, keyBaseName, KEY_ALL_ACCESS, NULL);
 	RegCloseKey(cmderKey);
 	RegCloseKey(root);
+}
+
+struct cmderOptions
+{
+	std::wstring cmderCfgRoot = L"";
+	std::wstring cmderStart = L"";
+	std::wstring cmderTask = L"";
+	std::wstring cmderRegScope = L"USER";
+	bool cmderSingle = false;
+	bool cmderUserCfg = true;
+	bool registerApp = false;
+	bool unRegisterApp = false;
+	bool error = false;
+};
+
+cmderOptions GetOption()
+{
+	cmderOptions cmderOptions;
+	LPWSTR *szArgList;
+	int argCount;
+
+	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
+
+	for (int i = 1; i < argCount; i++)
+	{
+
+		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
+		if (cmderOptions.error == false) {
+			if (_wcsicmp(L"/c", szArgList[i]) == 0)
+			{
+				TCHAR userProfile[MAX_PATH];
+				const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
+
+				wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
+				PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg");
+
+				cmderOptions.cmderCfgRoot = cmderCfgRoot;
+
+				if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/')
+				{
+					cmderOptions.cmderCfgRoot = szArgList[i + 1];
+					i++;
+				}
+			}
+			else if (_wcsicmp(L"/start", szArgList[i]) == 0)
+			{
+				int len = wcslen(szArgList[i + 1]);
+				if (wcscmp(&szArgList[i + 1][len - 1], L"\"") == 0)
+				{
+					szArgList[i + 1][len - 1] = '\0';
+				}
+
+				if (PathFileExists(szArgList[i + 1]))
+				{
+					cmderOptions.cmderStart = szArgList[i + 1];
+					i++;
+				}
+				else
+				{
+					MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
+				}
+			}
+			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderTask = szArgList[i + 1];
+				i++;
+			}
+			else if (_wcsicmp(L"/single", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderSingle = true;
+			}
+			else if (_wcsicmp(L"/m", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderUserCfg = false;
+			}
+			else if (_wcsicmp(L"/register", szArgList[i]) == 0)
+			{
+				cmderOptions.registerApp = true;
+				cmderOptions.unRegisterApp = false;
+				if (szArgList[i + 1] != NULL)
+				{
+					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					{
+						cmderOptions.cmderRegScope = szArgList[i + 1];
+						i++;
+					}
+				}
+			}
+			else if (_wcsicmp(L"/unregister", szArgList[i]) == 0)
+			{
+				cmderOptions.unRegisterApp = true;
+				cmderOptions.registerApp = false;
+				if (szArgList[i + 1] != NULL)
+				{
+					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					{
+						cmderOptions.cmderRegScope = szArgList[i + 1];
+						i++;
+					}
+				}
+			}
+			else if (cmderOptions.cmderStart == L"")
+			{
+				int len = wcslen(szArgList[i]);
+				if (wcscmp(&szArgList[i][len - 1], L"\"") == 0)
+				{
+					szArgList[i][len - 1] = '\0';
+				}
+
+				if (PathFileExists(szArgList[i]))
+				{
+					cmderOptions.cmderStart = szArgList[i];
+					i++;
+				}
+				else
+				{
+					MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+					cmderOptions.error = true;
+				}
+			}
+			else
+			{
+				MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+				cmderOptions.error = true;
+			}
+		}
+	}
+
+	LocalFree(szArgList);
+
+	return cmderOptions;
 }
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -292,30 +659,25 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	UNREFERENCED_PARAMETER(nCmdShow);
 
-	optpair opt = GetOption();
+	cmderOptions cmderOptions = GetOption();
 
-	if (streqi(opt.first.c_str(), L"/START"))
+	if (cmderOptions.registerApp == true)
 	{
-		StartCmder(opt.second, false);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
 	}
-	else if (streqi(opt.first.c_str(), L"/SINGLE"))
+	else if (cmderOptions.unRegisterApp == true)
 	{
-		StartCmder(opt.second, true);
+		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
+		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 	}
-	else if (streqi(opt.first.c_str(), L"/REGISTER"))
+	else if (cmderOptions.error == true)
 	{
-		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		RegisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
-	}
-	else if (streqi(opt.first.c_str(), L"/UNREGISTER"))
-	{
-		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
-		UnregisterShellMenu(opt.second, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		return 1;
 	}
 	else
 	{
-		MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n  /START <path>\n  /SINGLE <path>\n  /REGISTER [USER/ALL]\n  /UNREGISTER [USER/ALL]", MB_TITLE, MB_OK);
-		return 1;
+		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg);
 	}
 
 	return 0;

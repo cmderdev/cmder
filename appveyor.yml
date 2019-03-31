@@ -15,7 +15,7 @@ branches:
 #---------------------------------#
 
 # Operating system (build VM template)
-os: Windows Server 2012 R2
+os: Visual Studio 2017
 
 #---------------------------------#
 #       build configuration       #
@@ -43,6 +43,9 @@ artifacts:
 
   - path: build\cmder_mini.zip
     name: cmdermini
+
+  - path: build\hashes.txt
+    name: hashes
 
 #---------------------------------#
 #         notifications           #

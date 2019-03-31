@@ -1,8 +1,8 @@
 @echo off
 
 
-if "%aliases%" == "" (
-  set ALIASES=%CMDER_ROOT%\config\user-aliases.cmd
+if "%ALIASES%" == "" (
+  set ALIASES="%CMDER_ROOT%\config\user_aliases.cmd"
 )
 
 setlocal enabledelayedexpansion
@@ -21,7 +21,7 @@ goto parseargument
   set currentarg=%~1
 
   if /i "%currentarg%" equ "/f" (
-    set aliases=%~2
+    set ALIASES=%~2
     shift
     goto :do_shift
   ) else if /i "%currentarg%" == "/reload" (
@@ -40,7 +40,7 @@ goto parseargument
   ) else if "%currentarg%" neq "" (
     if "%~2" equ "" (
       :: Show the specified alias
-      doskey /macros | findstr /b %currentarg%= && exit /b
+      doskey /macros | %WINDIR%\System32\findstr /b %currentarg%= && exit /b
       echo insufficient parameters.
       goto :p_help
     ) else (
@@ -50,21 +50,21 @@ goto parseargument
   )
 rem #endregion parseargument
 
-if "%aliases%" neq "%CMDER_ROOT%\config\user-aliases.cmd" (
-  set _x=!_x:/f %aliases% =!
+if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
+  set _x=!_x:/f "%ALIASES%" =!
 
-  if not exist "%aliases%" (
-    echo ;= @echo off>"%aliases%"
-    echo ;= rem Call DOSKEY and use this file as the macrofile>>"%aliases%"
-    echo ;= %%SystemRoot%%\system32\doskey /listsize=1000 /macrofile=%%0%%>>"%aliases%"
-    echo ;= rem In batch mode, jump to the end of the file>>"%aliases%"
-    echo ;= goto:eof>>"%aliases%"
-    echo ;= Add aliases below here>>"%aliases%"
+  if not exist "%ALIASES%" (
+    echo ;= @echo off>"%ALIASES%"
+    echo ;= rem Call DOSKEY and use this file as the macrofile>>"%ALIASES%"
+    echo ;= %%SystemRoot%%\system32\doskey /listsize=1000 /macrofile=%%0%%>>"%ALIASES%"
+    echo ;= rem In batch mode, jump to the end of the file>>"%ALIASES%"
+    echo ;= goto:eof>>"%ALIASES%"
+    echo ;= Add aliases below here>>"%ALIASES%"
   )
 )
 
 :: validate alias
-for /f "delims== tokens=1,2 usebackq" %%G in (`echo "%_x%"`) do (
+for /f "delims== tokens=1,* usebackq" %%G in (`echo "%_x%"`) do (
   set alias_name=%%G
   set alias_value=%%H
 )
@@ -85,7 +85,7 @@ if not ["%_temp%"] == ["%alias_name%"] (
 )
 
 :: replace already defined alias
-findstr /b /v /i "%alias_name%=" "%ALIASES%" >> "%ALIASES%.tmp"
+%WINDIR%\System32\findstr /b /v /i "%alias_name%=" "%ALIASES%" >> "%ALIASES%.tmp"
 echo %alias_name%=%alias_value% >> "%ALIASES%.tmp" && type "%ALIASES%.tmp" > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey /macrofile="%ALIASES%"
 endlocal
@@ -93,10 +93,10 @@ exit /b
 
 :p_del
 set del_alias=%~1
-findstr /b /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
+%WINDIR%\System32\findstr /b /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
 type "%ALIASES%".tmp > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey %del_alias%=
-doskey /macrofile=%ALIASES%
+doskey /macrofile="%ALIASES%"
 goto:eof
 
 :p_reload
@@ -105,21 +105,21 @@ echo Aliases reloaded
 exit /b
 
 :p_show
-doskey /macros|findstr /v /r "^;=" | sort
+doskey /macros|%WINDIR%\System32\findstr /v /r "^;=" | sort
 exit /b
 
 :p_help
 echo.Usage:
-echo. 
+echo.
 echo.	alias [options] [alias=full command]
-echo. 
+echo.
 echo.Options:
-echo. 
+echo.
 echo.     /d [alias]     Delete an [alias].
 echo.     /f [macrofile] Path to the [macrofile] you want to store the new alias in.
-echo.                    Default: %cmder_root%\config\user-aliases.cmd
+echo.                    Default: %cmder_root%\config\user_aliases.cmd
 echo.     /reload        Reload the aliases file.  Can be used with /f argument.
-echo.                    Default: %cmder_root%\config\user-aliases.cmd
+echo.                    Default: %cmder_root%\config\user_aliases.cmd
 echo.
 echo.	If alias is called with no parameters, it will display the list of existing aliases.
 echo.
