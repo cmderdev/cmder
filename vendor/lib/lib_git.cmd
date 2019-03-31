@@ -88,8 +88,11 @@ exit /b
 :::  [SCOPE]_BUILD <out> Scoped Build version.
 :::-------------------------------------------------------------------------------
 
-    setlocal enabledelayedexpansion
     :: process a `x.x.x.xxxx.x` formatted string
+    set "%~1_MAJOR="
+    set "%~1_MINOR="
+    set "%~1_PATCH="
+    set "%~1_BUILD="
     %lib_console% debug_output :parse_version "ARGV[1]=%~1, ARGV[2]=%~2"
     for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
         set "%~1_MAJOR=%%A"
@@ -98,7 +101,6 @@ exit /b
         set "%~1_BUILD=%%D"
     )
 
-    endlocal & set "%~1_MAJOR=!%~1_MAJOR!" & set "%~1_MINOR=!%~1_MINOR!" & set "%~1_PATCH=!%~1_PATCH!" & set "%~1_BUILD=!%~1_BUILD!"
     exit /b
 
 :validate_version
