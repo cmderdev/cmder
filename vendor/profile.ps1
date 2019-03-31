@@ -25,7 +25,7 @@ if (! $ENV:CMDER_ROOT ) {
 # Remove trailing '\'
 $ENV:CMDER_ROOT = (($ENV:CMDER_ROOT).trimend("\"))
 
-# do not load bundled psget if a module installer is already available
+# Do not load bundled psget if a module installer is already available
 # -> recent PowerShell versions include PowerShellGet out of the box
 $moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue)
 
@@ -99,11 +99,6 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
 # Enhance Path
 $env:Path = "$Env:CMDER_ROOT\bin;$Env:CMDER_ROOT\vendor\bin;$env:Path;$Env:CMDER_ROOT"
 
-#
-# Prompt Section
-#   Users should modify their user_profile.ps1 as it will be safe from updates.
-#
-
 # Drop *.ps1 files into "$ENV:CMDER_ROOT\config\profile.d"
 # to source them at startup.
 if (-not (test-path "$ENV:CMDER_ROOT\config\profile.d")) {
@@ -167,6 +162,11 @@ if (! (Test-Path $CmderUserProfilePath) ) {
     Write-Host -BackgroundColor Darkgreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
     Copy-Item "$env:CMDER_ROOT\vendor\user_profile.ps1.default" -Destination $CmderUserProfilePath
 }
+
+#
+# Prompt Section
+#   Users should modify their user_profile.ps1 as it will be safe from updates.
+#
 
 # Only set the prompt if it is currently set to the default
 # This allows users to configure the prompt in their user_profile.ps1 or config\profile.d\*.ps1
