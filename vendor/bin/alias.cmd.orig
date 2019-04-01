@@ -65,7 +65,10 @@ set args=
       set _x=%*
     )
   )
+<<<<<<< HEAD
 
+=======
+>>>>>>> 67b374ad378bee1b9157b9a0b20c8e667ec6c6da
 rem #endregion parseargument
 
 if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
