@@ -48,9 +48,6 @@ goto parseargument
       set _x=%*
     )
   )
-
-echo _x=%_x%
-
 rem #endregion parseargument
 
 if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
@@ -66,40 +63,17 @@ if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
   )
 )
 
-:: create with multiple parameters
-if [%1] == [create] (
-  if not [%2] == [] (
-    if not [%3] == [] (
-      set _x=%1=%2
-      :: if command create was submitted
-      set alias_name=%~2
-      shift
-      shift
-      echo %*
-      set alias_value=%*
-
-      for /f "tokens=1,2,* usebackq" %%G in (`echo %*`) do (
-        set alias_name=%%H
-        set alias_value=%%I
-      )
-    )
-  )
-) else (
-  :: validate alias
-  echo %_x%
-  set x=!_x:%=^^%!
-  echo !_x!
-  for /f "delims== tokens=1,* usebackq" %%G in (`echo "!_x!"`) do (
-    set alias_name=%%G
-    set alias_value=%%H
-  )
-
-  :: leading quotes added while validating
-  set alias_name=!alias_name:~1!
-  
-  :: trailing quotes added while validating
-  set alias_value=!alias_value:~1,-1!
+:: validate alias
+for /f "delims== tokens=1,* usebackq" %%G in (`echo "%_x%"`) do (
+  set alias_name=%%G
+  set alias_value=%%H
 )
+
+:: leading quotes added while validating
+set alias_name=%alias_name:~1%
+
+:: trailing quotes added while validating
+set alias_value=%alias_value:~0,-1%
 
 ::remove spaces
 set _temp=%alias_name: =%
