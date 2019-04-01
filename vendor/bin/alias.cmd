@@ -24,7 +24,6 @@ set args=
 
   if /i "%currentarg%" equ "/f" (
     set ALIASES=%~2
-    set ALT_ALIASES=%~2
     shift
     goto :do_shift
   ) else if /i "%currentarg%" == "/reload" (
@@ -52,13 +51,11 @@ set args=
       goto :p_help
     ) else if "%currentarg%" == "create" (
       set action=create
-      if [%ALT_ALIASES%] neq [] (
-        echo 1
+      if ["%ALIASES%"] neq ["%CMDER_ROOT%\config\user_aliases.cmd"] (
         for /f "tokens=1,2,3,* usebackq" %%G in (`echo %*`) do (
           set args=%%J
         )
       ) else (
-        echo 2
         for /f "tokens=1,2,* usebackq" %%G in (`echo %*`) do (
           set args=%%H %%I
         )
@@ -85,29 +82,11 @@ if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
 )
 
 :: create with multiple parameters
-<<<<<<< HEAD
 if [%action%] == [create] (
   if not ["%args%"] == [""] (
     for /f "tokens=1,* usebackq" %%G in (`echo %args%`) do (
       set alias_name=%%G
       set alias_value=%%H
-=======
-if [%1] == [create] (
-  if not [%2] == [] (
-    if not [%3] == [] (
-      set _x=%1=%2
-      :: if command create was submitted
-      set alias_name=%~2
-      shift
-      shift
-      echo %*
-      set alias_value=%*
-
-      for /f "tokens=1,2,* usebackq" %%G in (`echo %*`) do (
-        set alias_name=%%H
-        set alias_value=%%I
-      )
->>>>>>> ac2082d56d59b3731824e11227eae396278b9f37
     )
   )
 ) else (
