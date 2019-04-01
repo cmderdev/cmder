@@ -233,7 +233,7 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %lib_console% debug_output "Using vendored Git from '!GIT_INSTALL_ROOT!..."
+    %lib_console% debug_output "Using vendored Git '!GIT_VERSION_VENDORED!' from '!GIT_INSTALL_ROOT!..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
@@ -244,7 +244,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%lib_console% debug_output "Using found Git from '%GIT_INSTALL_ROOT%..."
+%lib_console% debug_output "Using found Git '!GIT_VERSION_USER!' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT

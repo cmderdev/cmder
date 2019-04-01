@@ -20,6 +20,8 @@
 #define MB_TITLE L"Cmder Launcher"
 #define SHELL_MENU_REGISTRY_PATH_BACKGROUND L"Directory\\Background\\shell\\Cmder"
 #define SHELL_MENU_REGISTRY_PATH_LISTITEM L"Directory\\shell\\Cmder"
+#define SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND L"Drive\\Background\\shell\\Cmder"
+#define SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM L"Drive\\shell\\Cmder"
 
 #define streqi(a, b) (_wcsicmp((a), (b)) == 0)
 
@@ -665,11 +667,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	{
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
 		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
 	}
 	else if (cmderOptions.unRegisterApp == true)
 	{
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND);
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
+		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND);
+		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM);
 	}
 	else if (cmderOptions.error == true)
 	{
