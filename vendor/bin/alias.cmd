@@ -14,6 +14,8 @@ if "%~1" == "" echo Use /? for help & echo. & goto :p_show
 rem #region parseargument
 goto parseargument
 
+set args=
+
 :do_shift
   shift
 
@@ -22,10 +24,15 @@ goto parseargument
 
   if /i "%currentarg%" equ "/f" (
     set ALIASES=%~2
+    set ALT_ALIASES=%~2
     shift
     goto :do_shift
   ) else if /i "%currentarg%" == "/reload" (
     goto :p_reload
+  ) else if "%currentarg%" equ "/H" (
+    goto :p_help
+  ) else if "%currentarg%" equ "/h" (
+    goto :p_help
   ) else if "%currentarg%" equ "/?" (
     goto :p_help
   ) else if /i "%currentarg%" equ "/d" (
@@ -43,11 +50,28 @@ goto parseargument
       doskey /macros | %WINDIR%\System32\findstr /b %currentarg%= && exit /b
       echo insufficient parameters.
       goto :p_help
+    ) else if "%currentarg%" == "create" (
+      set action=create
+      if [%ALT_ALIASES%] neq [] (
+        echo 1
+        for /f "tokens=1,2,3,* usebackq" %%G in (`echo %*`) do (
+          set args=%%J
+        )
+      ) else (
+        echo 2
+        for /f "tokens=1,2,* usebackq" %%G in (`echo %*`) do (
+          set args=%%H %%I
+        )
+      )
     ) else (
       :: handle quotes within command definition, e.g. quoted long file names
       set _x=%*
     )
   )
+
+:: echo _x=%_x%
+:: echo args=%args%
+
 rem #endregion parseargument
 
 if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
@@ -63,25 +87,38 @@ if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
   )
 )
 
-:: validate alias
-for /f "delims== tokens=1,* usebackq" %%G in (`echo "%_x%"`) do (
-  set alias_name=%%G
-  set alias_value=%%H
+:: create with multiple parameters
+if [%action%] == [create] (
+  if not ["%args%"] == [""] (
+    for /f "tokens=1,* usebackq" %%G in (`echo %args%`) do (
+      set alias_name=%%G
+      set alias_value=%%H
+    )
+  )
+) else (
+  :: validate alias
+  echo %_x%
+  set x=!_x:%=^^%!
+  echo !_x!
+  for /f "delims== tokens=1,* usebackq" %%G in (`echo "!_x!"`) do (
+    set alias_name=%%G
+    set alias_value=%%H
+  )
+
+  :: leading quotes added while validating
+  set alias_name=!alias_name:~1!
+  
+  :: trailing quotes added while validating
+  set alias_value=!alias_value:~1,-1!
 )
-
-:: leading quotes added while validating
-set alias_name=%alias_name:~1%
-
-:: trailing quotes added while validating
-set alias_value=%alias_value:~0,-1%
 
 ::remove spaces
 set _temp=%alias_name: =%
 
 if not ["%_temp%"] == ["%alias_name%"] (
-	echo Your alias name can not contain a space
-	endlocal
-	exit /b
+  echo Your alias name can not contain a space
+  endlocal
+  exit /b
 )
 
 :: replace already defined alias
@@ -111,9 +148,11 @@ exit /b
 :p_help
 echo.Usage:
 echo.
-echo.	alias [options] [alias=full command]
+echo.     alias [options] [alias=alias command] or [[create [alias] [alias command]]]
 echo.
 echo.Options:
+echo.
+echo.     Note: Options MUST precede the alias definition.
 echo.
 echo.     /d [alias]     Delete an [alias].
 echo.     /f [macrofile] Path to the [macrofile] you want to store the new alias in.
@@ -121,11 +160,14 @@ echo.                    Default: %cmder_root%\config\user_aliases.cmd
 echo.     /reload        Reload the aliases file.  Can be used with /f argument.
 echo.                    Default: %cmder_root%\config\user_aliases.cmd
 echo.
-echo.	If alias is called with no parameters, it will display the list of existing aliases.
+echo. If alias is called with no parameters, it will display the list of existing aliases.
 echo.
-echo.	In the command, you can use the following notations:
-echo.	$* allows the alias to assume all the parameters of the supplied command.
-echo.	$1-$9 Allows you to seperate parameter by number, much like %%1 in batch.
-echo.	$T is the command seperator, allowing you to string several commands together into one alias.
-echo.	For more information, read DOSKEY/?
+echo. In the alias command, you can use the following notations:
+echo.
+echo. ^^^^^^^^%% - '%%' in env vars must be escaped if preserving the variable in the alias is desired.
+echo. $*    - allows the alias to assume all the parameters of the supplied command.
+echo. $1-$9 - Allows you to seperate parameter by number, much like %%1 in batch.
+echo. $T    - Command seperator, allowing you to string several commands together into one alias.
+echo.
+echo. For more information, read DOSKEY /?
 exit /b
