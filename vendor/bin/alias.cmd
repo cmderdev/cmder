@@ -96,8 +96,6 @@ if [%action%] == [create] (
   )
 ) else (
   :: validate alias
-  rem set _x=!_x:%=^^%!
-
   for /f "delims== tokens=1,* usebackq" %%G in (`echo "!_x!"`) do (
     set alias_name=%%G
     set alias_value=%%H
