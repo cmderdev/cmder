@@ -14,8 +14,6 @@ if "%~1" == "" echo Use /? for help & echo. & goto :p_show
 rem #region parseargument
 goto parseargument
 
-set args=
-
 :do_shift
   shift
 
@@ -24,6 +22,7 @@ set args=
 
   if /i "%currentarg%" equ "/f" (
     set ALIASES=%~2
+    set _f=%~2
     shift
     goto :do_shift
   ) else if /i "%currentarg%" == "/reload" (
@@ -50,19 +49,27 @@ set args=
       echo insufficient parameters.
       goto :p_help
     ) else if "%currentarg%" == "create" (
+      set _x=%*
+
+      set _x=!_x:^^=^^^^!
       set action=create
-      if ["%ALIASES%"] neq ["%CMDER_ROOT%\config\user_aliases.cmd"] (
-        for /f "tokens=1,2,3,* usebackq" %%G in (`echo %*`) do (
-          set args=%%J
+      if ["%_f%"] neq [""] (
+        for /f "tokens=1,2,3,* usebackq" %%G in (`echo !_x!`) do (
+          set _x=%%J
         )
       ) else (
-        for /f "tokens=1,2,* usebackq" %%G in (`echo %*`) do (
-          set args=%%H %%I
+        for /f "tokens=1,2,* usebackq" %%G in (`echo !_x!`) do (
+          set _x=%%H %%I
         )
       )
     ) else (
-      :: handle quotes within command definition, e.g. quoted long file names
       set _x=%*
+      if ["%_f%"] neq [""] (
+        set _x=!_x:^^=^^^^!
+        for /f "tokens=1,2,* usebackq" %%G in (`echo !_x!`) do (
+          set _x=%%I
+        )
+      )
     )
   )
 
@@ -81,20 +88,16 @@ if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
   )
 )
 
-<<<<<<< HEAD
 :: create with multiple parameters
 if [%action%] == [create] (
-  if not ["%args%"] == [""] (
-    for /f "tokens=1,* usebackq" %%G in (`echo %args%`) do (
-      set alias_name=%%G
-      set alias_value=%%H
-    )
+  for /f "tokens=1,* usebackq" %%G in (`echo !_x!`) do (
+    set alias_name=%%G
+    set alias_value=%%H
   )
 ) else (
   :: validate alias
-  echo %_x%
-  set x=!_x:%=^^%!
-  echo !_x!
+  rem set _x=!_x:%=^^%!
+
   for /f "delims== tokens=1,* usebackq" %%G in (`echo "!_x!"`) do (
     set alias_name=%%G
     set alias_value=%%H
@@ -104,20 +107,8 @@ if [%action%] == [create] (
   set alias_name=!alias_name:~1!
   
   :: trailing quotes added while validating
-  set alias_value=!alias_value:~1,-1!
-=======
-:: validate alias
-for /f "delims== tokens=1,* usebackq" %%G in (`echo "%_x%"`) do (
-  set alias_name=%%G
-  set alias_value=%%H
->>>>>>> 67b374ad378bee1b9157b9a0b20c8e667ec6c6da
+  set alias_value=!alias_value:~0,-1!
 )
-
-:: leading quotes added while validating
-set alias_name=%alias_name:~1%
-
-:: trailing quotes added while validating
-set alias_value=%alias_value:~0,-1%
 
 ::remove spaces
 set _temp=%alias_name: =%
