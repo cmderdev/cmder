@@ -14,6 +14,9 @@
   * Provide default settings for Clink that updates the history file in real time
     * Turn this on in existing Cmder using `clink set history_io 1`
   * Allow clink disable by setting CMDER_CLINK=0 before starting task
+* Pull Request: [#2068](https://github.com/cmderdev/cmder/pull/2068)
+  * Print Index in History Command Output.
+  * Sets default `history_expand_mode = 3` in initial Clink Settings.
 
 ### Adds
 

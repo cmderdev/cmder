@@ -87,7 +87,7 @@ history_io = 1
 # from the history. This can be enabled and disable by setting this value to 1
 # or 0. Values or 2, 3 or 4 will skip any ! character quoted in single, double,
 # or both quotes respectively.
-history_expand_mode = 4
+history_expand_mode = 3
 
 # name: Support Windows' Ctrl-Alt substitute for AltGr
 # type: bool
