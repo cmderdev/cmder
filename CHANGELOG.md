@@ -15,6 +15,13 @@
     * Turn this on in existing Cmder using `clink set history_io 1`
   * Allow clink disable by setting CMDER_CLINK=0 before starting task
 
+### Adds
+
+* Pull Request: [#2072](https://github.com/cmderdev/cmder/pull/2072)
+  * New alias create [alias] [alias command] syntax
+    * Based on [#1750](https://github.com/cmderdev/cmder/pull/1750)
+    * Syntax: `alias create [alias] [alias command]`
+
 ## [1.3.11](https://github.com/cmderdev/cmder/tree/v1.3.11) (2018-12-22)
 
 ### Fixes
