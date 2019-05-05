@@ -144,26 +144,36 @@ exit /b
 :p_help
 echo.Usage:
 echo.
-echo.     alias [options] [alias=alias command] or [[create [alias] [alias command]]]
+echo.  alias [options] [alias=alias command]
+echo.
+echo   OR
+echo.
+echo.  alias create [alias] [alias command]
 echo.
 echo.Options:
 echo.
-echo.     Note: Options MUST precede the alias definition.
+echo.  Note: Options MUST precede the alias definition.
 echo.
-echo.     /d [alias]     Delete an [alias].
-echo.     /f [macrofile] Path to the [macrofile] you want to store the new alias in.
-echo.                    Default: %cmder_root%\config\user_aliases.cmd
-echo.     /reload        Reload the aliases file.  Can be used with /f argument.
-echo.                    Default: %cmder_root%\config\user_aliases.cmd
+echo.  /d [alias]     Delete an [alias].
+echo.  /f [macrofile] Path to the [macrofile] you want to store the new alias in.
+echo.                 Default: %cmder_root%\config\user_aliases.cmd
+echo.  /reload        Reload the aliases file.  Can be used with /f argument.
+echo.                 Default: %cmder_root%\config\user_aliases.cmd
 echo.
-echo. If alias is called with no parameters, it will display the list of existing aliases.
+echo. If alias is called with no parameters, it will display the list of existing
+echo. aliases.
 echo.
 echo. In the alias command, you can use the following notations:
 echo.
-echo. ^^^^^^^^%% - '%%' in env vars must be escaped if preserving the variable in the alias is desired.
-echo. $*    - allows the alias to assume all the parameters of the supplied command.
-echo. $1-$9 - Allows you to seperate parameter by number, much like %%1 in batch.
-echo. $T    - Command seperator, allowing you to string several commands together into one alias.
+echo. ^^^^^^^^%% - %% signs in env vars must be escaped if preserving the variable
+echo.         in he alias is desired. Variables in aliases surrounded by double
+echo.         quotes only require '^^%%' vs '^^^^^^^^%%'
+echo. $*    - allows the alias to assume all the parameters of the supplied
+echo.         command.
+echo. $1-$9 - Allows you to seperate parameter by number, much like %%1 in
+echo.         batch.
+echo. $T    - Command seperator, allowing you to string several commands
+echo.         together into one alias.
 echo.
 echo. For more information, read DOSKEY /?
 exit /b
