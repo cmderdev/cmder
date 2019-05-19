@@ -71,7 +71,7 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring pars2fw = L"")
+void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"")
 {
 #if USE_TASKBAR_API
 	wchar_t appId[MAX_PATH] = { 0 };
@@ -98,7 +98,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	std::wstring cmderStart = path;
 	std::wstring cmderTask = taskName;
-	std::wstring cmderPars2CEmu = pars2fw;
+	std::wstring cmderConEmuArgs = conemu_args;
 
 	std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
 	userConfigDirPath[cfgRoot.length()] = 0;
@@ -392,9 +392,9 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		swprintf_s(args, L"%s  -loadcfgfile \"%s\"", args, userConEmuCfgPath);
 	}
 
-	if (!streqi(cmderPars2CEmu.c_str(), L""))
+	if (!streqi(cmderConEmuArgs.c_str(), L""))
 	{
-		swprintf_s(args, L"%s %s", args, cmderPars2CEmu.c_str());
+		swprintf_s(args, L"%s %s", args, cmderConEmuArgs.c_str());
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
@@ -533,7 +533,7 @@ struct cmderOptions
 	std::wstring cmderStart = L"";
 	std::wstring cmderTask = L"";
 	std::wstring cmderRegScope = L"USER";
-	std::wstring cmderPars2CEmu = L"";
+	std::wstring cmderConEmuArgs = L"";
 	bool cmderSingle = false;
 	bool cmderUserCfg = true;
 	bool registerApp = false;
@@ -627,9 +627,10 @@ cmderOptions GetOption()
 					}
 				}
 			}
-			else if (_wcsicmp(L"/fwpars", szArgList[i]) == 0)
+			/* Used for passing arguments to conemu prog */
+			else if (_wcsicmp(L"/x", szArgList[i]) == 0)
 			{
-				cmderOptions.cmderPars2CEmu = szArgList[i + 1];
+				cmderOptions.cmderConEmuArgs = szArgList[i + 1];
 				i++;
 			}
 			else if (cmderOptions.cmderStart == L"")
@@ -647,13 +648,13 @@ cmderOptions GetOption()
 				}
 				else
 				{
-					MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /fwpars [ConEmu parameters to fw]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+					MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 					cmderOptions.error = true;
 				}
 			}
 			else
 			{
-				MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /fwpars [ConEmu parameters to fw]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+				MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 				cmderOptions.error = true;
 			}
 		}
@@ -695,7 +696,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else
 	{
-		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderPars2CEmu);
+		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderConEmuArgs);
 	}
 
 	return 0;
