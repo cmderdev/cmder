@@ -6,6 +6,7 @@
 
 * Pull Request: [#2106](https://github.com/cmderdev/cmder/pull/2106)
   * Portable Git requires running `post-install.bat` which deletes itself when done.  This was not happening.
+  * Resolves [#2105](https://github.com/cmderdev/cmder/issues/2105) 
 * Pull Request: [#2002](https://github.com/cmderdev/cmder/pull/2002)
   * Updated the HG prompt code to use the '-ib' option to 'hg id' so the branch name is always available, regardless of the state of the working copy
 
