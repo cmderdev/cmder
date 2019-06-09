@@ -51,9 +51,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
     ) else if /i "%1"=="/v" (
         set verbose_output=1
     ) else if /i "%1"=="/d" (
-        if not defined VSCODE_CWD (
-            set debug_output=1
-        )
+        set debug_output=1
     ) else if /i "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
             set "max_depth=%~2"
@@ -235,7 +233,7 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %lib_console% debug_output "Using vendored Git from '!GIT_INSTALL_ROOT!..."
+    %lib_console% debug_output "Using vendored Git '!GIT_VERSION_VENDORED!' from '!GIT_INSTALL_ROOT!..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
@@ -246,7 +244,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%lib_console% debug_output "Using found Git from '%GIT_INSTALL_ROOT%..."
+%lib_console% debug_output "Using found Git '!GIT_VERSION_USER!' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
@@ -371,9 +369,9 @@ call "%user_aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    %lib_console% verbose_output "Running Git for Windows one time Post Install...."
+    echo Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
-    "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
+    "%GIT_INSTALL_ROOT%\git-cmd.exe" --no-needs-console --no-cd --command=post-install.bat
     popd
 )
 
