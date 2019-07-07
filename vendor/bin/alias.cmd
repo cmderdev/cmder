@@ -119,10 +119,6 @@ echo.Usage:
 echo.
 echo.  alias [options] [alias=alias command]
 echo.
-echo   OR
-echo.
-echo.  alias create [alias] [alias command]
-echo.
 echo.Options:
 echo.
 echo.  Note: Options MUST precede the alias definition.
