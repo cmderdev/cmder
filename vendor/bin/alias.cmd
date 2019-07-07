@@ -48,28 +48,9 @@ goto parseargument
       doskey /macros | %WINDIR%\System32\findstr /b %currentarg%= && exit /b
       echo insufficient parameters.
       goto :p_help
-    ) else if "%currentarg%" == "create" (
-      set _x=%*
-
-      set _x=!_x:^^=^^^^!
-      set action=create
-      if ["%_f%"] neq [""] (
-        for /f "tokens=1,2,3,* usebackq" %%G in (`echo !_x!`) do (
-          set _x=%%J
-        )
-      ) else (
-        for /f "tokens=1,2,* usebackq" %%G in (`echo !_x!`) do (
-          set _x=%%H %%I
-        )
-      )
     ) else (
+      :: handle quotes within command definition, e.g. quoted long file names
       set _x=%*
-      if ["%_f%"] neq [""] (
-        set _x=!_x:^^=^^^^!
-        for /f "tokens=1,2,* usebackq" %%G in (`echo !_x!`) do (
-          set _x=%%I
-        )
-      )
     )
   )
 
@@ -88,25 +69,17 @@ if "%ALIASES%" neq "%CMDER_ROOT%\config\user_aliases.cmd" (
   )
 )
 
-:: create with multiple parameters
-if [%action%] == [create] (
-  for /f "tokens=1,* usebackq" %%G in (`echo !_x!`) do (
-    set alias_name=%%G
-    set alias_value=%%H
-  )
-) else (
-  :: validate alias
-  for /f "delims== tokens=1,* usebackq" %%G in (`echo "!_x!"`) do (
-    set alias_name=%%G
-    set alias_value=%%H
-  )
-
-  :: leading quotes added while validating
-  set alias_name=!alias_name:~1!
-  
-  :: trailing quotes added while validating
-  set alias_value=!alias_value:~0,-1!
+:: validate alias
+for /f "delims== tokens=1,* usebackq" %%G in (`echo "!_x!"`) do (
+  set alias_name=%%G
+  set alias_value=%%H
 )
+
+:: leading quotes added while validating
+set alias_name=!alias_name:~1!
+
+:: trailing quotes added while validating
+set alias_value=!alias_value:~0,-1!
 
 ::remove spaces
 set _temp=%alias_name: =%
