@@ -2,8 +2,17 @@
 
 ## [Unreleased]
 
+* Question issue: [#2094](https://github.com/cmderdev/cmder/issues/2094)
+* Pull Request  : [#2096](https://github.com/cmderdev/cmder/pull/2096)
+  * New argument created to ConEmu forwarding arguments.
+    * Syntax: `/x [ConEmu extras arguments]`
+    *   e.g.: `Cmder.exe /x "-min -tsa"`
+
 ### Fixes
 
+* Pull Request: [#2106](https://github.com/cmderdev/cmder/pull/2106)
+  * Portable Git requires running `post-install.bat` which deletes itself when done.  This was not happening.
+  * Resolves [#2105](https://github.com/cmderdev/cmder/issues/2105) 
 * Pull Request: [#2002](https://github.com/cmderdev/cmder/pull/2002)
   * Updated the HG prompt code to use the '-ib' option to 'hg id' so the branch name is always available, regardless of the state of the working copy
 
@@ -14,6 +23,16 @@
   * Provide default settings for Clink that updates the history file in real time
     * Turn this on in existing Cmder using `clink set history_io 1`
   * Allow clink disable by setting CMDER_CLINK=0 before starting task
+* Pull Request: [#2068](https://github.com/cmderdev/cmder/pull/2068)
+  * Print Index in History Command Output.
+  * Sets default `history_expand_mode = 3` in initial Clink Settings.
+
+### Adds
+
+* Pull Request: [#2072](https://github.com/cmderdev/cmder/pull/2072)
+  * New alias create [alias] [alias command] syntax
+    * Based on [#1750](https://github.com/cmderdev/cmder/pull/1750)
+    * Syntax: `alias create [alias] [alias command]`
 
 ## [1.3.11](https://github.com/cmderdev/cmder/tree/v1.3.11) (2018-12-22)
 

@@ -189,12 +189,15 @@ end
 -- @return {false|mercurial branch name}
 ---
 local function get_hg_branch()
-    for line in io.popen("hg branch 2>nul"):lines() do
+    local file = io.popen("hg branch 2>nul")
+    for line in file:lines() do
         local m = line:match("(.+)$")
         if m then
+            file:close()
             return m
         end
     end
+    file:close()
 
     return false
 end
@@ -204,12 +207,15 @@ end
 -- @return {false|svn branch name}
 ---
 local function get_svn_branch(svn_dir)
-    for line in io.popen("svn info 2>nul"):lines() do
+    local file = io.popen("svn info 2>nul")
+    for line in file:lines() do
         local m = line:match("^Relative URL:")
         if m then
+            file:close()
             return line:sub(line:find("/")+1,line:len())
         end
     end
+    file:close()
 
     return false
 end

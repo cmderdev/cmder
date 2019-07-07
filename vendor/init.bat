@@ -369,9 +369,9 @@ call "%user_aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    %lib_console% verbose_output "Running Git for Windows one time Post Install...."
+    echo Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
-    "%GIT_INSTALL_ROOT%\git-bash.exe" --no-needs-console --hide --no-cd --command=post-install.bat
+    "%GIT_INSTALL_ROOT%\git-cmd.exe" --no-needs-console --no-cd --command=post-install.bat
     popd
 )
 
