@@ -2,12 +2,6 @@
 
 ## [Unreleased]
 
-* Question issue: [#2094](https://github.com/cmderdev/cmder/issues/2094)
-* Pull Request  : [#2096](https://github.com/cmderdev/cmder/pull/2096)
-  * New argument created to ConEmu forwarding arguments.
-    * Syntax: `/x [ConEmu extras arguments]`
-    *   e.g.: `Cmder.exe /x "-min -tsa"`
-
 ### Fixes
 
 * Pull Request: [#2122](https://github.com/cmderdev/cmder/pull/2122)
@@ -35,6 +29,11 @@
 
 ### Adds
 
+* Pull Request  : [#2096](https://github.com/cmderdev/cmder/pull/2096)
+  * Question issue: [#2094](https://github.com/cmderdev/cmder/issues/2094)
+  * New argument created to ConEmu forwarding arguments.
+    * Syntax: `/x [ConEmu extras arguments]`
+    *   e.g.: `Cmder.exe /x "-min -tsa"`
 * Pull Request: [#2072](https://github.com/cmderdev/cmder/pull/2072)
   * New alias create [alias] [alias command] syntax
     * Based on [#1750](https://github.com/cmderdev/cmder/pull/1750)
