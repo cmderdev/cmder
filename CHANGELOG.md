@@ -1,17 +1,9 @@
 # Change Log
 
-## [Unreleased]
-
-* Question issue: [#2094](https://github.com/cmderdev/cmder/issues/2094)
-* Pull Request  : [#2096](https://github.com/cmderdev/cmder/pull/2096)
-  * New argument created to ConEmu forwarding arguments.
-    * Syntax: `/x [ConEmu extras arguments]`
-    *   e.g.: `Cmder.exe /x "-min -tsa"`
+## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-08-18)
 
 ### Fixes
 
-* Pull Request: [#2122](https://github.com/cmderdev/cmder/pull/2122)
-  * Restore old `alias.cmd` without `create` syntax because it did not work in all situations.
 * Pull Request: [#2113](https://github.com/cmderdev/cmder/pull/2113)
   * Add `vendor\bin\vscode_init.cmd` for use with Visual Studio Code
   * Fixes [#2118](https://github.com/cmderdev/cmder/issues/2118)
@@ -35,10 +27,11 @@
 
 ### Adds
 
-* Pull Request: [#2072](https://github.com/cmderdev/cmder/pull/2072)
-  * New alias create [alias] [alias command] syntax
-    * Based on [#1750](https://github.com/cmderdev/cmder/pull/1750)
-    * Syntax: `alias create [alias] [alias command]`
+* Pull Request  : [#2096](https://github.com/cmderdev/cmder/pull/2096)
+  * Question issue: [#2094](https://github.com/cmderdev/cmder/issues/2094)
+  * New argument created to ConEmu forwarding arguments.
+    * Syntax: `/x [ConEmu extras arguments]`
+    *   e.g.: `Cmder.exe /x "-min -tsa"`
 
 ## [1.3.11](https://github.com/cmderdev/cmder/tree/v1.3.11) (2018-12-22)
 
