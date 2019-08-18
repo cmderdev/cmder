@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-08-18)
 
 ### Fixes
 
