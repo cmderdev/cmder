@@ -633,6 +633,20 @@ cmderOptions GetOption()
 				cmderOptions.cmderConEmuArgs = szArgList[i + 1];
 				i++;
 			}
+			/* All remaining args are passed to conemu */
+			else if (_wcsicmp(L"--", szArgList[i]) == 0)
+			{
+				i++;
+				for (int j = i; j < argCount; j++)
+				{
+					if (j != i) 
+					{
+						cmderOptions.cmderConEmuArgs += L" ";
+					}
+					cmderOptions.cmderConEmuArgs += szArgList[j];
+				}
+				break;
+			}
 			else if (cmderOptions.cmderStart == L"")
 			{
 				int len = wcslen(szArgList[i]);
