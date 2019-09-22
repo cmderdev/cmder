@@ -543,6 +543,20 @@ struct cmderOptions
 
 cmderOptions GetOption()
 {
+	// Pull doubledash arguments directly from the commandline
+	// so that quotemarks  and spaces are retained.
+	// To avoid interpreting a doubledash embedded in a string as a
+	// command argument, wait until we find the doubledash in the 
+	// szArgList before adding it to the cmderOptions.
+	
+	std::wstring doubledash_args = L"";
+	std::wstring cmdline = std::wstring(GetCommandLineW());
+	auto doubledash = cmdline.find(L" -- ");
+	if (doubledash != std::string::npos)
+	{
+		doubledash_args = cmdline.substr(doubledash + 4);
+	}
+
 	cmderOptions cmderOptions;
 	LPWSTR *szArgList;
 	int argCount;
@@ -633,18 +647,10 @@ cmderOptions GetOption()
 				cmderOptions.cmderConEmuArgs = szArgList[i + 1];
 				i++;
 			}
-			/* All remaining args are passed to conemu */
+			/* Bare double dash, remaining commandline is for conemu */
 			else if (_wcsicmp(L"--", szArgList[i]) == 0)
 			{
-				i++;
-				for (int j = i; j < argCount; j++)
-				{
-					if (j != i) 
-					{
-						cmderOptions.cmderConEmuArgs += L" ";
-					}
-					cmderOptions.cmderConEmuArgs += szArgList[j];
-				}
+				cmderOptions.cmderConEmuArgs = doubledash_args;
 				break;
 			}
 			else if (cmderOptions.cmderStart == L"")
