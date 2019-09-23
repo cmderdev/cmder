@@ -636,7 +636,6 @@ cmderOptions GetOption()
 			/* Bare double dash, remaining commandline is for conemu */
 			else if (_wcsicmp(L"--", szArgList[i]) == 0)
 			{
-				std::wstring doubledash_args = L"";
 				std::wstring cmdline = std::wstring(GetCommandLineW());
 				auto doubledash = cmdline.find(L" -- ");
 				if (doubledash != std::string::npos)
