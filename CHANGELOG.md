@@ -2,11 +2,10 @@
 
 ## [Unreleased]
 
-* Question issue: [#2094](https://github.com/cmderdev/cmder/issues/2094)
-* Pull Request  : [#2096](https://github.com/cmderdev/cmder/pull/2096)
-  * New argument created to ConEmu forwarding arguments.
-    * Syntax: `/x [ConEmu extras arguments]`
-    *   e.g.: `Cmder.exe /x "-min -tsa"`
+* Update Clink to 0.3.4
+* Fix powershell foreground color changingf to green
+
+## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.11) (2019-08-18)
 
 ### Fixes
 
@@ -34,6 +33,12 @@
   * Sets default `history_expand_mode = 3` in initial Clink Settings.
 
 ### Adds
+
+* Pull Request  : [#2096](https://github.com/cmderdev/cmder/pull/2096)
+  * Question issue: [#2094](https://github.com/cmderdev/cmder/issues/2094)
+  * New argument created to ConEmu forwarding arguments.
+    * Syntax: `/x [ConEmu extras arguments]`
+    *   e.g.: `Cmder.exe /x "-min -tsa"`
 
 * Pull Request: [#2072](https://github.com/cmderdev/cmder/pull/2072)
   * New alias create [alias] [alias command] syntax

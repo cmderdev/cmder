@@ -177,6 +177,7 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
   [ScriptBlock]$PostPrompt = {}
   [ScriptBlock]$CmderPrompt = {
       $Host.UI.RawUI.ForegroundColor = "White"
+      Write-Host -NoNewline "$([char]0x200B)"
       Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
       if (get-command git -erroraction silentlycontinue) {
           checkGit($pwd.ProviderPath)
