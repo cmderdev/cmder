@@ -9,8 +9,6 @@
 
 ### Fixes
 
-* Pull Request: [#2122](https://github.com/cmderdev/cmder/pull/2122)
-  * Restore old `alias.cmd` without `create` syntax because it did not work in all situations.
 * Pull Request: [#2113](https://github.com/cmderdev/cmder/pull/2113)
   * Add `vendor\bin\vscode_init.cmd` for use with Visual Studio Code
   * Fixes [#2118](https://github.com/cmderdev/cmder/issues/2118)

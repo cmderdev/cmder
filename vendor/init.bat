@@ -141,14 +141,14 @@ if "%CMDER_CLINK%" == "1" (
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\settings"
       echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
     )
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor" --nolog
   ) else (
     if not exist "%CMDER_ROOT%\config\settings" (
       echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\settings"
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor" --nolog
   )
 ) else (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
