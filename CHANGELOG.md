@@ -1,6 +1,11 @@
 # Change Log
 
-## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-08-18)
+## [Unreleased]
+
+* Update Clink Completions to 0.3.4
+* Fix powershell foreground color changing to green
+
+## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.11) (2019-08-18)
 
 ### Fixes
 
@@ -32,6 +37,11 @@
   * New argument created to ConEmu forwarding arguments.
     * Syntax: `/x [ConEmu extras arguments]`
     *   e.g.: `Cmder.exe /x "-min -tsa"`
+
+* Pull Request: [#2072](https://github.com/cmderdev/cmder/pull/2072)
+  * New alias create [alias] [alias command] syntax
+    * Based on [#1750](https://github.com/cmderdev/cmder/pull/1750)
+    * Syntax: `alias create [alias] [alias command]`
 
 ## [1.3.11](https://github.com/cmderdev/cmder/tree/v1.3.11) (2018-12-22)
 
