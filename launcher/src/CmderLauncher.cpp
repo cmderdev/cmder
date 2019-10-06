@@ -633,6 +633,17 @@ cmderOptions GetOption()
 				cmderOptions.cmderConEmuArgs = szArgList[i + 1];
 				i++;
 			}
+			/* Bare double dash, remaining commandline is for conemu */
+			else if (_wcsicmp(L"--", szArgList[i]) == 0)
+			{
+				std::wstring cmdline = std::wstring(GetCommandLineW());
+				auto doubledash = cmdline.find(L" -- ");
+				if (doubledash != std::string::npos)
+				{
+					cmderOptions.cmderConEmuArgs = cmdline.substr(doubledash + 4);
+				}
+				break;
+			}
 			else if (cmderOptions.cmderStart == L"")
 			{
 				int len = wcslen(szArgList[i]);
