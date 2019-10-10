@@ -173,14 +173,21 @@ if (! (Test-Path $CmderUserProfilePath) ) {
 if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionState.Path.CurrentLocation\)\$\(' -and `
   $(get-command prompt).Definition -match '\(\$nestedPromptLevel \+ 1\)\) ";') {
   # Pre assign the hooks so the first run of cmder gets a working prompt.
-  [ScriptBlock]$PrePrompt = {}
-  [ScriptBlock]$PostPrompt = {}
-  [ScriptBlock]$CmderPrompt = {
-      $Host.UI.RawUI.ForegroundColor = "White"
-      Write-Host -NoNewline "$([char]0x200B)"
-      Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-      if (get-command git -erroraction silentlycontinue) {
+  if (($Null -eq $PrePrompt) -or [string]::IsNullOrEmpty($PrePrompt.ToString().Trim())) {
+    [ScriptBlock]$PrePrompt = {}
+  }
+  if (($Null -eq $PostPrompt) -or [string]::IsNullOrEmpty($PostPrompt.ToString().Trim())) {
+    [ScriptBlock]$PostPrompt = {}
+  }
+  if (($Null -eq $CmderPrompt) -or [string]::IsNullOrEmpty($CmderPrompt.ToString().Trim())) {
+    [ScriptBlock]$CmderPrompt = {
+        $Host.UI.RawUI.ForegroundColor = "White"
+        Write-Host -NoNewline "$([char]0x200B)"
+        Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
+        if (get-command git -erroraction silentlycontinue) {
           checkGit($pwd.ProviderPath)
+        }
+        Write-Host "`nλ" -NoNewLine -ForegroundColor Magenta
       }
   }
 
@@ -194,7 +201,6 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
       $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
       PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
       CmderPrompt
-      Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
       PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
       $global:LASTEXITCODE = $realLASTEXITCODE
       return " "
