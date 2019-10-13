@@ -2,15 +2,10 @@
 
 ## [Unreleased]
 
-<<<<<<< HEAD
-* Update Clink to 0.3.4
-* Fix powershell foreground color changingf to green
-=======
 * Update Clink Completions to 0.3.4
 * Fix powershell foreground color changing to green
->>>>>>> 4575ac3209f7d513504bcaf80b41ef1106c9406a
 
-## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.11) (2019-08-18)
+## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-08-18)
 
 ### Fixes
 
