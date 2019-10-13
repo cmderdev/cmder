@@ -38,7 +38,6 @@ exit /b
 :::  path       <out> Sets the path env variable if required.
 :::-------------------------------------------------------------------------------
 
-    setlocal enabledelayedexpansion
     if "%~1" neq "" (
         set "add_path=%~1"
     ) else (
@@ -58,8 +57,14 @@ exit /b
       ) else (
         set "PATH=%add_path%;%PATH%"
       )
-      goto :end_enhance_path
     )
+
+    set "PATH=%PATH:;;=;%"
+    if "%fast_init%" == "1" (
+      exit /b
+    )
+
+    setlocal enabledelayedexpansion
 
     set found=0
     set "find_query=%add_path%"
@@ -125,7 +130,6 @@ exit /b
 :::.
 :::  path       <out> Sets the path env variable if required.
 :::-------------------------------------------------------------------------------
-    setlocal enabledelayedexpansion
     if "%~1" neq "" (
         set "add_path=%~1"
     ) else (
@@ -147,10 +151,15 @@ exit /b
 
     if "%fast_init%" == "1" (
       call :enhance_path "%add_path%" %position%
-      goto :end_enhance_path_recursive
     )
 
-    if "%depth%" == "" set depth=0
+    set "PATH=%PATH:;;=;%"
+    if "%fast_init%" == "1" (
+      exit /b
+    )
+
+    setlocal enabledelayedexpansion
+     if "%depth%" == "" set depth=0
 
     %lib_console% debug_output  :enhance_path_recursive "Env Var - add_path=%add_path%"
     %lib_console% debug_output  :enhance_path_recursive "Env Var - position=%position%"

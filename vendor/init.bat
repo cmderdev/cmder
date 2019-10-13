@@ -165,7 +165,6 @@ if not defined TERM set TERM=cygwin
 :: * test if a git is in path and if yes, use that
 :: * last, use our vendored git
 :: also check that we have a recent enough version of git by examining the version string
-setlocal enabledelayedexpansion
 if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
 ) else if "%fast_init%" == "1" (
@@ -182,6 +181,7 @@ if defined GIT_INSTALL_ROOT (
 %lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
 
 :: check if git is in path...
+setlocal enabledelayedexpansion
 for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     :: get the absolute path to the user provided git binary
     pushd %%~dpF
@@ -219,21 +219,19 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
             set test_dir=
         )
     ) else (
-
         :: if the user provided git executable is not found
         if !errorlevel! equ -255 (
             call :verbose_output No git at "!git_executable!" found.
             set test_dir=
         )
-
     )
 )
+endlocal & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%" & set "GIT_VERSION_VENDORED=%GIT_VERSION_VENDORED%"
 
 :: our last hope: our own git...
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %lib_console% debug_output "Using vendored Git '!GIT_VERSION_VENDORED!' from '!GIT_INSTALL_ROOT!..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
@@ -249,43 +247,42 @@ goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
 :: Add git to the path
-if defined GIT_INSTALL_ROOT (
-    rem add the unix commands at the end to not shadow windows commands like more
-    if %nix_tools% equ 1 (
-        %lib_console% debug_output init.bat "Preferring Windows commands"
-        set "path_position=append"
-    ) else (
-        %lib_console% debug_output init.bat "Preferring *nix commands"
-        set "path_position="
-    )
+rem add the unix commands at the end to not shadow windows commands like more
+if %nix_tools% equ 1 (
+    %lib_console% debug_output init.bat "Preferring Windows commands"
+    set "path_position=append"
+) else (
+    %lib_console% debug_output init.bat "Preferring *nix commands"
+    set "path_position="
+)
 
-    if exist "!GIT_INSTALL_ROOT!\cmd\git.exe" %lib_path% enhance_path "!GIT_INSTALL_ROOT!\cmd" !path_position!
-    if exist "!GIT_INSTALL_ROOT!\mingw32" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw32\bin" !path_position!
-    ) else if exist "!GIT_INSTALL_ROOT!\mingw64" (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\mingw64\bin" !path_position!
-    )
+if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" %path_position%
+if exist "%GIT_INSTALL_ROOT%\mingw32" (
+    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
+) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
+    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
+)
 
-    if %nix_tools% geq 1 (
-        %lib_path% enhance_path "!GIT_INSTALL_ROOT!\usr\bin" !path_position!
-    )
+if %nix_tools% geq 1 (
+    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
+)
 
-    :: define SVN_SSH so we can use git svn with ssh svn repositories
-    if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
-    
-    if not defined LANG (
-        :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
-        if not defined git_locale if exist "!GIT_INSTALL_ROOT!\usr\bin\locale.exe" set git_locale="!GIT_INSTALL_ROOT!\usr\bin\locale.exe"
-        if not defined git_locale for /F "delims=" %%F in ('where locale.exe 2^>nul') do (if not defined git_locale  set git_locale="%%F")
-        if not defined git_locale if exist "!GIT_INSTALL_ROOT!\usr\bin\env.exe" set git_locale="!GIT_INSTALL_ROOT!\usr\bin\env.exe" /usr/bin/locale
-        if not defined git_locale set git_locale=env /usr/bin/locale
-        for /F "delims=" %%F in ('!git_locale! -uU 2') do (
-            set "LANG=%%F"
-        )
+:: define SVN_SSH so we can use git svn with ssh svn repositories
+if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
+
+:: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
+if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\locale.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\locale.exe"
+if not defined git_locale for /F "delims=" %%F in ('where locale.exe 2^>nul') do (if not defined git_locale  set git_locale="%%F")
+if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale
+if not defined git_locale set git_locale=env /usr/bin/locale
+
+%lib_console% debug_output init.bat "Env Var - git_locale=%git_locale%"
+if not defined LANG (
+    for /F "delims=" %%F in ('%git_locale% -uU 2') do (
+        set "LANG=%%F"
     )
 )
 
-endlocal & set "PATH=%PATH%" & set "LANG=%LANG%" & set "SVN_SSH=%SVN_SSH%" & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 %lib_console% debug_output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
 %lib_console% debug_output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
 goto :PATH_ENHANCE
@@ -331,22 +328,12 @@ if "%CMDER_ALIASES%" == "1" (
   )
 
   REM Make sure we have a self-extracting user_aliases.cmd file
-  setlocal enabledelayedexpansion
+  REM setlocal enabledelayedexpansion
   if not exist "%user_aliases%" (
       echo Creating initial user_aliases store in "%user_aliases%"...
       copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
   ) else (
-      type "%user_aliases%" | %WINDIR%\System32\findstr /i ";= Add aliases below here" >nul
-      if "!errorlevel!" == "1" (
-          echo Creating initial user_aliases store in "%user_aliases%"...
-          if defined CMDER_USER_CONFIG (
-              copy "%user_aliases%" "%user_aliases%.old_format"
-              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
-          ) else (
-              copy "%user_aliases%" "%user_aliases%.old_format"
-              copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
-          )
-      )
+    %lib_base% update_legacy_aliases
   )
 
   :: Update old 'user_aliases' to new self executing 'user_aliases.cmd'
@@ -359,7 +346,7 @@ if "%CMDER_ALIASES%" == "1" (
     type "%user_aliases%.old_format" >> "%user_aliases%"
     del "%user_aliases%.old_format"
   )
-  endlocal
+  REM endlocal
 )
 
 :: Add aliases to the environment
