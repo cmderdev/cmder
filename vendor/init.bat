@@ -181,54 +181,14 @@ if defined GIT_INSTALL_ROOT (
 %lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
 
 :: check if git is in path...
-setlocal enabledelayedexpansion
 for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     :: get the absolute path to the user provided git binary
-    pushd %%~dpF
-    :: check if there's shim - and if yes follow the path
-    if exist git.shim (
-        for /F "tokens=2 delims== " %%I in (git.shim) do (
-            pushd %%~dpI
-            set "test_dir=!CD!"
-            popd
-        )
-    ) else (
-        set "test_dir=!CD!"
-    )
-    popd
-
-    :: get the version information for the user provided git binary
-    %lib_git% read_version USER "!test_dir!"
-    %lib_git% validate_version USER !GIT_VERSION_USER!
-
-    if !errorlevel! geq 0 (
-        :: compare the user git version against the vendored version
-        %lib_git% compare_versions USER VENDORED
-
-        :: use the user provided git if its version is greater than, or equal to the vendored git
-        if !errorlevel! geq 0 if exist "!test_dir:~0,-4!\cmd\git.exe" (
-            set "GIT_INSTALL_ROOT=!test_dir:~0,-4!"
-            set test_dir=
-            goto :FOUND_GIT
-        ) else if !errorlevel! geq 0 (
-            set "GIT_INSTALL_ROOT=!test_dir!"
-            set test_dir=
-            goto :FOUND_GIT
-        ) else (
-            call :verbose_output Found old !GIT_VERSION_USER! in "!test_dir!", but not using...
-            set test_dir=
-        )
-    ) else (
-        :: if the user provided git executable is not found
-        if !errorlevel! equ -255 (
-            call :verbose_output No git at "!git_executable!" found.
-            set test_dir=
-        )
-    )
+    call :is_git_shim "%%~dpF"
+    call :get_user_git_version
+    call :compare_git_versions
 )
-endlocal & set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%" & set "GIT_VERSION_VENDORED=%GIT_VERSION_VENDORED%"
 
-:: our last hope: our own git...
+
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
@@ -242,7 +202,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%lib_console% debug_output "Using found Git '!GIT_VERSION_USER!' from '%GIT_INSTALL_ROOT%..."
+%lib_console% debug_output "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
@@ -407,3 +367,56 @@ if %time_init% gtr 0 (
   "%cmder_root%\vendor\bin\timer.cmd" %CMDER_INIT_START% %CMDER_INIT_END%
 )
 exit /b
+
+:is_git_shim
+    pushd "%~1"
+    :: check if there's shim - and if yes follow the path
+    setlocal enabledelayedexpansion
+    if exist git.shim (
+        for /F "tokens=2 delims== " %%I in (git.shim) do (
+            pushd %%~dpI
+            set "test_dir=!CD!"
+            popd
+        )
+    ) else (
+        set "test_dir=!CD!"
+    )
+    endlocal & set "test_dir=%test_dir%"
+
+    popd
+    exit /b
+
+:compare_git_versions
+    if %errorlevel% geq 0 (
+        :: compare the user git version against the vendored version
+        %lib_git% compare_versions USER VENDORED
+
+        :: use the user provided git if its version is greater than, or equal to the vendored git
+        if %errorlevel% geq 0 if exist "%test_dir:~0,-4%\cmd\git.exe" (
+            set "GIT_INSTALL_ROOT=%test_dir:~0,-4%"
+            set test_dir=
+            goto :FOUND_GIT
+        ) else if %errorlevel% geq 0 (
+            set "GIT_INSTALL_ROOT=%test_dir%"
+            set test_dir=
+            goto :FOUND_GIT
+        ) else (
+            call :verbose_output Found old %GIT_VERSION_USER% in "%test_dir%", but not using...
+            set test_dir=
+        )
+    ) else (
+        :: if the user provided git executable is not found
+        if %errorlevel% equ -255 (
+            call :verbose_output No git at "%git_executable%" found.
+            set test_dir=
+        )
+    )
+    exit /b
+
+:get_user_git_version
+
+    :: get the version information for the user provided git binary
+    %lib_git% read_version USER "%test_dir%"
+    %lib_git% validate_version USER %GIT_VERSION_USER%
+    exit  /b
+
