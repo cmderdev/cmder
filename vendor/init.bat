@@ -328,7 +328,6 @@ if "%CMDER_ALIASES%" == "1" (
   )
 
   REM Make sure we have a self-extracting user_aliases.cmd file
-  REM setlocal enabledelayedexpansion
   if not exist "%user_aliases%" (
       echo Creating initial user_aliases store in "%user_aliases%"...
       copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
@@ -346,7 +345,6 @@ if "%CMDER_ALIASES%" == "1" (
     type "%user_aliases%.old_format" >> "%user_aliases%"
     del "%user_aliases%.old_format"
   )
-  REM endlocal
 )
 
 :: Add aliases to the environment
