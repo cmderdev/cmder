@@ -34,8 +34,6 @@ exit /b
 :::  GIT_VERSION_[GIT SCOPE] <out> Env variable containing Git semantic version string
 :::-------------------------------------------------------------------------------
 
-echo CMDER_HERE1.2
-
     setlocal enabledelayedexpansion
     :: clear the variables
     set GIT_VERSION_%~1=
