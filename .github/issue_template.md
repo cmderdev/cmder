@@ -107,7 +107,7 @@
 ### Version Information
 <!-- Please write your Cmder and ConEmu version below this line -->
 
-<!-- If applicable, write down your Windows edition too below this line (e.g. Windows 10 Pro 1809) -->
+<!-- If applicable, write down your Windows edition too below this line (e.g. Windows 10 Pro 1903) -->
 
 ### Description of the issue
 <!-- Provide a clear, simple description of your issue below this line -->
