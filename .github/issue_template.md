@@ -84,7 +84,10 @@
 <!--
   Some tips on how to write a better report:
   - Put an `x` into all the boxes [ ] relevant to your issue (correct example: [x] -- not like this: [ x] or [x ]).
+  - Any text that is between the the commment tags will get ignored, e.g.: <!-- this will NOT work -- >
+    You need to write your text either outside the tags, or the line below it.
   - Use the *Preview* tab to see how your issue will actually look like, before sending it.
+    ⚠ If for some reason you can not see the text you just wrote, make sure you've read the instructions clearly
   - Make sure the description is worded well enough to be understood, and with as much context and examples as possible.
   - Post a screenshot or the command the triggered the problem, if applicable.
   - Avoid using ambiguous phrases like: doesn't work, there'a problem, etc.
@@ -93,6 +96,7 @@
     We can't process your issue if it's written in Russian or Chinese as we can't understand them.
   - You can find the version of Cmder.exe and ConEmu.exe binaries using Right Click → Properties → Details menu.
   - ⚠ Read the following page to avoid posting a bad issue: https://conemu.github.io/en/BadIssue.html
+  - Failure to follow these guidelines may result in your issue getting closed. So please follow it carefully!
 -->
 
 ### Purpose of the issue
@@ -101,9 +105,9 @@
 - [ ] Question
 
 ### Version Information
-<!-- Please write your Cmder and ConEmu version here -->
+<!-- Please write your Cmder and ConEmu version below this line -->
 
-<!-- If applicable, write down your Windows edition too (e.g. Windows 10 Pro 1809) -->
+<!-- If applicable, write down your Windows edition too below this line (e.g. Windows 10 Pro 1903) -->
 
 ### Description of the issue
-<!-- Provide a clear, simple description of your issue here -->
+<!-- Provide a clear, simple description of your issue below this line -->
