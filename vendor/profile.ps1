@@ -44,7 +44,7 @@ function Configure-Git($GIT_INSTALL_ROOT){
   if ((test-path "$GIT_INSTALL_ROOT\usr\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\usr\\bin")) {
       $env:path = "$env:path;$GIT_INSTALL_ROOT\usr\bin"
   }
-  
+
   # Add "$GIT_INSTALL_ROOT\mingw[32|64]\bin" to the path if exists and not done already
   if ((test-path "$GIT_INSTALL_ROOT\mingw32\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw32\\bin")) {
       $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw32\bin"
@@ -94,6 +94,18 @@ if ( Get-command -Name "vim" -ErrorAction silentlycontinue) {
 
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     Set-PSReadlineOption -ExtraPromptLineCount 1
+}
+
+# Pre assign default prompt hooks so the first run of cmder gets a working prompt.
+[ScriptBlock]$PrePrompt = {}
+[ScriptBlock]$PostPrompt = {}
+[ScriptBlock]$CmderPrompt = {
+    $Host.UI.RawUI.ForegroundColor = "White"
+    Write-Host -NoNewline "$([char]0x200B)"
+    Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
+    if (get-command git -erroraction silentlycontinue) {
+        checkGit($pwd.ProviderPath)
+    }
 }
 
 # Enhance Path
@@ -172,17 +184,6 @@ if (! (Test-Path $CmderUserProfilePath) ) {
 # This allows users to configure the prompt in their user_profile.ps1 or config\profile.d\*.ps1
 if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionState.Path.CurrentLocation\)\$\(' -and `
   $(get-command prompt).Definition -match '\(\$nestedPromptLevel \+ 1\)\) ";') {
-  # Pre assign the hooks so the first run of cmder gets a working prompt.
-  [ScriptBlock]$PrePrompt = {}
-  [ScriptBlock]$PostPrompt = {}
-  [ScriptBlock]$CmderPrompt = {
-      $Host.UI.RawUI.ForegroundColor = "White"
-      Write-Host -NoNewline "$([char]0x200B)"
-      Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-      if (get-command git -erroraction silentlycontinue) {
-          checkGit($pwd.ProviderPath)
-      }
-  }
 
   <#
   This scriptblock runs every time the prompt is returned.
