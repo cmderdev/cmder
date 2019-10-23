@@ -188,7 +188,7 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     call :compare_git_versions
 )
 
-
+:: our last hope: our own git...
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
