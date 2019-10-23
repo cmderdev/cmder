@@ -106,7 +106,7 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     if (get-command git -erroraction silentlycontinue) {
         checkGit($pwd.ProviderPath)
     }
-    Write-Host "`nλ" -NoNewLine -ForegroundColor Magenta
+    Write-Host "`nλ" -NoNewLine -ForegroundColor DarkGray
 }
 
 # Enhance Path
