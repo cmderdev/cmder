@@ -8,6 +8,7 @@
 
 * #2174 `--` Syntax to pass command line options to Conemu.
 * Disable Clink Logging
+* Add `~` tab completion.
 
 
 ### Fixes
