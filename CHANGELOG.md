@@ -2,10 +2,24 @@
 
 ## [Unreleased]
 
-* Update Clink Completions to 0.3.4
-* Fix powershell foreground color changing to green
+## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-10-27)
 
-## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.11) (2019-08-18)
+### Adds
+
+* #2174 `--` Syntax to pass command line options to Conemu.
+* Disable Clink Logging
+* Add `~` tab completion.
+
+
+### Fixes
+
+* Fix #2192: Set default prompt hooks before loading user profile
+* Fix #2097, #1899: powershell foreground color changing to green
+* Fix #1979: Update Clink Completions to 0.3.4
+* Fix #1678: Cmder corrupting path with `!` in Cmder folder path.
+
+
+## [1.3.12](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-08-19)
 
 ### Fixes
 
