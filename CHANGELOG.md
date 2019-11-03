@@ -2,9 +2,17 @@
 
 ## [Unreleased]
 
-## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-10-27)
+## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-11-3)
 
 ### Adds
+
+* #2197, #1364, #447 Add ability to disable git status either globally or for individual repos in `cmd::cmder*` sessions.
+  * To disable git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config`:
+
+    ```
+    [cmder]
+      status = false
+    ```
 
 * #2174 `--` Syntax to pass command line options to Conemu.
 * Disable Clink Logging
