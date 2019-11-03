@@ -92,8 +92,8 @@ _(Some shortcuts are not yet documented, though they exist - please document the
 ### Access to multiple shells in one window using tabs
 You can open multiple tabs each containing one of the following shells:
 
-| Task                | Shell          | Description                                                                                                  |
-| ----                | -----          | -----------                                                                                                  |
+| Task                | Shell            | Description                                                                                                  |
+| ----                | -----            | -----------                                                                                                  |
 | Cmder               | `cmd.exe`        | Windows `cmd.exe` shell enhanced with Git, Git aware prompt, Clink (GNU Readline), and Aliases.              |
 | Cmder as Admin      | `cmd.exe`        | Administrative Windows `cmd.exe` Cmder shell.                                                                |
 | PowerShell          | `powershell.exe` | Windows PowerShell enhanced with Git and Git aware prompt .                                                  |
@@ -175,6 +175,17 @@ You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in t
 | Cmder         | `%CMDER_ROOT%\config\profile.d\*.bat and *.cmd` |
 | PowerShell    | `$ENV:CMDER_ROOT\config\profile.d\*.ps1`        |
 | Bash/Mintty   | `$CMDER_ROOT/config/profile.d/*.sh`                 |
+
+#### Git Status Opt-Out for `Cmd::Cmder*` Sessions
+
+ To disable git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config`.
+
+ *Note: theis configuration is not portable*
+
+ ```
+ [cmder]
+   status = false
+ ```
 
 ### Aliases
 #### Cmder(`Cmd.exe`) Aliases
