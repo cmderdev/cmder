@@ -178,7 +178,7 @@ You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in t
 
 #### Git Status Opt-Out for `Cmd::Cmder*` Sessions
 
- To disable Cmder prompt git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config`.
+ To disable Cmder prompt git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config` and start a new session.
 
  *Note: This configuration is not portable*
 
