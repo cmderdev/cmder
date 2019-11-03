@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-11-3)
+## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-11-03)
 
 ### Adds
 
