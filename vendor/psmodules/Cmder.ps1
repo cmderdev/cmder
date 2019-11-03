@@ -15,7 +15,7 @@ function Configure-Git($GIT_INSTALL_ROOT){
   }
 }
 
-function Import-Git($Loaded){
+function Import-Git(){
     $GitModule = Get-Module -Name Posh-Git -ListAvailable
     if($GitModule | select version | where version -le ([version]"0.6.1.20160330")){
         Import-Module Posh-Git > $null
@@ -30,7 +30,7 @@ function Import-Git($Loaded){
 function checkGit($Path) {  
     if (Test-Path -Path (Join-Path $Path '.git') ) {
       if($env:gitLoaded -eq 'false') {
-        $env:gitLoaded = Import-Git $gitLoaded
+        $env:gitLoaded = Import-Git
       }
       Write-VcsStatus
       return

@@ -57,7 +57,6 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
 }
 
 # Pre assign default prompt hooks so the first run of cmder gets a working prompt.
-$gitLoaded = $false
 $env:gitLoaded = $false
 [ScriptBlock]$PrePrompt = {}
 [ScriptBlock]$PostPrompt = {}
