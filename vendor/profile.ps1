@@ -67,6 +67,7 @@ $env:gitLoaded = $false
     if (get-command git -erroraction silentlycontinue) {
         checkGit($pwd.ProviderPath)
     }
+    Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
 }
 
 # Enhance Path
@@ -156,7 +157,6 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
       $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
       PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
       CmderPrompt
-      Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
       PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
       $global:LASTEXITCODE = $realLASTEXITCODE
       return " "
