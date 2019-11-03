@@ -21,6 +21,7 @@
 
 ### Fixes
 
+* Fix #2191: profile.ps1: CheckGit does not export $gitLoaded
 * Fix #2192: Set default prompt hooks before loading user profile
 * Fix #2097, #1899: powershell foreground color changing to green
 * Fix #1979: Update Clink Completions to 0.3.4
