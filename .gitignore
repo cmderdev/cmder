@@ -8,7 +8,7 @@ vendor/*/*
 !vendor/bin/*
 !vendor/lib/*
 !vendor/*
-!vendor/psmodules/PsGet
+!vendor/psmodules/*
 
 config/*
 !config/Readme.md
