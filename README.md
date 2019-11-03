@@ -180,7 +180,7 @@ You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in t
 
  To disable git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config`.
 
- *Note: theis configuration is not portable*
+ *Note: This configuration is not portable*
 
  ```
  [cmder]
