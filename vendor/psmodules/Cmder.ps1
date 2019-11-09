@@ -32,7 +32,11 @@ function checkGit($Path) {
       if($env:gitLoaded -eq 'false') {
         $env:gitLoaded = Import-Git
       }
-      Write-VcsStatus
+
+      if (getGitStatusSetting -eq $true) {
+        Write-VcsStatus
+      }
+
       return
     }
     $SplitPath = split-path $path
@@ -41,4 +45,12 @@ function checkGit($Path) {
     }
 }
 
+function getGitStatusSetting() {
+    $gitStatus = (git config cmder.status) | out-string
 
+    if (($gitStatus -replace "`n" -replace "`r") -eq "false") {
+        return $false
+    } else {
+        return $true
+    }
+}
