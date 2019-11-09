@@ -164,19 +164,19 @@ Single user portable configuration is possible using the cmder specific shell co
 | ------------- | ----------------------------------------- |
 | Cmder         | `%CMDER_ROOT%\config\user_profile.cmd`    |
 | PowerShell    | `$ENV:CMDER_ROOT\config\user_profile.ps1` |
-| Bash/Mintty   | `$CMDER_ROOT/config/user_profile.sh`        |
+| Bash/Mintty   | `$CMDER_ROOT/config/user_profile.sh`      |
 
 Note: Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user_profile.sh`.
 
 You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in the `%CMDER_ROOT%\config\profile.d` folder to add startup config to Cmder.
 
-| Shell         | Cmder `Profile.d` Scripts                         |
-| ------------- | --------------------------------------------------|
-| Cmder         | `%CMDER_ROOT%\config\profile.d\*.bat and *.cmd` |
-| PowerShell    | `$ENV:CMDER_ROOT\config\profile.d\*.ps1`        |
-| Bash/Mintty   | `$CMDER_ROOT/config/profile.d/*.sh`                 |
+| Shell         | Cmder `Profile.d` Scripts                          |
+| ------------- | -------------------------------------------------- |
+| Cmder         | `%CMDER_ROOT%\config\profile.d\*.bat and *.cmd`    |
+| PowerShell    | `$ENV:CMDER_ROOT\config\profile.d\*.ps1`           |
+| Bash/Mintty   | `$CMDER_ROOT/config/profile.d/*.sh`                |
 
-#### Git Status Opt-Out for `Cmd::Cmder*` Sessions
+#### Git Status Opt-Out
 
  To disable Cmder prompt git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config` and start a new session.
 
