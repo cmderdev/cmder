@@ -2,9 +2,17 @@
 
 ## [Unreleased]
 
-## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-10-27)
+## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-11-03)
 
 ### Adds
+
+* #2197, #1364, #447 Add ability to disable git status either globally or for individual repos.
+  * To disable git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config`:
+
+    ```
+    [cmder]
+      status = false
+    ```
 
 * #2174 `--` Syntax to pass command line options to Conemu.
 * Disable Clink Logging
@@ -13,6 +21,7 @@
 
 ### Fixes
 
+* Fix #2191: profile.ps1: CheckGit does not export $gitLoaded
 * Fix #2192: Set default prompt hooks before loading user profile
 * Fix #2097, #1899: powershell foreground color changing to green
 * Fix #1979: Update Clink Completions to 0.3.4

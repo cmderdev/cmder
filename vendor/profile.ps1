@@ -32,51 +32,11 @@ $moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorActi
 # Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
+$CmderFunctions =  Join-Path $CmderModulePath "Cmder.ps1"
+. $CmderFunctions
+
 if(-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderModulePath) ){
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
-}
-
-function Configure-Git($GIT_INSTALL_ROOT){
-  $env:Path += $(";" + $GIT_INSTALL_ROOT + "\cmd")
-
-  # Add "$GIT_INSTALL_ROOT\usr\bin" to the path if exists and not done already
-  $GIT_INSTALL_ROOT_ESC=$GIT_INSTALL_ROOT.replace('\','\\')
-  if ((test-path "$GIT_INSTALL_ROOT\usr\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\usr\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\usr\bin"
-  }
-
-  # Add "$GIT_INSTALL_ROOT\mingw[32|64]\bin" to the path if exists and not done already
-  if ((test-path "$GIT_INSTALL_ROOT\mingw32\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw32\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw32\bin"
-  } elseif ((test-path "$GIT_INSTALL_ROOT\mingw64\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw64\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw64\bin"
-  }
-}
-
-$gitLoaded = $false
-function Import-Git($Loaded){
-    if($Loaded) { return }
-    $GitModule = Get-Module -Name Posh-Git -ListAvailable
-    if($GitModule | select version | where version -le ([version]"0.6.1.20160330")){
-        Import-Module Posh-Git > $null
-    }
-    if(-not ($GitModule) ) {
-        Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart cmder."
-    }
-    # Make sure we only run once by alawys returning true
-    return $true
-}
-
-function checkGit($Path) {
-    if (Test-Path -Path (Join-Path $Path '.git') ) {
-        $gitLoaded = Import-Git $gitLoaded
-        Write-VcsStatus
-        return
-    }
-    $SplitPath = split-path $path
-    if ($SplitPath) {
-        checkGit($SplitPath)
-    }
 }
 
 try {
@@ -97,6 +57,7 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
 }
 
 # Pre assign default prompt hooks so the first run of cmder gets a working prompt.
+$env:gitLoaded = $false
 [ScriptBlock]$PrePrompt = {}
 [ScriptBlock]$PostPrompt = {}
 [ScriptBlock]$CmderPrompt = {
@@ -106,6 +67,7 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     if (get-command git -erroraction silentlycontinue) {
         checkGit($pwd.ProviderPath)
     }
+    Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
 }
 
 # Enhance Path
@@ -195,7 +157,6 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
       $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
       PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
       CmderPrompt
-      Microsoft.PowerShell.Utility\Write-Host "`nλ " -NoNewLine -ForegroundColor "DarkGray"
       PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
       $global:LASTEXITCODE = $realLASTEXITCODE
       return " "
