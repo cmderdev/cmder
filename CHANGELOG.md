@@ -6,7 +6,7 @@
 
 ### Adds
 
-* #2197, #1364, #447 Add ability to disable git status either globally or for individual repos in `cmd::cmder*` sessions.
+* #2197, #1364, #447 Add ability to disable git status either globally or for individual repos.
   * To disable git status globally add the following to `~/.gitconfig` or locally for a single repo `[repo]/.git/config`:
 
     ```
