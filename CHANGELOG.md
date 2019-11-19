@@ -4,6 +4,10 @@
 
 ## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-11-03)
 
+### Changes
+
+* Update to Conemu 19.10.12
+
 ### Adds
 
 * #2197, #1364, #447 Add ability to disable git status either globally or for individual repos.
