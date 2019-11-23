@@ -285,7 +285,7 @@ end
 -- @return {bool}
 ---
 local function get_git_status_setting()
-    gitStatusSetting = io.popen("git --no-pager config -l")
+    gitStatusSetting = io.popen("git --no-pager config -l 2>nul")
 
     for line in gitStatusSetting:lines() do
         if string.match(line, 'cmder.status=false') or string.match(line, 'cmder.cmdstatus=false') then
