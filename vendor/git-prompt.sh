@@ -1,7 +1,7 @@
 function getGitStatusSetting() {
-  gitStatusSetting=$(git config cmder.status 2>/dev/null)  
+  gitStatusSetting=$(git --no-pager config -l 2>/dev/null)  
 
-  if [[ -n ${gitStatusSetting} ]] && [[ ${gitStatusSetting} == false ]]
+  if [[ -n ${gitStatusSetting} ]] && [[ ${gitStatusSetting} =~ cmder.status=false ]] || [[ ${gitStatusSetting} =~ cmder.shstatus=false ]]
   then
     echo false
   else
