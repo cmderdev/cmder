@@ -16,6 +16,7 @@ function Configure-Git($GIT_INSTALL_ROOT){
 }
 
 function Import-Git(){
+
     $GitModule = Get-Module -Name Posh-Git -ListAvailable
     if($GitModule | select version | where version -le ([version]"0.6.1.20160330")){
         Import-Module Posh-Git > $null
@@ -46,11 +47,13 @@ function checkGit($Path) {
 }
 
 function getGitStatusSetting() {
-    $gitStatus = (git config cmder.status) | out-string
+    $gitStatus = (git --no-pager config -l) | out-string
 
-    if (($gitStatus -replace "`n" -replace "`r") -eq "false") {
-        return $false
-    } else {
-        return $true
+    ForEach ($line in $($gitStatus -split "`r`n")) {
+        if ($line -match 'cmder.status=false' -or $line -match 'cmder.psstatus=false') {
+            return $false
+        }
     }
+
+    return $true
 }
