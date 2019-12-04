@@ -4,8 +4,9 @@
 
 ### Fixes
 
-* Cmder v1.3.13 init script fails. [#2218](https://github.com/cmderdev/cmder/issues/2218)
-* Git & env related error messages. [#2220](https://github.com/cmderdev/cmder/issues/2220)
+* Pull Request: [#2222](https://github.com/cmderdev/cmder/pull/2222)
+  * Cmder v1.3.13 init script fails. [#2218](https://github.com/cmderdev/cmder/issues/2218)
+  * Git & env related error messages. [#2220](https://github.com/cmderdev/cmder/issues/2220)
 
 ## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.13) (2019-11-03)
 
