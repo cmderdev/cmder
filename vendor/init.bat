@@ -232,15 +232,17 @@ if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 
 :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\locale.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\locale.exe"
-if not defined git_locale for /F "delims=" %%F in ('where locale.exe 2^>nul') do (if not defined git_locale  set git_locale="%%F")
+if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" )
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale
-if not defined git_locale set git_locale=env /usr/bin/locale
+if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" /usr/bin/locale )
 
-%lib_console% debug_output init.bat "Env Var - git_locale=%git_locale%"
-if not defined LANG (
-    for /F "delims=" %%F in ('%git_locale% -uU 2') do (
-        set "LANG=%%F"
-    )
+if defined git_locale (
+  %lib_console% debug_output init.bat "Env Var - git_locale=%git_locale%"
+  if not defined LANG (
+      for /F "delims=" %%F in ('%git_locale% -uU 2') do (
+          set "LANG=%%F"
+      )
+  )
 )
 
 %lib_console% debug_output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
