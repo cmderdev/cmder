@@ -141,14 +141,14 @@ if "%CMDER_CLINK%" == "1" (
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\settings"
       echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
     )
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor" --nolog
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
   ) else (
     if not exist "%CMDER_ROOT%\config\settings" (
       echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\settings"
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor" --nolog
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
   )
 ) else (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
@@ -192,13 +192,14 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
+    %lib_console% debug_output "Using vendored Git '%GIT_VERSION_VENDORED%'..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
 )
 
 :SPECIFIED_GIT
-%lib_console% debug_output "Using /GIT_INSTALL_ROOT from '%GIT_INSTALL_ROOT%..."
+%lib_console% debug_output "Using /GIT_INSTALL_ROOT..."
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
@@ -206,6 +207,7 @@ goto :CONFIGURE_GIT
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
+%lib_console% debug_output "Using Git from '%GIT_INSTALL_ROOT%..."
 :: Add git to the path
 rem add the unix commands at the end to not shadow windows commands like more
 if %nix_tools% equ 1 (
@@ -316,14 +318,8 @@ call "%user_aliases%"
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    echo Running Git for Windows one time post install - %GIT_INSTALL_ROOT%\post-install.bat"....
+    echo Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
-    copy post-install.bat post-install.cmder-bak.bat
-    if not exist "etc\post-install-cmder.bak" (
-      md etc\post-install-cmder.bak
-    )
-    xcopy etc\post-install\* etc\post-install-cmder.bak
-    copy post-install.bat post-install.cmder-bak.bat
     "%GIT_INSTALL_ROOT%\git-cmd.exe" --no-needs-console --no-cd --command=post-install.bat
     popd
 )
@@ -413,6 +409,7 @@ exit /b
             set test_dir=
         )
     ) else (
+        :: compare the user git version against the vendored version
         :: if the user provided git executable is not found
         if %errorlevel% equ -255 (
             call :verbose_output No git at "%git_executable%" found.
@@ -422,7 +419,6 @@ exit /b
     exit /b
 
 :get_user_git_version
-
     :: get the version information for the user provided git binary
     %lib_git% read_version USER "%test_dir%"
     %lib_git% validate_version USER %GIT_VERSION_USER%
