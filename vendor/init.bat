@@ -219,13 +219,13 @@ if %nix_tools% equ 1 (
 )
 
 if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" %path_position%
-if exist "%GIT_INSTALL_ROOT%\mingw32" (
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
-) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
-)
-
 if %nix_tools% geq 1 (
+    if exist "%GIT_INSTALL_ROOT%\mingw32" (
+        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
+    ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
+        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
+    )
+
     %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
 )
 
