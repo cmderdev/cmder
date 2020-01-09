@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.3.14-pre [Unreleased]
+## [1.3.14](https://github.com/cmderdev/cmder/tree/v1.3.14) (2020-01-08)
 
 ### Fixes
 
@@ -14,6 +14,8 @@
 
 * Update Git for Windows to 2.24.1.windows.2
   * Pull Request: [#2237](https://github.com/cmderdev/cmder/pull/2237)
+* Update clink-completions to 0.3.5
+  * Pull Request: [#2223](https://github.com/cmderdev/cmder/pull/2223)
 
 ## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.13) (2019-11-03)
 
