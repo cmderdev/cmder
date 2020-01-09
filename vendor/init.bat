@@ -141,14 +141,14 @@ if "%CMDER_CLINK%" == "1" (
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\settings"
       echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
     )
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor" --nolog
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
   ) else (
     if not exist "%CMDER_ROOT%\config\settings" (
       echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\settings"
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
-    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor" --nolog
+    "%CMDER_ROOT%\vendor\clink\clink_x%architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
   )
 ) else (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
@@ -192,13 +192,14 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
+    %lib_console% debug_output "Using vendored Git '%GIT_VERSION_VENDORED%'..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
 )
 
 :SPECIFIED_GIT
-%lib_console% debug_output "Using /GIT_INSTALL_ROOT from '%GIT_INSTALL_ROOT%..."
+%lib_console% debug_output "Using /GIT_INSTALL_ROOT..."
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
@@ -206,6 +207,7 @@ goto :CONFIGURE_GIT
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
+%lib_console% debug_output "Using Git from '%GIT_INSTALL_ROOT%..."
 :: Add git to the path
 rem add the unix commands at the end to not shadow windows commands like more
 if %nix_tools% equ 1 (
@@ -217,13 +219,13 @@ if %nix_tools% equ 1 (
 )
 
 if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" %path_position%
-if exist "%GIT_INSTALL_ROOT%\mingw32" (
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
-) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
-)
-
 if %nix_tools% geq 1 (
+    if exist "%GIT_INSTALL_ROOT%\mingw32" (
+        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
+    ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
+        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
+    )
+
     %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
 )
 
@@ -232,15 +234,17 @@ if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 
 :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\locale.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\locale.exe"
-if not defined git_locale for /F "delims=" %%F in ('where locale.exe 2^>nul') do (if not defined git_locale  set git_locale="%%F")
+if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" )
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale
-if not defined git_locale set git_locale=env /usr/bin/locale
+if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" /usr/bin/locale )
 
-%lib_console% debug_output init.bat "Env Var - git_locale=%git_locale%"
-if not defined LANG (
-    for /F "delims=" %%F in ('%git_locale% -uU 2') do (
-        set "LANG=%%F"
-    )
+if defined git_locale (
+  %lib_console% debug_output init.bat "Env Var - git_locale=%git_locale%"
+  if not defined LANG (
+      for /F "delims=" %%F in ('%git_locale% -uU 2') do (
+          set "LANG=%%F"
+      )
+  )
 )
 
 %lib_console% debug_output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
@@ -405,6 +409,7 @@ exit /b
             set test_dir=
         )
     ) else (
+        :: compare the user git version against the vendored version
         :: if the user provided git executable is not found
         if %errorlevel% equ -255 (
             call :verbose_output No git at "%git_executable%" found.
@@ -414,7 +419,6 @@ exit /b
     exit /b
 
 :get_user_git_version
-
     :: get the version information for the user provided git binary
     %lib_git% read_version USER "%test_dir%"
     %lib_git% validate_version USER %GIT_VERSION_USER%

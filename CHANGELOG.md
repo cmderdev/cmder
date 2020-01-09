@@ -1,8 +1,21 @@
 # Change Log
 
-## [Unreleased]
+## 1.3.14-pre [Unreleased]
 
-## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.12) (2019-11-03)
+### Fixes
+
+* Pull Request: [#2222](https://github.com/cmderdev/cmder/pull/2222)
+  * Cmder v1.3.13 init script fails. [#2218](https://github.com/cmderdev/cmder/issues/2218)
+  * Git & env related error messages. [#2220](https://github.com/cmderdev/cmder/issues/2220)
+  * Latest addition of "--nolog" clink breaks cmd prompts. [#2166](https://github.com/cmderdev/cmder/issues/2166)
+  * `/nix_tools 0` should prevent adding `%GIT_INSTALL_ROOT%\mingw64\bin` to PATH. [#2214](https://github.com/cmderdev/cmder/issues/2214)
+
+### Changes
+
+* Update Git for Windows to 2.24.1.windows.2
+  * Pull Request: [#2237](https://github.com/cmderdev/cmder/pull/2237)
+
+## [1.3.13](https://github.com/cmderdev/cmder/tree/v1.3.13) (2019-11-03)
 
 ### Changes
 
