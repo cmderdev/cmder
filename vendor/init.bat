@@ -188,6 +188,10 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     call :compare_git_versions
 )
 
+if defined GIT_INSTALL_ROOT (
+    goto :FOUND_GIT
+)
+
 :: our last hope: our own git...
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
@@ -399,11 +403,9 @@ exit /b
         if %errorlevel% geq 0 if exist "%test_dir:~0,-4%\cmd\git.exe" (
             set "GIT_INSTALL_ROOT=%test_dir:~0,-4%"
             set test_dir=
-            goto :FOUND_GIT
         ) else if %errorlevel% geq 0 (
             set "GIT_INSTALL_ROOT=%test_dir%"
             set test_dir=
-            goto :FOUND_GIT
         ) else (
             call :verbose_output Found old %GIT_VERSION_USER% in "%test_dir%", but not using...
             set test_dir=
