@@ -188,6 +188,10 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     %lib_git% compare_git_versions
 )
 
+if defined GIT_INSTALL_ROOT (
+    goto :FOUND_GIT
+)
+
 :: our last hope: our own git...
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
