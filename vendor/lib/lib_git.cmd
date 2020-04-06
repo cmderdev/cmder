@@ -239,11 +239,9 @@ exit /b
         if %errorlevel% geq 0 if exist "%test_dir:~0,-4%\cmd\git.exe" (
             set "GIT_INSTALL_ROOT=%test_dir:~0,-4%"
             set test_dir=
-            goto :FOUND_GIT
         ) else if %errorlevel% geq 0 (
             set "GIT_INSTALL_ROOT=%test_dir%"
             set test_dir=
-            goto :FOUND_GIT
         ) else (
             call :verbose_output Found old %GIT_VERSION_USER% in "%test_dir%", but not using...
             set test_dir=
