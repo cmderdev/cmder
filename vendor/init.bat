@@ -120,6 +120,8 @@ goto var_loop
 
 if defined CMDER_USER_CONFIG (
     %lib_console% debug_output init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
+
+    if not exist "%CMDER_USER_CONFIG%\opt" md "%CMDER_USER_CONFIG%\opt"
 )
 
 :: Pick right version of clink
@@ -261,9 +263,9 @@ endlocal
 
 :PATH_ENHANCE
 %lib_path% enhance_path "%CMDER_ROOT%\vendor\bin"
-%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" %max_depth%
+%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
 if defined CMDER_USER_BIN (
-  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" %max_depth%
+  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
 )
 %lib_path% enhance_path "%CMDER_ROOT%" append
 

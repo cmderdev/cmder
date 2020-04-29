@@ -23,18 +23,28 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 ### Shared Cmder install with Non-Portable Individual User Config
 1. Download the [latest release](https://github.com/cmderdev/cmder/releases/)
 2. Extract the archive to a shared location.
-3. (optional) Place your own executable files into the `%cmder_root%\bin` folder to be injected into your PATH.
-4. (optional) Create `%userprofile%\cmder_config\bin` folder to be injected into individual users PATH.  Default is to auto create this on first run.
-5. (optional) Place your own executable files into the `%userprofile%\cmder_config\bin` folder to be injected into your PATH.
-6. Run `Cmder.exe` with `/C` command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
+3. (optional) Place your own executable files and custom app folders into the `%cmder_root%\bin`. See: [opt/README.md](./bin/README)
+   - This folder to be injected into your PATH by default.
+   - See `/max_depth [1-5]` in blow table to add subdirectories recursively.
+4. (optional) Place your own custom app folders into the `%cmder_root%\opt`. See: [opt/README.md](./opt/README)
+   - This folder will NOT be injected into your PATH so you have total control of what gets added.
+5. Run `Cmder.exe` with `/C` command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
    * This will create the following directory structure if it is missing.
 
      ```
      c:\users\[username]\cmder_config
      ├───bin
-     └───config
-         └───profile.d
+     ├───config
+     │   └───profile.d
+     └───opt
      ```
+
+  - (optional) Place your own executable files and custom app folders into `%userprofile%\cmder_config\bin`.
+    - This folder to be injected into your PATH by default.
+    - See `/max_depth [1-5]` in blow table to add subdirectories recursively.
+  - (optional) Place your own custom app folders into the `%user_profile%\cmder_config\opt`.
+    - This folder will NOT be injected into your PATH so you have total control of what gets added.
+
 
 * Both the shared install and the individual user config locations can contain a full set of init and profile.d scripts enabling shared config with user overrides.  See below.
 
