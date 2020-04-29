@@ -25,7 +25,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 2. Extract the archive to a shared location.
 3. (optional) Place your own executable files and custom app folders into the `%cmder_root%\bin`. See: [opt/README.md](./bin/README)
    - This folder to be injected into your PATH by default.
-   - See `/max_depth [1-5]` in blow table to add subdirectories recursively.
+   - See `/max_depth [1-5]` in 'Command Line Arguments for `init.bat`' table to add subdirectories recursively.
 4. (optional) Place your own custom app folders into the `%cmder_root%\opt`. See: [opt/README.md](./opt/README)
    - This folder will NOT be injected into your PATH so you have total control of what gets added.
 5. Run `Cmder.exe` with `/C` command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
@@ -41,7 +41,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
   - (optional) Place your own executable files and custom app folders into `%userprofile%\cmder_config\bin`.
     - This folder to be injected into your PATH by default.
-    - See `/max_depth [1-5]` in blow table to add subdirectories recursively.
+    - See `/max_depth [1-5]` in 'Command Line Arguments for `init.bat`' table to add subdirectories recursively.
   - (optional) Place your own custom app folders into the `%user_profile%\cmder_config\opt`.
     - This folder will NOT be injected into your PATH so you have total control of what gets added.
 
