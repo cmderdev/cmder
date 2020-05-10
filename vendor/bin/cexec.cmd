@@ -19,8 +19,8 @@ set "currenArgu=%~1"
 if /i "%currenArgu%" equ "/setPath" (
   :: set %flag_exists% shortcut
   endlocal
-  set "ccall=call %~dp0cexec.cmd"
-  set "cexec=%~dp0cexec.cmd"
+  set "ccall=call ^"%~dp0cexec.cmd^""
+  set "cexec=^"%~dp0cexec.cmd^""
 ) else if /i "%currenArgu%" == "/?" (
   goto :help
 ) else if /i "%currenArgu%" equ "/help" (
