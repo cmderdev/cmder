@@ -9,13 +9,22 @@ set CMDER_INIT_START=%time%
 :: !!! Use "%CMDER_ROOT%\config\user_profile.cmd" to add your own startup commands
 
 :: Use /v command line arg or set to > 0 for verbose output to aid in debugging.
-set verbose_output=0
-set debug_output=0
-set time_init=0
-set fast_init=0
-set max_depth=1
-:: Add *nix tools to end of path. 0 turns off *nix tools.
-set nix_tools=1
+if not defined verbose_output set verbose_output=0
+
+:: Use /d command line arg or set to 1 for debug output to aid in debugging.
+if not defined debug_output set debug_output=0
+
+:: Use /t command line arg or set to 1 to display init time.
+if not defined time_init set time_init=0
+
+:: Use /f command line arg to speed up init at the expense of some functionality.
+if not defined fast_init set fast_init=0
+
+:: Use /max_depth 1-5 to set max recurse depth for calls to `enhance_path_recursive`
+if not defined max_depth set max_depth=1
+
+:: Add *nix tools to end of path. 0 turns off *nix tools, 2 adds *nix tools to the front of thr path.
+if not defined nix_tools set nix_tools=1
 set "CMDER_USER_FLAGS= "
 
 :: Find root dir
