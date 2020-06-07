@@ -25,6 +25,7 @@ if not defined max_depth set max_depth=1
 
 :: Add *nix tools to end of path. 0 turns off *nix tools, 2 adds *nix tools to the front of thr path.
 if not defined nix_tools set nix_tools=1
+
 set "CMDER_USER_FLAGS= "
 
 :: Find root dir
@@ -49,6 +50,12 @@ call "%cmder_root%\vendor\lib\lib_path"
 call "%cmder_root%\vendor\lib\lib_console"
 call "%cmder_root%\vendor\lib\lib_git"
 call "%cmder_root%\vendor\lib\lib_profile"
+
+if "%CMDER_CONFIGURED%" == "1" (
+  echo Cmder is already configured, skipping to user config!
+
+  goto USER_CONFIG_START
+)
 
 :var_loop
     if "%~1" == "" (
@@ -272,6 +279,8 @@ endlocal
 
 :PATH_ENHANCE
 %lib_path% enhance_path "%CMDER_ROOT%\vendor\bin"
+
+:USER_CONFIG_START
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
 if defined CMDER_USER_BIN (
   %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
