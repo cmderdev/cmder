@@ -51,12 +51,6 @@ call "%cmder_root%\vendor\lib\lib_console"
 call "%cmder_root%\vendor\lib\lib_git"
 call "%cmder_root%\vendor\lib\lib_profile"
 
-:: if "%CMDER_CONFIGURED%" == "1" (
-::   echo Cmder is already configured, skipping to user config!
-:: 
-::   goto USER_CONFIG_START
-:: )
-
 :var_loop
     if "%~1" == "" (
         goto :start
@@ -173,9 +167,9 @@ if "%CMDER_CLINK%" == "1" (
 )
 
 if "%CMDER_CONFIGURED%" == "1" (
-  echo Cmder is already configured, skipping to user config!
+  echo Cmder is already configured, skipping Cmder Init!
 
-  goto USER_CONFIG_START
+  goto CMDER_CONFIGURED
 )
 
 :: Prepare for git-for-windows
@@ -393,6 +387,8 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 )
 
 set initialConfig=
+
+:CMDER_CONFIGURED
 set CMDER_CONFIGURED=1
 
 set CMDER_INIT_END=%time%
