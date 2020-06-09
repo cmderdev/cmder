@@ -172,6 +172,12 @@ if "%CMDER_CLINK%" == "1" (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
 )
 
+if "%CMDER_CONFIGURED%" == "1" (
+  echo Cmder is already configured, skipping to user config!
+
+  goto USER_CONFIG_START
+)
+
 :: Prepare for git-for-windows
 
 :: I do not even know, copypasted from their .bat
