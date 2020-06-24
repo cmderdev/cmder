@@ -71,7 +71,7 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"")
+void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring iconPath = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"")
 {
 #if USE_TASKBAR_API
 	wchar_t appId[MAX_PATH] = { 0 };
@@ -111,7 +111,15 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	PathRemoveFileSpec(exeDir);
 
-	PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
+	if (PathFileExists(iconPath.c_str()))
+	{
+		std::copy(iconPath.begin(), iconPath.end(), icoPath);
+		icoPath[iconPath.length()] = 0;
+	}
+	else
+	{
+		PathCombine(icoPath, exeDir, L"icons\\cmder.ico");
+	}
 
 	PathCombine(configDirPath, exeDir, L"config");
 
@@ -532,6 +540,7 @@ struct cmderOptions
 	std::wstring cmderCfgRoot = L"";
 	std::wstring cmderStart = L"";
 	std::wstring cmderTask = L"";
+	std::wstring cmderIcon = L"";
 	std::wstring cmderRegScope = L"USER";
 	std::wstring cmderConEmuArgs = L"";
 	bool cmderSingle = false;
@@ -591,6 +600,11 @@ cmderOptions GetOption()
 			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
 			{
 				cmderOptions.cmderTask = szArgList[i + 1];
+				i++;
+			}
+			else if (_wcsicmp(L"/icon", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderIcon = szArgList[i + 1];
 				i++;
 			}
 			else if (_wcsicmp(L"/single", szArgList[i]) == 0)
@@ -659,13 +673,13 @@ cmderOptions GetOption()
 				}
 				else
 				{
-					MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+					MessageBox(NULL, L"Unrecognized parameter (no start case).\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /icon [CMDER Icon Path]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 					cmderOptions.error = true;
 				}
 			}
 			else
 			{
-				MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
+				MessageBox(NULL, L"Unrecognized parameter (start case).\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /icon [CMDER Icon Path]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 				cmderOptions.error = true;
 			}
 		}
@@ -707,7 +721,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else
 	{
-		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderConEmuArgs);
+		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderIcon, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderConEmuArgs);
 	}
 
 	return 0;
