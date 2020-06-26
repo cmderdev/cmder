@@ -3,6 +3,8 @@
 
 bin/*
 !bin/Readme.md
+opt/*
+!opt/Readme.md
 
 vendor/*/*
 !vendor/bin/*
