@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.16-pre
+
+* fix vscode terminal errors when setting cmder fast_init=1 outside cmder [#2339](https://github.com/cmderdev/cmder/pull/2339)
+
 ## [1.3.15](https://github.com/cmderdev/cmder/tree/v1.3.15) (2020-06-26)
 
 * Fixes #2247, fixes #2254 [#2265](https://github.com/cmderdev/cmder/pull/2265)
