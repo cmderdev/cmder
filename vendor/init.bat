@@ -151,6 +151,7 @@ if "%CMDER_CLINK%" == "1" (
     if not exist "%CMDER_USER_CONFIG%\settings" (
       echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\settings"
+      B
       echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
     )
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
@@ -200,14 +201,14 @@ if defined GIT_INSTALL_ROOT (
 
 :: check if git is in path...
 for /F "delims=" %%F in ('where git.exe 2^>nul') do (
-    :: get the absolute path to the user provided git binary
-    %lib_git% is_git_shim "%%~dpF"
-    %lib_git% get_user_git_version
-    %lib_git% compare_git_versions
-)
+    if not defined GIT_INSTALL_ROOT (
+        :: get the absolute path to the user provided git binary
+        %lib_git% is_git_shim "%%~dpF"
+        %lib_git% get_user_git_version
+        %lib_git% compare_git_versions
 
-if defined GIT_INSTALL_ROOT (
-    goto :FOUND_GIT
+        goto :FOUND_GIT
+    )
 )
 
 :: our last hope: our own git...
