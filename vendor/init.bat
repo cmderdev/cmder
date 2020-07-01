@@ -167,10 +167,14 @@ if "%CMDER_CLINK%" == "1" (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
 )
 
-if "%CMDER_CONFIGURED%" == "1" (
+if "%CMDER_CONFIGURED%" == "2" (
   echo Cmder is already configured, skipping Cmder Init!
 
   goto CMDER_CONFIGURED
+) else if "%CMDER_CONFIGURED%" == "1" (
+  echo Cmder is already configured, skipping to Cmder User Init!
+
+  goto USER_CONFIG_START
 )
 
 :: Prepare for git-for-windows
@@ -236,10 +240,10 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 rem add the unix commands at the end to not shadow windows commands like more
 if %nix_tools% equ 1 (
-    %lib_console% debug_output init.bat "Preferring Windows commands"
+    %lib_console% verbose_output "Preferring Windows commands"
     set "path_position=append"
 ) else (
-    %lib_console% debug_output init.bat "Preferring *nix commands"
+    %lib_console% verbose_output "Preferring *nix commands"
     set "path_position="
 )
 
