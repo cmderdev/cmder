@@ -207,7 +207,9 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
         %lib_git% get_user_git_version
         %lib_git% compare_git_versions
 
-        goto :FOUND_GIT
+        if defined GIT_INSTALL_ROOT (
+            goto :FOUND_GIT
+        )
     )
 )
 
