@@ -166,10 +166,10 @@ if "%CMDER_CLINK%" == "1" (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
 )
 
-if "%CMDER_CONFIGURED%" == "2" (
+if "%CMDER_CONFIGURED%" gtr 1 (
   %lib_console% verbose_output "Cmder is already configured, skipping Cmder Init!"
 
-  goto CMDER_CONFIGURED
+  goto USER_ALIASES
 ) else if "%CMDER_CONFIGURED%" == "1" (
   %lib_console% verbose_output "Cmder is already configured, skipping to Cmder User Init!"
 
@@ -298,6 +298,7 @@ if defined CMDER_USER_CONFIG (
   %lib_profile% run_profile_d "%CMDER_USER_CONFIG%\profile.d"
 )
 
+:USER_ALIASES
 :: Allows user to override default aliases store using profile.d
 :: scripts run above by setting the 'aliases' env variable.
 ::
@@ -342,7 +343,11 @@ if "%CMDER_ALIASES%" == "1" (
 :: Add aliases to the environment
 call "%user_aliases%"
 
+if "%CMDER_CONFIGURED%" gtr 1 goto CMDER_CONFIGURED
+
 :: See vendor\git-for-windows\README.portable for why we do this
+:: A
+:: A
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
