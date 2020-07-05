@@ -9,17 +9,15 @@ if not defined CMDER_ROOT (
 )
 
 if defined cmder_user_bin (
-    if exist "%cmder_user_bin%\vscode_init_args.cmd" (
-        set CMDER_VSCODE_INIT_ARGS=%cmder_user_bin%\vscode_init_args.cmd
-    )
-) else if exist "%CMDER_ROOT%\bin\vscode_init_args.cmd" (
+    set CMDER_VSCODE_INIT_ARGS=%cmder_user_bin%\vscode_init_args.cmd
+) else (
     set CMDER_VSCODE_INIT_ARGS=%CMDER_ROOT%\bin\vscode_init_args.cmd
 )
 
 if not exist "%CMDER_VSCODE_INIT_ARGS%" (
     echo Creating initial "%CMDER_VSCODE_INIT_ARGS%"...
     copy "%CMDER_ROOT%\vendor\bin\vscode_init_args.cmd.default" "%CMDER_VSCODE_INIT_ARGS%"
-else (
+) else (
     call "%CMDER_VSCODE_INIT_ARGS%"
 )
 
