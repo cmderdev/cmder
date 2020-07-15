@@ -166,7 +166,7 @@ if "%CMDER_CLINK%" == "1" (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
 )
 
-if "%CMDER_CONFIGURED%" gtr 1 (
+if "%CMDER_CONFIGURED%" GTR "1" (
   %lib_console% verbose_output "Cmder is already configured, skipping Cmder Init!"
 
   goto USER_ALIASES
@@ -343,7 +343,7 @@ if "%CMDER_ALIASES%" == "1" (
 :: Add aliases to the environment
 call "%user_aliases%"
 
-if "%CMDER_CONFIGURED%" gtr 1 goto CMDER_CONFIGURED
+if "%CMDER_CONFIGURED%" gtr "1" goto CMDER_CONFIGURED
 
 :: See vendor\git-for-windows\README.portable for why we do this
 :: A
@@ -398,7 +398,7 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 set initialConfig=
 
 :CMDER_CONFIGURED
-set CMDER_CONFIGURED=1
+if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
 
 set CMDER_INIT_END=%time%
 
