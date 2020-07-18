@@ -394,6 +394,6 @@ set CMDER_CONFIGURED=1
 set CMDER_INIT_END=%time%
 
 if %time_init% gtr 0 (
-  "%cmder_root%\vendor\bin\timer.cmd" %CMDER_INIT_START% %CMDER_INIT_END%
+  "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
 )
 exit /b
