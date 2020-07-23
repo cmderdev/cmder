@@ -168,7 +168,8 @@ exit /b
         set "position="
     )
 
-    dir "%add_path%" | findstr -i "\.COM \.EXE \.BAT \.CMD \.PS1 \.VBS" >NUL
+    dir "%add_path%" >NUL | findstr -i "\.COM \.EXE \.BAT \.CMD \.PS1 \.VBS" >NUL
+
     if "%ERRORLEVEL%" == "0" (
         set "add_to_path=%add_path%"
     ) else (
