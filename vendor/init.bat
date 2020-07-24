@@ -370,7 +370,7 @@ if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
       REM Create this file and place your own command in there
-      %lib_console% debug_output init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd
+      %lib_console% debug_output init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
       call "%CMDER_USER_CONFIG%\user_profile.cmd"
   )
 )
