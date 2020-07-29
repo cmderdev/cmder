@@ -245,14 +245,14 @@ exit /b
                 set test_dir=
             )
         ) else (
-            call :verbose_output Found old %GIT_VERSION_USER% in "%test_dir%", but not using...
+            %lib_console% verbose_output "Found old %GIT_VERSION_USER% in %test_dir%, but not using..."
             set test_dir=
         )
     ) else (
         :: compare the user git version against the vendored version
         :: if the user provided git executable is not found
         IF ERRORLEVEL -255 IF NOT ERRORLEVEL -254 (
-            call :verbose_output No git at "%git_executable%" found.
+            %lib_console% verbose_output "No git at "%git_executable%" found."
             set test_dir=
         )
     )
