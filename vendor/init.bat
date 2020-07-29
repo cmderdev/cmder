@@ -231,7 +231,9 @@ goto :CONFIGURE_GIT
 :CONFIGURE_GIT
 %lib_console% debug_output "Using Git from '%GIT_INSTALL_ROOT%..."
 :: Add git to the path
-rem add the unix commands at the end to not shadow windows commands like more
+if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" ""
+
+:: Add the unix commands at the end to not shadow windows commands like more
 if %nix_tools% equ 1 (
     %lib_console% debug_output init.bat "Preferring Windows commands"
     set "path_position=append"
@@ -240,7 +242,6 @@ if %nix_tools% equ 1 (
     set "path_position="
 )
 
-if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" %path_position%
 if %nix_tools% geq 1 (
     if exist "%GIT_INSTALL_ROOT%\mingw32" (
         %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
