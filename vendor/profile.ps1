@@ -1,4 +1,4 @@
-﻿# Init Script for PowerShell
+# Init Script for PowerShell
 # Created as part of cmder project
 
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED

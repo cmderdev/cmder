@@ -1,9 +1,9 @@
 @echo off
 
-if "%fast_init%" == "1" exit /b
-
 call "%~dp0lib_base.cmd"
 set lib_console=call "%~dp0lib_console.cmd"
+
+if "%fast_init%" == "1" exit /b
 
 if "%~1" == "/h" (
     %lib_base% help "%~0"

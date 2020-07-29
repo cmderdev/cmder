@@ -166,10 +166,14 @@ if "%CMDER_CLINK%" == "1" (
   %lib_console% verbose_output "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
 )
 
-if "%CMDER_CONFIGURED%" == "1" (
-  echo Cmder is already configured, skipping Cmder Init!
+if "%CMDER_CONFIGURED%" GTR "1" (
+  %lib_console% verbose_output "Cmder is already configured, skipping Cmder Init!"
 
-  goto CMDER_CONFIGURED
+  goto USER_ALIASES
+) else if "%CMDER_CONFIGURED%" == "1" (
+  %lib_console% verbose_output "Cmder is already configured, skipping to Cmder User Init!"
+
+  goto USER_CONFIG_START
 )
 
 :: Prepare for git-for-windows
@@ -204,10 +208,10 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
     %lib_git% is_git_shim "%%~dpF"
     %lib_git% get_user_git_version
     %lib_git% compare_git_versions
-)
 
-if defined GIT_INSTALL_ROOT (
-    goto :FOUND_GIT
+    if defined GIT_INSTALL_ROOT (
+        goto :FOUND_GIT
+    )
 )
 
 :: our last hope: our own git...
@@ -233,10 +237,10 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 rem add the unix commands at the end to not shadow windows commands like more
 if %nix_tools% equ 1 (
-    %lib_console% debug_output init.bat "Preferring Windows commands"
+    %lib_console% verbose_output "Preferring Windows commands"
     set "path_position=append"
 ) else (
-    %lib_console% debug_output init.bat "Preferring *nix commands"
+    %lib_console% verbose_output "Preferring *nix commands"
     set "path_position="
 )
 
@@ -294,6 +298,7 @@ if defined CMDER_USER_CONFIG (
   %lib_profile% run_profile_d "%CMDER_USER_CONFIG%\profile.d"
 )
 
+:USER_ALIASES
 :: Allows user to override default aliases store using profile.d
 :: scripts run above by setting the 'aliases' env variable.
 ::
@@ -338,6 +343,8 @@ if "%CMDER_ALIASES%" == "1" (
 :: Add aliases to the environment
 call "%user_aliases%"
 
+if "%CMDER_CONFIGURED%" gtr "1" goto CMDER_CONFIGURED
+
 :: See vendor\git-for-windows\README.portable for why we do this
 :: Basically we need to execute this post-install.bat because we are
 :: manually extracting the archive rather than executing the 7z sfx
@@ -363,7 +370,7 @@ if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
       REM Create this file and place your own command in there
-      %lib_console% debug_output init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd
+      %lib_console% debug_output init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
       call "%CMDER_USER_CONFIG%\user_profile.cmd"
   )
 )
@@ -389,7 +396,7 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 set initialConfig=
 
 :CMDER_CONFIGURED
-set CMDER_CONFIGURED=1
+if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
 
 set CMDER_INIT_END=%time%
 
