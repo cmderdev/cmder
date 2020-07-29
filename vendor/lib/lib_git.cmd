@@ -236,12 +236,14 @@ exit /b
         %lib_git% compare_versions USER VENDORED
 
         :: use the user provided git if its version is greater than, or equal to the vendored git
-        if ERRORLEVEL 0 if exist "%test_dir:~0,-4%\cmd\git.exe" (
-            set "GIT_INSTALL_ROOT=%test_dir:~0,-4%"
-            set test_dir=
-        ) else if ERRORLEVEL 0 (
-            set "GIT_INSTALL_ROOT=%test_dir%"
-            set test_dir=
+        if ERRORLEVEL 0 (
+            if exist "%test_dir:~0,-4%\cmd\git.exe" (
+                set "GIT_INSTALL_ROOT=%test_dir:~0,-4%"
+                set test_dir=
+            ) else (
+                set "GIT_INSTALL_ROOT=%test_dir%"
+                set test_dir=
+            )
         ) else (
             call :verbose_output Found old %GIT_VERSION_USER% in "%test_dir%", but not using...
             set test_dir=
