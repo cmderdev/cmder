@@ -231,15 +231,15 @@ exit /b
 :::-------------------------------------------------------------------------------
 
 :compare_git_versions
-    if %errorlevel% geq 0 (
+    if ERRORLEVEL 0 (
         :: compare the user git version against the vendored version
         %lib_git% compare_versions USER VENDORED
 
         :: use the user provided git if its version is greater than, or equal to the vendored git
-        if %errorlevel% geq 0 if exist "%test_dir:~0,-4%\cmd\git.exe" (
+        if ERRORLEVEL 0 if exist "%test_dir:~0,-4%\cmd\git.exe" (
             set "GIT_INSTALL_ROOT=%test_dir:~0,-4%"
             set test_dir=
-        ) else if %errorlevel% geq 0 (
+        ) else if ERRORLEVEL 0 (
             set "GIT_INSTALL_ROOT=%test_dir%"
             set test_dir=
         ) else (
@@ -249,7 +249,7 @@ exit /b
     ) else (
         :: compare the user git version against the vendored version
         :: if the user provided git executable is not found
-        if %errorlevel% equ -255 (
+        IF ERRORLEVEL -255 IF NOT ERRORLEVEL -254 (
             call :verbose_output No git at "%git_executable%" found.
             set test_dir=
         )
