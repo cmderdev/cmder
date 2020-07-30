@@ -7,7 +7,7 @@ If you follow them your contribution will likely be pulled in quicker.
 ## Getting Started
 
 * Fork the repository on GitHub (It's that easy)
-* Create a feature branch based on the development branch.
+* Create a feature branch based on the `master` branch.
 
 ## Making Changes
 
