@@ -1,13 +1,14 @@
 # How to contribute
 
 Unfortunately we all can't work on cmder every day of the year, so I have decided to write some guidelines for contributing.
+B
 
 If you follow them your contribution will likely be pulled in quicker.
 
 ## Getting Started
 
 * Fork the repository on GitHub (It's that easy)
-* Create a feature branch based on the development branch.
+* Create a feature branch based on the `master` branch.
 
 ## Making Changes
 
