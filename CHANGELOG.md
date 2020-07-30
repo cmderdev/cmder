@@ -2,9 +2,14 @@
 
 ## [1.3.16](https://github.com/cmderdev/cmder/tree/v1.3.16) (2020-07-29)
 
-* Merge pull request #2358 from FloSchwalm/update-to-git-2.28  [Dax T Games]               
+### Fixes
+
 * Merge pull request #2357 from FloSchwalm/fix-git-version-comparison  [Dax T Games]                                                                   
 * Merge pull request #2339 from daxgames/fix_global_vars_vscode_err  [Dax T Games]                                                                     
+
+### Changes
+
+* Merge pull request #2358 from FloSchwalm/update-to-git-2.28  [Dax T Games]               
                                                                                                                                                                           
 ## [1.3.15](https://github.com/cmderdev/cmder/tree/v1.3.15) (2020-06-26)
 
