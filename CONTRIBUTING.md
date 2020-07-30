@@ -1,7 +1,6 @@
 # How to contribute
 
 Unfortunately we all can't work on cmder every day of the year, so I have decided to write some guidelines for contributing.
-B
 
 If you follow them your contribution will likely be pulled in quicker.
 
