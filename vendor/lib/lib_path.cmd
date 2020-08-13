@@ -85,13 +85,13 @@ exit /b
 
     if /i "%position%" == "append" (
       if "!found!" == "0" (
-        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:";%find_query%\"$"
+        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:";%find_query%\"
         call :set_found
       )
       %lib_console% debug_output  :enhance_path "Env Var END PATH %find_query% - found=!found!"
     ) else (
       if "!found!" == "0" (
-        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:"^\"%find_query%;"
+        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:"%find_query%;"
         call :set_found
       )
       %lib_console% debug_output  :enhance_path "Env Var BEGIN PATH %find_query% - found=!found!"
