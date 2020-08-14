@@ -32,8 +32,11 @@ exit /b
 :::  [message] <in> Message text to display.
 :::.
 :::-------------------------------------------------------------------------------
+    set label=%~1
+    shift
+    set message=%*
 
-    if %debug_output% gtr 0 echo DEBUG(%~1): %~2 & echo.
+    if %debug_output% gtr 0 echo DEBUG(%lable%): %message% & echo.
     exit /b
 
 :verbose_output

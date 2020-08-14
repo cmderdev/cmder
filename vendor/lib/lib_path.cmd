@@ -77,7 +77,7 @@ exit /b
     set OLD_PATH=%PATH%
 
     setlocal enabledelayedexpansion
-    if "%found%" == "0" (
+    if "%ntfound%" == "0" (
       echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:";%find_query%;"
       call :set_found
     )
