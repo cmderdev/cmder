@@ -134,7 +134,7 @@ cd mintty-colors-solarized/
 echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh>>$CMDER_ROOT/config/user_profile.sh
 ```
 
-You may find some Monokai color schemes for mintty to match Cmder [here](https://github.com/PhilipDaniels/mintty/blob/master/themes/Monokai) or [here](https://github.com/oumu/mintty-color-schemes/blob/master/base16-monokai-mod.minttyrc).
+You may find some Monokai color schemes for mintty to match Cmder [here](https://github.com/oumu/mintty-color-schemes/blob/master/base16-monokai-mod.minttyrc).
 
 ### Changing Cmder Default `cmd.exe` Shell Startup Behaviour Using Task Arguments
 
