@@ -85,13 +85,13 @@ exit /b
 
     if /i "%position%" == "append" (
       if "!found!" == "0" (
-        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:";%find_query%\"$"
+        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:";%find_query%$"
         call :set_found
       )
       %lib_console% debug_output  :enhance_path "Env Var END PATH %find_query% - found=!found!"
     ) else (
       if "!found!" == "0" (
-        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:"^\"%find_query%;"
+        echo "%path%"|%WINDIR%\System32\findstr >nul /I /R /C:"^%find_query%;"
         call :set_found
       )
       %lib_console% debug_output  :enhance_path "Env Var BEGIN PATH %find_query% - found=!found!"
@@ -128,6 +128,7 @@ exit /b
 
 :enhance_path_recursive
 :::===============================================================================
+::.
 :::enhance_path_recursive - Add a directory and subs to the path env variable if
 :::                         required.
 :::.
@@ -147,6 +148,7 @@ exit /b
 :::.
 :::  [max_depth] <in> Max recuse depth.  Default: 1
 :::.
+::.
 :::  append      <in> Append instead to path env variable rather than pre-pend.
 :::.
 :::output:

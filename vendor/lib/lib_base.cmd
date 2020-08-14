@@ -91,4 +91,5 @@ exit /b
             copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
         )
     )
+
     exit /b

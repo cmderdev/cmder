@@ -266,7 +266,7 @@ if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_
 if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" /usr/bin/locale )
 
 if defined git_locale (
-  %lib_console% debug_output init.bat "Env Var - git_locale=%git_locale%"
+  %lib_console% debug_output init.bat "Env Var - ^"git_locale=%git_locale%^""
   if not defined LANG (
       for /F "delims=" %%F in ('%git_locale% -uU 2') do (
           set "LANG=%%F"
