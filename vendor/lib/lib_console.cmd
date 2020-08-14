@@ -36,7 +36,7 @@ exit /b
     shift
     set message=%*
 
-    if %debug_output% gtr 0 echo DEBUG(%lable%): %message% & echo.
+    if %debug_output% gtr 0 echo DEBUG(%label%): %message% & echo.
     exit /b
 
 :verbose_output
