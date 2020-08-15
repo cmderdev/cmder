@@ -128,7 +128,7 @@ exit /b
 
 :enhance_path_recursive
 :::===============================================================================
-::.
+:::.
 :::enhance_path_recursive - Add a directory and subs to the path env variable if
 :::                         required.
 :::.
@@ -148,7 +148,7 @@ exit /b
 :::.
 :::  [max_depth] <in> Max recuse depth.  Default: 1
 :::.
-::.
+:::.
 :::  append      <in> Append instead to path env variable rather than pre-pend.
 :::.
 :::output:
