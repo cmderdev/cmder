@@ -39,11 +39,11 @@ exit /b
 
     :: set the executable path
     set "git_executable=%~2\git.exe"
-    %lib_console% debug_output :read_version "Env Var - git_executable=%git_executable%"
+    %lib_console% debug_output :read_version Env Var - git_executable=%git_executable%
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        %lib_console% debug_output :read_version "%git_executable% does not exist."
+        %lib_console% debug_output :read_version %git_executable% does not exist.
         exit /b -255
     )
 
@@ -60,7 +60,7 @@ exit /b
             exit /b
         )
     )
-    endlocal & set "GIT_VERSION_%~1=%GIT_VERSION%" & %lib_console% debug_output :read_version "Env Var - GIT_VERSION_%~1=%GIT_VERSION%"
+    endlocal & set "GIT_VERSION_%~1=%GIT_VERSION%" & %lib_console% debug_output :read_version Env Var - GIT_VERSION_%~1=%GIT_VERSION%
 
     exit /b
 
@@ -90,7 +90,7 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     :: process a `x.x.x.xxxx.x` formatted string
-    %lib_console% debug_output :parse_version "ARGV[1]=%~1, ARGV[2]=%~2"
+    %lib_console% debug_output :parse_version ARGV[1]=%~1, ARGV[2]=%~2
 
     setlocal enabledelayedexpansion
     for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
@@ -130,16 +130,16 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     :: now parse the version information into the corresponding variables
-    %lib_console% debug_output :validate_version "ARGV[1]=%~1, ARGV[2]=%~2"
+    %lib_console% debug_output :validate_version ARGV[1]=%~1, ARGV[2]=%~2
 
     call :parse_version %~1 %~2
 
     :: ... and maybe display it, for debugging purposes.
     REM %lib_console% debug_output :validate_version "Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!"
     if "%~1" == "VENDORED" (
-      %lib_console% debug_output :validate_version "Found Git Version for %~1: %VENDORED_MAJOR%.%VENDORED_MINOR%.%VENDORED_PATCH%.%VENDORED_BUILD%"
+      %lib_console% debug_output :validate_version Found Git Version for %~1: %VENDORED_MAJOR%.%VENDORED_MINOR%.%VENDORED_PATCH%.%VENDORED_BUILD%
     ) else (
-      %lib_console% debug_output :validate_version "Found Git Version for %~1: %USER_MAJOR%.%USER_MINOR%.%USER_PATCH%.%USER_BUILD%"
+      %lib_console% debug_output :validate_version Found Git Version for %~1: %USER_MAJOR%.%USER_MINOR%.%USER_PATCH%.%USER_BUILD%
     )
     exit /b
 
