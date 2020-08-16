@@ -39,15 +39,40 @@ if(-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderMod
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
 
-try {
-    # Check if git is on PATH, i.e. Git already installed on system
-    Get-command -Name "git" -ErrorAction Stop >$null
-} catch {
-    if (test-path "$env:CMDER_ROOT\vendor\git-for-windows") {
-        Configure-Git "$env:CMDER_ROOT\vendor\git-for-windows"
+$gitVersionVendor = (readVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-windows\cmd")
+# write-host GIT VERSION VENDOR: $gitVersionVendor
+
+foreach ($git in (get-command 'git')) {
+    $gitDir = Split-Path -Path $git.Path
+    $gitVersionUser = (readVersion -gitPath $gitDir)
+    # write-host GIT Dir: $gitDir
+    # write-host GIT Root: ($gitDir.subString(0,$gitDir.Length - 4))
+    # write-host GIT VERSION USER: $gitVersionUser
+
+    $useGitVersion = compare_git_versions -userVersion $gitVersionUser -vendorVersion $gitVersionVendor
+
+    if ($useGitVersion -eq $gitVersionUser) {
+        $ENV:GIT_INSTALL_ROOT = ($gitDir.subString(0,$gitDir.Length - 4))
+        #write-host Using Git Version $useGitVersion from $ENV:GIT_INSTALL_ROOT
+        break
     }
 }
 
+if ($ENV:GIT_INSTALL_ROOT -eq $null -and $gitVersionVendor -ne $null) {
+    $ENV:GIT_INSTALL_ROOT = "$ENV:CMDER_ROOT\vendor\git-for-windows"
+    # write-host Using Git Version $gitVersionVendor from $ENV:GIT_INSTALL_ROOT
+}
+
+# try {
+#     # Check if git is on PATH, i.e. Git already installed on system
+#     Get-command -Name "git" -ErrorAction Stop >$null
+# } catch {
+#     if (test-path "$env:CMDER_ROOT\vendor\git-for-windows") {
+#         Configure-Git "$env:CMDER_ROOT\vendor\git-for-windows"
+#     }
+# }
+
+Configure-Git "$env:GIT_INSTALL_ROOT"
 if ( Get-command -Name "vim" -ErrorAction silentlycontinue) {
     new-alias -name "vi" -value vim
 }
