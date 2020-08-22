@@ -1,29 +1,34 @@
 function readVersion($gitPath) {
     $gitExecutable = "${gitPath}\git.exe"
 
-    #write-host "Git Path: ${gitExecutable}"
     if (!(test-path "$gitExecutable")) {
         return $null
     }
 
     $gitVersion = (cmd /c "${gitExecutable}" --version)
-    #write-host "Git Version: ${gitVersion}"
 
     if ($gitVersion -match 'git version') {
         ($trash1, $trash2, $gitVersion) = $gitVersion.split(' ', 3)
     } else {
-        #write-hose "'git --version' returned an inproper version string!"
         pause
         return $null
     }
-    #write-host "Git Semantic Version: ${gitVersion}"
 
     return $gitVersion.toString()
 }
 
 function compareVersions($userVersion, $vendorVersion) {
-    ($userMajor, $user_minor, $userPatch, $userBuild) = $userVersion.split('.', 4)
-    ($vendorMajor, $vendorMinor, $vendorPatch, $vendorBuild) = $vendorVersion.split('.', 4)
+    if (-not($userVersion -eq $null)) {
+        ($userMajor, $userMinor, $userPatch, $userBuild) = $userVersion.split('.', 4)
+    } else {
+        return -1
+    }
+
+    if (-not($vendorVersion -eq $null)) {
+        ($vendorMajor, $vendorMinor, $vendorPatch, $vendorBuild) = $vendorVersion.split('.', 4)
+    } else {
+        return 1
+    }
 
     if ($userMajor -gt $vendorMajor) {return 1}
     if ($userMajor -lt $vendorMajor) {return -1}
@@ -43,30 +48,104 @@ function compareVersions($userVersion, $vendorVersion) {
 function compare_git_versions($userVersion, $vendorVersion) {
     $result = compareVersions -userVersion $userVersion -vendorVersion $vendorVersion
 
-    if ($result -eq 0) {
+    # write-host "Compare Versions Result: ${result}"
+    if ($result -ge 0) {
         return $userVersion
     } else {
-        return $null
+        return $vendorVersion
     }
 
 }
-function Configure-Git($GIT_INSTALL_ROOT){
-  $GIT_INSTALL_ROOT_ESC=$GIT_INSTALL_ROOT.replace('\','\\')
-  if (!($env:Path -match "$GIT_INSTALL_ROOT_ESC\\cmd")) {
-      $env:Path = $($GIT_INSTALL_ROOT + "\cmd" + ";" + $env:Path)
+
+function Configure-Git($gitRoot, $gitType){
+  # # Current Cmder Behavior
+  # $GIT_INSTALL_ROOT_ESC=$GIT_INSTALL_ROOT.replace('\','\\')
+  # if (!($env:Path -match "$GIT_INSTALL_ROOT_ESC\\cmd")) {
+  #     $env:Path = $($GIT_INSTALL_ROOT + "\cmd" + ";" + $env:Path)
+  # }
+  #
+  # # Add "$GIT_INSTALL_ROOT\usr\bin" to the path if exists and not done already
+  # if ((test-path "$GIT_INSTALL_ROOT\usr\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\usr\\bin")) {
+  #     $env:path = "$env:path;$GIT_INSTALL_ROOT\usr\bin"
+  # }
+
+  # $env:Path = $($env:Path + ";" $GIT_INSTALL_ROOT + "\cmd")
+
+  # # Add "$GIT_INSTALL_ROOT\mingw[32|64]\bin" to the path if exists and not done already
+  # if ((test-path "$GIT_INSTALL_ROOT\mingw32\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw32\\bin")) {
+  #     $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw32\bin"
+  # } elseif ((test-path "$GIT_INSTALL_ROOT\mingw64\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw64\\bin")) {
+  #     $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw64\bin"
+  # }
+
+  # Proposed Behavior
+  $gitRootEsc = $gitRoot.replace('\','\\')
+  if (!($env:Path -match "$gitRootEsc\\cmd")) {
+      $env:Path = $($gitRoot + "\cmd" + ";" + $env:Path)
   }
 
-  # Add "$GIT_INSTALL_ROOT\usr\bin" to the path if exists and not done already
-  if ((test-path "$GIT_INSTALL_ROOT\usr\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\usr\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\usr\bin"
-  }
+  # Modify the path if we are using VENDORED Git do nothing if using USER Git.
+  # If User Git is installed but older match its path config adding paths
+  # in the same path positions allowing a user to configure Cmder Git path
+  # using locally installed Git Path Config.
+  if ($gitType -eq 'VENDOR') {
+      if (isNixCommand -filename 'curl.exe' -all $true) {
+          if (isNixCommand -filename 'curl.exe') {
+              $pathPosition = 'start'
+          } else {
+              $pathPosition = 'end'
+          }
 
-  # Add "$GIT_INSTALL_ROOT\mingw[32|64]\bin" to the path if exists and not done already
-  if ((test-path "$GIT_INSTALL_ROOT\mingw32\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw32\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw32\bin"
-  } elseif ((test-path "$GIT_INSTALL_ROOT\mingw64\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw64\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw64\bin"
+          if ($pathPosition -eq 'end') {
+              # Add "$gitRoot\mingw[32|64]\bin" to the path if exists and not done already
+              if ((test-path "$gitRoot\mingw32\bin") -and -not ($env:path -match "$gitRootEsc\\mingw32\\bin")) {
+                  $env:path = "$env:path;$gitRoot\mingw32\bin"
+              } elseif ((test-path "$gitRoot\mingw64\bin") -and -not ($env:path -match "$gitRootEsc\\mingw64\\bin")) {
+                  $env:path = "$env:path;$gitRoot\mingw64\bin"
+              }
+          } elseif ($pathPosition -eq 'start') {
+              if ((test-path "$gitRoot\mingw32\bin") -and -not ($env:path -match "$gitRootEsc\\mingw32\\bin")) {
+                  $env:path = "$gitRoot\mingw32\bin;$env:path"
+              } elseif ((test-path "$gitRoot\mingw64\bin") -and -not ($env:path -match "$gitRootEsc\\mingw64\\bin")) {
+                  $env:path = "$gitRoot\mingw64\bin;$env:path"
+              }
+          }
+      }
+
+      if (isNixCommand -filename 'find' -all $true) {
+          if (isNixCommand -filename 'find') {
+              $pathPosition = 'start'
+          } else {
+              $pathPosition = 'end'
+          }
+
+          if ($pathPosition -eq 'end') {
+              $env:path = "$env:path;$gitRoot\usr\bin"
+          } elseif ($pathPosition -eq 'start') {
+              $env:path = "$gitRoot\usr\bin;$env:path"
+          }
+      }
   }
+}
+
+function isWindowsCommand($filename, $all=$false) {
+    if ($all) {
+        $commands = (get-command $filename -All).source
+    } else {
+        $commands = (get-command $filename).source
+    }
+
+    return ($commands -match $env:systemroot.replace('\','\\'))
+}
+
+function isNixCommand($filename, $all=$false) {
+    if ($all) {
+        $commands = (get-command $filename -All).source
+    } else {
+        $commands = (get-command $filename).source
+    }
+
+    return ($commands -match '\\git' -and $commands.replace('\','\\') -match '\\bin\\')
 }
 
 function Import-Git(){
@@ -77,7 +156,6 @@ function Import-Git(){
     }
     if(-not ($GitModule) ) {
         Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart cmder."
-      A
     }
     # Make sure we only run once by alawys returning true
     return $true
