@@ -231,8 +231,8 @@ exit /b
 :::-------------------------------------------------------------------------------
 
 :compare_git_versions
+    setlocal enabledelayedexpansion
     if ERRORLEVEL 0 (
-        setlocal enabledelayedexpansion
         :: compare the user git version against the vendored version
         !lib_git! compare_versions USER VENDORED
 
@@ -246,7 +246,6 @@ exit /b
         ) else (
             !lib_console! verbose_output "Found old !GIT_VERSION_USER! in !test_dir!, but not using..."
         )
-        endlocal && set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT% & set test_dir=
     ) else (
         :: compare the user git version against the vendored version
         :: if the user provided git executable is not found
@@ -255,6 +254,7 @@ exit /b
             set test_dir=
         )
     )
+    endlocal && set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%" && set test_dir=
 
     exit /b
 

@@ -1,5 +1,4 @@
 @echo off
-setlocal
 
 if "%~1" equ "" goto :wrongSyntax
 
@@ -7,6 +6,7 @@ if not defined CMDER_USER_FLAGS (
   :: in case nothing was passed to %CMDER_USER_FLAGS%
   set "CMDER_USER_FLAGS= "
 )
+
 
 set "feNot=false"
 goto :parseArgument
@@ -17,10 +17,8 @@ goto :parseArgument
 :parseArgument
 set "currenArgu=%~1"
 if /i "%currenArgu%" equ "/setPath" (
-  :: set %flag_exists% shortcut
-  endlocal
-  set "ccall=call ^"%~dp0cexec.cmd^""
-  set "cexec=^"%~dp0cexec.cmd^""
+  set ccall=call "%~dp0cexec.cmd"
+  set cexec="%~dp0cexec.cmd"
 ) else if /i "%currenArgu%" == "/?" (
   goto :help
 ) else if /i "%currenArgu%" equ "/help" (
