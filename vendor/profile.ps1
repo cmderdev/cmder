@@ -45,6 +45,7 @@ $gitVersionVendor = (readVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-window
 # Get user installed Git Version[s] and Compare with vendored if found.
 foreach ($git in (get-command 'git')) {
     $gitDir = Split-Path -Path $git.Path
+    # isGitShim $gitDir 
     $gitVersionUser = (readVersion -gitPath $gitDir)
     # write-host "GIT USER: ${gitVersionUser}"
 
