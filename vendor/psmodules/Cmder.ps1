@@ -17,6 +17,19 @@ function readVersion($gitPath) {
     return $gitVersion.toString()
 }
 
+function isGitShim($gitPath) {
+    # check if there's shim - and if yes follow the path
+    
+    if (test-path "${gitPath}\git.shim") {
+      $shim = (get-content "${gitPath}\git.shim")
+      ($trash, $gitPath) = $shim.replace(' ','').split('=')
+
+      $gitPath=$gitPath.replace('\git.exe','')  
+    } 
+ 
+    return $gitPath.toString()
+}
+
 function compareVersions($userVersion, $vendorVersion) {
     if (-not($userVersion -eq $null)) {
         ($userMajor, $userMinor, $userPatch, $userBuild) = $userVersion.split('.', 4)

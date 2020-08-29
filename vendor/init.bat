@@ -125,11 +125,11 @@ goto var_loop
 :start
 :: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES
 %lib_base% cmder_shell
-%lib_console% debug_output init.bat Env Var - CMDER_ROOT=%CMDER_ROOT%
-%lib_console% debug_output init.bat Env Var - debug_output=%debug_output%
+%lib_console% debug_output init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
+%lib_console% debug_output init.bat "Env Var - debug_output=%debug_output%"
 
 if defined CMDER_USER_CONFIG (
-    %lib_console% debug_output init.bat CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!
+    %lib_console% debug_output init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 
     if not exist "%CMDER_USER_CONFIG%\opt" md "%CMDER_USER_CONFIG%\opt"
 )
@@ -196,7 +196,7 @@ if defined GIT_INSTALL_ROOT (
     )
 )
 
-%lib_console% debug_output init.bat Looking for Git install root...
+%lib_console% debug_output init.bat "Looking for Git install root..."
 
 :: get the version information for vendored git binary
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
@@ -218,22 +218,22 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %lib_console% debug_output Using vendored Git '%GIT_VERSION_VENDORED%'...
+    %lib_console% debug_output "Using vendored Git '%GIT_VERSION_VENDORED%'..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
 )
 
 :SPECIFIED_GIT
-%lib_console% debug_output Using /GIT_INSTALL_ROOT...
+%lib_console% debug_output "Using /GIT_INSTALL_ROOT..."
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%lib_console% debug_output Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%...
+%lib_console% debug_output "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
-%lib_console% debug_output Using Git from '%GIT_INSTALL_ROOT%...
+%lib_console% debug_output "Using Git from '%GIT_INSTALL_ROOT%..."
 :: Add git to the path
 if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" ""
 
@@ -265,19 +265,17 @@ if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale
 if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" /usr/bin/locale )
 
-setlocal enabledelayedexpansion
 if defined git_locale (
-  REM !lib_console! debug_output init.bat "Env Var - git_locale=!git_locale!"
+  %lib_console% debug_output init.bat "Env Var - git_locale=%git_locale%"
   if not defined LANG (
-      for /F "delims=" %%F in ('!git_locale! -uU 2') do (
+      for /F "delims=" %%F in ('%git_locale% -uU 2') do (
           set "LANG=%%F"
       )
   )
 )
-endlocal && set LANG=%LANG%
 
-%lib_console% debug_output init.bat Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
-%lib_console% debug_output init.bat Found Git in: '%GIT_INSTALL_ROOT%'
+%lib_console% debug_output init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
+%lib_console% debug_output init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
 goto :PATH_ENHANCE
 
 :NO_GIT
@@ -360,12 +358,12 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-%lib_console% debug_output init.bat Env Var - HOME=%HOME%
+%lib_console% debug_output init.bat "Env Var - HOME=%HOME%"
 
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
 if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
-    %lib_console% debug_output init.bat Calling - %CMDER_ROOT%\config\user_profile.cmd
+    %lib_console% debug_output init.bat "Calling - %CMDER_ROOT%\config\user_profile.cmd"
     call "%CMDER_ROOT%\config\user_profile.cmd"
 )
 
@@ -373,7 +371,7 @@ if defined CMDER_USER_CONFIG (
   set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
   if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
       REM Create this file and place your own command in there
-      %lib_console% debug_output init.bat Calling - %CMDER_USER_CONFIG%\user_profile.cmd
+      %lib_console% debug_output init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
       call "%CMDER_USER_CONFIG%\user_profile.cmd"
   )
 )

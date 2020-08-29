@@ -39,11 +39,11 @@ exit /b
 
     :: set the executable path
     set "git_executable=%~2\git.exe"
-    %lib_console% debug_output :read_version Env Var - git_executable=%git_executable%
+    %lib_console% debug_output :read_version "Env Var - git_executable=%git_executable%"
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        %lib_console% debug_output :read_version %git_executable% does not exist.
+        %lib_console% debug_output :read_version "%git_executable% does not exist."
         exit /b -255
     )
 
@@ -60,7 +60,7 @@ exit /b
             exit /b
         )
     )
-    endlocal & set "GIT_VERSION_%~1=%GIT_VERSION%" & %lib_console% debug_output :read_version Env Var - GIT_VERSION_%~1=%GIT_VERSION%
+    endlocal & set "GIT_VERSION_%~1=%GIT_VERSION%" & %lib_console% debug_output :read_version "Env Var - GIT_VERSION_%~1=%GIT_VERSION%"
 
     exit /b
 
@@ -90,7 +90,7 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     :: process a `x.x.x.xxxx.x` formatted string
-    %lib_console% debug_output :parse_version ARGV[1]=%~1, ARGV[2]=%~2
+    %lib_console% debug_output :parse_version "ARGV[1]=%~1, ARGV[2]=%~2"
 
     setlocal enabledelayedexpansion
     for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
@@ -130,16 +130,16 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     :: now parse the version information into the corresponding variables
-    %lib_console% debug_output :validate_version ARGV[1]=%~1, ARGV[2]=%~2
+    %lib_console% debug_output :validate_version "ARGV[1]=%~1, ARGV[2]=%~2"
 
     call :parse_version %~1 %~2
 
     :: ... and maybe display it, for debugging purposes.
     REM %lib_console% debug_output :validate_version "Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!"
     if "%~1" == "VENDORED" (
-      %lib_console% debug_output :validate_version Found Git Version for %~1: %VENDORED_MAJOR%.%VENDORED_MINOR%.%VENDORED_PATCH%.%VENDORED_BUILD%
+      %lib_console% debug_output :validate_version "Found Git Version for %~1: %VENDORED_MAJOR%.%VENDORED_MINOR%.%VENDORED_PATCH%.%VENDORED_BUILD%"
     ) else (
-      %lib_console% debug_output :validate_version Found Git Version for %~1: %USER_MAJOR%.%USER_MINOR%.%USER_PATCH%.%USER_BUILD%
+      %lib_console% debug_output :validate_version "Found Git Version for %~1: %USER_MAJOR%.%USER_MINOR%.%USER_PATCH%.%USER_BUILD%"
     )
     exit /b
 
@@ -231,31 +231,31 @@ exit /b
 :::-------------------------------------------------------------------------------
 
 :compare_git_versions
-    setlocal enabledelayedexpansion
     if ERRORLEVEL 0 (
         :: compare the user git version against the vendored version
-        !lib_git! compare_versions USER VENDORED
+        %lib_git% compare_versions USER VENDORED
 
         :: use the user provided git if its version is greater than, or equal to the vendored git
         if ERRORLEVEL 0 (
-            if exist "!test_dir:~0,-4!\cmd\git.exe" (
-                set "GIT_INSTALL_ROOT=!test_dir:~0,-4!"
+            if exist "%test_dir:~0,-4%\cmd\git.exe" (
+                set "GIT_INSTALL_ROOT=%test_dir:~0,-4%"
+                set test_dir=
             ) else (
-                set "GIT_INSTALL_ROOT=!test_dir!"
+                set "GIT_INSTALL_ROOT=%test_dir%"
+                set test_dir=
             )
         ) else (
-            !lib_console! verbose_output "Found old !GIT_VERSION_USER! in !test_dir!, but not using..."
+            %lib_console% verbose_output "Found old %GIT_VERSION_USER% in %test_dir%, but not using..."
+            set test_dir=
         )
     ) else (
         :: compare the user git version against the vendored version
         :: if the user provided git executable is not found
         IF ERRORLEVEL -255 IF NOT ERRORLEVEL -254 (
-            !lib_console! verbose_output "No git at "!git_executable!" found."
+            %lib_console% verbose_output "No git at "%git_executable%" found."
             set test_dir=
         )
     )
-    endlocal && set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%" && set test_dir=
-
     exit /b
 
 :::===============================================================================
