@@ -49,7 +49,7 @@ exit /b
 
     :: get the git version in the provided directory
 
-    "%git_executable%" --version > "%temp%\git_version.txt"
+    "%git_executable%" --version 2>nul > "%temp%\git_version.txt"
     setlocal enabledelayedexpansion
     for /F "tokens=1,2,3 usebackq" %%A in (`type "%temp%\git_version.txt" 2^>nul`) do (
         if /i "%%A %%B" == "git version" (
