@@ -253,7 +253,7 @@ if %nix_tools% geq 1 (
         %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
     )
 
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
+    %lib_path% enhance_path "%GIT_INSTALL_ROOT%" %path_position%
 )
 
 :: define SVN_SSH so we can use git svn with ssh svn repositories
