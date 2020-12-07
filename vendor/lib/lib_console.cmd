@@ -3,6 +3,11 @@
 call "%~dp0lib_base.cmd"
 set lib_console=call "%~dp0lib_console.cmd"
 
+:: Much faster than using "%lib_console% debug_output ..." etc.
+set print_debug=if %debug_output% gtr 0 %lib_console% debug_output %*
+set print_verbose=if %verbose_output% gtr 0 %lib_console% verbose_output %*
+set print_error=%lib_console% show_error %*
+
 if "%fast_init%" == "1" exit /b
 
 if "%~1" == "/h" (
