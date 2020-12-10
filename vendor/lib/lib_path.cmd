@@ -81,20 +81,20 @@ exit /b
       echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!;"
       call :set_found
     )
-    !print_debug!  :enhance_path "Env Var INSIDE PATH !find_query! - found=!found!"
+    %print_debug%  :enhance_path "Env Var INSIDE PATH !find_query! - found=!found!"
 
     if /i "!position!" == "append" (
       if "!found!" == "0" (
         echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!\"$"
         call :set_found
       )
-      !print_debug!  :enhance_path "Env Var END PATH !find_query! - found=!found!"
+      %print_debug%  :enhance_path "Env Var END PATH !find_query! - found=!found!"
     ) else (
       if "!found!" == "0" (
         echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:"^\"!find_query!;"
         call :set_found
       )
-      !print_debug!  :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
+      %print_debug%  :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
     )
     endlocal & set found=%found%
 

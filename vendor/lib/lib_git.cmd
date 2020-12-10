@@ -244,13 +244,13 @@ exit /b
                 set "GIT_INSTALL_ROOT=!test_dir!"
             )
         ) else (
-            !print_verbose! "Found old !GIT_VERSION_USER! in !test_dir!, but not using..."
+            %print_verbose% "Found old !GIT_VERSION_USER! in !test_dir!, but not using..."
         )
     ) else (
         :: compare the user git version against the vendored version
         :: if the user provided git executable is not found
         IF ERRORLEVEL -255 IF NOT ERRORLEVEL -254 (
-            !print_verbose! "No git at "!git_executable!" found."
+            %print_verbose% "No git at "!git_executable!" found."
             set test_dir=
         )
     )

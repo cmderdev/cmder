@@ -268,7 +268,7 @@ if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nu
 setlocal enabledelayedexpansion
 if defined git_locale (
 
-  REM !print_debug! init.bat "Env Var - git_locale=!git_locale!"
+  REM %print_debug% init.bat "Env Var - git_locale=!git_locale!"
   if not defined LANG (
       for /F "delims=" %%F in ('!git_locale! -uU 2') do (
           set "LANG=%%F"
