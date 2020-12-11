@@ -37,5 +37,11 @@ where git
 
 echo.
 echo ------------------------------------
+echo systeminfo
+echo ------------------------------------
+systeminfo
+
+echo.
+echo ------------------------------------
 echo Make sure you sanitize this output of private data prior to posting it online for review by the CMDER Team!
 echo ------------------------------------
