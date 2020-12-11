@@ -53,8 +53,9 @@ foreach ($git in (get-command -ErrorAction SilentlyContinue 'git')) {
     # write-host "Using GIT Version: ${useGitVersion}"
 
     # Use user installed Git
+    $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 4))
     if ($useGitVersion -eq $gitVersionUser) {
-        $ENV:GIT_INSTALL_ROOT = ($gitDir.subString(0,$gitDir.Length - 4))
+        $ENV:GIT_INSTALL_ROOT = $gitPathUser
         $ENV:GIT_INSTALL_TYPE = 'USER'
         break
     }
@@ -70,7 +71,7 @@ if ($ENV:GIT_INSTALL_ROOT -eq $null -and $gitVersionVendor -ne $null) {
 # write-host "GIT_INSTALL_TYPE: ${ENV:GIT_INSTALL_TYPE}"
 
 if (-not($ENV:GIT_INSTALL_ROOT -eq $null)) {
-    Configure-Git -gitRoot "$ENV:GIT_INSTALL_ROOT" -gitType $ENV:GIT_INSTALL_TYPE
+    $env:Path = Configure-Git -gitRoot "$ENV:GIT_INSTALL_ROOT" -gitType $ENV:GIT_INSTALL_TYPE -gitPathUser $gitPathUser
 }
 
 if ( Get-command -Name "vim" -ErrorAction silentlycontinue) {
