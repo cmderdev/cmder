@@ -163,7 +163,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 | `/max_depth [1-5]`              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`                                                     | 1                                      |
 | `/nix_tools [0-2]`              | Define how `*nix` tools are added to the path.  Prefer Windows Tools: 1, Prefer *nix Tools: 2, No `/usr/bin` in `%PATH%`: 0                        | 1                                      |
 | `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                                                                                | `%GIT_INSTALL_ROOT%\bin\ssh.exe`       |
-| `/user_aliases [file path]`     | File path pointing to user aliases.                                                                                                                | `%CMDER_ROOT%\config\user-aliases.cmd` |
+| `/user_aliases [file path]`     | File path pointing to user aliases.                                                                                                                | `%CMDER_ROOT%\config\user_aliases.cmd` |
 | `/v`                            | Enables verbose output.                                                                                                                            | not set                                |
 | (custom arguments)              | User defined arguments processed by `cexec`. Type `cexec /?` for more useage.                                                                      | not set                                |
 
@@ -206,14 +206,14 @@ You can define simple aliases for `cmd.exe` sessions with a command like `alias 
 
 Cmd.exe aliases can also be more complex. See: [DOSKEY.EXE documentation](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/doskey) for additional details on complex aliases/macros for `cmd.exe`
 
-Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\user-aliases.cmd` file
+Aliases defined using the `alias.bat` command will automatically be saved in the `%CMDER_ROOT%\config\user_aliases.cmd` file
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
 Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow cmder to another machine.
 
 * `%CMDER_ROOT%\config\profile.d\*.cmd` and `\*.bat`
-* `%CMDER_ROOT%\config\user-aliases.cmd`
+* `%CMDER_ROOT%\config\user_aliases.cmd`
 * `%CMDER_ROOT%\config\user_profile.cmd`
 
 #### Bash.exe|Mintty.exe Aliases
