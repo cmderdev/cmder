@@ -278,7 +278,7 @@ Uncomment and edit the below line in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
-### Customizing user sessions using `init.bat` custom arguments. 
+### Customizing user sessions using `init.bat` custom arguments.
 
 You can pass custom arguments to `init.bat` and use `cexec.cmd` in your `user_profile.cmd` to evaluate these
 arguments then execute commands based on a particular flag being detected or not.
@@ -289,7 +289,7 @@ arguments then execute commands based on a particular flag being detected or not
 
 ```
 ccall=call C:\Users\user\cmderdev\vendor\bin\cexec.cmd
-```  
+```
 
 Example: `%ccall% /startnotepad start notepad.exe`
 
@@ -311,17 +311,17 @@ To conditionally start `notepad.exe` when you start a specific `cmder` task:
 * Add the below to the `Commands` block:
 
   ```batch
-  
+
   cmd.exe /k ""%ConEmuDir%\..\init.bat" /startnotepad"
-  
+
   ```
 
 * Add the below to your `%cmder_root%\config\user_profile.cmd`
 
   ```batch
-  
+
   %ccall% "/startNotepad" "start" "notepad.exe"`
-  
+
   ```
 
 To see detailed usage of `cexec`, type `cexec /?` in cmder.
