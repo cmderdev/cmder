@@ -48,7 +48,6 @@ exit /b
     )
 
     :: get the git version in the provided directory
-
     "%git_executable%" --version > "%temp%\git_version.txt"
     setlocal enabledelayedexpansion
     for /F "tokens=1,2,3 usebackq" %%A in (`type "%temp%\git_version.txt" 2^>nul`) do (
@@ -272,7 +271,7 @@ exit /b
 
 :get_user_git_version
     :: get the version information for the user provided git binary
-    %lib_git% read_version USER "%test_dir%"
+    %lib_git% read_version USER "%test_dir%" 2>nul
     %lib_git% validate_version USER %GIT_VERSION_USER%
     exit  /b
 

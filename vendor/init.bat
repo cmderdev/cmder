@@ -199,7 +199,7 @@ if defined GIT_INSTALL_ROOT (
 %lib_console% debug_output init.bat "Looking for Git install root..."
 
 :: get the version information for vendored git binary
-%lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd"
+%lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd" 2>nul
 %lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
 
 :: check if git is in path...

@@ -35,5 +35,11 @@ get-command git
 
 write-host ''
 write-host ------------------------------------
+write-host systeminfo
+write-host ------------------------------------
+systeminfo
+
+write-host ''
+write-host ------------------------------------
 write-host Make sure you sanitize this output of private data prior to posting it online for review by the CMDER Team!
 write-host ------------------------------------
