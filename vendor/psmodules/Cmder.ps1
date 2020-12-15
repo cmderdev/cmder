@@ -103,7 +103,7 @@ function Configure-Git($gitRoot, $gitType, $gitPathUser){
 
         return $newPath
     }
-        
+
     return $env:path
 }
 
