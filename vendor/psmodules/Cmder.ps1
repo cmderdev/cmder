@@ -80,23 +80,22 @@ function Configure-Git($gitRoot, $gitType, $gitPathUser){
         # If User Git is installed replace its path config with Newer Vendored Git Path
         if ($gitPathUser -ne '' -and $gitPathUser -ne $null) {
             # write-host "Replacing $gitPathUser with $gitRoot in the path"
-            $gitPathUserEsc = $gitPathUser.replace('\','\\').replace('(','\(').replace(')','\)')
 
-            $newPath = ($env:path -ireplace $gitPathUserEsc, $gitRoot)
+            $newPath = ($env:path -ireplace [regex]::Escape($gitPathUser), $gitRoot)
         } else {
-            $gitRootEsc = $gitRoot.replace('\','\\')
-            if (!($env:Path -match "$gitRootEsc\\cmd")) {
+            if (!($env:Path -match [regex]::Escape("$gitRoot\cmd"))) {
                 $newPath = $($gitRoot + "\cmd" + ";" + $env:Path)
             }
 
             # Add "$gitRoot\mingw[32|64]\bin" to the path if exists and not done already
-            if ((test-path "$gitRoot\mingw32\bin") -and -not ($env:path -match "$gitRootEsc\\mingw32\\bin")) {
+            if ((test-path "$gitRoot\mingw32\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw32\bin"))) {
                 $newPath = "$newPath;$gitRoot\mingw32\bin"
-            } elseif ((test-path "$gitRoot\mingw64\bin") -and -not ($env:path -match "$gitRootEsc\\mingw64\\bin")) {
+            } elseif ((test-path "$gitRoot\mingw64\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw32\bin"))) {
                 $newPath = "$newPath;$gitRoot\mingw64\bin"
             }
 
-            if ((test-path "$gitRoot\usr\bin") -and -not ($env:path -match "$gitRootEsc\\usr\\bin")) {
+            # Add "$gitRoot\usr\bin" to the path if exists and not done already
+            if ((test-path "$gitRoot\usr\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\usr\bin"))) {
                 $newPath = "$newPath;$gitRoot\usr\bin"
             }
         }
