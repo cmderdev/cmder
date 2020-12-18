@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Switch to @chrisant996 [Clink](https://github.com/chrisant996/clink/) v1.1.8 to fix Clink newer Windows 10 releases.
+- Switch to @chrisant996 [Clink](https://github.com/chrisant996/clink/) v1.1.10 to fix Clink newer Windows 10 releases.
 - Fix `\Git\cmd\git.exe found. was unexpected at this time.`
 - Documentation fixes.
 
