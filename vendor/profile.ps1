@@ -3,6 +3,7 @@
 
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
+$CMDER_INIT_START=$(Get-Date -UFormat %s)
 
 # Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
@@ -203,3 +204,6 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
   # if (!$(get-command Prompt).Options -match 'ReadOnly') {Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly}
   Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly
 }
+
+$CMDER_INIT_END=$(Get-Date -UFormat %s)
+write-host "Elapsed Time: $(get-Date) `($($CMDER_INIT_END - $CMDER_INIT_START) total`)"
