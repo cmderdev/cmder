@@ -206,4 +206,4 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
 }
 
 $CMDER_INIT_END=$(Get-Date -UFormat %s)
-write-host "Elapsed Time: $(get-Date) `($($CMDER_INIT_END - $CMDER_INIT_START) total`)"
+# write-host "Elapsed Time: $(get-Date) `($($CMDER_INIT_END - $CMDER_INIT_START) total`)"
