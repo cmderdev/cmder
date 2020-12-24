@@ -425,12 +425,6 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
   echo   * Search for 'user-aliases' and replace it with 'user_aliases'.
 )
 
-:: alias history |find /i "cat" >nul
-:: if "%ERRORLEVEL%" == "0" (
-::   echo Migrating alias 'history' to new Clink 1.x.x...
-::   "%CMDER_ROOT%\vendor\bin\alias.cmd" history="^%%CMDER_ROOT^%%\vendor\clink\clink.bat" history
-:: )
-
 set initialConfig=
 
 :CMDER_CONFIGURED
