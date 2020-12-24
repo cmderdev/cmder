@@ -81,6 +81,9 @@ set alias_name=!alias_name:~1!
 :: trailing quotes added while validating
 set alias_value=!alias_value:~0,-1!
 
+:: '.' escaped
+set alias_name_esc=!alias_name:.=\.!
+
 ::remove spaces
 set _temp=%alias_name: =%
 
@@ -91,7 +94,7 @@ if not ["%_temp%"] == ["%alias_name%"] (
 )
 
 :: replace already defined alias
-%WINDIR%\System32\findstr /b /v /i "%alias_name%=" "%ALIASES%" >> "%ALIASES%.tmp"
+%WINDIR%\System32\findstr /v /i "^%alias_name_esc%=" "%ALIASES%" >> "%ALIASES%.tmp"
 echo %alias_name%=%alias_value% >> "%ALIASES%.tmp" && type "%ALIASES%.tmp" > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey /macrofile="%ALIASES%"
 endlocal
@@ -99,7 +102,11 @@ exit /b
 
 :p_del
 set del_alias=%~1
-%WINDIR%\System32\findstr /b /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
+
+:: '.' escaped
+set del_alias_esc=!del_alias:.=\.!
+
+%WINDIR%\System32\findstr /v /i "^%del_alias_esc%=" "%ALIASES%" >> "%ALIASES%.tmp"
 type "%ALIASES%".tmp > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey %del_alias%=
 doskey /macrofile="%ALIASES%"
