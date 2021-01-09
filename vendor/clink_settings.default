@@ -1,26 +1,6 @@
 # For explanation of these and other settings see:
 # https://chrisant996.github.io/clink/clink.html
 
-# name: Shell command completions
-# type: color
-color.cmd = bold
-
-# name: Doskey completions
-# type: color
-color.doskey = bright cyan
-
-# name: Filtered completion color
-# type: color
-color.filtered = bold
-
-# name: For user-interaction prompts
-# type: color
-color.interact = bold
-
-# name: Message area color
-# type: color
-color.message = default
-
 # name: Sets how command history expansion is applied
 # type: enum
 # options: off,on,not_squoted,not_dquoted,not_quoted
