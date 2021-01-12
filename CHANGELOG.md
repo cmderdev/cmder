@@ -1,10 +1,10 @@
 # Change Log
 
-## [1.3.18](https://github.com/cmderdev/cmder/tree/v1.3.18) (2020-12-24)
+## [Unreleased]
 
 ### Fixes
 
-- Update to Clink v1.1.14 to fix #2451.
+- Update to Clink 1.1.20 to fix #2451.
   - Clink `%cmder_root%\config\settings` is migrated from a previous install if `%cmder_root%\config\clink_settings` does not exist.
     - This is a best effort migration of Clink 1.x.x supported settings.
   - Clink `%cmder_root%\config\.history` is migrated from a previous install if `%cmder_root%\config\clink_history` does not exist.
