@@ -4,10 +4,7 @@
 
 ### Fixes
 
-- Update to Clink 1.1.20 to fix #2451.
-  - Clink `%cmder_root%\config\settings` is migrated from a previous install if `%cmder_root%\config\clink_settings` does not exist.
-    - This is a best effort migration of Clink 1.x.x supported settings.
-  - Clink `%cmder_root%\config\.history` is migrated from a previous install if `%cmder_root%\config\clink_history` does not exist.
+- Update to Clink 1.1.34 to fix #2451, #2465,  and #2473
 - `init.bat` auto migrates the history alias to use `clink history` if required.
 
 ## [1.3.17](https://github.com/cmderdev/cmder/tree/v1.3.17) (2020-12-23)
