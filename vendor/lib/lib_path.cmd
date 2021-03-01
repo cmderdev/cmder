@@ -113,18 +113,20 @@ exit /b
     :end_enhance_path
     set "PATH=%PATH:;;=;%"
 
+    REM echo %path%|"C:\Users\dgames\cmder - dev\vendor\git-for-windows\usr\bin\wc" -c
+    if "%fast_init%" == "1" exit /b
+
     if not "%OLD_PATH:~0,3000%" == "%OLD_PATH:~0,3001%" goto :toolong
-    if not "%PATH:~0,3000%" == "%PATH:~0,3001%" goto :toolong
     if not "%OLD_PATH%" == "%PATH%" goto :changed
     exit /b
 
     :toolong
-    echo %OLD_PATH%>tempfileA
-    echo %PATH%>tempfileB
-    fc /b tempfileA tempfileB 2>nul 1>nul
-    if errorlevel 1 ( del tempfileA & del tempfileB & goto :changed )
-    del tempfileA & del tempfileB
-    exit /b
+      echo %OLD_PATH%>tempfileA
+      echo %PATH%>tempfileB
+      fc /b tempfileA tempfileB 2>nul 1>nul
+      if errorlevel 1 ( del tempfileA & del tempfileB & goto :changed )
+      del tempfileA & del tempfileB
+      exit /b
 
     :changed
       %print_debug%  :enhance_path "END Env Var - PATH=%path%"
