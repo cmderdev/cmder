@@ -112,12 +112,27 @@ exit /b
 
     :end_enhance_path
     set "PATH=%PATH:;;=;%"
-    if NOT "%OLD_PATH%" == "%PATH%" (
+
+    if not "%OLD_PATH:~0,3000%" == "%OLD_PATH:~0,3001%" goto :toolong
+    if not "%PATH:~0,3000%" == "%PATH:~0,3001%" goto :toolong
+    if not "%OLD_PATH%" == "%PATH%" goto :changed
+    exit /b
+
+    :toolong
+    echo %OLD_PATH%>tempfileA
+    echo %PATH%>tempfileB
+    fc /b tempfileA tempfileB 2>nul 1>nul
+    if errorlevel 1 ( del tempfileA & del tempfileB & goto :changed )
+    del tempfileA & del tempfileB
+    exit /b
+
+    :changed
       %print_debug%  :enhance_path "END Env Var - PATH=%path%"
       %print_debug%  :enhance_path "Env Var %find_query% - found=%found%"
-    )
-    set "position="
+      exit /b
+
     exit /b
+
 
 :set_found
     if "%ERRORLEVEL%" == "0" (
