@@ -4,8 +4,9 @@
 
 ### Fixes
 
-- Update to Clink 1.1.34 to fix #2451, #2465,  and #2473
+- Update to Clink 1.1.45 to fix #2451, #2465,  and #2473
 - `init.bat` auto migrates the history alias to use `clink history` if required.
+- Remove Tilde match from clink.lua in favor of builtin Clink capability.
 
 ## [1.3.17](https://github.com/cmderdev/cmder/tree/v1.3.17) (2020-12-23)
 ### Fixes
