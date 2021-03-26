@@ -1,10 +1,11 @@
 # Change Log
 
-## [Unreleased]
+## [1.3.18](https://github.com/cmderdev/cmder/tree/v1.3.18) (2021-3-26)
 
-### Fixes
+### Changes
 
 - Update to Clink 1.1.45 to fix #2451, #2465,  and #2473
+- Update to ConEmu v21.03.04
 - `init.bat` auto migrates the history alias to use `clink history` if required.
 - Remove Tilde match from clink.lua in favor of builtin Clink capability.
 
