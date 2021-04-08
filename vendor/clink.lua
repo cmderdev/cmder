@@ -285,15 +285,24 @@ end
 -- @return {bool}
 ---
 local function get_git_status_setting()
-    gitStatusSetting = io.popen("git --no-pager config -l 2>nul")
+    local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
 
-    for line in gitStatusSetting:lines() do
-        if string.match(line, 'cmder.status=false') or string.match(line, 'cmder.cmdstatus=false') then
-          gitStatusSetting:close()
+    for line in gitStatusConfig:lines() do
+        if string.match(line, 'false') then
+          gitStatusConfig:close()
           return false
         end
     end
-    gitStatusSetting:close()
+
+    local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
+    for line in gitCmdStatusConfig:lines() do
+        if string.match(line, 'false') then
+          gitCmdStatusConfig:close()
+          return false
+        end
+    end
+    gitStatusConfig:close()
+    gitCmdStatusConfig:close()
 
     return true
 end
@@ -308,8 +317,8 @@ local function git_prompt_filter()
     }
 
     local git_dir = get_git_dir()
-
-    if get_git_status_setting() then
+    cmderGitStatusOptIn = get_git_status_setting()
+    if cmderGitStatusOptIn then
       if git_dir then
           -- if we're inside of git repo then try to detect current branch
           local branch = get_git_branch(git_dir)
