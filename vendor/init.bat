@@ -154,6 +154,11 @@ if "%CMDER_CLINK%" == "1" (
       echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.
     )
 
+    if not exist "%CMDER_USER_CONFIG%\cmder_prompt_config.lua" (
+      echo Creating Cmder prompt config file: "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
+      copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
+    )
+
     REM Cleanup lagacy Clink Settings file
     if exist "%CMDER_USER_CONFIG%\settings" if exist "%CMDER_USER_CONFIG%\clink_settings" (
       del "%CMDER_USER_CONFIG%\settings"
@@ -171,6 +176,11 @@ if "%CMDER_CLINK%" == "1" (
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
     
+    if not exist "%CMDER_ROOT%\config\cmder_prompt_config.lua" (
+      echo Creating Cmder prompt config file: "%CMDER_ROOT%\config\cmder_prompt_config.lua"
+      copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_ROOT%\config\cmder_prompt_config.lua"
+    )
+
     REM Cleanup lagacy Clink Settings file
     if exist "%CMDER_ROOT%\config\settings" if exist "%CMDER_ROOT%\config\clink_settings" (
       del "%CMDER_ROOT%\config\settings"
