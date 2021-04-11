@@ -347,9 +347,9 @@ local function git_prompt_filter()
 
     -- Colors for git status
     local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[33;3m",
-        conflict = "\x1b[31;1m"
+        clean = clean_color,
+        dirty = dirty_color,
+        conflict = conflict_color
     }
 
     local git_dir = get_git_dir()
@@ -392,8 +392,8 @@ local function hg_prompt_filter()
     if hg_dir then
         -- Colors for mercurial status
         local colors = {
-            clean = "\x1b[1;37;40m",
-            dirty = "\x1b[31;1m",
+            clean = clean_color,
+            dirty = dirty_color,
         }
 
         local pipe = io.popen("hg branch 2>&1")
@@ -426,8 +426,8 @@ end
 local function svn_prompt_filter()
     -- Colors for svn status
     local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[31;1m",
+        clean = clean_color,
+        dirty = dirty_color,
     }
 
     if get_svn_dir() then
