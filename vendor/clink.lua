@@ -21,6 +21,16 @@ local function verbatim(s)
     return s
 end
 
+-- Extracts only the folder name from the input Path
+-- Ex: Input C:\Windows\System32 returns System32
+---
+local function get_folder_name(path)
+  local reversePath = string.reverse(path)
+  local slashIndex = string.find(reversePath, "\\")
+  return string.sub(path, string.len(path) - slashIndex + 2)
+end
+
+
 ---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
 -- not destroy our own prompt. It also means that started cmds (or batch files
@@ -44,17 +54,43 @@ local function set_prompt_filter()
     -- also check for square brackets
     if env == nil then env = old_prompt:match('.*%[([^%]]+)%].+:') end
 
-    -- build our own prompt
-    -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
-    -- color codes: "\x1b[1;37;40m"
-    local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
-    local lambda = "λ"
-    cmder_prompt = string.gsub(cmder_prompt, "{cwd}", verbatim(cwd))
+    -- Much of the below was 'borrowed' from https://github.com/AmrEldib/cmder-powerline-prompt
+    -- Symbol displayed for the home dir in the prompt.
+    if not prompt_homeSymbol then
+      prompt_homeSymbol = "~"
+    end
+
+    -- Symbol displayed in the new line below the prompt.
+    if not prompt_lambSymbol then
+      prompt_lambSymbol = "λ"
+    end
+
+    if prompt_type == 'folder' then
+        cwd = get_folder_name(cwd)
+    end
+
+    if prompt_useHomeSymbol and string.find(cwd, clink.get_env("HOME")) then
+        cwd = string.gsub(cwd, clink.get_env("HOME"), prompt_homeSymbol)
+    end
+
+    uah = ''
+    if prompt_useUserAtHost then
+        uah = clink.get_env("USERNAME") .. "@" .. clink.get_env("COMPUTERNAME") .. ' '
+    end
+
+    cr = "\n"
+    if prompt_singleLine then
+      cr = ' '
+    end
 
     if env ~= nil then
-        lambda = "("..env..") "..lambda
+        prompt_lambSymbol = "("..env..") "..prompt_lambSymbol
     end
-    clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", verbatim(lambda))
+
+    prompt = uah_color .. "{uah}" .. cwd_color .. "{cwd}{git}{hg}{svn}" .. lamb_color .. cr .. "{lamb} \x1b[0m"
+    uah_value = string.gsub(prompt, "{uah}", uah)
+    new_value = string.gsub(uah_value, "{cwd}", cwd)
+    clink.prompt.value = string.gsub(new_value, "{lamb}", prompt_lambSymbol)
 end
 
 local function percent_prompt_filter()
@@ -311,9 +347,9 @@ local function git_prompt_filter()
 
     -- Colors for git status
     local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[33;3m",
-        conflict = "\x1b[31;1m"
+        clean = clean_color,
+        dirty = dirty_color,
+        conflict = conflict_color
     }
 
     local git_dir = get_git_dir()
@@ -335,7 +371,7 @@ local function git_prompt_filter()
 
               if gitConflict then
                   color = colors.conflict
-              end 
+              end
 
               clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
               return false
@@ -356,8 +392,8 @@ local function hg_prompt_filter()
     if hg_dir then
         -- Colors for mercurial status
         local colors = {
-            clean = "\x1b[1;37;40m",
-            dirty = "\x1b[31;1m",
+            clean = clean_color,
+            dirty = dirty_color,
         }
 
         local pipe = io.popen("hg branch 2>&1")
@@ -390,8 +426,8 @@ end
 local function svn_prompt_filter()
     -- Colors for svn status
     local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[31;1m",
+        clean = clean_color,
+        dirty = dirty_color,
     }
 
     if get_svn_dir() then

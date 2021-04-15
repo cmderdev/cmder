@@ -1,6 +1,6 @@
 @echo off
 
-:: Find root dir
+rem Find root dir
 
 if not defined CMDER_ROOT (
     for /f "delims=" %%i in ("%~dp0\..\..") do (
