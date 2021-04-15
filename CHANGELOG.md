@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changes
+
+- Update Git for Windows to 2.31.1
+
 ### Adds
 
 - Configurable prompt for `cmd.exe` sessions.  See `%cmder_root%\config\cmder_prompt_config.lua`
