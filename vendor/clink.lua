@@ -127,14 +127,13 @@ local function set_prompt_filter()
       cr = ' '
     end
 
-    if env ~= nil then
-        prompt_lambSymbol = "("..env..") "..prompt_lambSymbol
-    end
+    if env ~= nil then env = "("..env..") " else env = "" end
 
     prompt = get_uah_color() .. "{uah}" .. get_cwd_color() .. "{cwd}{git}{hg}{svn}" .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
-    uah_value = string.gsub(prompt, "{uah}", uah)
-    new_value = string.gsub(uah_value, "{cwd}", cwd)
-    clink.prompt.value = string.gsub(new_value, "{lamb}", prompt_lambSymbol)
+    prompt = string.gsub(prompt, "{uah}", uah)
+    prompt = string.gsub(prompt, "{cwd}", cwd)
+    prompt = string.gsub(prompt, "{env}", env)
+    clink.prompt.value = string.gsub(prompt, "{lamb}", prompt_lambSymbol)
 end
 
 local function percent_prompt_filter()
