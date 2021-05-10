@@ -129,7 +129,7 @@ local function set_prompt_filter()
 
     if env ~= nil then env = "("..env..") " else env = "" end
 
-    prompt = get_uah_color() .. "{uah}" .. get_cwd_color() .. "{cwd}{git}{hg}{svn}" .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
+    prompt = get_uah_color() .. "{uah}" .. get_cwd_color() .. "{cwd}{git}{hg}{svn}" .. get_lamb_color() .. cr .. "{env}{lamb} \x1b[0m"
     prompt = string.gsub(prompt, "{uah}", uah)
     prompt = string.gsub(prompt, "{cwd}", cwd)
     prompt = string.gsub(prompt, "{env}", env)
