@@ -41,6 +41,10 @@ local function get_conflict_color()
   return conflict_color or "\x1b[31;1m"
 end
 
+local function get_unknown_color()
+  return unknown_color or "\x1b[30;1m"
+end
+
 ---
 -- Makes a string safe to use as the replacement in string.gsub
 ---
@@ -361,27 +365,29 @@ end
 
 ---
 -- Get the status of working dir
--- @return {bool}
+-- @return {bool|'branchonly'}
 ---
 local function get_git_status_setting()
-    local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
+    local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
+    for line in gitCmdStatusConfig:lines() do
+        if string.match(line, 'false') then
+          gitCmdStatusConfig:close()
+          return false
+        elseif string.match(line, 'branchonly') then
+          gitCmdStatusConfig:close()
+          return 'branchonly'
+        end
+    end
+    gitCmdStatusConfig:close()
 
+    local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
     for line in gitStatusConfig:lines() do
         if string.match(line, 'false') then
           gitStatusConfig:close()
           return false
         end
     end
-
-    local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
-    for line in gitCmdStatusConfig:lines() do
-        if string.match(line, 'false') then
-          gitCmdStatusConfig:close()
-          return false
-        end
-    end
     gitStatusConfig:close()
-    gitCmdStatusConfig:close()
 
     return true
 end
@@ -392,7 +398,8 @@ local function git_prompt_filter()
     local colors = {
         clean = get_clean_color(),
         dirty = get_dirty_color(),
-        conflict = get_conflict_color()
+        conflict = get_conflict_color(),
+        unknown = get_unknown_color()
     }
 
     local git_dir = get_git_dir()
@@ -403,17 +410,21 @@ local function git_prompt_filter()
           local branch = get_git_branch(git_dir)
           local color
           if branch then
-              -- Has branch => therefore it is a git folder, now figure out status
-              local gitStatus = get_git_status()
-              local gitConflict = get_git_conflict()
+              if cmderGitStatusOptIn ~= 'branchonly' then
+                -- Has branch => therefore it is a git folder, now figure out status
+                local gitStatus = get_git_status()
+                local gitConflict = get_git_conflict()
 
-              color = colors.dirty
-              if gitStatus then
-                  color = colors.clean
-              end
+                color = colors.dirty
+                if gitStatus then
+                    color = colors.clean
+                end
 
-              if gitConflict then
-                  color = colors.conflict
+                if gitConflict then
+                    color = colors.conflict
+                end
+              else
+                color = colors.unknown
               end
 
               clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")

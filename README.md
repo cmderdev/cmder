@@ -194,10 +194,11 @@ You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in t
 
  ```
  [cmder]
-   status = false      # Opt out of Git status for 'ALL' Cmder supported shells.
-   cmdstatus = false   # Opt out of Git status for 'Cmd.exe' shells.
-   psstatus = false    # Opt out of Git status for 'Powershell.exe and 'Pwsh.exe' shells.
-   shstatus = false    # Opt out of Git status for 'bash.exe' shells.
+   status = false          # Opt out of Git status for 'ALL' Cmder supported shells.
+   cmdstatus = false       # Opt out of Git status for 'Cmd.exe' shells.
+   cmdstatus = branchonly  # Show branch name in 'Cmd.exe' shells, but don't color according to status (faster)
+   psstatus = false        # Opt out of Git status for 'Powershell.exe and 'Pwsh.exe' shells.
+   shstatus = false        # Opt out of Git status for 'bash.exe' shells.
  ```
 
 ### Aliases
