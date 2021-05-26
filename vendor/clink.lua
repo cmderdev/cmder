@@ -365,29 +365,27 @@ end
 
 ---
 -- Get the status of working dir
--- @return {bool|'branchonly'}
+-- @return {bool}
 ---
 local function get_git_status_setting()
-    local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
-    for line in gitCmdStatusConfig:lines() do
-        if string.match(line, 'false') then
-          gitCmdStatusConfig:close()
-          return false
-        elseif string.match(line, 'branchonly') then
-          gitCmdStatusConfig:close()
-          return 'branchonly'
-        end
-    end
-    gitCmdStatusConfig:close()
-
     local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
+
     for line in gitStatusConfig:lines() do
         if string.match(line, 'false') then
           gitStatusConfig:close()
           return false
         end
     end
+
+    local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
+    for line in gitCmdStatusConfig:lines() do
+        if string.match(line, 'false') then
+          gitCmdStatusConfig:close()
+          return false
+        end
+    end
     gitStatusConfig:close()
+    gitCmdStatusConfig:close()
 
     return true
 end
@@ -404,13 +402,13 @@ local function git_prompt_filter()
 
     local git_dir = get_git_dir()
     cmderGitStatusOptIn = get_git_status_setting()
-    if cmderGitStatusOptIn then
-      if git_dir then
-          -- if we're inside of git repo then try to detect current branch
-          local branch = get_git_branch(git_dir)
-          local color
-          if branch then
-              if cmderGitStatusOptIn ~= 'branchonly' then
+
+    if git_dir then
+        -- if we're inside of git repo then try to detect current branch
+        local branch = get_git_branch(git_dir)
+        local color = colors.unknown
+        if branch then
+            if cmderGitStatusOptIn then
                 -- Has branch => therefore it is a git folder, now figure out status
                 local gitStatus = get_git_status()
                 local gitConflict = get_git_conflict()
@@ -423,14 +421,11 @@ local function git_prompt_filter()
                 if gitConflict then
                     color = colors.conflict
                 end
-              else
-                color = colors.unknown
-              end
+            end
 
-              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
-              return false
-          end
-      end
+            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
+            return false
+        end
     end
 
     -- No git present or not in git file
