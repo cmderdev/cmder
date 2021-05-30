@@ -350,6 +350,7 @@ local function git_prompt_filter()
         clean = clean_color,
         dirty = dirty_color,
         conflict = conflict_color
+        nostatus = unknown_color
     }
 
     local git_dir = get_git_dir()
@@ -377,6 +378,17 @@ local function git_prompt_filter()
               return false
           end
       end
+    else
+      if git_dir then
+          local branch = get_git_branch(git_dir)
+          local color
+          if branch then
+              color = colors.nostatus
+              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
+              return false
+          end
+      end
+
     end
 
     -- No git present or not in git file
@@ -394,6 +406,7 @@ local function hg_prompt_filter()
         local colors = {
             clean = clean_color,
             dirty = dirty_color,
+            nostatus = nostatus_color
         }
 
         local pipe = io.popen("hg branch 2>&1")
@@ -428,6 +441,7 @@ local function svn_prompt_filter()
     local colors = {
         clean = clean_color,
         dirty = dirty_color,
+        nostatus = nostatus_color
     }
 
     if get_svn_dir() then
