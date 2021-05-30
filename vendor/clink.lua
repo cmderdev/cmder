@@ -42,7 +42,7 @@ local function get_conflict_color()
 end
 
 local function get_unknown_color()
-  return unknown_color or "\x1b[1;37;40m"
+  return unknown_color or "\x1b[37;1m"
 end
 
 ---
