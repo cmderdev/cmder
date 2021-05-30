@@ -434,7 +434,6 @@ local function git_prompt_filter()
               return false
           end
       end
-
     end
 
     -- No git present or not in git file
