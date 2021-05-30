@@ -61,7 +61,7 @@ else
         PS1="$PS1"'\[\033[36m\]'  # change color to cyan
         PS1="$PS1"'`__git_ps1`'   # bash function
       else
-        PS1="$PS1"'\[\033[30;1m\]'  # change color to gray
+        PS1="$PS1"'\[\033[37;1m\]'  # change color to white
         PS1="$PS1"'`getSimpleGitBranch`'
       fi
     fi
