@@ -403,37 +403,29 @@ local function git_prompt_filter()
     local git_dir = get_git_dir()
     local color
     cmderGitStatusOptIn = get_git_status_setting()
-    if cmderGitStatusOptIn then
-      if git_dir then
-          -- if we're inside of git repo then try to detect current branch
-          local branch = get_git_branch(git_dir)
-          if branch then
-              -- Has branch => therefore it is a git folder, now figure out status
-              local gitStatus = get_git_status()
-              local gitConflict = get_git_conflict()
+    if git_dir then
+        local branch = get_git_branch(git_dir)
+        if branch then
+            if cmderGitStatusOptIn then
+                -- if we're inside of git repo then try to detect current branch
+                -- Has branch => therefore it is a git folder, now figure out status
+                local gitStatus = get_git_status()
+                local gitConflict = get_git_conflict()
 
-              color = colors.dirty
-              if gitStatus then
-                  color = colors.clean
-              end
+                color = colors.dirty
+                if gitStatus then
+                    color = colors.clean
+                end
 
-              if gitConflict then
-                  color = colors.conflict
-              end
-
-              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
-              return false
-          end
-      end
-    else
-      if git_dir then
-          local branch = get_git_branch(git_dir)
-          if branch then
-              color = colors.nostatus
-              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
-              return false
-          end
-      end
+                if gitConflict then
+                    color = colors.conflict
+                end
+            else
+                color = colors.nostatus
+            end
+            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
+            return false
+        end
     end
 
     -- No git present or not in git file
