@@ -64,6 +64,28 @@ end
 
 
 ---
+-- Forward/backward compatibility for Clink asynchronous prompt filtering.
+-- With Clink v1.2.10 and higher this lets git status run in the background and
+-- refresh the prompt when it finishes, to eliminate waits in large git repos.
+---
+local io_popenyield
+local clink_promptcoroutine
+local cached_info = {}
+if clink.promptcoroutine and io.popenyield then
+    io_popenyield = io.popenyield
+    clink_promptcoroutine = clink.promptcoroutine
+    -- Uncommenting this will override the cmderGitStatusOptIn and always show
+    -- git status when Clink is able to run it in the background.
+    --cmderForceAsyncGitStatus = true
+else
+    io_popenyield = io.popen
+    clink_promptcoroutine = function (func)
+        return func(false)
+    end
+end
+
+
+---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
 -- not destroy our own prompt. It also means that started cmds (or batch files
 -- which echo) don't get the ugly '{lamb}' shown.
@@ -308,7 +330,7 @@ end
 -- @return {bool}
 ---
 local function get_git_status()
-    local file = io.popen("git --no-optional-locks status --porcelain 2>nul")
+    local file = io_popenyield("git --no-optional-locks status --porcelain 2>nul")
     for line in file:lines() do
         file:close()
         return false
@@ -323,7 +345,7 @@ end
 -- @return {bool} indicating true for conflict, false for no conflicts
 ---
 function get_git_conflict()
-    local file = io.popen("git diff --name-only --diff-filter=U 2>nul")
+    local file = io_popenyield("git diff --name-only --diff-filter=U 2>nul")
     for line in file:lines() do
         file:close()
         return true;
@@ -361,6 +383,22 @@ local function get_svn_status()
     file:close()
 
     return true
+end
+
+---
+-- Use a prompt coroutine to get git status in the background.
+-- Cache the info so we can reuse it next time to reduce flicker.
+---
+local function get_git_info_table()
+    local info = clink_promptcoroutine(function ()
+        return { status=get_git_status(), conflict=get_git_conflict() }
+    end)
+    if not info then
+        info = cached_info.git_info or {}
+    else
+        cached_info.git_info = info
+    end
+    return info
 end
 
 ---
@@ -402,19 +440,30 @@ local function git_prompt_filter()
 
     local git_dir = get_git_dir()
     local color
-    cmderGitStatusOptIn = get_git_status_setting()
+    cmderGitStatusOptIn = cmderForceAsyncGitStatus or get_git_status_setting()
     if git_dir then
         local branch = get_git_branch(git_dir)
         if branch then
+            -- If in a different repo or branch than last time, discard cached info.
+            if cached_info.git_dir ~= git_dir or cached_info.git_branch ~= branch then
+                cached_info.git_info = nil
+                cached_info.git_dir = git_dir
+                cached_info.git_branch = branch
+            end
+            -- Use git status if allowed.
             if cmderGitStatusOptIn then
                 -- if we're inside of git repo then try to detect current branch
                 -- Has branch => therefore it is a git folder, now figure out status
-                local gitStatus = get_git_status()
-                local gitConflict = get_git_conflict()
+                local gitInfo = get_git_info_table()
+                local gitStatus = gitInfo.status
+                local gitConflict = gitInfo.conflict
 
-                color = colors.dirty
-                if gitStatus then
+                if gitStatus == nil then
+                    color = colors.nostatus
+                elseif gitStatus then
                     color = colors.clean
+                else
+                    color = colors.dirty
                 end
 
                 if gitConflict then
