@@ -41,6 +41,10 @@ local function get_conflict_color()
   return conflict_color or "\x1b[31;1m"
 end
 
+local function get_unknown_color()
+  return unknown_color or "\x1b[30;1m"
+end
+
 ---
 -- Makes a string safe to use as the replacement in string.gsub
 ---
@@ -392,34 +396,36 @@ local function git_prompt_filter()
     local colors = {
         clean = get_clean_color(),
         dirty = get_dirty_color(),
-        conflict = get_conflict_color()
+        conflict = get_conflict_color(),
+        unknown = get_unknown_color()
     }
 
     local git_dir = get_git_dir()
     cmderGitStatusOptIn = get_git_status_setting()
-    if cmderGitStatusOptIn then
-      if git_dir then
-          -- if we're inside of git repo then try to detect current branch
-          local branch = get_git_branch(git_dir)
-          local color
-          if branch then
-              -- Has branch => therefore it is a git folder, now figure out status
-              local gitStatus = get_git_status()
-              local gitConflict = get_git_conflict()
 
-              color = colors.dirty
-              if gitStatus then
-                  color = colors.clean
-              end
+    if git_dir then
+        -- if we're inside of git repo then try to detect current branch
+        local branch = get_git_branch(git_dir)
+        local color = colors.unknown
+        if branch then
+            if cmderGitStatusOptIn then
+                -- Has branch => therefore it is a git folder, now figure out status
+                local gitStatus = get_git_status()
+                local gitConflict = get_git_conflict()
 
-              if gitConflict then
-                  color = colors.conflict
-              end
+                color = colors.dirty
+                if gitStatus then
+                    color = colors.clean
+                end
 
-              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
-              return false
-          end
-      end
+                if gitConflict then
+                    color = colors.conflict
+                end
+            end
+
+            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
+            return false
+        end
     end
 
     -- No git present or not in git file
