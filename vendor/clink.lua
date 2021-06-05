@@ -42,7 +42,7 @@ local function get_conflict_color()
 end
 
 local function get_unknown_color()
-  return unknown_color or "\x1b[30;1m"
+  return unknown_color or "\x1b[37;1m"
 end
 
 ---
@@ -397,18 +397,17 @@ local function git_prompt_filter()
         clean = get_clean_color(),
         dirty = get_dirty_color(),
         conflict = get_conflict_color(),
-        unknown = get_unknown_color()
+        nostatus = get_unknown_color()
     }
 
     local git_dir = get_git_dir()
+    local color
     cmderGitStatusOptIn = get_git_status_setting()
-
     if git_dir then
-        -- if we're inside of git repo then try to detect current branch
         local branch = get_git_branch(git_dir)
-        local color = colors.unknown
         if branch then
             if cmderGitStatusOptIn then
+                -- if we're inside of git repo then try to detect current branch
                 -- Has branch => therefore it is a git folder, now figure out status
                 local gitStatus = get_git_status()
                 local gitConflict = get_git_conflict()
@@ -421,8 +420,9 @@ local function git_prompt_filter()
                 if gitConflict then
                     color = colors.conflict
                 end
+            else
+                color = colors.nostatus
             end
-
             clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
             return false
         end
@@ -443,6 +443,7 @@ local function hg_prompt_filter()
         local colors = {
             clean = get_clean_color(),
             dirty = get_dirty_color(),
+            nostatus = get_unknown_color()
         }
 
         local pipe = io.popen("hg branch 2>&1")
@@ -477,6 +478,7 @@ local function svn_prompt_filter()
     local colors = {
         clean = get_clean_color(),
         dirty = get_dirty_color(),
+        nostatus = get_unknown_color()
     }
 
     if get_svn_dir() then

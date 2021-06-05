@@ -43,7 +43,7 @@ function checkGit($Path) {
         } else {
             $branchName = "HEAD detached at $($headContent.Substring(0, 7))"
         }
-        Write-Host " [$branchName]" -NoNewline -ForegroundColor DarkGray
+        Write-Host " [$branchName]" -NoNewline -ForegroundColor White
       }
 
       return
