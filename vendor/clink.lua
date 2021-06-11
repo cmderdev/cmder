@@ -13,6 +13,34 @@ dofile(clink_lua_file)
 
 -- now add our own things...
 
+
+local function get_uah_color()
+  return uah_color or "\x1b[1;33;40m" -- Green = uah = [user]@[hostname]
+end
+
+local function get_cwd_color()
+  return cwd_color or "\x1b[1;32;40m" -- Yellow cwd = Current Working Directory
+end
+
+local function get_lamb_color()
+  return lamb_color or "\x1b[1;30;40m" -- Light Grey = Lambda Color
+end
+
+
+local function get_clean_color()
+  return clean_color or "\x1b[1;37;40m"
+end
+
+
+local function get_dirty_color()
+  return dirty_color or "\x1b[33;3m"
+end
+
+
+local function get_conflict_color()
+  return conflict_color or "\x1b[31;1m"
+end
+
 ---
 -- Makes a string safe to use as the replacement in string.gsub
 ---
@@ -65,6 +93,22 @@ local function set_prompt_filter()
       prompt_lambSymbol = "λ"
     end
 
+    if not prompt_type then
+      prompt_type = "full"
+    end
+
+    if prompt_useHomeSymbol == nil then
+      prompt_useHomeSymbol = false
+    end
+
+    if prompt_useUserAtHost == nil then
+      prompt_useUserAtHost = false
+    end
+
+    if prompt_singleLine == nil then
+      prompt_singleLine = false
+    end
+
     if prompt_type == 'folder' then
         cwd = get_folder_name(cwd)
     end
@@ -83,14 +127,13 @@ local function set_prompt_filter()
       cr = ' '
     end
 
-    if env ~= nil then
-        prompt_lambSymbol = "("..env..") "..prompt_lambSymbol
-    end
+    if env ~= nil then env = "("..env..") " else env = "" end
 
-    prompt = uah_color .. "{uah}" .. cwd_color .. "{cwd}{git}{hg}{svn}" .. lamb_color .. cr .. "{lamb} \x1b[0m"
-    uah_value = string.gsub(prompt, "{uah}", uah)
-    new_value = string.gsub(uah_value, "{cwd}", cwd)
-    clink.prompt.value = string.gsub(new_value, "{lamb}", prompt_lambSymbol)
+    prompt = get_uah_color() .. "{uah}" .. get_cwd_color() .. "{cwd}{git}{hg}{svn}" .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
+    prompt = string.gsub(prompt, "{uah}", uah)
+    prompt = string.gsub(prompt, "{cwd}", cwd)
+    prompt = string.gsub(prompt, "{env}", env)
+    clink.prompt.value = string.gsub(prompt, "{lamb}", prompt_lambSymbol)
 end
 
 local function percent_prompt_filter()
@@ -347,10 +390,9 @@ local function git_prompt_filter()
 
     -- Colors for git status
     local colors = {
-        clean = clean_color,
-        dirty = dirty_color,
-        conflict = conflict_color
-        nostatus = unknown_color
+        clean = get_clean_color(),
+        dirty = get_dirty_color(),
+        conflict = get_conflict_color()
     }
 
     local git_dir = get_git_dir()
@@ -378,17 +420,6 @@ local function git_prompt_filter()
               return false
           end
       end
-    else
-      if git_dir then
-          local branch = get_git_branch(git_dir)
-          local color
-          if branch then
-              color = colors.nostatus
-              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
-              return false
-          end
-      end
-
     end
 
     -- No git present or not in git file
@@ -404,9 +435,8 @@ local function hg_prompt_filter()
     if hg_dir then
         -- Colors for mercurial status
         local colors = {
-            clean = clean_color,
-            dirty = dirty_color,
-            nostatus = nostatus_color
+            clean = get_clean_color(),
+            dirty = get_dirty_color(),
         }
 
         local pipe = io.popen("hg branch 2>&1")
@@ -439,9 +469,8 @@ end
 local function svn_prompt_filter()
     -- Colors for svn status
     local colors = {
-        clean = clean_color,
-        dirty = dirty_color,
-        nostatus = nostatus_color
+        clean = get_clean_color(),
+        dirty = get_dirty_color(),
     }
 
     if get_svn_dir() then
