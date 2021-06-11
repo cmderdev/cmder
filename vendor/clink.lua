@@ -420,17 +420,6 @@ local function git_prompt_filter()
               return false
           end
       end
-    else
-      if git_dir then
-          local branch = get_git_branch(git_dir)
-          local color
-          if branch then
-              color = colors.nostatus
-              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
-              return false
-          end
-      end
-
     end
 
     -- No git present or not in git file
@@ -446,14 +435,8 @@ local function hg_prompt_filter()
     if hg_dir then
         -- Colors for mercurial status
         local colors = {
-<<<<<<< HEAD
-            clean = clean_color,
-            dirty = dirty_color,
-            nostatus = nostatus_color
-=======
             clean = get_clean_color(),
             dirty = get_dirty_color(),
->>>>>>> 36f4ce0e3c664b23c3652f180b29e9238860b203
         }
 
         local pipe = io.popen("hg branch 2>&1")
@@ -486,14 +469,8 @@ end
 local function svn_prompt_filter()
     -- Colors for svn status
     local colors = {
-<<<<<<< HEAD
-        clean = clean_color,
-        dirty = dirty_color,
-        nostatus = nostatus_color
-=======
         clean = get_clean_color(),
         dirty = get_dirty_color(),
->>>>>>> 36f4ce0e3c664b23c3652f180b29e9238860b203
     }
 
     if get_svn_dir() then
