@@ -29,6 +29,11 @@ prompt_useUserAtHost = false
  -- default is false
 prompt_singleLine = false
 
+-- OPTIONAL. If true then always ignore the cmder.status and cmder.cmdstatus git config settings and run the git prompt commands in the background.
+ -- default is false
+ -- NOTE: This only takes effect if using Clink v1.2.10 or higher.
+prompt_overrideGitStatusOptIn = false
+
 -- Prompt Attributes
 --
 -- Colors

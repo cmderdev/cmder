@@ -74,9 +74,9 @@ local cached_info = {}
 if clink.promptcoroutine and io.popenyield then
     io_popenyield = io.popenyield
     clink_promptcoroutine = clink.promptcoroutine
-    -- Uncommenting this will override the cmderGitStatusOptIn and always show
-    -- git status when Clink is able to run it in the background.
-    --cmderForceAsyncGitStatus = true
+    if prompt_overrideGitStatusOptIn then
+        cmderForceAsyncGitStatus = true
+    end
 else
     io_popenyield = io.popen
     clink_promptcoroutine = function (func)
