@@ -136,6 +136,26 @@ echo source \$CMDER_ROOT/vendor/mintty-colors-solarized/mintty-solarized-dark.sh
 
 You may find some Monokai color schemes for mintty to match Cmder [here](https://github.com/oumu/mintty-color-schemes/blob/master/base16-monokai-mod.minttyrc).
 
+### Changing Cmder Default `cmd.exe` Prompt Config File
+
+The default Cmder shell `cmd::Cmder` propmt is customized using `Clink` and is configured by editing a config file that exists in one of two locations:
+
+- Single User Portable Config `%CMDER_ROOT%\config\cmder_prompt_config.lua`
+- Shared Cmder install with Non-Portable Individual User Config `%CMDER_USER_CONFIG%\cmder_prompt_config.lua`
+
+If your Cmder setup does not have this file create it from `%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default`
+
+Customizations include:
+
+- Colors.
+- Single/Multi-line.
+- Full path/Folder only.
+- `[user]@[host]` to the beginning of the prompt.
+- `~` for home directory.
+- `λ` symbol
+
+Documentation is in the file for each setting.
+
 ### Changing Cmder Default `cmd.exe` Shell Startup Behaviour Using Task Arguments
 
 1. Press <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd>
