@@ -86,6 +86,13 @@ end
 
 
 ---
+-- Global variable so other Lua scripts can detect whether they're in a Cmder
+-- shell session.
+---
+CMDER_SESSION = true
+
+
+---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
 -- not destroy our own prompt. It also means that started cmds (or batch files
 -- which echo) don't get the ugly '{lamb}' shown.
@@ -135,6 +142,10 @@ local function set_prompt_filter()
       prompt_singleLine = false
     end
 
+    if prompt_includeVersionControl == nil then
+      prompt_includeVersionControl = true
+    end
+
     if prompt_type == 'folder' then
         cwd = get_folder_name(cwd)
     end
@@ -155,7 +166,12 @@ local function set_prompt_filter()
 
     if env ~= nil then env = "("..env..") " else env = "" end
 
-    prompt = get_uah_color() .. "{uah}" .. get_cwd_color() .. "{cwd}{git}{hg}{svn}" .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
+    if uah ~= '' then uah = get_uah_color() .. uah end
+    if cwd ~= '' then cwd = get_cwd_color() .. cwd end
+
+    local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
+
+    prompt = "{uah}{cwd}" .. version_control .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
     prompt = string.gsub(prompt, "{uah}", uah)
     prompt = string.gsub(prompt, "{cwd}", cwd)
     prompt = string.gsub(prompt, "{env}", env)
@@ -430,6 +446,11 @@ end
 
 local function git_prompt_filter()
 
+    -- Don't do any git processing if the prompt doesn't want to show git info.
+    if not clink.prompt.value:find("{git}") then
+        return false
+    end
+
     -- Colors for git status
     local colors = {
         clean = get_clean_color(),
@@ -484,6 +505,11 @@ end
 
 local function hg_prompt_filter()
 
+    -- Don't do any hg processing if the prompt doesn't want to show hg info.
+    if not clink.prompt.value:find("{hg}") then
+        return false
+    end
+
     local result = ""
 
     local hg_dir = get_hg_dir()
@@ -523,6 +549,12 @@ local function hg_prompt_filter()
 end
 
 local function svn_prompt_filter()
+
+    -- Don't do any svn processing if the prompt doesn't want to show svn info.
+    if not clink.prompt.value:find("{svn}") then
+        return false
+    end
+
     -- Colors for svn status
     local colors = {
         clean = get_clean_color(),

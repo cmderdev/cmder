@@ -34,6 +34,10 @@ prompt_singleLine = false
  -- NOTE: This only takes effect if using Clink v1.2.10 or higher.
 prompt_overrideGitStatusOptIn = false
 
+-- OPTIONAL. If true then Cmder includes git, mercurial, and subversion status in the prompt.
+ -- default is true
+prompt_includeVersionControl = true
+
 -- Prompt Attributes
 --
 -- Colors
