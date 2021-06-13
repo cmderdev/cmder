@@ -74,9 +74,6 @@ local cached_info = {}
 if clink.promptcoroutine and io.popenyield then
     io_popenyield = io.popenyield
     clink_promptcoroutine = clink.promptcoroutine
-    if prompt_overrideGitStatusOptIn then
-        cmderForceAsyncGitStatus = true
-    end
 else
     io_popenyield = io.popen
     clink_promptcoroutine = function (func)
@@ -422,6 +419,15 @@ end
 -- @return {bool}
 ---
 local function get_git_status_setting()
+    -- When async prompt filtering is available, check the
+    -- prompt_overrideGitStatusOptIn config setting for whether to ignore the
+    -- cmder.status and cmder.cmdstatus git config opt-in settings.
+    if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") then
+        if prompt_overrideGitStatusOptIn then
+            return true
+        end
+    end
+
     local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
 
     for line in gitStatusConfig:lines() do
@@ -461,7 +467,7 @@ local function git_prompt_filter()
 
     local git_dir = get_git_dir()
     local color
-    cmderGitStatusOptIn = cmderForceAsyncGitStatus or get_git_status_setting()
+    cmderGitStatusOptIn = get_git_status_setting()
     if git_dir then
         local branch = get_git_branch(git_dir)
         if branch then
