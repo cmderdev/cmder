@@ -36,6 +36,14 @@ function checkGit($Path) {
 
       if (getGitStatusSetting -eq $true) {
         Write-VcsStatus
+      } else {
+        $headContent = Get-Content (Join-Path $Path '.git/HEAD')
+        if ($headContent -like "ref: refs/heads/*") {
+            $branchName = $headContent.Substring(16)
+        } else {
+            $branchName = "HEAD detached at $($headContent.Substring(0, 7))"
+        }
+        Write-Host " [$branchName]" -NoNewline -ForegroundColor White
       }
 
       return
