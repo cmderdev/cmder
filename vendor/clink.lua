@@ -64,6 +64,32 @@ end
 
 
 ---
+-- Forward/backward compatibility for Clink asynchronous prompt filtering.
+-- With Clink v1.2.10 and higher this lets git status run in the background and
+-- refresh the prompt when it finishes, to eliminate waits in large git repos.
+---
+local io_popenyield
+local clink_promptcoroutine
+local cached_info = {}
+if clink.promptcoroutine and io.popenyield then
+    io_popenyield = io.popenyield
+    clink_promptcoroutine = clink.promptcoroutine
+else
+    io_popenyield = io.popen
+    clink_promptcoroutine = function (func)
+        return func(false)
+    end
+end
+
+
+---
+-- Global variable so other Lua scripts can detect whether they're in a Cmder
+-- shell session.
+---
+CMDER_SESSION = true
+
+
+---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
 -- not destroy our own prompt. It also means that started cmds (or batch files
 -- which echo) don't get the ugly '{lamb}' shown.
@@ -113,6 +139,10 @@ local function set_prompt_filter()
       prompt_singleLine = false
     end
 
+    if prompt_includeVersionControl == nil then
+      prompt_includeVersionControl = true
+    end
+
     if prompt_type == 'folder' then
         cwd = get_folder_name(cwd)
     end
@@ -133,7 +163,12 @@ local function set_prompt_filter()
 
     if env ~= nil then env = "("..env..") " else env = "" end
 
-    prompt = get_uah_color() .. "{uah}" .. get_cwd_color() .. "{cwd}{git}{hg}{svn}" .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
+    if uah ~= '' then uah = get_uah_color() .. uah end
+    if cwd ~= '' then cwd = get_cwd_color() .. cwd end
+
+    local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
+
+    prompt = "{uah}{cwd}" .. version_control .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
     prompt = string.gsub(prompt, "{uah}", uah)
     prompt = string.gsub(prompt, "{cwd}", cwd)
     prompt = string.gsub(prompt, "{env}", env)
@@ -308,7 +343,7 @@ end
 -- @return {bool}
 ---
 local function get_git_status()
-    local file = io.popen("git --no-optional-locks status --porcelain 2>nul")
+    local file = io_popenyield("git --no-optional-locks status --porcelain 2>nul")
     for line in file:lines() do
         file:close()
         return false
@@ -323,7 +358,7 @@ end
 -- @return {bool} indicating true for conflict, false for no conflicts
 ---
 function get_git_conflict()
-    local file = io.popen("git diff --name-only --diff-filter=U 2>nul")
+    local file = io_popenyield("git diff --name-only --diff-filter=U 2>nul")
     for line in file:lines() do
         file:close()
         return true;
@@ -364,10 +399,35 @@ local function get_svn_status()
 end
 
 ---
+-- Use a prompt coroutine to get git status in the background.
+-- Cache the info so we can reuse it next time to reduce flicker.
+---
+local function get_git_info_table()
+    local info = clink_promptcoroutine(function ()
+        return { status=get_git_status(), conflict=get_git_conflict() }
+    end)
+    if not info then
+        info = cached_info.git_info or {}
+    else
+        cached_info.git_info = info
+    end
+    return info
+end
+
+---
 -- Get the status of working dir
 -- @return {bool}
 ---
 local function get_git_status_setting()
+    -- When async prompt filtering is available, check the
+    -- prompt_overrideGitStatusOptIn config setting for whether to ignore the
+    -- cmder.status and cmder.cmdstatus git config opt-in settings.
+    if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") then
+        if prompt_overrideGitStatusOptIn then
+            return true
+        end
+    end
+
     local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
 
     for line in gitStatusConfig:lines() do
@@ -392,6 +452,11 @@ end
 
 local function git_prompt_filter()
 
+    -- Don't do any git processing if the prompt doesn't want to show git info.
+    if not clink.prompt.value:find("{git}") then
+        return false
+    end
+
     -- Colors for git status
     local colors = {
         clean = get_clean_color(),
@@ -406,15 +471,26 @@ local function git_prompt_filter()
     if git_dir then
         local branch = get_git_branch(git_dir)
         if branch then
+            -- If in a different repo or branch than last time, discard cached info.
+            if cached_info.git_dir ~= git_dir or cached_info.git_branch ~= branch then
+                cached_info.git_info = nil
+                cached_info.git_dir = git_dir
+                cached_info.git_branch = branch
+            end
+            -- Use git status if allowed.
             if cmderGitStatusOptIn then
                 -- if we're inside of git repo then try to detect current branch
                 -- Has branch => therefore it is a git folder, now figure out status
-                local gitStatus = get_git_status()
-                local gitConflict = get_git_conflict()
+                local gitInfo = get_git_info_table()
+                local gitStatus = gitInfo.status
+                local gitConflict = gitInfo.conflict
 
-                color = colors.dirty
-                if gitStatus then
+                if gitStatus == nil then
+                    color = colors.nostatus
+                elseif gitStatus then
                     color = colors.clean
+                else
+                    color = colors.dirty
                 end
 
                 if gitConflict then
@@ -434,6 +510,11 @@ local function git_prompt_filter()
 end
 
 local function hg_prompt_filter()
+
+    -- Don't do any hg processing if the prompt doesn't want to show hg info.
+    if not clink.prompt.value:find("{hg}") then
+        return false
+    end
 
     local result = ""
 
@@ -474,6 +555,12 @@ local function hg_prompt_filter()
 end
 
 local function svn_prompt_filter()
+
+    -- Don't do any svn processing if the prompt doesn't want to show svn info.
+    if not clink.prompt.value:find("{svn}") then
+        return false
+    end
+
     -- Colors for svn status
     local colors = {
         clean = get_clean_color(),
