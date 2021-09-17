@@ -1,5 +1,5 @@
-if (test-path  $env:temp/cmder_diag_ps.log) {
-  remove-item $env:temp/cmder_diag_ps.log
+if (test-path  $env:temp\cmder_diag_ps.log) {
+  remove-item $env:temp\cmder_diag_ps.log
 }
 
 $cmder_diag = {
@@ -56,9 +56,9 @@ get-childitem -s "$env:CMDER_ROOT/config" |ft LastWriteTime,mode,length,FullName
 "------------------------------------"
 }
 
-& $cmder_diag | out-file -filePath $env:temp/cmder_diag_ps.log
+& $cmder_diag | out-file -filePath $env:temp\cmder_diag_ps.log
 
-get-content "$env:temp/cmder_diag_ps.log"
+get-content "$env:temp\cmder_diag_ps.log"
 
 write-host ""
-write-host Above output was saved in "$env:temp/cmder_diag_ps.log"
+write-host Above output was saved in "$env:temp\cmder_diag_ps.log"
