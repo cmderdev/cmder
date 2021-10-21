@@ -6,13 +6,13 @@
     },
     {
         "name": "clink",
-        "version": "1.2.26",
-        "url": "https://github.com/chrisant996/clink/releases/download/v1.2.26/clink.1.2.26.3dc58b.zip"
+        "version": "1.2.32",
+        "url": "https://github.com/chrisant996/clink/releases/download/v1.2.32/clink.1.2.32.510fbd.zip"
     },
     {
         "name": "conemu-maximus5",
-        "version": "210718",
-        "url": "https://github.com/Maximus5/ConEmu/releases/download/v21.07.18/ConEmuPack.210718.7z"
+        "version": "210912",
+        "url": "https://github.com/Maximus5/ConEmu/releases/download/v21.09.12/ConEmuPack.210912.7z"
     },
     {
         "name": "clink-completions",
