@@ -74,7 +74,7 @@ exit /b
     set "find_query=%add_to_path%"
     set "find_query=%find_query:\=\\%"
     set "find_query=%find_query: =\ %"
-    set OLD_PATH=%PATH%
+    set "OLD_PATH=%PATH%"
 
     setlocal enabledelayedexpansion
     if "!found!" == "0" (
