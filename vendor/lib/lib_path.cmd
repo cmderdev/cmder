@@ -74,7 +74,7 @@ exit /b
     set "find_query=%add_to_path%"
     set "find_query=%find_query:\=\\%"
     set "find_query=%find_query: =\ %"
-    set OLD_PATH=%PATH%
+    set "OLD_PATH=%PATH%"
 
     setlocal enabledelayedexpansion
     if "!found!" == "0" (
@@ -121,8 +121,8 @@ exit /b
     exit /b
 
     :toolong
-      echo %OLD_PATH%>tempfileA
-      echo %PATH%>tempfileB
+      echo "%OLD_PATH%">tempfileA
+      echo "%PATH%">tempfileB
       fc /b tempfileA tempfileB 2>nul 1>nul
       if errorlevel 1 ( del tempfileA & del tempfileB & goto :changed )
       del tempfileA & del tempfileB
