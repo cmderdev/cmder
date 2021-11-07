@@ -21,6 +21,10 @@ function Import-Git(){
     if($GitModule | select version | where version -le ([version]"0.6.1.20160330")){
         Import-Module Posh-Git > $null
     }
+    if($GitModule | select version | where version -ge ([version]"1.0.0")){
+        Import-Module Posh-Git > $null
+        $GitPromptSettings.AnsiConsole = $false
+    }
     if(-not ($GitModule) ) {
         Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart cmder."
     }
