@@ -4,9 +4,9 @@
 
 ### Changes
 
-- Update Git for Windows to 2.31.1
-- Update to Clink 1.2.26
-- Update to Conemu 210718
+- Update Git for Windows to 2.33.1
+- Update to Clink 1.2.41
+- Update to Conemu 210912
 - Do not rely on having a `%cmder_root%\config\cmder_prompt_config.lua`
 
 ### Adds
