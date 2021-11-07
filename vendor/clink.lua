@@ -168,7 +168,7 @@ local function set_prompt_filter()
 
     local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
 
-    prompt = "{uah}{cwd}" .. version_control .. get_lamb_color() .. cr .. "{lamb} \x1b[0m"
+    prompt = "{uah}{cwd}" .. version_control .. get_lamb_color() .. cr .. "{env}{lamb} \x1b[0m"
     prompt = string.gsub(prompt, "{uah}", uah)
     prompt = string.gsub(prompt, "{cwd}", cwd)
     prompt = string.gsub(prompt, "{env}", env)
