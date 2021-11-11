@@ -11,6 +11,7 @@ vendor/*/*
 !vendor/lib/*
 !vendor/*
 !vendor/psmodules/*
+vendor/git-for-windows
 
 config/*
 !config/Readme.md

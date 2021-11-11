@@ -13,6 +13,38 @@ dofile(clink_lua_file)
 
 -- now add our own things...
 
+
+local function get_uah_color()
+  return uah_color or "\x1b[1;33;40m" -- Green = uah = [user]@[hostname]
+end
+
+local function get_cwd_color()
+  return cwd_color or "\x1b[1;32;40m" -- Yellow cwd = Current Working Directory
+end
+
+local function get_lamb_color()
+  return lamb_color or "\x1b[1;30;40m" -- Light Grey = Lambda Color
+end
+
+
+local function get_clean_color()
+  return clean_color or "\x1b[1;37;40m"
+end
+
+
+local function get_dirty_color()
+  return dirty_color or "\x1b[33;3m"
+end
+
+
+local function get_conflict_color()
+  return conflict_color or "\x1b[31;1m"
+end
+
+local function get_unknown_color()
+  return unknown_color or "\x1b[37;1m"
+end
+
 ---
 -- Makes a string safe to use as the replacement in string.gsub
 ---
@@ -20,6 +52,42 @@ local function verbatim(s)
     s = string.gsub(s, "%%", "%%%%")
     return s
 end
+
+-- Extracts only the folder name from the input Path
+-- Ex: Input C:\Windows\System32 returns System32
+---
+local function get_folder_name(path)
+  local reversePath = string.reverse(path)
+  local slashIndex = string.find(reversePath, "\\")
+  return string.sub(path, string.len(path) - slashIndex + 2)
+end
+
+
+---
+-- Forward/backward compatibility for Clink asynchronous prompt filtering.
+-- With Clink v1.2.10 and higher this lets git status run in the background and
+-- refresh the prompt when it finishes, to eliminate waits in large git repos.
+---
+local io_popenyield
+local clink_promptcoroutine
+local cached_info = {}
+if clink.promptcoroutine and io.popenyield then
+    io_popenyield = io.popenyield
+    clink_promptcoroutine = clink.promptcoroutine
+else
+    io_popenyield = io.popen
+    clink_promptcoroutine = function (func)
+        return func(false)
+    end
+end
+
+
+---
+-- Global variable so other Lua scripts can detect whether they're in a Cmder
+-- shell session.
+---
+CMDER_SESSION = true
+
 
 ---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
@@ -44,17 +112,67 @@ local function set_prompt_filter()
     -- also check for square brackets
     if env == nil then env = old_prompt:match('.*%[([^%]]+)%].+:') end
 
-    -- build our own prompt
-    -- orig: $E[1;32;40m$P$S{git}{hg}$S$_$E[1;30;40m{lamb}$S$E[0m
-    -- color codes: "\x1b[1;37;40m"
-    local cmder_prompt = "\x1b[1;32;40m{cwd} {git}{hg}{svn} \n\x1b[1;39;40m{lamb} \x1b[0m"
-    local lambda = "λ"
-    cmder_prompt = string.gsub(cmder_prompt, "{cwd}", verbatim(cwd))
-
-    if env ~= nil then
-        lambda = "("..env..") "..lambda
+    -- Much of the below was 'borrowed' from https://github.com/AmrEldib/cmder-powerline-prompt
+    -- Symbol displayed for the home dir in the prompt.
+    if not prompt_homeSymbol then
+      prompt_homeSymbol = "~"
     end
-    clink.prompt.value = string.gsub(cmder_prompt, "{lamb}", verbatim(lambda))
+
+    -- Symbol displayed in the new line below the prompt.
+    if not prompt_lambSymbol then
+      prompt_lambSymbol = "λ"
+    end
+
+    if not prompt_type then
+      prompt_type = "full"
+    end
+
+    if prompt_useHomeSymbol == nil then
+      prompt_useHomeSymbol = false
+    end
+
+    if prompt_useUserAtHost == nil then
+      prompt_useUserAtHost = false
+    end
+
+    if prompt_singleLine == nil then
+      prompt_singleLine = false
+    end
+
+    if prompt_includeVersionControl == nil then
+      prompt_includeVersionControl = true
+    end
+
+    if prompt_type == 'folder' then
+        cwd = get_folder_name(cwd)
+    end
+
+    if prompt_useHomeSymbol and string.find(cwd, clink.get_env("HOME")) then
+        cwd = string.gsub(cwd, clink.get_env("HOME"), prompt_homeSymbol)
+    end
+
+    uah = ''
+    if prompt_useUserAtHost then
+        uah = clink.get_env("USERNAME") .. "@" .. clink.get_env("COMPUTERNAME") .. ' '
+    end
+
+    cr = "\n"
+    if prompt_singleLine then
+      cr = ' '
+    end
+
+    if env ~= nil then env = "("..env..") " else env = "" end
+
+    if uah ~= '' then uah = get_uah_color() .. uah end
+    if cwd ~= '' then cwd = get_cwd_color() .. cwd end
+
+    local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
+
+    prompt = "{uah}{cwd}" .. version_control .. get_lamb_color() .. cr .. "{env}{lamb} \x1b[0m"
+    prompt = string.gsub(prompt, "{uah}", uah)
+    prompt = string.gsub(prompt, "{cwd}", cwd)
+    prompt = string.gsub(prompt, "{env}", env)
+    clink.prompt.value = string.gsub(prompt, "{lamb}", prompt_lambSymbol)
 end
 
 local function percent_prompt_filter()
@@ -221,32 +339,27 @@ local function get_svn_branch(svn_dir)
 end
 
 ---
--- Get the status of working dir
--- @return {bool}
+-- Get the status and conflict status of working dir
+-- @return {bool <status>, bool <is_conflict>}
 ---
 local function get_git_status()
-    local file = io.popen("git --no-optional-locks status --porcelain 2>nul")
+    local file = io_popenyield("git --no-optional-locks status --porcelain 2>nul")
+    local conflict_found = false
+    local is_status = true
     for line in file:lines() do
-        file:close()
-        return false
+        local code = line:sub(1, 2)
+        -- print (string.format("code: %s, line: %s", code, line))
+        if code == "DD" or code == "AU" or code == "UD" or code == "UA" or code == "DU" or code == "AA" or code == "UU" then
+          is_status = false
+          conflict_found = true
+          break
+        -- unversioned files are ignored, comment out 'code ~= "!!"' to unignore them
+        elseif code ~= "!!" and code ~= "??" then
+          is_status = false
+        end
     end
     file:close()
-
-    return true
-end
-
----
--- Gets the conflict status
--- @return {bool} indicating true for conflict, false for no conflicts
----
-function get_git_conflict()
-    local file = io.popen("git diff --name-only --diff-filter=U 2>nul")
-    for line in file:lines() do
-        file:close()
-        return true;
-    end
-    file:close()
-    return false
+    return { status = is_status, conflict = conflict_found }
 end
 
 
@@ -281,57 +394,109 @@ local function get_svn_status()
 end
 
 ---
+-- Use a prompt coroutine to get git status in the background.
+-- Cache the info so we can reuse it next time to reduce flicker.
+---
+local function get_git_info_table()
+    local info = clink_promptcoroutine(function ()
+        return get_git_status()
+    end)
+    if not info then
+        info = cached_info.git_info or {}
+    else
+        cached_info.git_info = info
+    end
+    return info
+end
+
+---
 -- Get the status of working dir
 -- @return {bool}
 ---
 local function get_git_status_setting()
-    gitStatusSetting = io.popen("git --no-pager config -l 2>nul")
+    -- When async prompt filtering is available, check the
+    -- prompt_overrideGitStatusOptIn config setting for whether to ignore the
+    -- cmder.status and cmder.cmdstatus git config opt-in settings.
+    if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") then
+        if prompt_overrideGitStatusOptIn then
+            return true
+        end
+    end
 
-    for line in gitStatusSetting:lines() do
-        if string.match(line, 'cmder.status=false') or string.match(line, 'cmder.cmdstatus=false') then
-          gitStatusSetting:close()
+    local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
+
+    for line in gitStatusConfig:lines() do
+        if string.match(line, 'false') then
+          gitStatusConfig:close()
           return false
         end
     end
-    gitStatusSetting:close()
+
+    local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
+    for line in gitCmdStatusConfig:lines() do
+        if string.match(line, 'false') then
+          gitCmdStatusConfig:close()
+          return false
+        end
+    end
+    gitStatusConfig:close()
+    gitCmdStatusConfig:close()
 
     return true
 end
 
 local function git_prompt_filter()
 
+    -- Don't do any git processing if the prompt doesn't want to show git info.
+    if not clink.prompt.value:find("{git}") then
+        return false
+    end
+
     -- Colors for git status
     local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[33;3m",
-        conflict = "\x1b[31;1m"
+        clean = get_clean_color(),
+        dirty = get_dirty_color(),
+        conflict = get_conflict_color(),
+        nostatus = get_unknown_color()
     }
 
     local git_dir = get_git_dir()
+    local color
+    cmderGitStatusOptIn = get_git_status_setting()
+    if git_dir then
+        local branch = get_git_branch(git_dir)
+        if branch then
+            -- If in a different repo or branch than last time, discard cached info.
+            if cached_info.git_dir ~= git_dir or cached_info.git_branch ~= branch then
+                cached_info.git_info = nil
+                cached_info.git_dir = git_dir
+                cached_info.git_branch = branch
+            end
+            -- Use git status if allowed.
+            if cmderGitStatusOptIn then
+                -- if we're inside of git repo then try to detect current branch
+                -- Has branch => therefore it is a git folder, now figure out status
+                local gitInfo = get_git_info_table()
+                local gitStatus = gitInfo.status
+                local gitConflict = gitInfo.conflict
 
-    if get_git_status_setting() then
-      if git_dir then
-          -- if we're inside of git repo then try to detect current branch
-          local branch = get_git_branch(git_dir)
-          local color
-          if branch then
-              -- Has branch => therefore it is a git folder, now figure out status
-              local gitStatus = get_git_status()
-              local gitConflict = get_git_conflict()
+                if gitStatus == nil then
+                    color = colors.nostatus
+                elseif gitStatus then
+                    color = colors.clean
+                else
+                    color = colors.dirty
+                end
 
-              color = colors.dirty
-              if gitStatus then
-                  color = colors.clean
-              end
-
-              if gitConflict then
-                  color = colors.conflict
-              end 
-
-              clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
-              return false
-          end
-      end
+                if gitConflict then
+                    color = colors.conflict
+                end
+            else
+                color = colors.nostatus
+            end
+            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
+            return false
+        end
     end
 
     -- No git present or not in git file
@@ -341,14 +506,20 @@ end
 
 local function hg_prompt_filter()
 
+    -- Don't do any hg processing if the prompt doesn't want to show hg info.
+    if not clink.prompt.value:find("{hg}") then
+        return false
+    end
+
     local result = ""
 
     local hg_dir = get_hg_dir()
     if hg_dir then
         -- Colors for mercurial status
         local colors = {
-            clean = "\x1b[1;37;40m",
-            dirty = "\x1b[31;1m",
+            clean = get_clean_color(),
+            dirty = get_dirty_color(),
+            nostatus = get_unknown_color()
         }
 
         local pipe = io.popen("hg branch 2>&1")
@@ -379,10 +550,17 @@ local function hg_prompt_filter()
 end
 
 local function svn_prompt_filter()
+
+    -- Don't do any svn processing if the prompt doesn't want to show svn info.
+    if not clink.prompt.value:find("{svn}") then
+        return false
+    end
+
     -- Colors for svn status
     local colors = {
-        clean = "\x1b[1;37;40m",
-        dirty = "\x1b[31;1m",
+        clean = get_clean_color(),
+        dirty = get_dirty_color(),
+        nostatus = get_unknown_color()
     }
 
     if get_svn_dir() then
@@ -406,24 +584,7 @@ local function svn_prompt_filter()
     return false
 end
 
-local function tilde_match (text, f, l)
-    if text == '~' then
-        clink.add_match(clink.get_env('userprofile'))
-        clink.matches_are_files()
-        return true
-    end
-
-    if text:sub(1, 1) == '~' then
-        clink.add_match(string.gsub(text, "~", clink.get_env('userprofile'), 1))
-        -- second match prevents adding a space so we can look for more matches
-        clink.add_match(string.gsub(text, "~", clink.get_env('userprofile'), 1) .. '+')
-        clink.matches_are_files()
-        return true
-    end
-end
-
 -- insert the set_prompt at the very beginning so that it runs first
-clink.register_match_generator(tilde_match, 1)
 clink.prompt.register_filter(set_prompt_filter, 1)
 clink.prompt.register_filter(hg_prompt_filter, 50)
 clink.prompt.register_filter(git_prompt_filter, 50)

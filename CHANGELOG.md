@@ -1,5 +1,51 @@
 # Change Log
 
+## [Unreleased]
+
+### Changes
+
+- Update Git for Windows to 2.31.1
+- Update to Clink 1.2.26
+- Update to Conemu 210718
+- Do not rely on having a `%cmder_root%\config\cmder_prompt_config.lua`
+
+### Adds
+
+- Configurable prompt for `cmd.exe` sessions.  See `%cmder_root%\config\cmder_prompt_config.lua`
+  - Configurable colors
+  - Option to change `λ` to another character.
+  - Option to add `[user]@[host]` to the prompt
+  - Option to use of `~` to represent `$HOME` folder.
+  - Option to use folder name vs. full working directory path in prompt.
+  - Option to use single line prompt.
+
+### Fixes
+
+- Git prompt opt-out works better with additional changes to `clink-completions`
+
+## [1.3.18](https://github.com/cmderdev/cmder/tree/v1.3.18) (2021-3-26)
+
+### Changes
+
+- Update to Clink 1.1.45 to fix #2451, #2465,  and #2473
+- Update to ConEmu v21.03.04
+- `init.bat` auto migrates the history alias to use `clink history` if required.
+- Remove Tilde match from clink.lua in favor of builtin Clink capability.
+
+## [1.3.17](https://github.com/cmderdev/cmder/tree/v1.3.17) (2020-12-23)
+### Fixes
+
+- [bug] Running `alias ..=cd ..` removes other aliases #2394
+- Switch to @chrisant996 [Clink](https://github.com/chrisant996/clink/) v1.1.10 to fix Clink newer Windows 10 releases.
+- Fix `\Git\cmd\git.exe found. was unexpected at this time.`
+- Documentation fixes.
+
+### Changes
+
+- Update Git to 2.29.0
+- Improve `init.bat` Speed
+- Add `systeminfo.exe` output to iag scripts.
+
 ## [1.3.16](https://github.com/cmderdev/cmder/tree/v1.3.16) (2020-07-29)
 
 ### Fixes

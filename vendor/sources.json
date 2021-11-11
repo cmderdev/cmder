@@ -1,22 +1,22 @@
 [
     {
         "name": "git-for-windows",
-        "version": "v2.29.1.windows.1",
-        "url": "https://github.com/git-for-windows/git/releases/download/v2.29.1.windows.1/PortableGit-2.29.1-64-bit.7z.exe"
+        "version": "v2.31.1.windows.1",
+        "url": "https://github.com/git-for-windows/git/releases/download/v2.31.1.windows.1/PortableGit-2.31.1-64-bit.7z.exe"
     },
     {
         "name": "clink",
-        "version": "0.4.9",
-        "url": "https://github.com/mridgers/clink/releases/download/0.4.9/clink_0.4.9.zip"
+        "version": "1.2.26",
+        "url": "https://github.com/chrisant996/clink/releases/download/v1.2.26/clink.1.2.26.3dc58b.zip"
     },
     {
         "name": "conemu-maximus5",
-        "version": "191012",
-        "url": "https://github.com/Maximus5/ConEmu/releases/download/v19.10.12/ConEmuPack.191012.7z"
+        "version": "210718",
+        "url": "https://github.com/Maximus5/ConEmu/releases/download/v21.07.18/ConEmuPack.210718.7z"
     },
     {
         "name": "clink-completions",
-        "version": "0.3.5",
-        "url": "https://github.com/vladimir-kotikov/clink-completions/archive/0.3.5.zip"
+        "version": "0.3.7",
+        "url": "https://github.com/vladimir-kotikov/clink-completions/archive/0.3.7.zip"
     }
 ]

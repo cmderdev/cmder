@@ -94,7 +94,7 @@ if not ["%_temp%"] == ["%alias_name%"] (
 )
 
 :: replace already defined alias
-%WINDIR%\System32\findstr /v /i "^%alias_name_esc%=" "%ALIASES%" >> "%ALIASES%.tmp"
+%WINDIR%\System32\findstr /b /l /v /i "%alias_name%=" "%ALIASES%" >> "%ALIASES%.tmp"
 echo %alias_name%=%alias_value% >> "%ALIASES%.tmp" && type "%ALIASES%.tmp" > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey /macrofile="%ALIASES%"
 endlocal
@@ -103,10 +103,7 @@ exit /b
 :p_del
 set del_alias=%~1
 
-:: '.' escaped
-set del_alias_esc=!del_alias:.=\.!
-
-%WINDIR%\System32\findstr /v /i "^%del_alias_esc%=" "%ALIASES%" >> "%ALIASES%.tmp"
+%WINDIR%\System32\findstr /b /l /v /i "%del_alias%=" "%ALIASES%" >> "%ALIASES%.tmp"
 type "%ALIASES%".tmp > "%ALIASES%" & @del /f /q "%ALIASES%.tmp"
 doskey %del_alias%=
 doskey /macrofile="%ALIASES%"

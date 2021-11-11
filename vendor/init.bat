@@ -148,18 +148,49 @@ if "%CMDER_CLINK%" == "1" (
 
   :: Run clink
   if defined CMDER_USER_CONFIG (
-    if not exist "%CMDER_USER_CONFIG%\settings" (
-      echo Generating clink initial settings in "%CMDER_USER_CONFIG%\settings"
-      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\settings"
-      echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.\
+    if not exist "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\clink_settings" (
+      echo Generating clink initial settings in "%CMDER_USER_CONFIG%\clink_settings"
+      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\clink_settings"
+      echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.
+    )
+
+    if not exist "%CMDER_USER_CONFIG%\cmder_prompt_config.lua" (
+      echo Creating Cmder prompt config file: "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
+      copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
+    )
+
+    REM Cleanup lagacy Clink Settings file
+    if exist "%CMDER_USER_CONFIG%\settings" if exist "%CMDER_USER_CONFIG%\clink_settings" (
+      del "%CMDER_USER_CONFIG%\settings"
+    )
+
+    REM Cleanup legacy CLink history file
+    if exist "%CMDER_USER_CONFIG%\.history" if exist "%CMDER_USER_CONFIG%\clink_history" (
+      del "%CMDER_USER_CONFIG%\.history"
     )
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
   ) else (
-    if not exist "%CMDER_ROOT%\config\settings" (
-      echo Generating clink initial settings in "%CMDER_ROOT%\config\settings"
-      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\settings"
+    if not exist "%CMDER_ROOT%\config\settings" if not exist "%CMDER_ROOT%\config\clink_settings" (
+      echo Generating clink initial settings in "%CMDER_ROOT%\config\clink_settings"
+      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\clink_settings"
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
+    
+    if not exist "%CMDER_ROOT%\config\cmder_prompt_config.lua" (
+      echo Creating Cmder prompt config file: "%CMDER_ROOT%\config\cmder_prompt_config.lua"
+      copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_ROOT%\config\cmder_prompt_config.lua"
+    )
+
+    REM Cleanup lagacy Clink Settings file
+    if exist "%CMDER_ROOT%\config\settings" if exist "%CMDER_ROOT%\config\clink_settings" (
+      del "%CMDER_ROOT%\config\settings"
+    )
+
+    REM Cleanup legacy Clink history file
+    if exist "%CMDER_ROOT%\config\.history" if exist "%CMDER_ROOT%\config\clink_history" (
+      del "%CMDER_ROOT%\config\.history"
+    )
+
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
   )
 ) else (
@@ -252,8 +283,9 @@ if %nix_tools% geq 1 (
     ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
         %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
     )
-
-    %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
+    if exist "%GIT_INSTALL_ROOT%\usr\bin" (
+        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
+    )
 )
 
 :: define SVN_SSH so we can use git svn with ssh svn repositories
@@ -345,6 +377,13 @@ if "%CMDER_ALIASES%" == "1" (
 )
 
 :: Add aliases to the environment
+type "%user_aliases%" | findstr /b /l /i "history=cat " >nul
+if "%ERRORLEVEL%" == "0" (
+  echo Migrating alias 'history' to new Clink 1.x.x...
+  call "%CMDER_ROOT%\vendor\bin\alias.cmd" /d history
+  echo Restart the session to activate changes!
+)
+
 call "%user_aliases%"
 
 if "%CMDER_CONFIGURED%" gtr "1" goto CMDER_CONFIGURED
