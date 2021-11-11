@@ -44,7 +44,8 @@ $gitVersionVendor = (readVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-window
 # write-host "GIT VENDOR: ${gitVersionVendor}"
 
 # Get user installed Git Version[s] and Compare with vendored if found.
-foreach ($git in (get-command -ErrorAction SilentlyContinue 'git')) {
+foreach ($git in (get-command -ErrorAction SilentlyContinue -all 'git')) {
+    # write-host "GIT Path: " + $git.Path
     $gitDir = Split-Path -Path $git.Path
     $gitDir = isGitShim -gitPath $gitDir
     $gitVersionUser = (readVersion -gitPath $gitDir)
@@ -54,8 +55,16 @@ foreach ($git in (get-command -ErrorAction SilentlyContinue 'git')) {
     # write-host "Using GIT Version: ${useGitVersion}"
 
     # Use user installed Git
-    $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 4))
+    if ($gitPathUser -eq $null) {
+      if ($gitDir -match '\\mingw32\\bin' -or $gitDir -match '\\mingw64\\bin') {
+        $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 12))
+      } else {
+        $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 4))
+      }
+    }
+
     if ($useGitVersion -eq $gitVersionUser) {
+        # write-host "Using GIT Dir: ${gitDir}"
         $ENV:GIT_INSTALL_ROOT = $gitPathUser
         $ENV:GIT_INSTALL_TYPE = 'USER'
         break

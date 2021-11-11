@@ -43,6 +43,10 @@ function compareVersions($userVersion, $vendorVersion) {
         return 1
     }
 
+    if (($userMajor -eq $vendorMajor) -and  ($userMinor -eq $vendorMinor) -and  ($userPatch -eq $vendorPatch) -and  ($userBuild -eq $vendorBuild)) {
+        return 1
+    }
+
     if ($userMajor -gt $vendorMajor) {return 1}
     if ($userMajor -lt $vendorMajor) {return -1}
 
@@ -79,23 +83,27 @@ function Configure-Git($gitRoot, $gitType, $gitPathUser){
     if ($gitType -eq 'VENDOR') {
         # If User Git is installed replace its path config with Newer Vendored Git Path
         if ($gitPathUser -ne '' -and $gitPathUser -ne $null) {
-            # write-host "Replacing $gitPathUser with $gitRoot in the path"
+            write-host -foregroundcolor yellow "Cmder 'profile.ps1': Replacing older user Git path '$gitPathUser' with newer vendored Git path '$gitRoot' in the system path..."
 
             $newPath = ($env:path -ireplace [regex]::Escape($gitPathUser), $gitRoot)
         } else {
             if (!($env:Path -match [regex]::Escape("$gitRoot\cmd"))) {
+                # write-host "Adding $gitRoot\cmd to the path"
                 $newPath = $($gitRoot + "\cmd" + ";" + $env:Path)
             }
 
             # Add "$gitRoot\mingw[32|64]\bin" to the path if exists and not done already
             if ((test-path "$gitRoot\mingw32\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw32\bin"))) {
+                # write-host "Adding $gitRoot\mingw32\bin to the path"
                 $newPath = "$newPath;$gitRoot\mingw32\bin"
-            } elseif ((test-path "$gitRoot\mingw64\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw32\bin"))) {
+            } elseif ((test-path "$gitRoot\mingw64\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw64\bin"))) {
+                # write-host "Adding $gitRoot\mingw64\bin to the path"
                 $newPath = "$newPath;$gitRoot\mingw64\bin"
             }
 
             # Add "$gitRoot\usr\bin" to the path if exists and not done already
             if ((test-path "$gitRoot\usr\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\usr\bin"))) {
+                # write-host "Adding $gitRoot\usr\bin to the path"
                 $newPath = "$newPath;$gitRoot\usr\bin"
             }
         }
