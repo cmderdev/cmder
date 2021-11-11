@@ -81,9 +81,6 @@ set alias_name=!alias_name:~1!
 :: trailing quotes added while validating
 set alias_value=!alias_value:~0,-1!
 
-:: '.' escaped
-set alias_name_esc=!alias_name:.=\.!
-
 ::remove spaces
 set _temp=%alias_name: =%
 
