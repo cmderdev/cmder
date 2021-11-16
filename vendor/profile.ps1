@@ -3,6 +3,7 @@
 
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
+$CMDER_INIT_START=$(Get-Date -UFormat %s)
 
 # Compatibility with PS major versions <= 2
 if(!$PSScriptRoot) {
@@ -39,13 +40,48 @@ if(-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderMod
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
 
-try {
-    # Check if git is on PATH, i.e. Git already installed on system
-    Get-command -Name "git" -ErrorAction Stop >$null
-} catch {
-    if (test-path "$env:CMDER_ROOT\vendor\git-for-windows") {
-        Configure-Git "$env:CMDER_ROOT\vendor\git-for-windows"
+$gitVersionVendor = (readVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-windows\cmd")
+# write-host "GIT VENDOR: ${gitVersionVendor}"
+
+# Get user installed Git Version[s] and Compare with vendored if found.
+foreach ($git in (get-command -ErrorAction SilentlyContinue -all 'git')) {
+    # write-host "GIT Path: " + $git.Path
+    $gitDir = Split-Path -Path $git.Path
+    $gitDir = isGitShim -gitPath $gitDir
+    $gitVersionUser = (readVersion -gitPath $gitDir)
+    # write-host "GIT USER: ${gitVersionUser}"
+
+    $useGitVersion = compare_git_versions -userVersion $gitVersionUser -vendorVersion $gitVersionVendor
+    # write-host "Using GIT Version: ${useGitVersion}"
+
+    # Use user installed Git
+    if ($gitPathUser -eq $null) {
+      if ($gitDir -match '\\mingw32\\bin' -or $gitDir -match '\\mingw64\\bin') {
+        $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 12))
+      } else {
+        $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 4))
+      }
     }
+
+    if ($useGitVersion -eq $gitVersionUser) {
+        # write-host "Using GIT Dir: ${gitDir}"
+        $ENV:GIT_INSTALL_ROOT = $gitPathUser
+        $ENV:GIT_INSTALL_TYPE = 'USER'
+        break
+    }
+}
+
+# User vendored Git.
+if ($ENV:GIT_INSTALL_ROOT -eq $null -and $gitVersionVendor -ne $null) {
+    $ENV:GIT_INSTALL_ROOT = "$ENV:CMDER_ROOT\vendor\git-for-windows"
+    $ENV:GIT_INSTALL_TYPE = 'VENDOR'
+}
+
+# write-host "GIT_INSTALL_ROOT: ${ENV:GIT_INSTALL_ROOT}"
+# write-host "GIT_INSTALL_TYPE: ${ENV:GIT_INSTALL_TYPE}"
+
+if (-not($ENV:GIT_INSTALL_ROOT -eq $null)) {
+    $env:Path = Configure-Git -gitRoot "$ENV:GIT_INSTALL_ROOT" -gitType $ENV:GIT_INSTALL_TYPE -gitPathUser $gitPathUser
 }
 
 if ( Get-command -Name "vim" -ErrorAction silentlycontinue) {
@@ -177,3 +213,6 @@ if ( $(get-command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
   # if (!$(get-command Prompt).Options -match 'ReadOnly') {Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly}
   Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly
 }
+
+$CMDER_INIT_END=$(Get-Date -UFormat %s)
+# write-host "Elapsed Time: $(get-Date) `($($CMDER_INIT_END - $CMDER_INIT_START) total`)"

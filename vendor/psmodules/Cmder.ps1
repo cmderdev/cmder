@@ -1,18 +1,117 @@
-function Configure-Git($GIT_INSTALL_ROOT){
-  $env:Path += $(";" + $GIT_INSTALL_ROOT + "\cmd")
+function readVersion($gitPath) {
+    $gitExecutable = "${gitPath}\git.exe"
 
-  # Add "$GIT_INSTALL_ROOT\usr\bin" to the path if exists and not done already
-  $GIT_INSTALL_ROOT_ESC=$GIT_INSTALL_ROOT.replace('\','\\')
-  if ((test-path "$GIT_INSTALL_ROOT\usr\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\usr\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\usr\bin"
-  }
+    if (!(test-path "$gitExecutable")) {
+        return $null
+    }
 
-  # Add "$GIT_INSTALL_ROOT\mingw[32|64]\bin" to the path if exists and not done already
-  if ((test-path "$GIT_INSTALL_ROOT\mingw32\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw32\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw32\bin"
-  } elseif ((test-path "$GIT_INSTALL_ROOT\mingw64\bin") -and -not ($env:path -match "$GIT_INSTALL_ROOT_ESC\\mingw64\\bin")) {
-      $env:path = "$env:path;$GIT_INSTALL_ROOT\mingw64\bin"
-  }
+    $gitVersion = (cmd /c "${gitExecutable}" --version)
+
+    if ($gitVersion -match 'git version') {
+        ($trash1, $trash2, $gitVersion) = $gitVersion.split(' ', 3)
+    } else {
+        pause
+        return $null
+    }
+
+    return $gitVersion.toString()
+}
+
+function isGitShim($gitPath) {
+    # check if there's shim - and if yes follow the path
+
+    if (test-path "${gitPath}\git.shim") {
+      $shim = (get-content "${gitPath}\git.shim")
+      ($trash, $gitPath) = $shim.replace(' ','').split('=')
+
+      $gitPath=$gitPath.replace('\git.exe','')
+    }
+
+    return $gitPath.toString()
+}
+
+function compareVersions($userVersion, $vendorVersion) {
+    if (-not($userVersion -eq $null)) {
+        ($userMajor, $userMinor, $userPatch, $userBuild) = $userVersion.split('.', 4)
+    } else {
+        return -1
+    }
+
+    if (-not($vendorVersion -eq $null)) {
+        ($vendorMajor, $vendorMinor, $vendorPatch, $vendorBuild) = $vendorVersion.split('.', 4)
+    } else {
+        return 1
+    }
+
+    if (($userMajor -eq $vendorMajor) -and  ($userMinor -eq $vendorMinor) -and  ($userPatch -eq $vendorPatch) -and  ($userBuild -eq $vendorBuild)) {
+        return 1
+    }
+
+    if ($userMajor -gt $vendorMajor) {return 1}
+    if ($userMajor -lt $vendorMajor) {return -1}
+
+    if ($userMinor -gt $vendorMinor) {return 1}
+    if ($userMinor -lt $vendorMinor) {return -1}
+
+    if ($userPatch -gt $vendorPatch) {return 1}
+    if ($userPatch -lt $vendorPatch) {return -1}
+
+    if ($userBuild -gt $vendorBuild) {return 1}
+    if ($userBuild -lt $vendorBuild) {return -1}
+
+    return 0
+}
+
+function compare_git_versions($userVersion, $vendorVersion) {
+    $result = compareVersions -userVersion $userVersion -vendorVersion $vendorVersion
+
+    # write-host "Compare Versions Result: ${result}"
+    if ($result -ge 0) {
+        return $userVersion
+    } else {
+        return $vendorVersion
+    }
+}
+
+function Configure-Git($gitRoot, $gitType, $gitPathUser){
+    # Proposed Behavior
+
+    # Modify the path if we are using VENDORED Git do nothing if using USER Git.
+    # If User Git is installed but older match its path config adding paths
+    # in the same path positions allowing a user to configure Cmder Git path
+    # using locally installed Git Path Config.
+    if ($gitType -eq 'VENDOR') {
+        # If User Git is installed replace its path config with Newer Vendored Git Path
+        if ($gitPathUser -ne '' -and $gitPathUser -ne $null) {
+            write-host -foregroundcolor yellow "Cmder 'profile.ps1': Replacing older user Git path '$gitPathUser' with newer vendored Git path '$gitRoot' in the system path..."
+
+            $newPath = ($env:path -ireplace [regex]::Escape($gitPathUser), $gitRoot)
+        } else {
+            if (!($env:Path -match [regex]::Escape("$gitRoot\cmd"))) {
+                # write-host "Adding $gitRoot\cmd to the path"
+                $newPath = $($gitRoot + "\cmd" + ";" + $env:Path)
+            }
+
+            # Add "$gitRoot\mingw[32|64]\bin" to the path if exists and not done already
+            if ((test-path "$gitRoot\mingw32\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw32\bin"))) {
+                # write-host "Adding $gitRoot\mingw32\bin to the path"
+                $newPath = "$newPath;$gitRoot\mingw32\bin"
+            } elseif ((test-path "$gitRoot\mingw64\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw64\bin"))) {
+                # write-host "Adding $gitRoot\mingw64\bin to the path"
+                $newPath = "$newPath;$gitRoot\mingw64\bin"
+            }
+
+            # Add "$gitRoot\usr\bin" to the path if exists and not done already
+            if ((test-path "$gitRoot\usr\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\usr\bin"))) {
+                # write-host "Adding $gitRoot\usr\bin to the path"
+                $newPath = "$newPath;$gitRoot\usr\bin"
+            }
+        }
+
+        return $newPath
+    }
+
+    return $env:path
 }
 
 function Import-Git(){
@@ -32,7 +131,7 @@ function Import-Git(){
     return $true
 }
 
-function checkGit($Path) {  
+function checkGit($Path) {
     if (Test-Path -Path (Join-Path $Path '.git') ) {
       if($env:gitLoaded -eq 'false') {
         $env:gitLoaded = Import-Git
