@@ -11,6 +11,18 @@
 
 ### Adds
 
+- Powershell Git version Discovery - See #2373 for the full proposal.
+  - Find user installed Git on Path
+    - If found
+      - if newer than Cmder embedded Git
+        - Use it's existing Path config and completely ignore embedded Git.
+      - Else if Cmder embedded Git exists and is newer
+        - Match User installed Git path config using Cmder embedded Git folders.
+    - Else if Cmder embedded Git exists 
+      - Add Cmder embedded Git folders to the path.
+        - `$env:cmder_root\vendor\git-for-windows\cmd;$env:path`
+        - `$env:path;$env:cmder_root\vendor\git-for-windows\usr\bin`
+        - `$env:path;$env:cmder_root\vendor\git-for-windows\mingw64\bin`
 - Configurable prompt for `cmd.exe` sessions.  See `%cmder_root%\config\cmder_prompt_config.lua`
   - Configurable colors
   - Option to change `λ` to another character.
