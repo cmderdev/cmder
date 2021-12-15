@@ -162,7 +162,7 @@ exit /b
 :::.
 :::options:
 :::.
-:::  [max_depth] <in> Max recuse depth.  Default: 1
+:::  [max_depth] <in> Max recursion depth.  Default: 1
 :::.
 :::  append      <in> Append instead to path env variable rather than pre-pend.
 :::.

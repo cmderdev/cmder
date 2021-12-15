@@ -84,30 +84,30 @@ echo Usage:
 echo.
 echo cexec /setPath [NOT] flagName command/program [parameters]
 echo.
-echo   /setPath         Generate a global varibles %%ccall%% and  %%cexec%% for
+echo   /setPath         Generate a global variables %%ccall%% and  %%cexec%% for
 echo                    quicker use. Following arguments will be ignored.
 echo.
 echo   NOT              Specifies that cexec should carry out
 echo                    the command only if the flag is missing.
 echo.
-echo   /[flagName]      Specifies which flag name is to detect. It's recommand
+echo   /[flagName]      Specifies which flag name is to detect. It's recommended
 echo                    to use a pair of double quotation marks to wrap
 echo                    your flag name to avoid exceed expectation.
 echo.
 echo   command/program  Specifies the command to carry out if the
-echo                    argument name is detected. It's recommand to
+echo                    argument name is detected. It's recommended to
 echo                    use a pair of double quotation marks to
 echo                    wrap your command to avoid exceed expectation.
 echo.
 echo   parameters       These are the parameters passed to the command/program.
-echo                    It's recommand to use a pair of double quotation marks 
+echo                    It's recommended to use a pair of double quotation marks 
 echo                    to wrap your flag name to avoid exceed expectation.
 echo.
 echo Examples:
 echo.
 echo   These examples are expected to be written in %cmder_root%/config/user-profile.cmd
-echo   CExec evaluates the environment varible "CMDER_USER_FLAGS" and conditionally
-echo   caries out actions based on flags that are passed.
+echo   CExec evaluates the environment variable "CMDER_USER_FLAGS" and conditionally
+echo   carries out actions based on flags that are passed.
 echo.
 echo   Case 1:
 echo.

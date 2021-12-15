@@ -14,7 +14,7 @@ exit /b
 
 :read_version
 :::===============================================================================
-:::read_version - Get the git.exe verion
+:::read_version - Get the git.exe version
 :::.
 :::include:
 :::.
@@ -54,7 +54,7 @@ exit /b
         if /i "%%A %%B" == "git version" (
             set "GIT_VERSION=%%C"
         ) else (
-            echo "'git --version' returned an inproper version string!"
+            echo "'git --version' returned an improper version string!"
             pause
             exit /b
         )

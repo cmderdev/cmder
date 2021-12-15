@@ -250,7 +250,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				{
 					MessageBox(NULL,
 						(GetLastError() == ERROR_ACCESS_DENIED)
-						? L"Failed to copy conig/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+						? L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
 						: L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
 					exit(1);
 				}

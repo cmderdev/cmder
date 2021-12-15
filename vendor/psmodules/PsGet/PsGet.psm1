@@ -124,7 +124,7 @@ Set-Variable -Name PSGET_PSD1 -Value 'PSD1' -Option Constant -Scope Script
 
         Description
         -----------
-        Installs the module witout importing it to the current session
+        Installs the module without importing it to the current session
 
     .EXAMPLE
         # Install-Module PoshHg -AddToProfile
@@ -448,7 +448,7 @@ function Update-Module {
 
         Description
         -----------
-        Retrieves information about all registerd modules that starts with PoshCo.
+        Retrieves information about all registered modules that start with PoshCo.
 #>
 function Get-PsGetModuleInfo {
     [CmdletBinding()]
@@ -694,7 +694,7 @@ function Install-ModuleFromDirectory {
             throw "Module $Module was not found in central repository"
         }
 
-        # $Module and $moduleData.Id are not equally by garantee, so we have to test again.
+        # $Module and $moduleData.Id are not equally by guarantee, so we have to test again.
         if (Test-ModuleInstalledAndImport -ModuleName:$moduleData.ModuleName -Destination:$Destination -Update:$Update -DoNotImport:$DoNotImport -ModuleHash:$ModuleHash) {
             return
         }
@@ -1488,7 +1488,7 @@ function Invoke-DownloadModuleFromWeb {
         Install the module inside of the provided directory into the defined destination
         and perform the following steps:
 
-        * Rename module if requestes by provided InstallWithModuleName
+        * Rename module if requested by provided InstallWithModuleName
         * If a ModuleHash is provided, check if it matches.
         * Add the destination path to the PSModulePath if necessary (depends on provided parameters)
         * Place the conventions-matching module folder in the destination folder
@@ -1796,9 +1796,9 @@ function Test-ModuleInstalledAndImport {
 
 <#
     .SYNOPSIS
-        Extract the content of the referenced zip file to the defind destination
+        Extract the content of the referenced zip file to the defined destination
 
-    .PARAMATER Path
+    .PARAMETER Path
         Path to a zip file with the file extension '.zip'
 
     .Parameter Destination
@@ -1856,7 +1856,7 @@ function Expand-ZipModule {
 
 <#
     .SYNOPSIS
-        Update '$env:PSModulePath' from 'User' and 'Machine' scope envrionment variables
+        Update '$env:PSModulePath' from 'User' and 'Machine' scope environment variables
 #>
 function Update-PSModulePath {
     process {

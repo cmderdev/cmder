@@ -14,7 +14,7 @@ if ($ENV:CMDER_USER_CONFIG) {
     # write-host "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '$ENV:CMDER_USER_CONFIG'!"
 }
 
-# We do this for Powershell as Admin Sessions because CMDER_ROOT is not beng set.
+# We do this for Powershell as Admin Sessions because CMDER_ROOT is not being set.
 if (! $ENV:CMDER_ROOT ) {
     if ( $ENV:ConEmuDir ) {
         $ENV:CMDER_ROOT = resolve-path( $ENV:ConEmuDir + "\..\.." )

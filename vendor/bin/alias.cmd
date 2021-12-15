@@ -140,9 +140,9 @@ echo.         in he alias is desired. Variables in aliases surrounded by double
 echo.         quotes only require '^^%%' vs '^^^^^^^^%%'
 echo. $*    - allows the alias to assume all the parameters of the supplied
 echo.         command.
-echo. $1-$9 - Allows you to seperate parameter by number, much like %%1 in
+echo. $1-$9 - Allows you to separate parameter by number, much like %%1 in
 echo.         batch.
-echo. $T    - Command seperator, allowing you to string several commands
+echo. $T    - Command separator, allowing you to string several commands
 echo.         together into one alias.
 echo.
 echo. For more information, read DOSKEY /?
