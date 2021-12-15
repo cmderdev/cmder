@@ -302,8 +302,8 @@
 ### xiazeyu (4):
 
 * chore: unite slash
-* docs: update to latest useage
-* refactor: reduce global varible useage, fixed quote issue, added parameters support
+* docs: update to latest usage
+* refactor: reduce global variable usage, fixed quote issue, added parameters support
 * doc: fix typo
 
 ### xiazeyu_2011 (8):
@@ -314,7 +314,7 @@
 * docs: update doc for have.bat
 * feat: add have.bat as a wrapper
 * Optimize comments of using arguments in user-profile.cmd
-* fix conflict with init.bat build-in command parser, update user-profile.cmd
+* fix conflict with init.bat built-in command parser, update user-profile.cmd
 * Pass arguments to user-profile.cmd
 
 刘祺 (1):
