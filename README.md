@@ -269,7 +269,7 @@ If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_R
 
 Cmder is by default shipped with a vendored Git installation.  On each instance of launching Cmder, an attempt is made to locate any other user provided Git binaries. Upon finding a `git.exe` binary, Cmder further compares its version against the vendored one _by executing_ it. The vendored `git.exe` binary is _only_ used when it is more recent than the user-installed one.
 
-You may use your favorite version of Git by including its path in the `%PATH%` enviroment variable.  Moreover, the **Mini** edition of Cmder (found on the [downloads page](https://github.com/cmderdev/cmder/releases)) excludes any vendored Git binaries.
+You may use your favorite version of Git by including its path in the `%PATH%` environment variable.  Moreover, the **Mini** edition of Cmder (found on the [downloads page](https://github.com/cmderdev/cmder/releases)) excludes any vendored Git binaries.
 
 ### Using external Cygwin/Babun, MSys2, WSL, or Git for Windows SDK with Cmder.
 
