@@ -60,7 +60,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/SINGLE`                 | Start Cmder in single mode.                                                              |
 | `/START [start_path]`     | Folder path to start in.                                                                 |
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
-| `/X [ConEmu extras pars]` | Forwads parameters to ConEmu                                                             |
+| `/X [ConEmu extras pars]` | Forwards parameters to ConEmu                                                             |
 
 ## Context Menu Integration
 
@@ -138,7 +138,7 @@ You may find some Monokai color schemes for mintty to match Cmder [here](https:/
 
 ### Changing Cmder Default `cmd.exe` Prompt Config File
 
-The default Cmder shell `cmd::Cmder` propmt is customized using `Clink` and is configured by editing a config file that exists in one of two locations:
+The default Cmder shell `cmd::Cmder` prompt is customized using `Clink` and is configured by editing a config file that exists in one of two locations:
 
 - Single User Portable Config `%CMDER_ROOT%\config\cmder_prompt_config.lua`
 - Shared Cmder install with Non-Portable Individual User Config `%CMDER_USER_CONFIG%\cmder_prompt_config.lua`
@@ -177,7 +177,7 @@ Documentation is in the file for each setting.
 | `/c [user cmder root]`          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment.                                                   | not set                                |
 | `/d`                            | Enables debug output.                                                                                                                              | not set                                |
 | `/f`                            | Enables Cmder Fast Init Mode. This disables some features, see pull request [#1492](https://github.com/cmderdev/cmder/pull/1942) for more details. | not set                                |
-| `/t`                            | Enables Cmder Timed Init Mode. This displays the time taken run init scripts | not set                                |
+| `/t`                            | Enables Cmder Timed Init Mode. This displays the time taken run init scripts                                                                       | not set                                |
 | `/git_install_root [file path]` | User specified Git installation root path.                                                                                                         | `%CMDER_ROOT%\vendor\Git-for-Windows`  |
 | `/home [home folder]`           | User specified folder path to set `%HOME%` environment variable.                                                                                   | `%userprofile%`                        |
 | `/max_depth [1-5]`              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`                                                     | 1                                      |
@@ -185,7 +185,7 @@ Documentation is in the file for each setting.
 | `/svn_ssh [path to ssh.exe]`    | Define `%SVN_SSH%` so we can use git svn with ssh svn repositories.                                                                                | `%GIT_INSTALL_ROOT%\bin\ssh.exe`       |
 | `/user_aliases [file path]`     | File path pointing to user aliases.                                                                                                                | `%CMDER_ROOT%\config\user_aliases.cmd` |
 | `/v`                            | Enables verbose output.                                                                                                                            | not set                                |
-| (custom arguments)              | User defined arguments processed by `cexec`. Type `cexec /?` for more useage.                                                                      | not set                                |
+| (custom arguments)              | User defined arguments processed by `cexec`. Type `cexec /?` for more usage.                                                                      | not set                                |
 
 ### Cmder Shell User Config
 Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
@@ -269,7 +269,7 @@ If you want to run SSH agent on startup, include the line `@call "%GIT_INSTALL_R
 
 Cmder is by default shipped with a vendored Git installation.  On each instance of launching Cmder, an attempt is made to locate any other user provided Git binaries. Upon finding a `git.exe` binary, Cmder further compares its version against the vendored one _by executing_ it. The vendored `git.exe` binary is _only_ used when it is more recent than the user-installed one.
 
-You may use your favorite version of Git by including its path in the `%PATH%` enviroment variable.  Moreover, the **Mini** edition of Cmder (found on the [downloads page](https://github.com/cmderdev/cmder/releases)) excludes any vendored Git binaries.
+You may use your favorite version of Git by including its path in the `%PATH%` environment variable.  Moreover, the **Mini** edition of Cmder (found on the [downloads page](https://github.com/cmderdev/cmder/releases)) excludes any vendored Git binaries.
 
 ### Using external Cygwin/Babun, MSys2, WSL, or Git for Windows SDK with Cmder.
 

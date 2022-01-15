@@ -131,7 +131,7 @@ goto var_loop
 if defined CMDER_USER_CONFIG (
     %print_debug% init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 
-    if not exist "%CMDER_USER_CONFIG%\opt" md "%CMDER_USER_CONFIG%\opt"
+    if not exist "%CMDER_USER_CONFIG%\..\opt" md "%CMDER_USER_CONFIG%\..\opt"
 )
 
 :: Pick right version of clink
