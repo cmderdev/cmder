@@ -14,7 +14,7 @@ if ($ENV:CMDER_USER_CONFIG) {
     # write-host "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '$ENV:CMDER_USER_CONFIG'!"
 }
 
-# We do this for Powershell as Admin Sessions because CMDER_ROOT is not beng set.
+# We do this for Powershell as Admin Sessions because CMDER_ROOT is not being set.
 if (! $ENV:CMDER_ROOT ) {
     if ( $ENV:ConEmuDir ) {
         $ENV:CMDER_ROOT = resolve-path( $ENV:ConEmuDir + "\..\.." )
@@ -44,7 +44,7 @@ $gitVersionVendor = (readVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-window
 # write-host "GIT VENDOR: ${gitVersionVendor}"
 
 # Get user installed Git Version[s] and Compare with vendored if found.
-foreach ($git in (get-command -ErrorAction SilentlyContinue -all 'git')) {
+foreach ($git in (get-command -ErrorAction SilentlyContinue 'git')) {
     # write-host "GIT Path: " + $git.Path
     $gitDir = Split-Path -Path $git.Path
     $gitDir = isGitShim -gitPath $gitDir

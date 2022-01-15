@@ -12,7 +12,7 @@
 :: set "PATH=%CMDER_ROOT%\vendor\whatever;%PATH%"
 
 :: arguments in this batch are passed from init.bat, you can quickly parse them like so:
-:: more useage can be seen by typing "cexec /?"
+:: more usage can be seen by typing "cexec /?"
 
 :: %ccall% "/customOption" "command/program"
 

@@ -10,7 +10,7 @@
 # zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
 # Add portable user customizations ${CMDER_ROOT}/config/user-profile.sh or
 # add whole config scripts to ${CMDER_ROOT}/config/profile.d both will be sourced
-# from mthis file and be appied to the environment at startup.
+# from this file and be applied to the environment at startup.
 #
 # These customizations will follow Cmder if $CMDER_ROOT is copied
 # to another machine.
