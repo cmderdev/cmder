@@ -83,7 +83,7 @@ function Configure-Git($gitRoot, $gitType, $gitPathUser){
     if ($gitType -eq 'VENDOR') {
         # If User Git is installed replace its path config with Newer Vendored Git Path
         if ($gitPathUser -ne '' -and $gitPathUser -ne $null) {
-            write-host -foregroundcolor yellow "Cmder 'profile.ps1': Replacing older user Git path '$gitPathUser' with newer vendored Git path '$gitRoot' in the system path..."
+            write-host "Cmder 'profile.ps1': Replacing older user Git path '$gitPathUser' with newer vendored Git path '$gitRoot' in the system path..."
 
             $newPath = ($env:path -ireplace [regex]::Escape($gitPathUser), $gitRoot)
         } else {
