@@ -228,6 +228,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	// Set path to Cmder user ConEmu config file
 	PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
+	ExpandEnvironmentStrings(userCfgPath, userCfgPath, sizeof(userCfgPath) / sizeof(userCfgPath[0]));
 
 	if ( PathFileExists(cpuCfgPath) || use_user_cfg == false ) // config/ConEmu-%COMPUTERNAME%.xml file exists or /m was specified on command line, use machine specific config.
 	{
