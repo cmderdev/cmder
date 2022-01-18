@@ -354,8 +354,9 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
-	else // '/c [path]' was specified and 'vendor/ConEmu.xml.default' config exists, copy Cmder 'vendor/ConEmu.xml.default' file to '[user specified path]/config/user_ConEmu.xml'.
+	else if (! PathFileExists(userCfgPath)) // '/c [path]' was specified and 'vendor/ConEmu.xml.default' config exists, '[user specified path]/config/user_ConEmu.xml'does not exist.
 	{
+	  // copy Cmder 'vendor/ConEmu.xml.default' file to '[user specified path]/config/user_ConEmu.xml'
 		if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
 		{
 			MessageBox(NULL,
