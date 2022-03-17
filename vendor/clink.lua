@@ -256,6 +256,12 @@ local function get_git_dir(path)
         local git_dir = gitfile:read():match('gitdir: (.*)')
         gitfile:close()
 
+        if os.isdir then -- only available in Clink v1.0.0 and higher
+            if git_dir and os.isdir(git_dir) then
+                return git_dir
+            end
+        end
+
         return git_dir and dir..'/'..git_dir
     end
 
