@@ -222,7 +222,7 @@ if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
 ) else if "%fast_init%" == "1" (
     if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
-      %print_debug% "Skipping Git Auto-Detect!"
+      %print_debug% init.bat "Skipping Git Auto-Detect!"
       goto :VENDORED_GIT
     )
 )
@@ -249,22 +249,22 @@ for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %print_debug% "Using vendored Git '%GIT_VERSION_VENDORED%'..."
+    %print_debug% init.bat "Using vendored Git '%GIT_VERSION_VENDORED%'..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
 )
 
 :SPECIFIED_GIT
-%print_debug% "Using /GIT_INSTALL_ROOT..."
+%print_debug% init.bat "Using /GIT_INSTALL_ROOT..."
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%print_debug% "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
+%print_debug% init.bat "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
-%print_debug% "Using Git from '%GIT_INSTALL_ROOT%..."
+%print_debug% init.bat "Using Git from '%GIT_INSTALL_ROOT%..."
 :: Add git to the path
 if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" ""
 
