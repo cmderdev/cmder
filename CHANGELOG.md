@@ -2,6 +2,11 @@
 
 ## [Unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
 
+### Fixes
+
+- Remove setting `term=cygwin` in `init.bat` to fix random `ABCD` characters when using arrow keys in `vim`.
+  - See: [Sometimes pressing on arrow keys prints symbols #1691](https://github.com/Maximus5/ConEmu/issues/169)
+
 ### Changes
 
 - Fix Git prompt branch when using Git worktree.
