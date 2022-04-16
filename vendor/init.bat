@@ -211,7 +211,6 @@ if "%CMDER_CONFIGURED%" GTR "1" (
 
 :: I do not even know, copypasted from their .bat
 set PLINK_PROTOCOL=ssh
-if not defined TERM set TERM=cygwin
 
 :: The idea:
 :: * if the users points as to a specific git, use that
