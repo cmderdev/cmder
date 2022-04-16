@@ -234,7 +234,7 @@ if defined GIT_INSTALL_ROOT (
 %lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
 
 :: check if git is in path...
-for /F "delims=" %%F in ('where git.exe 2^>nul') do (
+for /F "delims=" %%F in ('where git.exe 2^>nul ^| find "\cmd\git.exe"') do (
     :: get the absolute path to the user provided git binary
     %lib_git% is_git_shim "%%~dpF"
     %lib_git% get_user_git_version
