@@ -4,6 +4,8 @@
 
 ### Fixes
 
+- Fix find and use latest Git install always using vendored Git.
+- Fix using Git from vendored Git and other Git for Windows tools from other Git in path.
 - Remove setting `term=cygwin` in `init.bat` to fix random `ABCD` characters when using arrow keys in `vim`.
   - See: [Sometimes pressing on arrow keys prints symbols #1691](https://github.com/Maximus5/ConEmu/issues/169)
 - Fix Git prompt branch when using Git worktree.
