@@ -2,8 +2,9 @@
 
 ## [Unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
 
-### Changes
+### Fixes
 
+- Fix find and use latest Git install always using vendored Git.
 - Fix Git prompt branch when using Git worktree.
 
 ## [1.3.19](https://github.com/cmderdev/cmder/tree/v1.3.19) (2022-01-15)
