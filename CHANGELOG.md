@@ -2,6 +2,11 @@
 
 ## [Unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
 
+### Changes
+
+- Update Git for Windows to 2.36.0
+- Update to Clink 1.3.16
+
 ### Fixes
 
 - Fix find and use latest Git install always using vendored Git.
@@ -15,7 +20,7 @@
 ### Changes
 
 - Update Git for Windows to 2.34.0
-- Update to Clink 1.3.15
+- Update to Clink 1.2.46
 - Update to stable Conemu 210912
 - Do not rely on having a `%cmder_root%\config\cmder_prompt_config.lua`
 
