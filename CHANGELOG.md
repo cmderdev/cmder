@@ -5,7 +5,8 @@
 ### Changes
 
 - Update Git for Windows to 2.36.0
-- Update to Clink 1.3.16
+- Update to Clink 1.3.17
+- Update to ConEmu 220418
 
 ### Fixes
 
