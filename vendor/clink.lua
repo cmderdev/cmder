@@ -338,7 +338,7 @@ end
 -- @return {false|svn branch name}
 ---
 local function get_svn_branch(svn_dir)
-    local file = io.popen("svn info 2>nul")
+    local file = io_popenyield("svn info 2>nul")
     for line in file:lines() do
         local m = line:match("^Relative URL:")
         if m then
@@ -396,7 +396,7 @@ end
 -- @return {bool}
 ---
 local function get_svn_status()
-    local file = io.popen("svn status -q")
+    local file = io_popenyield("svn status -q")
     for line in file:lines() do
         file:close()
         return false
@@ -573,12 +573,37 @@ local function svn_prompt_filter()
         nostatus = get_unknown_color()
     }
 
-    if get_svn_dir() then
+    local svn_dir = get_svn_dir()
+    if svn_dir then
         -- if we're inside of svn repo then try to detect current branch
         local branch = get_svn_branch()
         local color
         if branch then
-            if get_svn_status() then
+            -- If in a different repo or branch than last time, discard cached info
+            if cached_info.svn_dir ~= svn_dir or cached_info.svn_branch ~= branch then
+                cached_info.svn_info = nil
+                cached_info.svn_dir = svn_dir
+                cached_info.svn_branch = branch
+            end
+            -- Get the svn status using coroutine if available and option is enabled. Otherwise use a blocking call
+            local svnStatus
+            if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") and prompt_overrideSvnStatusOptIn then
+                svnStatus = clink_promptcoroutine(function ()
+                    return get_svn_status()
+                end)
+                -- If the status result is pending, use the cached version instead, otherwise store it to the cache
+                if svnStatus == nil then
+                    svnStatus = cached_info.svn_info
+                else
+                    cached_info.svn_info = svnStatus
+                end
+            else
+                svnStatus = get_svn_status()
+            end
+ 
+            if svnStatus == nil then
+                color = colors.nostatus
+            elseif svnStatus then
                 color = colors.clean
             else
                 color = colors.dirty
@@ -589,7 +614,7 @@ local function svn_prompt_filter()
         end
     end
 
-    -- No mercurial present or not in mercurial file
+    -- No svn present or not in svn file
     clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", "")
     return false
 end
