@@ -4,8 +4,8 @@
 
 ### Changes
 
-- Update Git for Windows to 2.36.0
-- Update to Clink 1.3.16
+- Update Git for Windows to 2.37.1
+- Update to Clink 1.3.36
 
 ### Fixes
 
