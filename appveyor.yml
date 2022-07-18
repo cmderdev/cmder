@@ -15,7 +15,7 @@ branches:
 #---------------------------------#
 
 # Operating system (build VM template)
-os: Visual Studio 2017
+os: Visual Studio 2019
 
 #---------------------------------#
 #       build configuration       #
