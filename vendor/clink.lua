@@ -166,7 +166,7 @@ local function set_prompt_filter()
     if uah ~= '' then uah = get_uah_color() .. uah end
     if cwd ~= '' then cwd = get_cwd_color() .. cwd end
 
-    local version_control = prompt_includeVersionControl and " {git}{hg}{svn}" or ""
+    local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
 
     prompt = "{uah}{cwd}" .. version_control .. get_lamb_color() .. cr .. "{env}{lamb} \x1b[0m"
     prompt = string.gsub(prompt, "{uah}", uah)
@@ -507,7 +507,7 @@ local function git_prompt_filter()
             else
                 color = colors.nostatus
             end
-            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", color.."("..verbatim(branch)..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", " "..color.."("..verbatim(branch)..")")
             return false
         end
     end
@@ -555,7 +555,7 @@ local function hg_prompt_filter()
         end
     end
 
-    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", verbatim(result))
+    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", " "..verbatim(result))
     return false
 end
 
@@ -609,7 +609,7 @@ local function svn_prompt_filter()
                 color = colors.dirty
             end
 
-            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", color.."("..verbatim(branch)..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", " "..color.."("..verbatim(branch)..")")
             return false
         end
     end
