@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
+## [1.3.20-unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
 
 ### Changes
 
@@ -9,6 +9,7 @@
 
 ### Fixes
 
+- Fix #2740
 - Fix find and use latest Git install always using vendored Git.
 - Fix using Git from vendored Git and other Git for Windows tools from other Git in path.
 - Remove setting `term=cygwin` in `init.bat` to fix random `ABCD` characters when using arrow keys in `vim`.
