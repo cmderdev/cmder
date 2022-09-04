@@ -121,11 +121,11 @@ exit /b
     exit /b
 
     :toolong
-      echo "%OLD_PATH%">"%temp%\tempfileA"
-      echo "%PATH%">"%temp%\tempfileB"
-      fc /b "%temp%\tempfileA" "%temp%\tempfileB" 2>nul 1>nul
-      if errorlevel 1 ( del "%temp%\tempfileA" & del "%temp%\tempfileB" & goto :changed )
-      del "%temp%\tempfileA" & del "%temp%\tempfileB"
+      echo "%OLD_PATH%">"%temp%\cmder_lib_pathA"
+      echo "%PATH%">"%temp%\cmder_lib_pathB"
+      fc /b "%temp%\cmder_lib_pathA" "%temp%\cmder_lib_pathB" 2>nul 1>nul
+      if errorlevel 1 ( del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB" & goto :changed )
+      del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB"
       exit /b
 
     :changed

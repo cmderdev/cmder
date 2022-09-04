@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
+## [1.3.20-unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
 
 ### Changes
 
