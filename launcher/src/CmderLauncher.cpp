@@ -9,6 +9,7 @@
 #include <iostream>
 
 #pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "comctl32.lib")
 #pragma warning( disable : 4091 )
 
 #ifndef UNICODE
@@ -30,6 +31,39 @@
 #define __WFUNCTION__ WIDEN(__FUNCTION__)
 
 #define FAIL_ON_ERROR(x) { DWORD ec; if ((ec = (x)) != ERROR_SUCCESS) { ShowErrorAndExit(ec, __WFUNCTION__, __LINE__); } }
+
+void TaskDialogOpen( PCWSTR mainStr, PCWSTR contentStr )
+{
+
+	HRESULT hr = NULL;
+
+	TASKDIALOGCONFIG tsk = {sizeof(tsk)};
+
+	HWND hOwner = NULL;
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	PCWSTR tskTitle = MAKEINTRESOURCE(IDS_TITLE);
+
+	tsk.hInstance = hInstance;
+	tsk.pszMainIcon = MAKEINTRESOURCE(IDI_CMDER);
+	tsk.pszWindowTitle = tskTitle;
+	tsk.pszMainInstruction = mainStr;
+	tsk.pszContent = contentStr;
+
+	TASKDIALOG_BUTTON btns[1] = {
+		{ IDOK,     L"OK" }
+	};
+
+	tsk.dwFlags        = TDF_ALLOW_DIALOG_CANCELLATION|TDF_ENABLE_HYPERLINKS;
+	tsk.pButtons       = btns;
+	tsk.cButtons       = _countof(btns);
+
+	tsk.hwndParent     = hOwner;
+
+	int selectedButtonId = IDOK;
+
+	hr = TaskDialogIndirect( &tsk, &selectedButtonId, NULL, NULL );
+
+}
 
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
@@ -164,7 +198,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	*/
 	if (wcscmp(userConfigDirPath, L"") == 0)
 	{
-		// No - It wasn't. 
+		// No - It wasn't.
 		PathCombine(userConfigDirPath, exeDir, L"config");
 	}
 	else
@@ -306,7 +340,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 		}
 	}
-	else if (cfgRoot.length() == 0) // '/c [path]' was NOT specified 
+	else if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 	{
 		if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
 		{
@@ -673,16 +707,25 @@ cmderOptions GetOption()
 				}
 				else
 				{
-					MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    /icon [CMDER Icon Path]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 					cmderOptions.error = true;
 				}
 			}
 			else
 			{
-				MessageBox(NULL, L"Unrecognized parameter.\n\nValid options:\n\n    /c [CMDER User Root Path]\n\n    /task [ConEmu Task Name]\n\n    /icon [CMDER Icon Path]\n\n    [/start [Start in Path] | [Start in Path]]\n\n    /single\n\n    /m\n\n    /x [ConEmu extra arguments]\n\nor\n\n    /register [USER | ALL]\n\nor\n\n    /unregister [USER | ALL]\n", MB_TITLE, MB_OK);
 				cmderOptions.error = true;
 			}
 		}
+
+	}
+
+	if (cmderOptions.error == true)
+	{
+		wchar_t validOptions[512];
+		HMODULE hMod = GetModuleHandle(NULL);
+		LoadString(hMod, IDS_SWITCHES, validOptions, 512);
+
+		// display list of valid options on unrecognized parameter
+		TaskDialogOpen( L"Unrecognized parameter.", validOptions );
 	}
 
 	LocalFree(szArgList);
