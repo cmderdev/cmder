@@ -65,7 +65,7 @@ exit /b
     exit /b
     
 :detect_comspec
-    CMDER_SHELL=%~n1
+    set CMDER_SHELL=%~n1
     if not defined CMDER_CLINK (
         set CMDER_CLINK=1
         if "%CMDER_SHELL%" equ "tcc" set CMDER_CLINK=0
