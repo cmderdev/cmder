@@ -1,10 +1,8 @@
 @echo off
 
-
 call "%~dp0lib_base.cmd"
 call "%%~dp0lib_console.cmd"
 set lib_git=call "%~dp0lib_git.cmd"
-
 
 if "%~1" == "/h" (
     %lib_base% help "%~0"
@@ -16,7 +14,7 @@ exit /b
 
 :read_version
 :::===============================================================================
-:::read_version - Get the git.exe verion
+:::read_version - Get the git.exe version
 :::.
 :::include:
 :::.
@@ -36,33 +34,33 @@ exit /b
 :::  GIT_VERSION_[GIT SCOPE] <out> Env variable containing Git semantic version string
 :::-------------------------------------------------------------------------------
 
-    setlocal enabledelayedexpansion
     :: clear the variables
     set GIT_VERSION_%~1=
 
     :: set the executable path
     set "git_executable=%~2\git.exe"
-    %lib_console% debug-output :read_version "Env Var - git_executable=%git_executable%"
+    %print_debug% :read_version "Env Var - git_executable=%git_executable%"
 
     :: check if the executable actually exists
     if not exist "%git_executable%" (
-        %lib_console% debug-output :read_version "%git_executable% does not exist."
+        %print_debug% :read_version "%git_executable% does not exist."
         exit /b -255
     )
 
     :: get the git version in the provided directory
-    for /F "tokens=1,2,3 usebackq" %%A in (`"%git_executable%" --version 2^>nul`) do (
+    "%git_executable%" --version > "%temp%\git_version.txt"
+    setlocal enabledelayedexpansion
+    for /F "tokens=1,2,3 usebackq" %%A in (`type "%temp%\git_version.txt" 2^>nul`) do (
         if /i "%%A %%B" == "git version" (
-            set "GIT_VERSION_%~1=%%C"
-            %lib_console% debug-output :read_version "Env Var - GIT_VERSION_%~1=%%C"
+            set "GIT_VERSION=%%C"
         ) else (
-            %lib_console% show_error "git --version" returned an inproper version string!
+            echo "'git --version' returned an improper version string!"
             pause
             exit /b
         )
     )
+    endlocal & set "GIT_VERSION_%~1=%GIT_VERSION%" & %print_debug% :read_version "Env Var - GIT_VERSION_%~1=%GIT_VERSION%"
 
-    endlocal & set GIT_VERSION%~1=!GIT_VERSION%~1!
     exit /b
 
 :parse_version
@@ -90,8 +88,10 @@ exit /b
 :::  [SCOPE]_BUILD <out> Scoped Build version.
 :::-------------------------------------------------------------------------------
 
-    setlocal enabledelayedexpansion
     :: process a `x.x.x.xxxx.x` formatted string
+    %print_debug% :parse_version "ARGV[1]=%~1, ARGV[2]=%~2"
+
+    setlocal enabledelayedexpansion
     for /F "tokens=1-3* delims=.,-" %%A in ("%2") do (
         set "%~1_MAJOR=%%A"
         set "%~1_MINOR=%%B"
@@ -99,8 +99,16 @@ exit /b
         set "%~1_BUILD=%%D"
     )
 
-    endlocal & set "%~1_MAJOR=!%~1_MAJOR!" & set "%~1_MINOR=!%~1_MINOR!" & set "%~1_PATCH=!%~1_PATCH!" & set "%~1_BUILD=!%~1_BUILD!"
+    REM endlocal & set "%~1_MAJOR=!%~1_MAJOR!" & set "%~1_MINOR=!%~1_MINOR!" & set "%~1_PATCH=!%~1_PATCH!" & set "%~1_BUILD=!%~1_BUILD!"
+    if "%~1" == "VENDORED" (
+      endlocal & set "%~1_MAJOR=%VENDORED_MAJOR%" & set "%~1_MINOR=%VENDORED_MINOR%" & set "%~1_PATCH=%VENDORED_PATCH%" & set "%~1_BUILD=%VENDORED_BUILD%"
+    ) else (
+      endlocal & set "%~1_MAJOR=%USER_MAJOR%" & set "%~1_MINOR=%USER_MINOR%" & set "%~1_PATCH=%USER_PATCH%" & set "%~1_BUILD=%USER_BUILD%"
+    )
+
     exit /b
+
+:endlocal_set_git_version
 
 :validate_version
 :::===============================================================================
@@ -121,10 +129,17 @@ exit /b
 :::-------------------------------------------------------------------------------
 
     :: now parse the version information into the corresponding variables
+    %print_debug% :validate_version "ARGV[1]=%~1, ARGV[2]=%~2"
+
     call :parse_version %~1 %~2
 
     :: ... and maybe display it, for debugging purposes.
-    %lib_console% debug-output :validate_version "Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!"
+    REM %print_debug% :validate_version "Found Git Version for %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!"
+    if "%~1" == "VENDORED" (
+      %print_debug% :validate_version "Found Git Version for %~1: %VENDORED_MAJOR%.%VENDORED_MINOR%.%VENDORED_PATCH%.%VENDORED_BUILD%"
+    ) else (
+      %print_debug% :validate_version "Found Git Version for %~1: %USER_MAJOR%.%USER_MINOR%.%USER_PATCH%.%USER_BUILD%"
+    )
     exit /b
 
 :compare_versions
@@ -148,21 +163,119 @@ exit /b
     :: checks all major, minor, patch and build variables for the given arguments.
     :: whichever binary that has the most recent version will be used based on the return code.
 
-    :: %lib_console% debug-output Comparing:
-    :: %lib_console% debug-output %~1: !%~1_MAJOR!.!%~1_MINOR!.!%~1_PATCH!.!%~1_BUILD!
-    :: %lib_console% debug-output %~2: !%~2_MAJOR!.!%~2_MINOR!.!%~2_PATCH!.!%~2_BUILD!
+    %print_debug% ":compare_versions" "Comparing:"
+    %print_debug% ":compare_versions" "%~1: %USER_MAJOR%.%USER_MINOR%.%USER_PATCH%.%USER_BUILD%"
+    %print_debug% ":compare_versions" "%~2: %VENDORED_MAJOR%.%VENDORED_MINOR%.%VENDORED_PATCH%.%VENDORED_BUILD%"
 
-    if !%~1_MAJOR! GTR !%~2_MAJOR! (exit /b  1)
-    if !%~1_MAJOR! LSS !%~2_MAJOR! (exit /b -1)
+    setlocal enabledelayedexpansion
+    if !%~1_MAJOR! GTR !%~2_MAJOR! (endlocal & exit /b  1)
+    if !%~1_MAJOR! LSS !%~2_MAJOR! (endlocal & exit /b -1)
 
-    if !%~1_MINOR! GTR !%~2_MINOR! (exit /b  1)
-    if !%~1_MINOR! LSS !%~2_MINOR! (exit /b -1)
+    if !%~1_MINOR! GTR !%~2_MINOR! (endlocal & exit /b  1)
+    if !%~1_MINOR! LSS !%~2_MINOR! (endlocal & exit /b -1)
 
-    if !%~1_PATCH! GTR !%~2_PATCH! (exit /b  1)
-    if !%~1_PATCH! LSS !%~2_PATCH! (exit /b -1)
+    if !%~1_PATCH! GTR !%~2_PATCH! (endlocal & exit /b  1)
+    if !%~1_PATCH! LSS !%~2_PATCH! (endlocal & exit /b -1)
 
-    if !%~1_BUILD! GTR !%~2_BUILD! (exit /b  1)
-    if !%~1_BUILD! LSS !%~2_BUILD! (exit /b -1)
+    if !%~1_BUILD! GTR !%~2_BUILD! (endlocal & exit /b  1)
+    if !%~1_BUILD! LSS !%~2_BUILD! (endlocal & exit /b -1)
 
     :: looks like we have the same versions.
-    exit /b 0
+    endlocal & exit /b 0
+
+:::===============================================================================
+:::is_git_shim
+:::.
+:::include:
+:::.
+:::  call "$0"
+:::.
+:::usage:
+:::.
+:::  %lib_git% is_git_shim [filepath]
+:::.
+:::required:
+:::.
+:::  [filepath]    <in>
+:::-------------------------------------------------------------------------------
+
+:is_git_shim
+    pushd "%~1"
+    :: check if there's shim - and if yes follow the path
+    setlocal enabledelayedexpansion
+    if exist git.shim (
+        for /F "tokens=2 delims== " %%I in (git.shim) do (
+            pushd %%~dpI
+            set "test_dir=!CD!"
+            popd
+        )
+    ) else (
+        set "test_dir=!CD!"
+    )
+    endlocal & set "test_dir=%test_dir%"
+
+    popd
+    exit /b
+
+:::===============================================================================
+:::compare_git_versions
+:::.
+:::include:
+:::.
+:::  call "$0"
+:::.
+:::usage:
+:::.
+:::  %lib_git% compare_git_versions
+:::-------------------------------------------------------------------------------
+
+:compare_git_versions
+    setlocal enabledelayedexpansion
+    if ERRORLEVEL 0 (
+        :: compare the user git version against the vendored version
+        %lib_git% compare_versions USER VENDORED
+        set result=!ERRORLEVEL!
+        %print_debug% ":compare_git_versions" "campare versions_result: !result!"
+
+        :: use the user provided git if its version is greater than, or equal to the vendored git
+        if !result! geq 0 (
+            if exist "!test_dir:~0,-4!\cmd\git.exe" (
+                set "GIT_INSTALL_ROOT=!test_dir:~0,-4!"
+            ) else (
+                set "GIT_INSTALL_ROOT=!test_dir!"
+            )
+        ) else (
+            %print_debug% ":compare_git_versions" "Found old !GIT_VERSION_USER! in !test_dir!, but not using..."
+        )
+    ) else (
+        :: compare the user git version against the vendored version
+        :: if the user provided git executable is not found
+        IF ERRORLEVEL -255 IF NOT ERRORLEVEL -254 (
+        :: if not exist "%git_executable%" (
+            %print_debug% ":compare_git_versions" "No git at "%git_executable%" found."
+            set test_dir=
+        )
+    )
+    endlocal && set "GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%" && set test_dir=
+
+    exit /b
+
+:::===============================================================================
+:::get_user_git_version - get the version information for the user provided git binary
+:::.
+:::include:
+:::.
+:::  call "$0"
+:::.
+:::usage:
+:::.
+:::  %lib_git% get_user_git_version
+:::-------------------------------------------------------------------------------
+
+:get_user_git_version
+    :: get the version information for the user provided git binary
+    %lib_git% read_version USER "%test_dir%" 2>nul
+    %print_debug% ":get_user_git_version" "get_user_git_version GIT_VERSION_USER: %GIT_VERSION_USER%"
+    %lib_git% validate_version USER %GIT_VERSION_USER%
+    exit  /b
+

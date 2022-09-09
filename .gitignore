@@ -1,23 +1,31 @@
 
 ## Those files should be taken from their repositary
 
+bin/*
+!bin/Readme.md
+opt/*
+!opt/Readme.md
+
 vendor/*/*
+!vendor/bin/*
 !vendor/lib/*
 !vendor/*
-!vendor/psmodules/PsGet
+!vendor/psmodules/*
+vendor/git-for-windows
 
-config/.history
+config/*
+!config/Readme.md
+!config/profile.d/README.md
+
+config_user/*
+
 Thumbs.db
 *.exe
 *.dll
 build/
 Version v*
 *.bak
-config/user-*
-config/user_*
-config/settings
-config/aliases
-config/profile.d
 .github_changelog_generator
 launcher/.vs
 launcher/src/version.rc2
+.vs/*

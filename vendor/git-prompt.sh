@@ -1,3 +1,29 @@
+function getGitStatusSetting() {
+  gitStatusSetting=$(git --no-pager config -l 2>/dev/null)  
+
+  if [[ -n ${gitStatusSetting} ]] && [[ ${gitStatusSetting} =~ cmder.status=false ]] || [[ ${gitStatusSetting} =~ cmder.shstatus=false ]]
+  then
+    echo false
+  else
+    echo true
+  fi
+}
+
+function getSimpleGitBranch() {
+  gitDir=$(git rev-parse --git-dir 2>/dev/null)
+  if [ -z "$gitDir" ]; then
+		return 0
+	fi
+  
+  headContent=$(< "$gitDir/HEAD")
+  if [[ "$headContent" == "ref: refs/heads/"* ]]
+  then
+      echo " (${headContent:16})"
+  else
+      echo " (HEAD detached at ${headContent:0:7})"
+  fi 
+}
+
 if test -f /etc/profile.d/git-sdk.sh
 then
   TITLEPREFIX=SDK-${MSYSTEM#MINGW}
@@ -7,7 +33,10 @@ fi
 
 if test -f ~/.config/git/git-prompt.sh
 then
-  . ~/.config/git/git-prompt.sh
+  if [[ $(getGitStatusSetting) == true ]]
+  then
+    . ~/.config/git/git-prompt.sh
+  fi
 else
   PS1='\[\033]0;$MSYSTEM:${PWD//[^[:ascii:]]/?}\007\]' # set window title
   # PS1="$PS1"'\n'                 # new line
@@ -26,9 +55,15 @@ else
     if test -f "$COMPLETION_PATH/git-prompt.sh"
     then
       . "$COMPLETION_PATH/git-completion.bash"
-      . "$COMPLETION_PATH/git-prompt.sh"
-      PS1="$PS1"'\[\033[36m\]'  # change color to cyan
-      PS1="$PS1"'`__git_ps1`'   # bash function
+      if [[ $(getGitStatusSetting) == true ]]
+      then
+        . "$COMPLETION_PATH/git-prompt.sh"
+        PS1="$PS1"'\[\033[36m\]'  # change color to cyan
+        PS1="$PS1"'`__git_ps1`'   # bash function
+      else
+        PS1="$PS1"'\[\033[37;1m\]'  # change color to white
+        PS1="$PS1"'`getSimpleGitBranch`'
+      fi
     fi
   fi
   PS1="$PS1"'\[\033[0m\]'        # change color

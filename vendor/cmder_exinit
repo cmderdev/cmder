@@ -10,7 +10,7 @@
 # zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
 # Add portable user customizations ${CMDER_ROOT}/config/user-profile.sh or
 # add whole config scripts to ${CMDER_ROOT}/config/profile.d both will be sourced
-# from mthis file and be appied to the environment at startup.
+# from this file and be applied to the environment at startup.
 #
 # These customizations will follow Cmder if $CMDER_ROOT is copied
 # to another machine.
@@ -63,7 +63,7 @@ if [ ! "$CMDER_ROOT" = "" ] ; then
 
   export CMDER_ROOT
 
-  PATH=${CMDER_ROOT}/bin:$PATH:${CMDER_ROOT}
+  PATH=${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}
 
   export PATH
 
@@ -98,6 +98,8 @@ if [ ! "$CMDER_ROOT" = "" ] ; then
       mv "$CMDER_USER_CONFIG/user-profile.sh" "$CMDER_USER_CONFIG/user_profile.sh"
     fi
 
+    export PATH=${CMDER_USER_CONFIG}/bin:$PATH
+
     CmderUserProfilePath="${CMDER_USER_CONFIG}/user_profile.sh"
     if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ] ; then
       . "${CMDER_USER_CONFIG}/user_profile.sh"
@@ -106,11 +108,6 @@ if [ ! "$CMDER_ROOT" = "" ] ; then
 
   if [ ! -f "${CmderUserProfilePath}" ] ; then
       echo Creating user startup file: "${CmderUserProfilePath}"
-      cat <<-eof >"${CmderUserProfilePath}"
-# use this file to run your own startup commands for msys2 bash'
-
-# To add a new vendor to the path, do something like:
-# export PATH=\${CMDER_ROOT}/vendor/whatever:\${PATH}
-eof
+      cp "${CMDER_ROOT}/vendor/user_profile.sh.default" "${CmderUserProfilePath}"
   fi
 fi

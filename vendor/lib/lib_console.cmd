@@ -1,9 +1,14 @@
 @echo off
 
-rem set args=%*
-
 call "%~dp0lib_base.cmd"
 set lib_console=call "%~dp0lib_console.cmd"
+
+:: Much faster than using "%lib_console% debug_output ..." etc.
+set print_debug=if %debug_output% gtr 0 %lib_console% debug_output
+set print_verbose=if %verbose_output% gtr 0 %lib_console% verbose_output
+set print_error=%lib_console% show_error
+
+if "%fast_init%" == "1" exit /b
 
 if "%~1" == "/h" (
     %lib_base% help "%~0"
@@ -13,9 +18,9 @@ if "%~1" == "/h" (
 
 exit /b
 
-:debug-output
+:debug_output
 :::===============================================================================
-:::debug-output - Output a debug message to the console.
+:::debug_output - Output a debug message to the console.
 :::.
 :::include:
 :::.
@@ -23,22 +28,22 @@ exit /b
 :::.
 :::usage:
 :::.
-:::  %lib_console% debug-output [caller] [message]
+:::  %lib_console% debug_output [caller] [message]
 :::.
 :::required:
 :::.
-:::  [caller]  <in> Script/sub routine name calling debug-output
+:::  [caller]  <in> Script/sub routine name calling debug_output
 :::.
 :::  [message] <in> Message text to display.
 :::.
 :::-------------------------------------------------------------------------------
 
-    if %debug-output% gtr 0 echo DEBUG(%~1): %~2 & echo.
+    if %debug_output% gtr 0 echo DEBUG(%~1): %~2 & echo.
     exit /b
 
-:verbose-output
+:verbose_output
 :::===============================================================================
-:::verbose-output - Output a debug message to the console.
+:::verbose_output - Output a debug message to the console.
 :::.
 :::include:
 :::.
@@ -46,7 +51,7 @@ exit /b
 :::.
 :::usage:
 :::.
-:::  %lib_console% verbose-output "[message]"
+:::  %lib_console% verbose_output "[message]"
 :::.
 :::required:
 :::.
@@ -54,7 +59,7 @@ exit /b
 :::.
 :::-------------------------------------------------------------------------------
 
-    if %verbose-output% gtr 0 echo %~1
+    if %verbose_output% gtr 0 echo %~1
     exit /b
 
 :show_error

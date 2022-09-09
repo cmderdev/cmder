@@ -31,7 +31,7 @@ function Extract-Archive($source, $target) {
     Write-Verbose $("Extracting Archive '$cmder_root\vendor\" + $source.replace('/','\') + " to '$cmder_root\vendor\$target'")
     Invoke-Expression "7z x -y -o`"$($target)`" `"$source`"  > `$null"
     if ($lastexitcode -ne 0) {
-        Write-Error "Extracting of $source failied"
+        Write-Error "Extracting of $source failed"
     }
     Remove-Item $source
 }
@@ -41,7 +41,7 @@ function Create-Archive($source, $target, $params) {
     Write-Verbose "Running: $command"
     Invoke-Expression $command
     if ($lastexitcode -ne 0) {
-        Write-Error "Compressing $source failied"
+        Write-Error "Compressing $source failed"
     }
 }
 

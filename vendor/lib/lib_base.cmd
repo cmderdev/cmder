@@ -27,7 +27,7 @@ exit /b
 :::       file <in> full path to file containing lib_routines to display
 :::.
 :::-------------------------------------------------------------------------------
-    for /f "tokens=* delims=:" %%a in ('type "%~1" ^| findstr /i /r "^:::"') do (
+    for /f "tokens=* delims=:" %%a in ('type "%~1" ^| %WINDIR%\System32\findstr /i /r "^:::"') do (
         rem echo a="%%a"
 
         if "%%a"=="." (
@@ -42,4 +42,52 @@ exit /b
     )
 
     pause
+    exit /b
+
+:cmder_shell
+:::===============================================================================
+:::show_subs - shows all sub routines in a .bat/.cmd file with documentation
+:::.
+:::include:
+:::.
+:::       call "lib_base.cmd"
+:::.
+:::usage:
+:::.
+:::       %lib_base% cmder_shell
+:::.
+:::options:
+:::.
+:::       file <in> full path to file containing lib_routines to display
+:::.
+:::-------------------------------------------------------------------------------
+    call :detect_comspec %ComSpec%
+    exit /b
+    
+:detect_comspec
+    set CMDER_SHELL=%~n1
+    if not defined CMDER_CLINK (
+        set CMDER_CLINK=1
+        if "%CMDER_SHELL%" equ "tcc" set CMDER_CLINK=0
+        if "%CMDER_SHELL%" equ "tccle" set CMDER_CLINK=0
+    )
+    if not defined CMDER_ALIASES (
+        set CMDER_ALIASES=1
+        if "%CMDER_SHELL%" equ "tcc" set CMDER_ALIASES=0
+        if "%CMDER_SHELL%" equ "tccle" set CMDER_ALIASES=0
+    )
+    exit /b
+
+:update_legacy_aliases
+    type "%user_aliases%" | %WINDIR%\System32\findstr /i ";= Add aliases below here" >nul
+    if "%errorlevel%" == "1" (
+        echo Creating initial user_aliases store in "%user_aliases%"...
+        if defined CMDER_USER_CONFIG (
+            copy "%user_aliases%" "%user_aliases%.old_format"
+            copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
+        ) else (
+            copy "%user_aliases%" "%user_aliases%.old_format"
+            copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
+        )
+    )
     exit /b
