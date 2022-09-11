@@ -117,6 +117,7 @@ if ($ConEmuXml -ne "") {
 Pop-Location
 
 if($Compile) {
+    cmd.exe /C "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
     Push-Location -Path $launcher
     Create-RC $version ($launcher + '\src\version.rc2');
     msbuild CmderLauncher.vcxproj /t:Clean,Build /p:configuration=Release
