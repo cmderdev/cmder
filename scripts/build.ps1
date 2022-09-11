@@ -38,24 +38,23 @@ Param(
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$sourcesPath = "..\vendor\sources.json",
+    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json",
 
     # Vendor folder location
-    [string]$saveTo = "..\vendor\",
+    [string]$saveTo = "$PSScriptRoot\..\vendor\",
 
     # Launcher folder location
-    [string]$launcher = "..\launcher",
+    [string]$launcher = "$PSScriptRoot\..\launcher",
 
     # Config folder location
-    [string]$config = "..\config",
+    [string]$config = "$PSScriptRoot\..\config",
 
     # New launcher if you have MSBuild tools installed
     [switch]$Compile
 )
 
 # Get the scripts and cmder root dirs we are building in.
-$ScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
-$cmder_root = $ScriptRoot.replace("\scripts","")
+$cmder_root = Resolve-Path "$PSScriptRoot\.."
 
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
