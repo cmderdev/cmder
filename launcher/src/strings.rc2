@@ -1,0 +1,12 @@
+
+/////////////////////////////////////////////////////////////////////////////
+// Corresponding ids should be defined in `resource.h` file.
+
+STRINGTABLE
+{
+	IDS_TITLE             "Cmder Launcher"
+	
+	IDS_SWITCHES          L"Valid options:\n\n    /c [CMDER User Root Path]\n    /task [ConEmu Task Name]\n    /icon [CMDER Icon Path]\n    [/start [Start in Path] | [Start in Path]]\n    /single\n    /m\n    /x [ConEmu extra arguments]\n\nor, either:\n    /register [USER | ALL]\n    /unregister [USER | ALL]"
+}
+
+/////////////////////////////////////////////////////////////////////////////
