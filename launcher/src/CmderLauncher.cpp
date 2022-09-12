@@ -105,7 +105,7 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring iconPath = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"")
+void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring title = L"", std::wstring iconPath = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"")
 {
 #if USE_TASKBAR_API
 	wchar_t appId[MAX_PATH] = { 0 };
@@ -132,6 +132,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	std::wstring cmderStart = path;
 	std::wstring cmderTask = taskName;
+	std::wstring cmderTitle = title;
 	std::wstring cmderConEmuArgs = conemu_args;
 
 	std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
@@ -412,7 +413,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(conEmuPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
 
-	swprintf_s(args, L"%s /Icon \"%s\" /Title Cmder", args, icoPath);
+	swprintf_s(args, L"%s /Icon \"%s\"", args, icoPath);
 
 	if (!streqi(cmderStart.c_str(), L""))
 	{
@@ -427,6 +428,11 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	if (!streqi(cmderTask.c_str(), L""))
 	{
 		swprintf_s(args, L"%s /run {%s}", args, cmderTask.c_str());
+	}
+
+	if (!streqi(cmderTitle.c_str(), L""))
+	{
+		swprintf_s(args, L"%s /title \"%s\"", args, cmderTitle.c_str());
 	}
 
 	if (cfgRoot.length() != 0)
@@ -574,6 +580,7 @@ struct cmderOptions
 	std::wstring cmderCfgRoot = L"";
 	std::wstring cmderStart = L"";
 	std::wstring cmderTask = L"";
+	std::wstring cmderTitle = L"Cmder";
 	std::wstring cmderIcon = L"";
 	std::wstring cmderRegScope = L"USER";
 	std::wstring cmderConEmuArgs = L"";
@@ -634,6 +641,11 @@ cmderOptions GetOption()
 			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
 			{
 				cmderOptions.cmderTask = szArgList[i + 1];
+				i++;
+			}
+			else if (_wcsicmp(L"/title", szArgList[i]) == 0)
+			{
+				cmderOptions.cmderTitle = szArgList[i + 1];
 				i++;
 			}
 			else if (_wcsicmp(L"/icon", szArgList[i]) == 0)
@@ -764,7 +776,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else
 	{
-		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderIcon, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderConEmuArgs);
+		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderTitle, cmderOptions.cmderIcon, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderConEmuArgs);
 	}
 
 	return 0;
