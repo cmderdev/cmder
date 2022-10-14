@@ -48,9 +48,9 @@ function Create-Archive($source, $target, $params) {
 # If directory contains only one child directory
 # Flatten it instead
 function Flatten-Directory($name) {
-    Write-Verbose "Flattening the '$name' directory..."
     $name = Resolve-Path $name
     $moving = "$($name)_moving"
+    Write-Verbose "Flattening the '$name' directory..."
     Rename-Item $name -NewName $moving
     $child = Resolve-Path (Get-Childitem $moving)[0]
     Write-Verbose "Moving the '$child' directory to '$name'"
