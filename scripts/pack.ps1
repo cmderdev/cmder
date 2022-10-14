@@ -29,10 +29,10 @@ Param(
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$cmderRoot = "..",
+    [string]$cmderRoot = "$PSScriptRoot\..",
 
     # Vendor folder locaton
-    [string]$saveTo = "..\build"
+    [string]$saveTo = "$PSScriptRoot\..\build"
 )
 
 . "$PSScriptRoot\utils.ps1"
