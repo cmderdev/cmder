@@ -177,6 +177,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ResourceCompile Include="src\version.rc2">
+      <FileType>RC</FileType>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="src\resource.rc">
       <FileType>RC</FileType>
     </ResourceCompile>
