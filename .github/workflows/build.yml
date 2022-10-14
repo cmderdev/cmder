@@ -17,7 +17,7 @@ on:
 
 env:
   # Path to the root of the Cmder project.
-  CMDER_ROOT: .
+  CMDER_ROOT: ${{ GITHUB_WORKSPACE }}
 
 permissions:
   contents: read
@@ -44,7 +44,7 @@ jobs:
       working-directory: scripts
       run: .\build.ps1 -Compile -verbose
 
-    - name: Pack the build files
+    - name: Pack the built files
       shell: pwsh
       working-directory: scripts
       run: .\pack.ps1 -verbose
@@ -89,6 +89,7 @@ jobs:
   notification:
     runs-on: ubuntu-latest
     name: Send Gitter Notification
+    needs: upload
 
     steps:
     - uses: distributhor/workflow-webhook@v3
