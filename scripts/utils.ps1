@@ -29,7 +29,7 @@ function Delete-Existing($path) {
 
 function Extract-Archive($source, $target) {
     Write-Verbose $("Extracting Archive '$cmder_root\vendor\" + $source.replace('/','\') + " to '$cmder_root\vendor\$target'")
-    Invoke-Expression "7z x -y -o`"$($target)`" `"$source`"  > `$null"
+    Invoke-Expression "7z x -bsp2 -y -o`"$($target)`" `"$source`"  > `$null"
     if ($lastexitcode -ne 0) {
         Write-Error "Extracting of $source failed"
     }
@@ -37,7 +37,7 @@ function Extract-Archive($source, $target) {
 }
 
 function Create-Archive($source, $target, $params) {
-    $command = "7z a -x@`"$source\packignore`" $params $target $source  > `$null"
+    $command = "7z a -x@`"$source\packignore`" -bsp2 $params $target $source  > `$null"
     Write-Verbose "Creating Archive from '$source' in '$target' with parameters '$params'"
     Invoke-Expression $command
     if ($lastexitcode -ne 0) {
