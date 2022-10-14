@@ -50,11 +50,11 @@ function Create-Archive($source, $target, $params) {
 function Flatten-Directory($name) {
     $name = Resolve-Path $name
     $child = (Get-Childitem $name)[0]
-    $moving = $($name)_moving
+    $moving = "$($name)_moving"
     Write-Verbose "Moving the '$child' directory's content to '$name'"
-    Rename-Item "$name" -NewName "$moving"
-    Move-Item -Path "$child" -Destination "$name"
-    Remove-Item -Recurse "$moving"
+    Rename-Item $name -NewName $moving
+    Move-Item -Path $child -Destination $name
+    Remove-Item -Recurse $moving
 }
 
 function Digest-Hash($path) {
