@@ -25,9 +25,6 @@ permissions:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-#---------------------------------#
-#       build configuration       #
-#---------------------------------#
   build:
     name: Build Project
     runs-on: windows-latest
@@ -49,51 +46,8 @@ jobs:
       working-directory: scripts
       run: .\pack.ps1 -verbose
 
-#---------------------------------#
-#           artifacts             #
-#---------------------------------#
-#  upload:
-#    needs: build
-#    name: Upload Artifacts
-#    runs-on: windows-latest
-
-#    steps:
-    - name: Upload artifact (cmder.zip)
+    - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        path: build/cmder.zip
-        name: cmderzip
+        path: build
         if-no-files-found: error
-
-    - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v3
-      with:
-        path: build/cmder.7z
-        name: cmder.7z
-
-    - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v3
-      with:
-        path: build/cmder_mini.zip
-        name: cmdermini
-
-    - name: Upload artifact (hashes.txt)
-      uses: actions/upload-artifact@v3
-      with:
-        path: build/hashes.txt
-        name: hashes
-
-#---------------------------------#
-#         notifications           #
-#---------------------------------#
-#  notification:
-#    runs-on: ubuntu-latest
-#    name: Send Gitter Notification
-#    needs: upload
-
-#    steps:
-#    - uses: distributhor/workflow-webhook@v3
-#      with:
-#        webhook_url: https://webhooks.gitter.im/e/d673abb1b2e659dcd625
-#        webhook_secret: d673abb1b2e659dcd625
-
