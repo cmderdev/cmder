@@ -38,7 +38,7 @@ function Extract-Archive($source, $target) {
 
 function Create-Archive($source, $target, $params) {
     $command = "7z a -x@`"$source\packignore`" $params $target $source  > `$null"
-    Write-Verbose "Creating Archive from '$source' to '$target' with parameters '$params'"
+    Write-Verbose "Creating Archive from '$source' in '$target' with parameters '$params'"
     Invoke-Expression $command
     if ($lastexitcode -ne 0) {
         Write-Error "Compressing $source failed"
@@ -58,7 +58,7 @@ function Flatten-Directory($name) {
 }
 
 function Digest-Hash($path) {
-    if(Get-Command Get-FileHash -ErrorAction SilentlyContinue){
+    if (Get-Command Get-FileHash -ErrorAction SilentlyContinue) {
         return (Get-FileHash -Algorithm SHA256 -Path $path).Hash
     }
 
