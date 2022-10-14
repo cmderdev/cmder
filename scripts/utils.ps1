@@ -38,7 +38,7 @@ function Extract-Archive($source, $target) {
 
 function Create-Archive($source, $target, $params) {
     $command = "7z a -x@`"$source\packignore`" $params $target $source  > `$null"
-    Write-Verbose "Running: $command"
+    Write-Verbose "Creating Archive from '$source' to '$target' with parameters '$params'"
     Invoke-Expression $command
     if ($lastexitcode -ne 0) {
         Write-Error "Compressing $source failed"
