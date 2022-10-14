@@ -52,12 +52,12 @@ jobs:
 #---------------------------------#
 #           artifacts             #
 #---------------------------------#
-  upload:
-    needs: build
-    name: Upload Artifacts
-    runs-on: windows-latest
+#  upload:
+#    needs: build
+#    name: Upload Artifacts
+#    runs-on: windows-latest
 
-    steps:
+#    steps:
     - name: Upload artifact (cmder.zip)
       uses: actions/upload-artifact@v3
       with:
@@ -86,14 +86,14 @@ jobs:
 #---------------------------------#
 #         notifications           #
 #---------------------------------#
-  notification:
-    runs-on: ubuntu-latest
-    name: Send Gitter Notification
-    needs: upload
+#  notification:
+#    runs-on: ubuntu-latest
+#    name: Send Gitter Notification
+#    needs: upload
 
-    steps:
-    - uses: distributhor/workflow-webhook@v3
-      with:
-        webhook_url: https://webhooks.gitter.im/e/d673abb1b2e659dcd625
-        webhook_secret: d673abb1b2e659dcd625
+#    steps:
+#    - uses: distributhor/workflow-webhook@v3
+#      with:
+#        webhook_url: https://webhooks.gitter.im/e/d673abb1b2e659dcd625
+#        webhook_secret: d673abb1b2e659dcd625
 
