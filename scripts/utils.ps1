@@ -51,8 +51,8 @@ function Flatten-Directory($name) {
     $name = Resolve-Path $name
     $moving = "$($name)_moving"
     Rename-Item $name -NewName $moving
-    $child = Resolve-Path (Get-Childitem $moving)[0]
-    Write-Verbose "Moving the '$child' directory to '$name'"
+    Write-Verbose "Flattening the '$name' directory..."
+    $child = (Get-Childitem $moving)[0] | Resolve-Path
     Move-Item -Path $child -Destination $name
     Remove-Item -Recurse $moving
 }
