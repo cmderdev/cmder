@@ -62,7 +62,7 @@ $version = Get-VersionStr
 if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
     Write-Verbose "Packing Cmder $version in $saveTo..."
     $excluded = (Get-Content -Path "$cmderRoot\packignore") -Split [System.Environment]::NewLine | Where-Object {$_}
-    Get-ChildItem $cmderRoot -Recurse -Force -Exclude $excluded
+    Get-ChildItem $cmderRoot -Force -Exclude $excluded
 }
 
 foreach ($t in $targets.GetEnumerator()) {
