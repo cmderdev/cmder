@@ -47,8 +47,8 @@ $targets = @{
     "cmder_mini.zip" = "-x!`"vendor\git-for-windows`"";
 }
 
-Delete-Existing "..\Version*"
-Delete-Existing "..\build\*"
+Delete-Existing "$cmderRoot\Version*"
+Delete-Existing "$cmderRoot\build\*"
 
 If(-not (Test-Path -PathType container $saveTo)) {
     (New-Item -ItemType Directory -Path $saveTo) | Out-Null
