@@ -29,6 +29,7 @@ jobs:
 #       build configuration       #
 #---------------------------------#
   build:
+    name: Build Project
     runs-on: windows-latest
 
     steps:
@@ -36,7 +37,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1
 
     - name: Build Cmder Launcher
       shell: pwsh
@@ -53,6 +54,7 @@ jobs:
 #---------------------------------#
   upload:
     needs: build
+    name: Upload Artifacts
     runs-on: windows-latest
 
     steps:
@@ -85,10 +87,11 @@ jobs:
 #         notifications           #
 #---------------------------------#
   notification:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     name: Send Gitter Notification
+
     steps:
-    - uses: distributhor/workflow-webhook@v3.0.1
+    - uses: distributhor/workflow-webhook@v3
       with:
         webhook_url: https://webhooks.gitter.im/e/d673abb1b2e659dcd625
         webhook_secret: d673abb1b2e659dcd625
