@@ -51,13 +51,18 @@ Delete-Existing "..\Version*"
 Delete-Existing "..\build\*"
 
 If(-not (Test-Path -PathType container $saveTo)) {
-      New-Item -ItemType Directory -Path $saveTo
+    (New-Item -ItemType Directory -Path $saveTo) | Out-Null
 }
 
 $saveTo = Resolve-Path $saveTo
 
 $version = Get-VersionStr
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
+
+if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+    Write-Verbose "Packing Cmder $version in $saveTo..."
+    dir $cmderRoot
+}
 
 foreach ($t in $targets.GetEnumerator()) {
     Create-Archive $cmderRoot "$saveTo\$($t.Name)" $t.Value
