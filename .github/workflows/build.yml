@@ -17,7 +17,7 @@ on:
 
 env:
   # Path to the root of the Cmder project.
-  CMDER_ROOT: ${{ env.GITHUB_WORKSPACE }}
+  CMDER_ROOT: ${{ github.workspace }}
 
 permissions:
   contents: read
