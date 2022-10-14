@@ -1,0 +1,95 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+name: Build Cmder
+
+# Controls when the action will run. Triggers the workflow on push or pull request events but only for the main branch
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+env:
+  # Path to the root of the Cmder project.
+  CMDER_ROOT: .
+
+permissions:
+  contents: read
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Check out repository code (Action from GitHub)
+      uses: actions/checkout@v3
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Build Cmder Launcher
+      shell: pwsh
+      working-directory: scripts
+      run: .\build.ps1 -Compile -verbose
+
+    - name: Pack the build files
+      shell: pwsh
+      working-directory: scripts
+      run: .\pack.ps1 -verbose
+
+#---------------------------------#
+#           artifacts             #
+#---------------------------------#
+  upload:
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+    - name: Upload artifact (cmder.zip)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder.zip
+        name: cmderzip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder.7z)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder.7z
+        name: cmder.7z
+
+    - name: Upload artifact (cmder_mini.zip)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder_mini.zip
+        name: cmdermini
+
+    - name: Upload artifact (hashes.txt)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/hashes.txt
+        name: hashes
+
+#---------------------------------#
+#         notifications           #
+#---------------------------------#
+  notification:
+    runs-on: windows-latest
+    name: Send Gitter Notification
+    steps:
+    - uses: distributhor/workflow-webhook@v3.0.1
+      with:
+        webhook_url: https://webhooks.gitter.im/e/d673abb1b2e659dcd625
+        webhook_secret: d673abb1b2e659dcd625
+
