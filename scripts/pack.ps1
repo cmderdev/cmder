@@ -35,6 +35,9 @@ Param(
     [string]$saveTo = "$PSScriptRoot\..\build"
 )
 
+$cmderRoot = Resolve-Path $cmderRoot
+$saveTo = Resolve-Path $saveTo
+
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
