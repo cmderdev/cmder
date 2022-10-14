@@ -1,6 +1,6 @@
 <#
 .Synopsis
-    Pack cmder
+    Pack Cmder
 .DESCRIPTION
     Use this script to pack cmder into release archives
 
@@ -36,7 +36,6 @@ Param(
 )
 
 $cmderRoot = Resolve-Path $cmderRoot
-$saveTo = Resolve-Path $saveTo
 
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
@@ -50,6 +49,12 @@ $targets = @{
 
 Delete-Existing "..\Version*"
 Delete-Existing "..\build\*"
+
+If(-not (Test-Path -PathType container $saveTo)) {
+      New-Item -ItemType Directory -Path $saveTo
+}
+
+$saveTo = Resolve-Path $saveTo
 
 $version = Get-VersionStr
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
