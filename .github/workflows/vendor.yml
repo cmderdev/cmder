@@ -1,6 +1,7 @@
 name: Update Vendor
 
 on:
+  workflow_dispatch:
   schedule:
   # At 13:37 UTC every day.
   - cron: '37 13 * * *'
