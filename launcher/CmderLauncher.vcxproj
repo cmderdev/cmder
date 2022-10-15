@@ -128,7 +128,7 @@
       <AdditionalManifestFiles>src/app.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)..\$(TargetFileName)</Command>
+      <Command>copy "$(TargetPath)" "$(SolutionDir)..\$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
