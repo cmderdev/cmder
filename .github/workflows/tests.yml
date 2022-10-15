@@ -27,7 +27,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - run: |
-          cmd /c vendor\bin\cmder_shell.cmd
-          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "Invoke-Expression '. ''vendor\profile.ps1'''" 
+    - name: Testing Clink Shell
+      run: |
+          cmd /c vendor\init.bat
+    - name: Testing PowerShell
+      run: |
+          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "Invoke-Expression '. ''vendor\profile.ps1'''"
+    - name: Testing Bash
+      run: |
           bash vendor/cmder.sh
