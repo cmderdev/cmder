@@ -66,33 +66,26 @@ function Digest-Hash($path) {
 }
 
 function Get-VersionStr() {
-
     # Clear existing variable
     if ($string) { Clear-Variable -name string }
 
     # Determine if git is available
-    if (Get-Command "git.exe" -ErrorAction SilentlyContinue)
-    {
-
+    if (Get-Command "git.exe" -ErrorAction SilentlyContinue) {
         # Determine if the current diesctory is a git repository
         $GitPresent = Invoke-Expression "git rev-parse --is-inside-work-tree" -erroraction SilentlyContinue
 
-        if ( $GitPresent -eq 'true' )
-        {
+        if ( $GitPresent -eq 'true' ) {
             $string = Invoke-Expression "git describe --abbrev=0 --tags"
         }
-
     }
 
     # Fallback used when Git is not available
-    if ( -not($string) )
-    {
+    if ( -not($string) ) {
         $string = Parse-Changelog ($PSScriptRoot + '\..\' + 'CHANGELOG.md')
     }
 
     # Add build number, if AppVeyor is present
-    if ( $Env:APPVEYOR -eq 'True' )
-    {
+    if ( $Env:APPVEYOR -eq 'True' ) {
         $string = $string + '.' + $Env:APPVEYOR_BUILD_NUMBER
     }
 
@@ -100,11 +93,9 @@ function Get-VersionStr() {
     $string = $string -replace '^v+','' # normalize version string
 
     return $string
-
 }
 
 function Parse-Changelog($file) {
-
     # Define the regular expression to match the version string from changelog
     [regex]$regex = '^## \[(?<version>[\w\-\.]+)\]\([^\n()]+\)\s+\([^\n()]+\)$';
 
@@ -115,7 +106,6 @@ function Parse-Changelog($file) {
 }
 
 function Create-RC($string, $path) {
-
     $version  = $string + '.0.0.0.0' # padding for version string
 
     if ( !(Test-Path "$path.sample") ) {
@@ -135,13 +125,12 @@ function Create-RC($string, $path) {
             $resource = $resource.Replace( "{" + $pattern[$index++] + "}", $fragment )
         }
     }
-    
+
     # Add the version string
     $resource = $resource.Replace( "{Cmder-Version-Str}", '"' + $string + '"' )
 
     # Write the results
     Set-Content -Path $path -Value $resource
-
 }
 
 function Register-Cmder() {
@@ -204,13 +193,13 @@ function Download-File {
         $File
     )
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    
+
     # I think this is the problem
     $File = $File -Replace "/", "\"
     Write-Verbose "Downloading from $Url to $File"
     $wc = New-Object System.Net.WebClient
     if ($env:https_proxy) {
-      $wc.proxy = (New-Object System.Net.WebProxy($env:https_proxy))
+        $wc.proxy = (New-Object System.Net.WebProxy($env:https_proxy))
     }
     $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;
     $wc.DownloadFile($Url, $File)

@@ -34,7 +34,7 @@
         - Use it's existing Path config and completely ignore embedded Git.
       - Else if Cmder embedded Git exists and is newer
         - Match User installed Git path config using Cmder embedded Git folders.
-    - Else if Cmder embedded Git exists 
+    - Else if Cmder embedded Git exists
       - Add Cmder embedded Git folders to the path.
         - `$env:cmder_root\vendor\git-for-windows\cmd;$env:path`
         - `$env:path;$env:cmder_root\vendor\git-for-windows\usr\bin`
@@ -78,13 +78,13 @@
 
 ### Fixes
 
-* Merge pull request #2357 from FloSchwalm/fix-git-version-comparison  [Dax T Games]                                                                   
-* Merge pull request #2339 from daxgames/fix_global_vars_vscode_err  [Dax T Games]                                                                     
+* Merge pull request #2357 from FloSchwalm/fix-git-version-comparison  [Dax T Games]
+* Merge pull request #2339 from daxgames/fix_global_vars_vscode_err  [Dax T Games]
 
 ### Changes
 
-* Merge pull request #2358 from FloSchwalm/update-to-git-2.28  [Dax T Games]               
-                                                                                                                                                                          
+* Merge pull request #2358 from FloSchwalm/update-to-git-2.28  [Dax T Games]
+
 ## [1.3.15](https://github.com/cmderdev/cmder/tree/v1.3.15) (2020-06-26)
 
 * Fixes #2247, fixes #2254 [#2265](https://github.com/cmderdev/cmder/pull/2265)
@@ -153,7 +153,7 @@
   * Fixes [#1985](https://github.com/cmderdev/cmder/issues/1985)
 * Pull Request: [#2106](https://github.com/cmderdev/cmder/pull/2106)
   * Portable Git requires running `post-install.bat` which deletes itself when done.  This was not happening.
-  * Resolves [#2105](https://github.com/cmderdev/cmder/issues/2105) 
+  * Resolves [#2105](https://github.com/cmderdev/cmder/issues/2105)
 * Pull Request: [#2002](https://github.com/cmderdev/cmder/pull/2002)
   * Updated the HG prompt code to use the '-ib' option to 'hg id' so the branch name is always available, regardless of the state of the working copy
 
@@ -188,7 +188,7 @@
 * Fix uncommenting `call ssh-agent` in `user_profile.cmd` breaks Cmder prompt. [#1990](https://github.com/cmderdev/cmder/issues/1990), [#1807](https://github.com/cmderdev/cmder/issues/1807), [#1785](https://github.com/cmderdev/cmder/issues/1785), [#1885](https://github.com/cmderdev/cmder/issues/1885)
   * Pull Request: [#1999](https://github.com/cmderdev/cmder/issues/1999) fix ssh-agent call in user_profile.cmd.default
 * Unable to use '%' character in git branch names [#1779](https://github.com/cmderdev/cmder/issues/1779)
-  * Pull Request: [#1991](https://github.com/cmderdev/cmder/issues/1991) add percent escaping for string.gsub 
+  * Pull Request: [#1991](https://github.com/cmderdev/cmder/issues/1991) add percent escaping for string.gsub
 * sort command, unix vs windows (/usr/bin/sort vs sort.exe) [#1931](https://github.com/cmderdev/cmder/issues/1931)
   * Pull Request: [#1988](https://github.com/cmderdev/cmder/issues/1988) Prefer /nix_tools option
 

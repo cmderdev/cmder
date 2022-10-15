@@ -1,5 +1,5 @@
 function getGitStatusSetting() {
-  gitStatusSetting=$(git --no-pager config -l 2>/dev/null)  
+  gitStatusSetting=$(git --no-pager config -l 2>/dev/null)
 
   if [[ -n ${gitStatusSetting} ]] && [[ ${gitStatusSetting} =~ cmder.status=false ]] || [[ ${gitStatusSetting} =~ cmder.shstatus=false ]]
   then
@@ -14,14 +14,14 @@ function getSimpleGitBranch() {
   if [ -z "$gitDir" ]; then
 		return 0
 	fi
-  
+
   headContent=$(< "$gitDir/HEAD")
   if [[ "$headContent" == "ref: refs/heads/"* ]]
   then
       echo " (${headContent:16})"
   else
       echo " (HEAD detached at ${headContent:0:7})"
-  fi 
+  fi
 }
 
 if test -f /etc/profile.d/git-sdk.sh
@@ -68,7 +68,7 @@ else
   fi
   PS1="$PS1"'\[\033[0m\]'        # change color
   PS1="$PS1"'\n'                 # new line
-  PS1="$PS1"'λ '                 # prompt: always λ 
+  PS1="$PS1"'λ '                 # prompt: always λ
 fi
 
 MSYS2_PS1="$PS1"               # for detection by MSYS2 SDK's bash.basrc

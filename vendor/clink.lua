@@ -600,7 +600,7 @@ local function svn_prompt_filter()
             else
                 svnStatus = get_svn_status()
             end
- 
+
             if svnStatus == nil then
                 color = colors.nostatus
             elseif svnStatus then

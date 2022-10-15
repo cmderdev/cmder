@@ -63,7 +63,7 @@ exit /b
 :::-------------------------------------------------------------------------------
     call :detect_comspec %ComSpec%
     exit /b
-    
+
 :detect_comspec
     set CMDER_SHELL=%~n1
     if not defined CMDER_CLINK (

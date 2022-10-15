@@ -193,7 +193,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			userAliasesPath, (size_t)MAX_PATH);
 		rename(lPr, pR);
 	}
-	
+
 	/*
 	Was /c [path] specified?
 	*/
@@ -309,7 +309,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			ExpandEnvironmentStrings(userConEmuCfgPath, userConEmuCfgPath, sizeof(userConEmuCfgPath) / sizeof(userConEmuCfgPath[0]));
 		}
 	}
-	else if (PathFileExists(userCfgPath)) // config/user_conemu.xml exists, use it. 
+	else if (PathFileExists(userCfgPath)) // config/user_conemu.xml exists, use it.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{

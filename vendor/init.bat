@@ -175,7 +175,7 @@ if "%CMDER_CLINK%" == "1" (
       copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\clink_settings"
       echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
     )
-    
+
     if not exist "%CMDER_ROOT%\config\cmder_prompt_config.lua" (
       echo Creating Cmder prompt config file: "%CMDER_ROOT%\config\cmder_prompt_config.lua"
       copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_ROOT%\config\cmder_prompt_config.lua"
