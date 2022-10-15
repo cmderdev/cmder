@@ -44,7 +44,7 @@ Ensure-Executable "7z"
 $targets = @{
     "cmder.zip" = $null;
     "cmder.7z" = $null;
-    "cmder_mini.zip" = "-x!`"$cmderRoot\vendor\git-for-windows`"";
+    "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
 }
 
 Push-Location -Path $cmderRoot
@@ -68,7 +68,7 @@ if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
 }
 
 foreach ($t in $targets.GetEnumerator()) {
-    Create-Archive "$cmderRoot\*" "$saveTo\$($t.Name)" $t.Value
+    Create-Archive "$cmderRoot" "$saveTo\$($t.Name)" $t.Value
     $hash = (Digest-Hash "$saveTo\$($t.Name)")
     Add-Content -path "$saveTo\hashes.txt" -value ($t.Name + ' ' + $hash)
 }

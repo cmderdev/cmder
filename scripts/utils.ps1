@@ -37,7 +37,7 @@ function Extract-Archive($source, $target) {
 }
 
 function Create-Archive($source, $target, $params) {
-    $command = "7z a -xr@`"$source\packignore`" $params $target $source  > `$null"
+    $command = "7z a -xr@`"$source\packignore`" $params `"$target`" `"$source\*`"  > `$null"
     Write-Verbose "Creating Archive from '$source' in '$target' with parameters '$params'"
     Invoke-Expression $command
     if ($lastexitcode -ne 0) {

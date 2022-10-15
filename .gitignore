@@ -23,7 +23,7 @@ Thumbs.db
 *.exe
 *.dll
 build/
-Version v*
+/Version *
 *.bak
 .github_changelog_generator
 launcher/.vs
