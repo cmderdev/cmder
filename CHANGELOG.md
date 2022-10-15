@@ -22,16 +22,16 @@
 
 - Update Git for Windows to 2.34.0
 - Update to Clink 1.2.46
-- Update to stable Conemu 210912
+- Update to stable ConEmu 210912
 - Do not rely on having a `%cmder_root%\config\cmder_prompt_config.lua`
 
 ### Adds
 
-- Powershell Git version Discovery - See #2373 for the full proposal.
+- PowerShell Git version Discovery - See #2373 for the full proposal.
   - Find user installed Git on Path
     - If found
       - if newer than Cmder embedded Git
-        - Use it's existing Path config and completely ignore embedded Git.
+        - Use its existing Path config and completely ignore embedded Git.
       - Else if Cmder embedded Git exists and is newer
         - Match User installed Git path config using Cmder embedded Git folders.
     - Else if Cmder embedded Git exists
@@ -117,7 +117,7 @@
 
 ### Changes
 
-* Update to Conemu 19.10.12
+* Update to ConEmu 19.10.12
 
 ### Adds
 
@@ -129,7 +129,7 @@
       status = false
     ```
 
-* #2174 `--` Syntax to pass command line options to Conemu.
+* #2174 `--` Syntax to pass command line options to ConEmu.
 * Disable Clink Logging
 * Add `~` tab completion.
 
@@ -138,7 +138,7 @@
 
 * Fix #2191: profile.ps1: CheckGit does not export $gitLoaded
 * Fix #2192: Set default prompt hooks before loading user profile
-* Fix #2097, #1899: powershell foreground color changing to green
+* Fix #2097, #1899: PowerShell foreground color changing to green
 * Fix #1979: Update Clink Completions to 0.3.4
 * Fix #1678: Cmder corrupting path with `!` in Cmder folder path.
 
@@ -208,13 +208,13 @@
 ### Fixes
 
 * Replaces Cmder Release v1.3.9 which has been removed.
-* /c now completely separates user config including Conemu configuration. This enables true multi-user Cmder with no configuration collisions. See PR #1949.
+* /c now completely separates user config including ConEmu configuration. This enables true multi-user Cmder with no configuration collisions. See PR #1949.
 * Fix #1959 Start cmder "find" errors. See PR #1961.
 * Fix #1956 Git detection should use env from git install root. See PR #1969
 
 ### Adds
 
-* /m initially creates %cmder_root%/config/conemu-%computername%.xml for users that want per computer Conemu configuration with shared init scripts. See PR #1949.
+* /m initially creates %cmder_root%/config/ConEmu-%computername%.xml for users that want per computer ConEmu configuration with shared init scripts. See PR #1949.
 * /register now recognizes /c [path] and creates an appropriate Cmder Here shell context menu. See PR #1949.
 
 ## [1.3.8](https://github.com/cmderdev/cmder/tree/v1.3.8) (2018-11-10)
@@ -269,7 +269,7 @@
 * Profile.ps1 (#1796)
 * Fix lib base (#1794)
 * Little Changes
-* Fixed move of default conemu.xml to the vendor folder
+* Fixed move of default ConEmu.xml to the vendor folder
 * ignore all of config folder
 * move default comemu.xml to vendor folder
 * fixes
@@ -295,7 +295,7 @@
 
 ### Dmitri S. Guskov (2):
 
-* Powershell 5.1 compatibility
+* PowerShell 5.1 compatibility
 * Update profile.ps1
 
 ### Gregory Lucas (1):
@@ -330,8 +330,8 @@
 ### xiazeyu (4):
 
 * chore: unite slash
-* docs: update to latest useage
-* refactor: reduce global varible useage, fixed quote issue, added parameters support
+* docs: update to latest usage
+* refactor: reduce global variable usage, fixed quote issue, added parameters support
 * doc: fix typo
 
 ### xiazeyu_2011 (8):
@@ -399,23 +399,23 @@
   * To append and go 2 levels deep: `call :enhance_path "%cmder_root%" 2 append`
 * Added ability to init.bat to accept command line args and documented them in README.md. Allows users to change the behaviour of init.bat without editing the file.
 
-| Argument                      | Description                                                                                      | Default                               |
-| ----------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------- |
-| /c [user cmder root]          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. | not set                               |
-| /d                            | Enables debug output.                                                                            | not set                               |
-| /git_install_root [file path] | User specified Git installation root path.                                                       | '%CMDER_ROOT%\vendor\Git-for-Windows' |
-| /home [home folder]           | User specified folder path to set `%HOME%` environment variable.                                 | '%userprofile%'                       |
-| /max_depth [1-5]              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`   | 1                                     |
-| /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.                                | '%GIT_INSTALL_ROOT%\bin\ssh.exe'      |
-| /user_aliases [file path]     | File path pointing to user aliases.                                                              | '%CMDER_ROOT%\config\user-liases.cmd' |
-| /v                            | Enables verbose output.                                                                          | not set                               |
+| Argument                      | Description                                                                                      | Default                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------- |
+| /c [user cmder root]          | Enables user bin and config folders for 'Cmder as admin' sessions due to non-shared environment. | not set                                |
+| /d                            | Enables debug output.                                                                            | not set                                |
+| /git_install_root [file path] | User specified Git installation root path.                                                       | '%CMDER_ROOT%\vendor\Git-for-Windows'  |
+| /home [home folder]           | User specified folder path to set `%HOME%` environment variable.                                 | '%userprofile%'                        |
+| /max_depth [1-5]              | Define max recurse depth when adding to the path for `%cmder_root%\bin` and `%cmder_user_bin%`   | 1                                      |
+| /svn_ssh [path to ssh.exe]    | Define %SVN_SSH% so we can use git svn with ssh svn repositories.                                | '%GIT_INSTALL_ROOT%\bin\ssh.exe'       |
+| /user_aliases [file path]     | File path pointing to user aliases.                                                              | '%CMDER_ROOT%\config\user-aliases.cmd' |
+| /v                            | Enables verbose output.                                                                          | not set                                |
 
 * Added new `cmder.exe /C \<path\>` argument
 
   * To use run Cmder.exe with "/C" command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
   * To use run with `Cmder as Admin` sessions you must specify "/c" command line argument to `init.bat` in tasks. See [README.md](./Readme.md) for details.
   * Enables shared Cmder install with Non-Portable Individual User Config
-  * Supported by all supported shells (cmder, powershell, git bash, and external bash)
+  * Supported by all supported shells (cmder, PowerShell, git bash, and external bash)
   * This will create the following directory structure if it is missing.
 
     ```plain
@@ -452,7 +452,7 @@ This is the first Cmder release that comes with Git for Windows in the 64bit ver
 
 ## [1.3.4](https://github.com/cmderdev/cmder/releases/tag/v1.3.4) (2017-11-03)
 
-We now use a forked version of clink since it's original author is missing and we needed Windows 10 compat.
+We now use a forked version of clink since its original author is missing and we needed Windows 10 compatibility.
 
 **Updated components:**
 
@@ -460,13 +460,13 @@ We now use a forked version of clink since it's original author is missing and w
 
 **Fixed bugs:**
 
-* Fix lamda color after a ConEmu change: [a8d3261](https://github.com/cmderdev/cmder/commit/a8d32611a9b93cfb58f0318ae4b8041bc8a86c68)
+* Fix lambada color after a ConEmu change: [a8d3261](https://github.com/cmderdev/cmder/commit/a8d32611a9b93cfb58f0318ae4b8041bc8a86c68)
 * Compatible with Visual Studio Code (PowerShell): [\#1417](https://github.com/cmderdev/cmder/pull/1417)
 * Make default tasks respect "Startup directory for new process": [b58ff9b](https://github.com/cmderdev/cmder/commit/b58ff9bb539d7f908f427fa34f377e1513fcd825)
 
 ## [1.3.3](https://github.com/cmderdev/cmder/releases/tag/v1.3.3) (2017-10-28)
 
-We now use a forked version of clink since it's original author is missing and we needed Windows 10 compat.
+We now use a forked version of clink since its original author is missing and we needed Windows 10 compat.
 
 **Updated components:**
 
@@ -484,7 +484,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Make cmder auto start with windows and auto minimize to the status bar. [\#532](https://github.com/cmderdev/cmder/issues/532)
 * v1.2.0: Errors because of PowerShell execution policy [\#483](https://github.com/cmderdev/cmder/issues/483)
 * Updating Vendors with chocolatey [\#442](https://github.com/cmderdev/cmder/issues/442)
-* Alias without it's opposit [\#281](https://github.com/cmderdev/cmder/issues/281)
+* Alias without its opposite [\#281](https://github.com/cmderdev/cmder/issues/281)
 * Improve new UX [\#230](https://github.com/cmderdev/cmder/issues/230)
 * Different Font for the Lambda [\#211](https://github.com/cmderdev/cmder/issues/211)
 * Git Credential Cache [\#184](https://github.com/cmderdev/cmder/issues/184)
@@ -492,7 +492,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Include Scoop as package manager [\#42](https://github.com/cmderdev/cmder/issues/42)
 * Complete aliases on tab [\#38](https://github.com/cmderdev/cmder/issues/38)
 * Path ordering issue - wrong find.exe executes by default [\#37](https://github.com/cmderdev/cmder/issues/37)
-* User conemu cfg [\#1109](https://github.com/cmderdev/cmder/pull/1109) ([daxgames](https://github.com/daxgames))
+* User ConEmu cfg [\#1109](https://github.com/cmderdev/cmder/pull/1109) ([daxgames](https://github.com/daxgames))
 * Msys bash [\#702](https://github.com/cmderdev/cmder/pull/702) ([daxgames](https://github.com/daxgames))
 * Added code to check for the existence of a customized ini file.. [\#427](https://github.com/cmderdev/cmder/pull/427) ([kodybrown](https://github.com/kodybrown))
 * New build and pack scripts [\#152](https://github.com/cmderdev/cmder/pull/152) ([samvasko](https://github.com/samvasko))
@@ -524,7 +524,7 @@ We now use a forked version of clink since it's original author is missing and w
 * What is mintty in here? [\#1149](https://github.com/cmderdev/cmder/issues/1149)
 * No make [\#1146](https://github.com/cmderdev/cmder/issues/1146)
 * How can I set the path of cmder properly at the start ? [\#1136](https://github.com/cmderdev/cmder/issues/1136)
-* Powershell Slow Startup [\#1130](https://github.com/cmderdev/cmder/issues/1130)
+* PowerShell Slow Startup [\#1130](https://github.com/cmderdev/cmder/issues/1130)
 * python for cmder [\#1129](https://github.com/cmderdev/cmder/issues/1129)
 * Haskell repl \(ghci\) crashes only in cmder works elsewhere [\#1125](https://github.com/cmderdev/cmder/issues/1125)
 * Latest update causes `error: failed to push some refs to git@gitlab....` [\#1124](https://github.com/cmderdev/cmder/issues/1124)
@@ -616,14 +616,14 @@ We now use a forked version of clink since it's original author is missing and w
 * Tab autocompetion for git is inconsistent \(doesn't work with git add\) [\#885](https://github.com/cmderdev/cmder/issues/885)
 * Line-wrapping breaks when using backspace key in a git repo with Cmder mini and Git for Windows. [\#883](https://github.com/cmderdev/cmder/issues/883)
 * Cmder opens off screen [\#881](https://github.com/cmderdev/cmder/issues/881)
-* ctrl+l with powershell in quake mode clears the first prompt line as well [\#879](https://github.com/cmderdev/cmder/issues/879)
+* ctrl+l with PowerShell in quake mode clears the first prompt line as well [\#879](https://github.com/cmderdev/cmder/issues/879)
 * Enconding ? [\#877](https://github.com/cmderdev/cmder/issues/877)
 * the {cmd} task [\#876](https://github.com/cmderdev/cmder/issues/876)
 * Failed to start cmder, app crashed [\#871](https://github.com/cmderdev/cmder/issues/871)
 * Cmder Windows Pinning Issue \[weird\] [\#869](https://github.com/cmderdev/cmder/issues/869)
 * Why not use @ECHO OFF? [\#868](https://github.com/cmderdev/cmder/issues/868)
 * alias with && doesn't work [\#859](https://github.com/cmderdev/cmder/issues/859)
-* Having trouble with packaged conemu install, how can I point to a different one? [\#858](https://github.com/cmderdev/cmder/issues/858)
+* Having trouble with packaged ConEmu install, how can I point to a different one? [\#858](https://github.com/cmderdev/cmder/issues/858)
 * path entry for \<git\>/cmd instead of \<git\>/bin? [\#853](https://github.com/cmderdev/cmder/issues/853)
 * Cmder lists path on window resize. [\#851](https://github.com/cmderdev/cmder/issues/851)
 * Alias with multi-word git commit message not working [\#847](https://github.com/cmderdev/cmder/issues/847)
@@ -643,7 +643,7 @@ We now use a forked version of clink since it's original author is missing and w
 * When will the next version be available? [\#811](https://github.com/cmderdev/cmder/issues/811)
 * Netcat is missing [\#810](https://github.com/cmderdev/cmder/issues/810)
 * how to use /? to get the help doc in the `cmder` [\#808](https://github.com/cmderdev/cmder/issues/808)
-* \[Enhancement\] Powershell and Babun \(cygwin + zsh\) [\#807](https://github.com/cmderdev/cmder/issues/807)
+* \[Enhancement\] PowerShell and Babun \(cygwin + zsh\) [\#807](https://github.com/cmderdev/cmder/issues/807)
 * Cmder - Warning: Missing git support [\#806](https://github.com/cmderdev/cmder/issues/806)
 * iul [\#800](https://github.com/cmderdev/cmder/issues/800)
 * Update clink settings [\#793](https://github.com/cmderdev/cmder/issues/793)
@@ -700,16 +700,16 @@ We now use a forked version of clink since it's original author is missing and w
 * Cannot switch to mapped network drive [\#649](https://github.com/cmderdev/cmder/issues/649)
 * Ctrl + D? [\#648](https://github.com/cmderdev/cmder/issues/648)
 * Is there any hotkey jump to "Search" box? [\#647](https://github.com/cmderdev/cmder/issues/647)
-* File /vendor/conemu-maximus5/ConEmu.exe not found. [\#646](https://github.com/cmderdev/cmder/issues/646)
-* As admin CMDER_ROOT not set in Powershell [\#643](https://github.com/cmderdev/cmder/issues/643)
+* File /vendor/ConEmu-maximus5/ConEmu.exe not found. [\#646](https://github.com/cmderdev/cmder/issues/646)
+* As admin CMDER_ROOT not set in PowerShell [\#643](https://github.com/cmderdev/cmder/issues/643)
 * Emoji support [\#642](https://github.com/cmderdev/cmder/issues/642)
 * Having ls, cat, etc [\#641](https://github.com/cmderdev/cmder/issues/641)
 * Cmder having Permission Errors for Windows 10 [\#640](https://github.com/cmderdev/cmder/issues/640)
-* Powershell - Msys Aliases [\#639](https://github.com/cmderdev/cmder/issues/639)
+* PowerShell - Msys Aliases [\#639](https://github.com/cmderdev/cmder/issues/639)
 * Problem with install on window 7? [\#637](https://github.com/cmderdev/cmder/issues/637)
 * Invoke-Expression : The term 'Invoke-Expression' is not recognized [\#636](https://github.com/cmderdev/cmder/issues/636)
 * it doesn't like Docker [\#631](https://github.com/cmderdev/cmder/issues/631)
-* Latest release : Windows 7 : Windows cannot find ".../vendor/conemu-maximus5/CpmE,u.exe" [\#629](https://github.com/cmderdev/cmder/issues/629)
+* Latest release : Windows 7 : Windows cannot find ".../vendor/ConEmu-maximus5/CpmE,u.exe" [\#629](https://github.com/cmderdev/cmder/issues/629)
 * Strange Vim behaviour after Git for Windows upgrade [\#628](https://github.com/cmderdev/cmder/issues/628)
 * msysGit has been superseded ,consider to switch to Git for Windows 2.x? [\#627](https://github.com/cmderdev/cmder/issues/627)
 * tail command not found [\#625](https://github.com/cmderdev/cmder/issues/625)
@@ -724,7 +724,7 @@ We now use a forked version of clink since it's original author is missing and w
 * api-ms-win-crt-runtime-l1-1-0.dll is missing error \(Windows 8.1\) [\#604](https://github.com/cmderdev/cmder/issues/604)
 * Prevent inactive cmder windows to be dimmed [\#603](https://github.com/cmderdev/cmder/issues/603)
 * Git for Windows 2.5 [\#602](https://github.com/cmderdev/cmder/issues/602)
-* Incompatibility with conemu 150716+ / double pinned icon on taskbar [\#599](https://github.com/cmderdev/cmder/issues/599)
+* Incompatibility with ConEmu 150716+ / double pinned icon on taskbar [\#599](https://github.com/cmderdev/cmder/issues/599)
 * Cant get it working on windows xp [\#598](https://github.com/cmderdev/cmder/issues/598)
 * ls parameters error in Windows 10 [\#597](https://github.com/cmderdev/cmder/issues/597)
 * Resizing split windows [\#596](https://github.com/cmderdev/cmder/issues/596)
@@ -762,7 +762,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Error on Windows 7 [\#534](https://github.com/cmderdev/cmder/issues/534)
 * api-ms-win-crt-runtime l1-109.dll is missing [\#531](https://github.com/cmderdev/cmder/issues/531)
 * Git checks for 'commits' every time a folder is changed? [\#529](https://github.com/cmderdev/cmder/issues/529)
-* Powershell tab title issue [\#528](https://github.com/cmderdev/cmder/issues/528)
+* PowerShell tab title issue [\#528](https://github.com/cmderdev/cmder/issues/528)
 * conhost.exe keeps on crashing. [\#527](https://github.com/cmderdev/cmder/issues/527)
 * storage in userprofile \(instead of fixed config dir relative to the executable\) [\#526](https://github.com/cmderdev/cmder/issues/526)
 * Cmder crashes when AVG falsely flags it as a virus. [\#522](https://github.com/cmderdev/cmder/issues/522)
@@ -832,7 +832,7 @@ We now use a forked version of clink since it's original author is missing and w
 * feature request vim-airline [\#306](https://github.com/cmderdev/cmder/issues/306)
 * Integrate PSReadLine [\#301](https://github.com/cmderdev/cmder/issues/301)
 * Full Screen [\#295](https://github.com/cmderdev/cmder/issues/295)
-* Configure Powershell to match CMD [\#294](https://github.com/cmderdev/cmder/issues/294)
+* Configure PowerShell to match CMD [\#294](https://github.com/cmderdev/cmder/issues/294)
 * Tab Close on CTRL-W [\#293](https://github.com/cmderdev/cmder/issues/293)
 * v1.1.4.1 /REGISTER ALL has broken icon [\#292](https://github.com/cmderdev/cmder/issues/292)
 * CD in root not working.. [\#289](https://github.com/cmderdev/cmder/issues/289)
@@ -971,7 +971,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Pinning Cmder to taskbar doesn't work as expected [\#39](https://github.com/cmderdev/cmder/issues/39)
 * Prompt does not work with clink 0.4 [\#35](https://github.com/cmderdev/cmder/issues/35)
 * vendor/init.bat fails on paths with spaces [\#28](https://github.com/cmderdev/cmder/issues/28)
-* "windows cannot find ...\cmder\vendor/conemu-maximus5/ConEmu.exe" [\#27](https://github.com/cmderdev/cmder/issues/27)
+* "windows cannot find ...\cmder\vendor/ConEmu-maximus5/ConEmu.exe" [\#27](https://github.com/cmderdev/cmder/issues/27)
 * Issue with SSH and tmux [\#25](https://github.com/cmderdev/cmder/issues/25)
 * PWD, VI, VIM commands don't work on windows 7. [\#23](https://github.com/cmderdev/cmder/issues/23)
 * Include icon [\#21](https://github.com/cmderdev/cmder/issues/21)
@@ -988,7 +988,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Unable to `cd` to another drive [\#6](https://github.com/cmderdev/cmder/issues/6)
 * cant change start directory [\#4](https://github.com/cmderdev/cmder/issues/4)
 * lalt + arrow left/right not working as a macro hotkey [\#3](https://github.com/cmderdev/cmder/issues/3)
-* alt gr + 2 opens new powershell [\#2](https://github.com/cmderdev/cmder/issues/2)
+* alt gr + 2 opens new PowerShell [\#2](https://github.com/cmderdev/cmder/issues/2)
 * Gvim preferences are not used in {cmd} [\#1](https://github.com/cmderdev/cmder/issues/1)
 
 **Merged pull requests:**
@@ -1012,7 +1012,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Bump clink-completions to 0.3.1 [\#992](https://github.com/cmderdev/cmder/pull/992) ([vladimir-kotikov](https://github.com/vladimir-kotikov))
 * Fix git branch name never shown as dirty [\#974](https://github.com/cmderdev/cmder/pull/974) ([janschulz](https://github.com/janschulz))
 * Disable history switching behavior of ctrl+tab. Sequential switching. [\#963](https://github.com/cmderdev/cmder/pull/963) ([Jackbennett](https://github.com/Jackbennett))
-* Register cmder in the context menu from powershell [\#962](https://github.com/cmderdev/cmder/pull/962) ([Jackbennett](https://github.com/Jackbennett))
+* Register cmder in the context menu from PowerShell [\#962](https://github.com/cmderdev/cmder/pull/962) ([Jackbennett](https://github.com/Jackbennett))
 * cmd: change the prompt in lua [\#961](https://github.com/cmderdev/cmder/pull/961) ([janschulz](https://github.com/janschulz))
 * Custom prompt hooks protected from later overwriting [\#952](https://github.com/cmderdev/cmder/pull/952) ([Jackbennett](https://github.com/Jackbennett))
 * Update clink-completions to 0.3.0 [\#946](https://github.com/cmderdev/cmder/pull/946) ([vladimir-kotikov](https://github.com/vladimir-kotikov))
@@ -1056,10 +1056,10 @@ We now use a forked version of clink since it's original author is missing and w
 * Do not overwrite aliases on update [\#735](https://github.com/cmderdev/cmder/pull/735) ([janschulz](https://github.com/janschulz))
 * Added check for git install path in init.bat. [\#734](https://github.com/cmderdev/cmder/pull/734) ([chase-miller](https://github.com/chase-miller))
 * Fix icons [\#731](https://github.com/cmderdev/cmder/pull/731) ([daxgames](https://github.com/daxgames))
-* Fixed - Powershell vim/vim alias opening a new tab when editing a file [\#729](https://github.com/cmderdev/cmder/pull/729) ([daxgames](https://github.com/daxgames))
-* Added vi/vim aliases and fixed powershell startup errors [\#726](https://github.com/cmderdev/cmder/pull/726) ([daxgames](https://github.com/daxgames))
+* Fixed - PowerShell vim/vim alias opening a new tab when editing a file [\#729](https://github.com/cmderdev/cmder/pull/729) ([daxgames](https://github.com/daxgames))
+* Added vi/vim aliases and fixed PowerShell startup errors [\#726](https://github.com/cmderdev/cmder/pull/726) ([daxgames](https://github.com/daxgames))
 * Release 1.3 [\#723](https://github.com/cmderdev/cmder/pull/723) ([MartiUK](https://github.com/MartiUK))
-* Update to conemu 151119 [\#722](https://github.com/cmderdev/cmder/pull/722) ([MartiUK](https://github.com/MartiUK))
+* Update to ConEmu 151119 [\#722](https://github.com/cmderdev/cmder/pull/722) ([MartiUK](https://github.com/MartiUK))
 * Disable appveyor test search [\#720](https://github.com/cmderdev/cmder/pull/720) ([MartiUK](https://github.com/MartiUK))
 * Fix gitter webhook [\#719](https://github.com/cmderdev/cmder/pull/719) ([MartiUK](https://github.com/MartiUK))
 * Publish appveyor artefacts [\#718](https://github.com/cmderdev/cmder/pull/718) ([MartiUK](https://github.com/MartiUK))
@@ -1069,7 +1069,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Upgrade clink-completions to 0.2.1 [\#676](https://github.com/cmderdev/cmder/pull/676) ([vladimir-kotikov](https://github.com/vladimir-kotikov))
 * Enable the '/single' switch \(\#577\) [\#673](https://github.com/cmderdev/cmder/pull/673) ([DoCode](https://github.com/DoCode))
 * Fixed problem with Invoke-Expression [\#667](https://github.com/cmderdev/cmder/pull/667) ([Pireax](https://github.com/Pireax))
-* Add user startup file for powershell [\#666](https://github.com/cmderdev/cmder/pull/666) ([Pireax](https://github.com/Pireax))
+* Add user startup file for PowerShell [\#666](https://github.com/cmderdev/cmder/pull/666) ([Pireax](https://github.com/Pireax))
 * Build from behind proxy & appveyor [\#665](https://github.com/cmderdev/cmder/pull/665) ([MartiUK](https://github.com/MartiUK))
 * Fix init.bat generation [\#663](https://github.com/cmderdev/cmder/pull/663) ([janschulz](https://github.com/janschulz))
 * Upgrade clink-completions to 0.2.0 [\#653](https://github.com/cmderdev/cmder/pull/653) ([vladimir-kotikov](https://github.com/vladimir-kotikov))
@@ -1087,13 +1087,13 @@ We now use a forked version of clink since it's original author is missing and w
 * Enhance Path in profile.ps1 [\#575](https://github.com/cmderdev/cmder/pull/575) ([Bobo1239](https://github.com/Bobo1239))
 * Fixed: 'Enable-GitColors is Obsolete...' warning [\#569](https://github.com/cmderdev/cmder/pull/569) ([eeree](https://github.com/eeree))
 * Update .gitignore [\#548](https://github.com/cmderdev/cmder/pull/548) ([thomgit](https://github.com/thomgit))
-* Add `-ExecutionPolicy Bypass` to powershell tasks [\#543](https://github.com/cmderdev/cmder/pull/543) ([malobre](https://github.com/malobre))
+* Add `-ExecutionPolicy Bypass` to PowerShell tasks [\#543](https://github.com/cmderdev/cmder/pull/543) ([malobre](https://github.com/malobre))
 * Remove depreciated Enable-GitColors in posh-git [\#517](https://github.com/cmderdev/cmder/pull/517) ([bondz](https://github.com/bondz))
 * Fix cleanup script. [\#479](https://github.com/cmderdev/cmder/pull/479) ([MartiUK](https://github.com/MartiUK))
 * Fix link to msysgit's site. Google's repo was moved or removed. [\#465](https://github.com/cmderdev/cmder/pull/465) ([TheMolkaPL](https://github.com/TheMolkaPL))
 * Update sources.json [\#451](https://github.com/cmderdev/cmder/pull/451) ([MartiUK](https://github.com/MartiUK))
 * Merge development into master for 1.2 [\#450](https://github.com/cmderdev/cmder/pull/450) ([MartiUK](https://github.com/MartiUK))
-* Helper function using powershell to register the cmder context menu [\#441](https://github.com/cmderdev/cmder/pull/441) ([Jackbennett](https://github.com/Jackbennett))
+* Helper function using PowerShell to register the cmder context menu [\#441](https://github.com/cmderdev/cmder/pull/441) ([Jackbennett](https://github.com/Jackbennett))
 * git and Posh-git check [\#440](https://github.com/cmderdev/cmder/pull/440) ([Jackbennett](https://github.com/Jackbennett))
 * Improves performance of prompt filtering [\#438](https://github.com/cmderdev/cmder/pull/438) ([vladimir-kotikov](https://github.com/vladimir-kotikov))
 * Preview PR for including external completions into Cmder [\#434](https://github.com/cmderdev/cmder/pull/434) ([vladimir-kotikov](https://github.com/vladimir-kotikov))
@@ -1105,7 +1105,7 @@ We now use a forked version of clink since it's original author is missing and w
 * Added git shell task. [\#422](https://github.com/cmderdev/cmder/pull/422) ([ragekit](https://github.com/ragekit))
 * Public site docs update matching the repo readme [\#411](https://github.com/cmderdev/cmder/pull/411) ([Jackbennett](https://github.com/Jackbennett))
 * Install steps clarity [\#410](https://github.com/cmderdev/cmder/pull/410) ([Jackbennett](https://github.com/Jackbennett))
-* Update Conemu \<preview release\>, update clink 4.4 [\#407](https://github.com/cmderdev/cmder/pull/407) ([Jackbennett](https://github.com/Jackbennett))
+* Update ConEmu \<preview release\>, update clink 4.4 [\#407](https://github.com/cmderdev/cmder/pull/407) ([Jackbennett](https://github.com/Jackbennett))
 * Use a -Full parameter to download all sources rather than the minimum [\#406](https://github.com/cmderdev/cmder/pull/406) ([Jackbennett](https://github.com/Jackbennett))
 * Adding mercuial prompt [\#401](https://github.com/cmderdev/cmder/pull/401) ([utek](https://github.com/utek))
 * Handle quoted paths [\#398](https://github.com/cmderdev/cmder/pull/398) ([mikesigs](https://github.com/mikesigs))
@@ -1124,15 +1124,15 @@ We now use a forked version of clink since it's original author is missing and w
 * Add an unalias command [\#313](https://github.com/cmderdev/cmder/pull/313) ([glucas](https://github.com/glucas))
 * Revert "Add single mode support." [\#312](https://github.com/cmderdev/cmder/pull/312) ([MartiUK](https://github.com/MartiUK))
 * FIX CMDER_ROOT for admin launch [\#311](https://github.com/cmderdev/cmder/pull/311) ([sescandell](https://github.com/sescandell))
-* Lambda color in powershell was changed to DarkGray [\#308](https://github.com/cmderdev/cmder/pull/308) ([SheGe](https://github.com/SheGe))
+* Lambda color in PowerShell was changed to DarkGray [\#308](https://github.com/cmderdev/cmder/pull/308) ([SheGe](https://github.com/SheGe))
 * Add option to reload aliases from file [\#304](https://github.com/cmderdev/cmder/pull/304) ([glucas](https://github.com/glucas))
 * Clean aliases script [\#300](https://github.com/cmderdev/cmder/pull/300) ([melku](https://github.com/melku))
 * Adding history alias [\#299](https://github.com/cmderdev/cmder/pull/299) ([robgithub](https://github.com/robgithub))
 * Fixes the ambiguity about notice and parameter [\#298](https://github.com/cmderdev/cmder/pull/298) ([LeoColomb](https://github.com/LeoColomb))
 * Fixed small issue in README [\#296](https://github.com/cmderdev/cmder/pull/296) ([brunowego](https://github.com/brunowego))
-* Fixes small Powershell' loader issues [\#273](https://github.com/cmderdev/cmder/pull/273) ([LeoColomb](https://github.com/LeoColomb))
+* Fixes small PowerShell' loader issues [\#273](https://github.com/cmderdev/cmder/pull/273) ([LeoColomb](https://github.com/LeoColomb))
 * Update Dev Branch [\#272](https://github.com/cmderdev/cmder/pull/272) ([MartiUK](https://github.com/MartiUK))
-* Add custom loader for Powershell & improve its implementation [\#271](https://github.com/cmderdev/cmder/pull/271) ([LeoColomb](https://github.com/LeoColomb))
+* Add custom loader for PowerShell & improve its implementation [\#271](https://github.com/cmderdev/cmder/pull/271) ([LeoColomb](https://github.com/LeoColomb))
 * Add single mode support. [\#256](https://github.com/cmderdev/cmder/pull/256) ([TheCjw](https://github.com/TheCjw))
 * Revert "Start in the HOME folder." [\#253](https://github.com/cmderdev/cmder/pull/253) ([MartiUK](https://github.com/MartiUK))
 * Ensure-Exists is necessary for build.ps1, add it back. [\#249](https://github.com/cmderdev/cmder/pull/249) ([narnaud](https://github.com/narnaud))
