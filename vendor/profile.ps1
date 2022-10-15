@@ -17,7 +17,7 @@ if ($ENV:CMDER_USER_CONFIG) {
 
 # We do this for Powershell as Admin Sessions because CMDER_ROOT is not being set.
 if ($null -eq $ENV:CMDER_ROOT) {
-    if ($ENV:ConEmuDir) {
+    if (-Not($null -eq $ENV:ConEmuDir)) {
         $ENV:CMDER_ROOT = Resolve-Path($ENV:ConEmuDir + "\..\..")
     } else {
         $ENV:CMDER_ROOT = Resolve-Path($PSScriptRoot + "\..")
