@@ -12,15 +12,15 @@ function getGitStatusSetting() {
 function getSimpleGitBranch() {
   gitDir=$(git rev-parse --git-dir 2>/dev/null)
   if [ -z "$gitDir" ]; then
-		return 0
-	fi
+    return 0
+  fi
 
   headContent=$(< "$gitDir/HEAD")
   if [[ "$headContent" == "ref: refs/heads/"* ]]
   then
-      echo " (${headContent:16})"
+    echo " (${headContent:16})"
   else
-      echo " (HEAD detached at ${headContent:0:7})"
+  echo " (HEAD detached at ${headContent:0:7})"
   fi
 }
 
