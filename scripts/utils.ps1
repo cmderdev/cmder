@@ -67,6 +67,31 @@ function Digest-Hash($path) {
     return Invoke-Expression "md5sum $path"
 }
 
+function Set-GHVariable {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name,
+        [Parameter(Mandatory = $true)]
+        [string]$Value
+    )
+
+    Write-Verbose "Setting CI variable $Name to $Value" -Verbose
+
+    if ($env:GITHUB_ENV) {
+        "$Name=$Value" | Out-File $env:GITHUB_ENV -Append
+    }
+}
+
+function Get-GHTempPath {
+    $temp = [System.IO.Path]::GetTempPath()
+    if ($env:RUNNER_TEMP) {
+        $temp = $env:RUNNER_TEMP
+    }
+
+    Write-Verbose "Get CI Temp path: $temp" -Verbose
+    return $temp
+}
+
 function Get-VersionStr() {
     # Clear existing variable
     if ($string) { Clear-Variable -name string }
