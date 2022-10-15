@@ -10,10 +10,10 @@ function Ensure-Executable($command) {
     try { Get-Command $command -ErrorAction Stop > $null }
     catch {
         If( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
-            set-alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
+            Set-Alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
         }
         ElseIf( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
-            set-alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
+            Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
         Else {
             Write-Error "Missing $command! Ensure it is installed and on in the PATH"
@@ -23,8 +23,10 @@ function Ensure-Executable($command) {
 }
 
 function Delete-Existing($path) {
-    Write-Verbose "Remove $path"
-    Remove-Item -Recurse -force $path -ErrorAction SilentlyContinue
+    if (Test-Path $path) {
+        Write-Verbose "Remove existing $path"
+    }
+    Remove-Item -Recurse -Force $path -ErrorAction SilentlyContinue
 }
 
 function Extract-Archive($source, $target) {
@@ -197,13 +199,26 @@ function Download-File {
     )
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-    # I think this is the problem
+    $useBitTransfer = $null -ne (Get-Module -Name BitsTransfer -ListAvailable) -and ($PSVersionTable.PSVersion.Major -le 5)
+
     $File = $File -Replace "/", "\"
-    Write-Verbose "Downloading from $Url to $File"
+
+    try {
+        if ($useBitTransfer) {
+            Start-BitsTransfer -Source $Url -Destination $File -DisplayName "Downloading $Url to $File"
+            Return
+        }
+    }
+    catch {
+        Write-Error "Failed to download file using BITS, reason: $_`nUsing fallback method instead...`n"
+    }
+
+    Write-Verbose "Downloading from $Url to $File`n"
+
     $wc = New-Object System.Net.WebClient
     if ($env:https_proxy) {
         $wc.proxy = (New-Object System.Net.WebProxy($env:https_proxy))
     }
-    $wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;
+    $wc.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials;
     $wc.DownloadFile($Url, $File)
 }

@@ -69,6 +69,7 @@ $version = Get-VersionStr
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
+Ensure-Executable "msbuild"
 New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
 
 # Preserve modified (by user) ConEmu setting file
@@ -91,7 +92,7 @@ foreach ($ssh_agent in $(get-process ssh-agent -erroraction silentlycontinue)) {
 
 $vend = $pwd
 foreach ($s in $sources) {
-    Write-Verbose "Downloading $($s.name) from URL $($s.url)"
+    Write-Verbose "Getting vendored $($s.name) $($s.version)..."
 
     # We do not care about the extensions/type of archive
     $tempArchive = "tmp/$($s.name).tmp"
