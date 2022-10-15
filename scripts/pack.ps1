@@ -47,6 +47,8 @@ $targets = @{
     "cmder_mini.zip" = "-x!`"$cmderRoot\vendor\git-for-windows`"";
 }
 
+Push-Location -Path $cmderRoot
+
 Delete-Existing "$cmderRoot\Version*"
 Delete-Existing "$cmderRoot\build\*"
 
@@ -66,7 +68,9 @@ if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
 }
 
 foreach ($t in $targets.GetEnumerator()) {
-    Create-Archive $cmderRoot "$saveTo\$($t.Name)" $t.Value
+    Create-Archive "$cmderRoot\*" "$saveTo\$($t.Name)" $t.Value
     $hash = (Digest-Hash "$saveTo\$($t.Name)")
     Add-Content -path "$saveTo\hashes.txt" -value ($t.Name + ' ' + $hash)
 }
+
+Pop-Location
