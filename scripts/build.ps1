@@ -29,7 +29,7 @@
     Samuel Vasko, Jack Bennett
     Part of the Cmder project.
 .LINK
-    http://cmder.net/ - Project Home
+    http://cmder.app/ - Project Home
 #>
 [CmdletBinding(SupportsShouldProcess=$true)]
 Param(
@@ -83,15 +83,15 @@ if ($config -ne "") {
 
 # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
 foreach ($ssh_agent in $(get-process ssh-agent -erroraction silentlycontinue)) {
-  if ([string]$($ssh_agent.path) -match [string]$cmder_root.replace('\','\\')) {
-    write-verbose $("Stopping " + $ssh_agent.path + "!")
-    stop-process $ssh_agent.id
-  }
+    if ([string]$($ssh_agent.path) -match [string]$cmder_root.replace('\','\\')) {
+        Write-Verbose $("Stopping " + $ssh_agent.path + "!")
+        Stop-Process $ssh_agent.id
+    }
 }
 
 $vend = $pwd
 foreach ($s in $sources) {
-    Write-Verbose "Getting $($s.name) from URL $($s.url)"
+    Write-Verbose "Downloading $($s.name) from URL $($s.url)"
 
     # We do not care about the extensions/type of archive
     $tempArchive = "tmp/$($s.name).tmp"
@@ -122,12 +122,15 @@ if($Compile) {
     # https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
     msbuild CmderLauncher.vcxproj /t:Clean,Build /p:configuration=Release /m
     if ($LastExitCode -ne 0) {
-        throw "msbuild failed to build the executable."
+        throw "MSBuild failed to build the executable."
     }
     else {
-        Write-Verbose "successfully built Cmder v$version!"
+        Write-Verbose "Successfully built Cmder v$version!"
         if ( $Env:APPVEYOR -eq 'True' ) {
             Add-AppveyorMessage -Message "Building Cmder v$version was successful." -Category Information
+        }
+        if ( $Env:GITHUB_ACTIONS -eq 'true' ) {
+            Write-Output "::notice title=Build Complete::Building Cmder v$version was successful."
         }
     }
     Pop-Location
@@ -138,15 +141,15 @@ if($Compile) {
 
 # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty
 if ( (Test-Path $($SaveTo + "git-for-windows/etc/profile.d") ) ) {
-  write-verbose "Adding cmder.sh /etc/profile.d"
-  Copy-Item $($SaveTo + "cmder.sh") $($SaveTo + "git-for-windows/etc/profile.d/cmder.sh")
+    Write-Verbose "Adding cmder.sh /etc/profile.d"
+    Copy-Item $($SaveTo + "cmder.sh") $($SaveTo + "git-for-windows/etc/profile.d/cmder.sh")
 }
 
 # Replace /etc/profile.d/git-prompt.sh with cmder lambda prompt so it runs when we start bash or mintty
 if ( !(Test-Path $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak") ) ) {
-  write-verbose "Replacing /etc/profile.d/git-prompt.sh with our git-prompt.sh"
-  Move-Item $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak")
-  Copy-Item $($SaveTo + "git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
+    Write-Verbose "Replacing /etc/profile.d/git-prompt.sh with our git-prompt.sh"
+    Move-Item $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak")
+    Copy-Item $($SaveTo + "git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
 }
 
-Write-Verbose "All good and done!"
+Write-Host -ForegroundColor green "All good and done!"

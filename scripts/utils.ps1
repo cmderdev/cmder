@@ -88,6 +88,9 @@ function Get-VersionStr() {
     if ( $Env:APPVEYOR -eq 'True' ) {
         $string = $string + '.' + $Env:APPVEYOR_BUILD_NUMBER
     }
+    elseif ( $Env:GITHUB_ACTIONS -eq 'true' ) {
+        $string = $string + '.' + $Env:GITHUB_RUN_NUMBER
+    }
 
     # Remove starting 'v' characters
     $string = $string -replace '^v+','' # normalize version string
