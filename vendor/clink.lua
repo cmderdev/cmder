@@ -15,20 +15,20 @@ dofile(clink_lua_file)
 
 
 local function get_uah_color()
-  return uah_color or "\x1b[1;33;40m" -- Green = uah = [user]@[hostname]
+  return uah_color or "\x1b[1;33;49m" -- Green = uah = [user]@[hostname]
 end
 
 local function get_cwd_color()
-  return cwd_color or "\x1b[1;32;40m" -- Yellow cwd = Current Working Directory
+  return cwd_color or "\x1b[1;32;49m" -- Yellow cwd = Current Working Directory
 end
 
 local function get_lamb_color()
-  return lamb_color or "\x1b[1;30;40m" -- Light Grey = Lambda Color
+  return lamb_color or "\x1b[1;30;49m" -- Light Grey = Lambda Color
 end
 
 
 local function get_clean_color()
-  return clean_color or "\x1b[1;37;40m"
+  return clean_color or "\x1b[1;37;49m"
 end
 
 
