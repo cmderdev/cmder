@@ -1,0 +1,33 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  
+defaults:
+  run:
+    shell: cmd
+    
+permissions:
+  contents: read
+  
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+
+  tests:
+    runs-on: windows-latest
+    continue-on-error: false
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: |
+          cmd /c vendor\bin\cmder_shell.cmd
+          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "Invoke-Expression '. ''vendor\profile.ps1'''" 
+          bash vendor/cmder.sh
