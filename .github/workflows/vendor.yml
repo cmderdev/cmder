@@ -1,0 +1,39 @@
+name: Update Vendor
+
+on:
+  schedule:
+  # At 13:37 UTC every day.
+  - cron: '37 13 * * *'
+  
+defaults:
+  run:
+    shell: pwsh
+    
+permissions:
+  contents: read
+
+jobs:
+  vendor:
+
+    runs-on: windows-latest
+    continue-on-error: false
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - run: |
+          # TODO
+
+    - uses: peter-evans/create-pull-request@v4
+      with:
+        title: 'Actions: Updates to the vendored dependencies'
+        body: 'Automatic changes'
+        commit-message: 'Update vendored dependencies'
+        branch: update-vendor
+        base: master
