@@ -44,7 +44,7 @@ Ensure-Executable "7z"
 $targets = @{
     "cmder.zip" = $null;
     "cmder.7z" = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on";
-    "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
+    "cmder_mini.zip" = "-mm=Deflate -mfb=258 -mpass=15 -xr!`"vendor\git-for-windows`"";
 }
 
 Push-Location -Path $cmderRoot
