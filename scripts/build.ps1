@@ -69,7 +69,9 @@ $version = Get-VersionStr
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
-Ensure-Executable "msbuild"
+if($Compile) {
+  Ensure-Executable "msbuild"
+}
 New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
 
 # Preserve modified (by user) ConEmu setting file
