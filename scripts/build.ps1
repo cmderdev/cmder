@@ -56,7 +56,7 @@ Param(
     # Using this option will skip all downloads and only build launcher
     [switch]$noVendor,
 
-    # New launcher if you have MSBuild tools installed
+    # Build launcher if you have MSBuild tools installed
     [switch]$Compile
 )
 
