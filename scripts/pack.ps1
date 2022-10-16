@@ -52,7 +52,7 @@ Push-Location -Path $cmderRoot
 Delete-Existing "$cmderRoot\Version*"
 Delete-Existing "$cmderRoot\build\*"
 
-If(-not (Test-Path -PathType container $saveTo)) {
+if (-not (Test-Path -PathType container $saveTo)) {
     (New-Item -ItemType Directory -Path $saveTo) | Out-Null
 }
 

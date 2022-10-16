@@ -9,13 +9,13 @@ function Ensure-Exists($path) {
 function Ensure-Executable($command) {
     try { Get-Command $command -ErrorAction Stop > $null }
     catch {
-        If( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
+        if( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
             Set-Alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
         }
-        ElseIf( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
+        elseif( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
             Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
-        Else {
+        else {
             Write-Error "Missing $command! Ensure it is installed and on in the PATH"
             exit 1
         }
