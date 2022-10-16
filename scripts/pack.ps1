@@ -11,7 +11,7 @@
 
     Creates default archives for cmder
 .EXAMPLE
-    .\build -verbose
+    .\pack.ps1 -verbose
 
     Creates default archives for cmder with plenty of information
 .NOTES

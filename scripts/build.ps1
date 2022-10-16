@@ -60,17 +60,17 @@ $cmder_root = Resolve-Path "$PSScriptRoot\.."
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
 
-Push-Location -Path $saveTo
-$sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
-
-# Get the version string
-$version = Get-VersionStr
-
 # Check for requirements
 Ensure-Exists $sourcesPath
 Ensure-Executable "7z"
-Ensure-Executable "msbuild"
+
+# Get the vendor sources
+$sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
+
+Push-Location -Path $saveTo
 New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
+
+$vend = $pwd
 
 # Preserve modified (by user) ConEmu setting file
 if ($config -ne "") {
@@ -83,14 +83,13 @@ if ($config -ne "") {
 } else { $ConEmuXml = "" }
 
 # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
-foreach ($ssh_agent in $(get-process ssh-agent -erroraction silentlycontinue)) {
-    if ([string]$($ssh_agent.path) -match [string]$cmder_root.replace('\','\\')) {
+foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
+    if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\','\\')) {
         Write-Verbose $("Stopping " + $ssh_agent.path + "!")
         Stop-Process $ssh_agent.id
     }
 }
 
-$vend = $pwd
 foreach ($s in $sources) {
     Write-Verbose "Getting vendored $($s.name) $($s.version)..."
 
@@ -105,11 +104,12 @@ foreach ($s in $sources) {
     if ((Get-Childitem $s.name).Count -eq 1) {
         Flatten-Directory($s.name)
     }
+
     # Write current version to .cmderver file, for later.
     "$($s.version)" | Out-File "$($s.name)/.cmderver"
 }
 
-# Restore user configuration
+# Restore ConEmu user configuration
 if ($ConEmuXml -ne "") {
     Write-Verbose "Restore '$ConEmuXmlSave' to '$ConEmuXml'"
     Copy-Item $ConEmuXmlSave $ConEmuXml
@@ -117,13 +117,23 @@ if ($ConEmuXml -ne "") {
 
 Pop-Location
 
-if($Compile) {
+if ($Compile) {
+    # Check for requirements
+    Ensure-Executable "msbuild"
+
+    # Get the version string
+    $version = Get-VersionStr
+
     Push-Location -Path $launcher
-    Create-RC $version ($launcher + '\src\version.rc2');
-    # https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+    Create-RC $version ($launcher + '\src\version.rc2')
+
+    Write-Verbose "Building the launcher..."
+
+    # Referene: https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
     msbuild CmderLauncher.vcxproj /t:Clean,Build /p:configuration=Release /m
+
     if ($LastExitCode -ne 0) {
-        throw "MSBuild failed to build the executable."
+        throw "MSBuild failed to build the launcher executable."
     }
     else {
         Write-Verbose "Successfully built Cmder v$version!"
@@ -141,16 +151,16 @@ if($Compile) {
 }
 
 # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty
-if ( (Test-Path $($SaveTo + "git-for-windows/etc/profile.d") ) ) {
+if ( (Test-Path $($saveTo + "git-for-windows/etc/profile.d") ) ) {
     Write-Verbose "Adding cmder.sh /etc/profile.d"
-    Copy-Item $($SaveTo + "cmder.sh") $($SaveTo + "git-for-windows/etc/profile.d/cmder.sh")
+    Copy-Item $($saveTo + "cmder.sh") $($saveTo + "git-for-windows/etc/profile.d/cmder.sh")
 }
 
 # Replace /etc/profile.d/git-prompt.sh with cmder lambda prompt so it runs when we start bash or mintty
-if ( !(Test-Path $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak") ) ) {
+if ( !(Test-Path $($saveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak") ) ) {
     Write-Verbose "Replacing /etc/profile.d/git-prompt.sh with our git-prompt.sh"
-    Move-Item $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak")
-    Copy-Item $($SaveTo + "git-prompt.sh") $($SaveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
+    Move-Item $($saveTo + "git-for-windows/etc/profile.d/git-prompt.sh") $($saveTo + "git-for-windows/etc/profile.d/git-prompt.sh.bak")
+    Copy-Item $($saveTo + "git-prompt.sh") $($saveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
 }
 
 Write-Host -ForegroundColor green "All good and done!"
