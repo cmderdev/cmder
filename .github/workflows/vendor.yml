@@ -35,7 +35,7 @@ jobs:
           $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           $listUpdated = ""
           $updateMessage = ""
-          for ($s in $newVersion) {
+          foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
               $listUpdated += "$($s.name), "
