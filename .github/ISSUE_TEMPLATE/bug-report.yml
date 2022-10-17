@@ -47,10 +47,6 @@ body:
       value: |
         Make sure that you have:
 
-        - Searched for existing issues (including the **closed** ones) for similar problems here:
-
-          🗃 https://github.com/cmderdev/cmder/issues?q=is:issue
-
         - Read both the README.md and the Wiki:
 
           | **README.md** | **Wiki** |
@@ -58,6 +54,10 @@ body:
           | 🌐 [Open Link](https://github.com/cmderdev/cmder/blob/master/README.md) | 🌐 [Open Link](https://github.com/cmderdev/cmder/wiki) |
 
           (What you may be asking here could already be explained there!)
+          
+        - Searched for existing issues (including the **closed** ones) for similar problems here:
+
+          🗃 https://github.com/cmderdev/cmder/issues?q=is:issue
 
         - Please understand that Cmder uses ConEmu as the default underlying Terminal Emulator.
 
