@@ -130,7 +130,7 @@ if (-Not $noVendor) {
         Download-File -Url $s.url -File $vend\$tempArchive -ErrorAction Stop
         Extract-Archive $tempArchive $s.name
 
-        if ((Get-Childitem $s.name).Count -eq 1) {
+        if ((Get-ChildItem $s.name).Count -eq 1) {
             Flatten-Directory($s.name)
         }
 
