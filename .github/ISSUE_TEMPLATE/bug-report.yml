@@ -1,0 +1,155 @@
+name: "🐞 Bug report (encountered problems/errors)"
+description: Something is not working as it should
+title: "[Bug] <title>"
+labels: [🐞 Bug report]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug for the Cmder project!
+        ------------------------------------------------------------------
+
+        Please make sure you read and follow the following instructions carefully before reporting bugs, and/or requesting new features.
+
+        Make sure that you have:
+
+        - Searched for existing issues (including the **closed** ones) for similar problems here:
+
+          🗃 https://github.com/cmderdev/cmder/issues?q=is:issue
+
+        - Read both the README.md and the Wiki:
+
+          | **README.md** | **Wiki** |
+          | ------------- | -------- |
+          | 🌐 [Open Link](https://github.com/cmderdev/cmder/blob/master/README.md) | 🌐 [Open Link](https://github.com/cmderdev/cmder/wiki) |
+
+          (What you may be asking here could already be explained there!)
+
+        - Please understand that Cmder uses ConEmu as the default underlying Terminal Emulator.  If your issue is regarding the **Terminal Emulator**, please visit the ConEmu issues page:
+
+          https://github.com/Maximus5/ConEmu/issues?q=is:issue
+
+          If there isn't an existing issue, you may open a new one there.
+
+          (We don't resolve issues regarding ConEmu here, so, please make sure you open the issue in the correct place.)
+
+          more info: https://conemu.github.io/en/ThirdPartyProblems.html
+
+        - If you are having an issue with any of the **upstream technologies** that are used by Cmder, please make sure that the issue is reproducible _only_ when used in combination with Cmder.
+
+          We may not directly address the issues related to the following tools:
+              - **[Clink](https://github.com/chrisant996/clink)**, the default shell in Cmder
+              - **[ConEmu](https://github.com/Maximus5/ConEmu)**, the terminal emulator
+              - **[Git/MinGW](https://github.com/git-for-windows/git), which also provide *NIX tools (such as `ls`, `mv`, `cp`, etc)
+              - **[clink-completions](https://github.com/repos/vladimir-kotikov/clink-completions)**, which provide autocompletion for clink
+
+          The issues related to upstream technologies are labeled as 👆 [name].
+
+          We'll try our best to help you -- but we recommend creating an issue specifically at each of the corresponding repositories for the best result.
+
+          **👉 Note:** Try to reproduce the bug you're reporting, on a stand-alone edition of each tool, without using Cmder.  If the bug applies when the mentioned tools are NOT used within Cmder, there's a good chance that you should open the bug at the corresponding repo instead.
+
+        - Lastly, have a look at the official documentation for Cmder over our website, and our wiki.
+
+          Read more about Cmder on ConEmu docs:
+          https://conemu.github.io/en/cmder.html
+
+        Thank you for making sure you are opening a new valid issue! ♥
+
+        #### Prerequisites before submitting an issue
+        - We do not support any versions older than the current release series, if you are using an older Cmder please update to the latest version first.
+        - Verify that the issue is not fixed and is reproducible in the **[latest official Cmder version](https://github.com/cmderdev/cmder/releases).**
+        - Check the **[current issues list](https://github.com/cmderdev/cmder/issues?q=is%3Aissue)** and perform a **search of the issue tracker (including closed ones)** to avoid posting a duplicate bug report.
+        - Make sure this is not a support request or question, both of which are better suited for either the **[discussions section](https://github.com/cmderdev/cmder/discussions)**, or the **[questions section](https://github.com/cmderdev/cmder/issues/new?template=questions.yml)**.
+        - Verify that the **[wiki](https://github.com/cmderdev/cmder/wiki)** did not contain a suitable solution either.
+
+        ### Some tips on how to write a good bug report with the required information.
+        - Make sure the description is worded well enough to be understood, and with as much context and examples as possible.
+        - Post a screenshot or the command that triggered the problem, if applicable.
+        - Use the *Preview* tab to see how your issue will actually look like, before sending it.
+          ⚠ If for some reason you can not see the text you just wrote, make sure you've read the instructions clearly
+        - Avoid using ambiguous phrases like: doesn't work, there's a problem, etc.
+          Help us reproduce the issue by explaining what went wrong, and what did you expect to happen.
+        - Please keep the ticket language to English only here.
+          We can't process your issue if it's written in Russian or Chinese as we can't understand them.
+        - You can find the version of Cmder.exe and ConEmu.exe binaries using Right Click → Properties → Details menu.
+        - Put an `x` into all the boxes [ ] relevant to your issue (correct example: [x] -- not like this: [ x] or [x ]).
+        - Any text that is between the comment tags will get ignored, e.g.: <!-- this will NOT work -- >
+          You need to write your text either outside the tags, or the line below it.
+        - ⚠ Read the following page to avoid posting a bad issue: https://conemu.github.io/en/BadIssue.html
+
+        Failure to follow these guidelines may result in your issue getting closed. So please follow it carefully!
+
+  - type: textarea
+    id: version
+    attributes:
+      label: Version Information
+      description: |
+        Please write your Cmder and ConEmu version below.  If applicable, write down your Windows edition too.
+      placeholder: |
+        Cmder version:
+        Operating system:
+      value: |
+        Cmder version:
+        Operating system:
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Cmder Edition
+      description: What edition of Cmder are you running?
+      options:
+        - Cmder Full (with Git)
+        - Cmder Mini
+        - N/A
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the issue
+      description: Provide a clear and concise description of the problem here.  Explain the actual behavior vs the expected behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to reproduce
+      description: Please provide reliable steps to reproduce the problem.
+      placeholder: |
+        1. In this environment...
+        2. With this config...
+        3. Run '...'
+        4. See error...
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Add screenshots, etc. (Anything that will provide more context about the problem)
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please check all boxes that apply
+      multiple: true
+      options:
+        - label: I have read the documentation.
+          required: true
+        - label: - I have searched for similar issues and found none that describe my issue.
+          required: true
+        - label: - I have reproduced the issue on the latest version of Cmder.
+          required: true
+        - label: - I am certain my issues are not related to ConEmu, Clink, or other third-party tools that Cmder uses.
+          required: true
