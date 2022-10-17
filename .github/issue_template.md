@@ -9,7 +9,7 @@
   Make sure that you have:
 
   • Searched for existing issues (including the **closed** ones)
-    for the similar problems here:
+    for similar problems here:
 
     https://github.com/cmderdev/cmder/issues?q=is:issue
 
@@ -28,7 +28,7 @@
 
     If there isn't an existing issue, you may open a new one there.
 
-    (We don't resolve issues regarding ConEmu here, so please
+    (We don't resolve issues regarding ConEmu here, so, please
      make sure you open the issue in the correct place.)
 
     more info: https://conemu.github.io/en/ThirdPartyProblems.html
@@ -70,10 +70,10 @@
       mentioned tools are NOT used within Cmder, there's a good chance that
       you should open the bug at the corresponding repo instead.
 
-  • Lastly, have a look at official documentation for Cmder over
+  • Lastly, have a look at the official documentation for Cmder over
     our website, and our wiki.
 
-    Read more on about Cmder on ConEmu docs:
+    Read more about Cmder on ConEmu docs:
     https://conemu.github.io/en/cmder.html
 
 
@@ -84,13 +84,13 @@
 <!--
   Some tips on how to write a better report:
   - Put an `x` into all the boxes [ ] relevant to your issue (correct example: [x] -- not like this: [ x] or [x ]).
-  - Any text that is between the the commment tags will get ignored, e.g.: <!-- this will NOT work -- >
+  - Any text that is between the comment tags will get ignored, e.g.: <!-- this will NOT work -- >
     You need to write your text either outside the tags, or the line below it.
   - Use the *Preview* tab to see how your issue will actually look like, before sending it.
     ⚠ If for some reason you can not see the text you just wrote, make sure you've read the instructions clearly
   - Make sure the description is worded well enough to be understood, and with as much context and examples as possible.
-  - Post a screenshot or the command the triggered the problem, if applicable.
-  - Avoid using ambiguous phrases like: doesn't work, there'a problem, etc.
+  - Post a screenshot or the command that triggered the problem, if applicable.
+  - Avoid using ambiguous phrases like: doesn't work, there's a problem, etc.
     Help us reproduce the issue by explaining what went wrong, and what did you expect to happen.
   - Please keep the ticket language to English only here.
     We can't process your issue if it's written in Russian or Chinese as we can't understand them.
