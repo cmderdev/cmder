@@ -1,0 +1,59 @@
+name: Update Vendor
+
+on:
+  workflow_dispatch:
+  schedule:
+  # At 13:37 UTC every day.
+  - cron: '37 13 * * *'
+
+defaults:
+  run:
+    shell: pwsh
+
+permissions:
+  contents: read
+
+jobs:
+  vendor:
+
+    runs-on: windows-latest
+    continue-on-error: false
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - id: make-changes
+      run: |
+          $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+          . .\scripts\update.ps1 -verbose
+          Set-GHVariable -Name COUNT_UPDATED -Value $count
+          $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+          $listUpdated = ""
+          $updateMessage = "| Name | Old Version | New Version |`n| :--- | ---- | ---- |`n"
+          foreach ($s in $newVersion) {
+            $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
+            if ($s.version -ne $oldVersion) {
+              $listUpdated += "$($s.name) v$($s.version), "
+              $updateMessage += "| **$($s.name)** | $oldVersion | **$($s.version)** |`n"
+            }
+          }
+          Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
+          echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+    - uses: peter-evans/create-pull-request@v4
+      with:
+        title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
+        body: |
+          ### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies:
+          ${{ env.UPDATE_MESSAGE }}
+          ---
+          Please verify and then **Merge** the pull request to update.
+        commit-message: 'Update vendored dependencies (${{ env.LIST_UPDATED }})'
+        branch: update-vendor
+        base: master

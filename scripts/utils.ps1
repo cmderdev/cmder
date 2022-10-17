@@ -9,13 +9,13 @@ function Ensure-Exists($path) {
 function Ensure-Executable($command) {
     try { Get-Command $command -ErrorAction Stop > $null }
     catch {
-        If( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
+        if( ($command -eq "7z") -and (Test-Path "$env:programfiles\7-zip\7z.exe") ){
             Set-Alias -Name "7z" -Value "$env:programfiles\7-zip\7z.exe" -Scope script
         }
-        ElseIf( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
+        elseif( ($command -eq "7z") -and (Test-Path "$env:programw6432\7-zip\7z.exe") ) {
             Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
-        Else {
+        else {
             Write-Error "Missing $command! Ensure it is installed and on in the PATH"
             exit 1
         }
@@ -67,7 +67,32 @@ function Digest-Hash($path) {
     return Invoke-Expression "md5sum $path"
 }
 
-function Get-VersionStr() {
+function Set-GHVariable {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name,
+        [Parameter(Mandatory = $true)]
+        [string]$Value
+    )
+
+    Write-Verbose "Setting CI variable $Name to $Value" -Verbose
+
+    if ($env:GITHUB_ENV) {
+        echo "$Name=$Value" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+    }
+}
+
+function Get-GHTempPath {
+    $temp = [System.IO.Path]::GetTempPath()
+    if ($env:RUNNER_TEMP) {
+        $temp = $env:RUNNER_TEMP
+    }
+
+    Write-Verbose "Get CI Temp path: $temp" -Verbose
+    return $temp
+}
+
+function Get-VersionStr {
     # Clear existing variable
     if ($string) { Clear-Variable -name string }
 
