@@ -43,7 +43,7 @@ jobs:
             }
           }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
-          Set-GHVariable -Name UPDATE_MESSAGE -Value [System.Web.HTTPUtility]::UrlEncode($updateMessage)
+          Set-GHVariable -Name UPDATE_MESSAGE -Value ([System.Web.HTTPUtility]::UrlEncode($updateMessage))
 
     - uses: peter-evans/create-pull-request@v4
       with:
