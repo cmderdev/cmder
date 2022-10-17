@@ -39,7 +39,7 @@ jobs:
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
-              $listUpdated += "$($s.name v$s.version), "
+              $listUpdated += "$($s.name) v$($s.version), "
               $updateMessage += "| **$($s.name)** | $oldVersion | **$($s.version)** |`n"
             }
           }
