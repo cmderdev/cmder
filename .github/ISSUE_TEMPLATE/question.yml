@@ -48,5 +48,5 @@ body:
       options:
         - label: I have read the documentation and made sure what I'm looking for isn't present, or is unclear.
           required: true
-        - label: - I have searched for similar issues, and either this question wasn't asked before, or I didn't find any that describe my question.
+        - label: I have searched for similar issues, and either this question wasn't asked before, or I didn't find any that describe my question.
           required: true

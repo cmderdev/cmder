@@ -147,9 +147,9 @@ body:
       options:
         - label: I have read the documentation.
           required: true
-        - label: - I have searched for similar issues and found none that describe my issue.
+        - label: I have searched for similar issues and found none that describe my issue.
           required: true
-        - label: - I have reproduced the issue on the latest version of Cmder.
+        - label: I have reproduced the issue on the latest version of Cmder.
           required: true
-        - label: - I am certain my issues are not related to ConEmu, Clink, or other third-party tools that Cmder uses.
+        - label: I am certain my issues are not related to ConEmu, Clink, or other third-party tools that Cmder uses.
           required: true

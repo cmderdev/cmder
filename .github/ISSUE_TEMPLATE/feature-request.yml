@@ -78,5 +78,5 @@ body:
       options:
         - label: I have read the documentation and made sure this feature doesn't already exist.
           required: true
-        - label: - I have searched for similar issues and found none that describe my feature request.
+        - label: I have searched for similar issues and found none that describe my feature request.
           required: true
