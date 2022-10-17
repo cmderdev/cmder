@@ -11,7 +11,7 @@
 .EXAMPLE
     .\build.ps1
 
-    Executes the default build for Cmder; Conemu, clink. This is equivalent to the "minimum" style package in the releases
+    Executes the default build for Cmder; ConEmu, clink. This is equivalent to the "minimum" style package in the releases
 .EXAMPLE
     .\build.ps1 -Compile
 
@@ -94,7 +94,7 @@ if (-Not $noVendor) {
     Ensure-Executable "7z"
 
     # Get the vendor sources
-    $sources = Get-Content $sourcesPath | Out-String | Convertfrom-Json
+    $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
 
     Push-Location -Path $saveTo
     New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
