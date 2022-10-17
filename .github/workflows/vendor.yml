@@ -44,17 +44,14 @@ jobs:
             }
           }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
-          $updateMessage = $updateMessage.Replace("%", "%25")
-          $updateMessage = $updateMessage.Replace("`r", "%0d")
-          $updateMessage = $updateMessage.Replace("`n", "%0a")
-          Write-Host "::set-output name=updateMessage::$updateMessage"
+          Set-GHVariable -Name UPDATE_MESSAGE -Value $updateMessage.Replace("%", "%25").Replace("`r", "%0D").Replace("`n", "%0A")
 
     - uses: peter-evans/create-pull-request@v4
       with:
         title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
         body: |
           ### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies:
-          ${{ steps.make-changes.outputs.updateMessage }}
+          ${{ env.UPDATE_MESSAGE }}
           ---
           Please verify and then **Merge** the pull request to update.
         commit-message: 'Update vendored dependencies (${{ env.LIST_UPDATED }})'
