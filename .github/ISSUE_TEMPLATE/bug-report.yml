@@ -12,6 +12,8 @@ body:
 
         Please make sure you read and follow the following instructions carefully before reporting bugs, and/or requesting new features.
 
+        - You can find the version of Cmder.exe and ConEmu.exe binaries using Right Click → Properties → Details menu.
+
   - type: textarea
     id: version
     attributes:
@@ -22,8 +24,8 @@ body:
         Cmder version:
         Operating system:
       value: |
-        Cmder version: \
-        Operating system: \
+        Cmder version: 
+        Operating system: 
       render: markdown
     validations:
       required: true
@@ -95,26 +97,6 @@ body:
 
         Thank you for making sure you are opening a new valid issue! ♥
 
-  - type: markdown
-    attributes:
-      value: |
-        ### Some tips on how to write a good bug report with the required information.
-        - Make sure the description is worded well enough to be understood, and with as much context and examples as possible.
-        - Post a screenshot or the command that triggered the problem, if applicable.
-        - Use the *Preview* tab to see how your issue will actually look like, before sending it.
-          ⚠ If for some reason you can not see the text you just wrote, make sure you've read the instructions clearly
-        - Avoid using ambiguous phrases like: doesn't work, there's a problem, etc.
-          Help us reproduce the issue by explaining what went wrong, and what did you expect to happen.
-        - Please keep the ticket language to English only here.
-          We can't process your issue if it's written in Russian or Chinese as we can't understand them.
-        - You can find the version of Cmder.exe and ConEmu.exe binaries using Right Click → Properties → Details menu.
-        - Put an `x` into all the boxes [ ] relevant to your issue (correct example: [x] -- not like this: [ x] or [x ]).
-        - Any text that is between the comment tags will get ignored, e.g.: <!-- this will NOT work -- >
-          You need to write your text either outside the tags, or the line below it.
-        - ⚠ Read the following page to avoid posting a bad issue: https://conemu.github.io/en/BadIssue.html
-
-        Failure to follow these guidelines may result in your issue getting closed. So please follow it carefully!
-
   - type: textarea
     id: description
     attributes:
@@ -158,3 +140,23 @@ body:
           required: true
         - label: I am certain my issues are not related to ConEmu, Clink, or other third-party tools that Cmder uses.
           required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Some tips on how to write a good bug report with the required information.
+        - Make sure the description is worded well enough to be understood, and with as much context and examples as possible.
+        - Post a screenshot or the command that triggered the problem, if applicable.
+        - Use the *Preview* tab to see how your issue will actually look like, before sending it.
+          ⚠ If for some reason you can not see the text you just wrote, make sure you've read the instructions clearly
+        - Avoid using ambiguous phrases like: doesn't work, there's a problem, etc.
+          Help us reproduce the issue by explaining what went wrong, and what did you expect to happen.
+        - Please keep the ticket language to English only here.
+          We can't process your issue if it's written in Russian or Chinese as we can't understand them.
+        - You can find the version of Cmder.exe and ConEmu.exe binaries using Right Click → Properties → Details menu.
+        - Put an `x` into all the boxes `[ ]` relevant to your issue (correct example: `[x]` -- not like this: `[ x]` or `[x ]`).
+        - Any text that is between the comment tags will get ignored, e.g.: `<!-- this will NOT work -- >`
+          You need to write your text either outside the tags, or the line below it.
+        - ⚠ Read the following page to avoid posting a bad issue: https://conemu.github.io/en/BadIssue.html
+
+        Failure to follow these guidelines may result in your issue getting closed. So please follow it carefully!

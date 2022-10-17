@@ -1,6 +1,5 @@
 name: "❓ Question"
 description: Something is unclear or needs to be discussed
-title: ""
 labels: [❓ Question]
 
 body:
