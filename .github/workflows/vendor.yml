@@ -42,7 +42,7 @@ jobs:
               $updateMessage += "- **$($s.name)** ($oldVersion → **$($s.version)**)\n"
             }
           }
-          Set-GHVariable -Name $listUpdated -Value $listUpdated.Trim(', ')
+          Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
           Set-GHVariable -Name UPDATE_MESSAGE -Value $updateMessage
 
     - uses: peter-evans/create-pull-request@v4
