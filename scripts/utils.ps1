@@ -92,7 +92,7 @@ function Get-GHTempPath {
     return $temp
 }
 
-function Get-VersionStr() {
+function Get-VersionStr {
     # Clear existing variable
     if ($string) { Clear-Variable -name string }
 

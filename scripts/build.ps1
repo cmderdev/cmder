@@ -53,7 +53,7 @@ Param(
     # Config folder location
     [string]$config = "$PSScriptRoot\..\config",
 
-    # Using this option will skip all downloads and only build launcher
+    # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
 
     # Build launcher if you have MSBuild tools installed
@@ -66,14 +66,6 @@ $cmder_root = Resolve-Path "$PSScriptRoot\.."
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
-
-# Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
-foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-    if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\','\\')) {
-        Write-Verbose $("Stopping " + $ssh_agent.path + "!")
-        Stop-Process $ssh_agent.id
-    }
-}
 
 if ($Compile) {
     # Check for requirements
@@ -118,6 +110,14 @@ if (-Not $noVendor) {
             Copy-Item $ConEmuXml $ConEmuXmlSave
         } else { $ConEmuXml = "" }
     } else { $ConEmuXml = "" }
+
+    # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
+    foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
+        if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\','\\')) {
+            Write-Verbose $("Stopping " + $ssh_agent.path + "!")
+            Stop-Process $ssh_agent.id
+        }
+    }
 
     foreach ($s in $sources) {
         Write-Verbose "Getting vendored $($s.name) $($s.version)..."
