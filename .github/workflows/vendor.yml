@@ -44,7 +44,7 @@ jobs:
             }
           }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
-          Set-GHVariable -Name UPDATE_MESSAGE -Value $updateMessage
+          echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`nEOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
     - uses: peter-evans/create-pull-request@v4
       with:
