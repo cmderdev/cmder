@@ -44,7 +44,7 @@ jobs:
             }
           }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
-          Set-GHVariable -Name UPDATE_MESSAGE -Value $updateMessage.Replace("%", "%25").Replace("`r", "%0D").Replace("`n", "%0A")
+          Set-GHVariable -Name UPDATE_MESSAGE -Value $updateMessage
 
     - uses: peter-evans/create-pull-request@v4
       with:

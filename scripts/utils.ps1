@@ -78,7 +78,7 @@ function Set-GHVariable {
     Write-Verbose "Setting CI variable $Name to $Value" -Verbose
 
     if ($env:GITHUB_ENV) {
-        "$Name=$Value" | Out-File $env:GITHUB_ENV -Append
+        echo "$Name=$Value" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
     }
 }
 
