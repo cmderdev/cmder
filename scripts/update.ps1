@@ -260,7 +260,7 @@ if ( $Env:APPVEYOR -eq 'True' ) {
 }
 
 if ( $Env:GITHUB_ACTIONS -eq 'true' ) {
-    Write-Output "::notice title=Build Complete::Successfully updated $count dependencies."
+    Write-Output "::notice title=Task Complete::Successfully updated $count dependencies."
 }
 
 Write-Host -ForegroundColor green "Successfully updated $count dependencies."
