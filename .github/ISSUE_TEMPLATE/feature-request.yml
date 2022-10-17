@@ -74,7 +74,6 @@ body:
     attributes:
       label: Checklist
       description: Please check all boxes that apply
-      multiple: true
       options:
         - label: I have read the documentation and made sure this feature doesn't already exist.
           required: true

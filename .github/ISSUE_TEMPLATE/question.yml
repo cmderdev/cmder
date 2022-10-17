@@ -44,7 +44,6 @@ body:
     attributes:
       label: Checklist
       description: Please check all boxes that apply
-      multiple: true
       options:
         - label: I have read the documentation and made sure what I'm looking for isn't present, or is unclear.
           required: true
