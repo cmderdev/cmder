@@ -39,7 +39,7 @@ jobs:
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
               $listUpdated += "$($s.name), "
-              $updateMessage += "**$($s.name)** ($oldVersion → **$($s.version)**)<br/>"
+              $updateMessage += "- **$($s.name)** ($oldVersion → **$($s.version)**)\n"
             }
           }
           Set-GHVariable -Name $listUpdated -Value $listUpdated.Trim(', ')
@@ -48,7 +48,7 @@ jobs:
     - uses: peter-evans/create-pull-request@v4
       with:
         title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
-        body: '### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies`n${{ env.UPDATE_MESSAGE }}'
+        body: '### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies:\n\n${{ env.UPDATE_MESSAGE }}\n\n---\nPlease verify and then **Merge** the pull request to update.'
         commit-message: 'Update vendored dependencies (${{ env.LIST_UPDATED }})'
         branch: update-vendor
         base: master
