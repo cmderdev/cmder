@@ -39,7 +39,7 @@ jobs:
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
-              $listUpdated += "$($s.name), "
+              $listUpdated += "$($s.name v$s.version), "
               $updateMessage += "| **$($s.name)** | $oldVersion | **$($s.version)** |`n"
             }
           }
@@ -54,7 +54,7 @@ jobs:
         title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
         body: |
           ### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies:
-          ${{ steps.make_changes.outputs.updateMessage }}
+          ${{ steps.make-changes.outputs.updateMessage }}
           ---
           Please verify and then **Merge** the pull request to update.
         commit-message: 'Update vendored dependencies (${{ env.LIST_UPDATED }})'
