@@ -31,7 +31,7 @@ jobs:
     - run: |
           $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           . .\scripts\update.ps1 -verbose
-          Set-GWVariable -Name COUNT_UPDATED -Value $count
+          Set-GHVariable -Name COUNT_UPDATED -Value $count
           $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           $listUpdated = ""
           $updateMessage = ""
@@ -42,8 +42,8 @@ jobs:
               $updateMessage += "**$($s.name)** ($oldVersion → **$($s.version)**)<br/>"
             }
           }
-          Set-GWVariable -Name $listUpdated -Value $listUpdated.Trim(', ')
-          Set-GWVariable -Name UPDATE_MESSAGE -Value $updateMessage
+          Set-GHVariable -Name $listUpdated -Value $listUpdated.Trim(', ')
+          Set-GHVariable -Name UPDATE_MESSAGE -Value $updateMessage
 
     - uses: peter-evans/create-pull-request@v4
       with:
