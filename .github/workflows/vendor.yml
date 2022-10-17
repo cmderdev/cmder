@@ -28,7 +28,8 @@ jobs:
       with:
         fetch-depth: 0
 
-    - run: |
+    - id: make-changes
+      run: |
           $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           . .\scripts\update.ps1 -verbose
           Set-GHVariable -Name COUNT_UPDATED -Value $count
@@ -39,18 +40,21 @@ jobs:
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
               $listUpdated += "$($s.name), "
-              $updateMessage += "| **$($s.name)** | $oldVersion | **$($s.version)**|`n"
+              $updateMessage += "| **$($s.name)** | $oldVersion | **$($s.version)** |`n"
             }
           }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
-          Set-GHVariable -Name UPDATE_MESSAGE -Value $updateMessage.Replace("`n", "%0a")
+          $updateMessage = $updateMessage.Replace("%", "%25")
+          $updateMessage = $updateMessage.Replace("`r", "%0d")
+          $updateMessage = $updateMessage.Replace("`n", "%0a")
+          Write-Host "::set-output name=updateMessage::$updateMessage"
 
     - uses: peter-evans/create-pull-request@v4
       with:
         title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
         body: |
           ### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies:
-          ${{ env.UPDATE_MESSAGE }}
+          ${{ steps.make_changes.outputs.updateMessage }}
           ---
           Please verify and then **Merge** the pull request to update.
         commit-message: 'Update vendored dependencies (${{ env.LIST_UPDATED }})'
