@@ -237,9 +237,9 @@ foreach ($s in $sources) {
     Write-Verbose "Version: $version"
 
 	if ( $s.version -ne $version ) {
-		if ( ([System.Version] $s.version) -gt ([System.Version] $version) ) {
-			throw "The current version $($s.version) is already newer than the found version $version!"
-		}
+		# if ( ([System.Version] $s.version) -gt ([System.Version] $version) ) {
+		# 	throw "The current version $($s.version) is already newer than the found version $version!"
+		# }
 
 		$count++
 	}
