@@ -54,7 +54,7 @@ body:
       required: true
 
   - type: textarea
-    is: usecase
+    id: usecase
     attributes:
       label: Use case
       description: Include a usage example of the feature

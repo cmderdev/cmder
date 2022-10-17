@@ -1,9 +1,9 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Wiki
+  - name: 📄 Wiki
     url: "https://github.com/cmderdev/cmder/wiki"
     about: "Consult the wiki first, it might already contain the information you are looking for"
 
-  - name: Discussions
+  - name: 💬 Discussions
     url: "https://github.com/cmderdev/cmder/discussions"
     about: "Please ask questions related to usage/setup/support/non-issue development discussion in the Discussions section"
