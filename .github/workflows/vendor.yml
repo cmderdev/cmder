@@ -5,11 +5,11 @@ on:
   schedule:
   # At 13:37 UTC every day.
   - cron: '37 13 * * *'
-  
+
 defaults:
   run:
     shell: pwsh
-    
+
 permissions:
   contents: read
 
@@ -27,14 +27,28 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        
+
     - run: |
-          # TODO
+          $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+          . .\scripts\update.ps1 -verbose
+          Set-GWVariable -Name COUNT_UPDATED -Value $count
+          $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+          $listUpdated = ""
+          $updateMessage = ""
+          for ($s in $newVersion) {
+            $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
+            if ($s.version -ne $oldVersion) {
+              $listUpdated += "$($s.name), "
+              $updateMessage += "**$($s.name)** ($oldVersion → **$($s.version)**)<br/>"
+            }
+          }
+          Set-GWVariable -Name $listUpdated -Value $listUpdated.Trim(', ')
+          Set-GWVariable -Name UPDATE_MESSAGE -Value $updateMessage
 
     - uses: peter-evans/create-pull-request@v4
       with:
-        title: 'Actions: Updates to the vendored dependencies'
-        body: 'Automatic changes'
-        commit-message: 'Update vendored dependencies'
+        title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
+        body: '### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies`n${{ env.UPDATE_MESSAGE }}'
+        commit-message: 'Update vendored dependencies (${{ env.LIST_UPDATED }})'
         branch: update-vendor
         base: master
