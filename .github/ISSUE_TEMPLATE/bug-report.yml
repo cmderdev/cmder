@@ -1,6 +1,6 @@
 name: "🐞 Bug report (encountered problems/errors)"
 description: Something is not working as it should
-title: "[Bug] <title>"
+title: "[Bug] "
 labels: [🐞 Bug report]
 
 body:
@@ -22,8 +22,8 @@ body:
         Cmder version:
         Operating system:
       value: |
-        Cmder version:
-        Operating system:
+        Cmder version: \
+        Operating system: \
       render: markdown
     validations:
       required: true
