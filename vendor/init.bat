@@ -2,7 +2,7 @@
 
 set CMDER_INIT_START=%time%
 
-:: Init Script for cmd.exe
+:: Init Script for cmd.exe shell
 :: Created as part of cmder project
 
 :: !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
@@ -44,6 +44,7 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+:: Include Cmder libraries
 call "%cmder_root%\vendor\bin\cexec.cmd" /setpath
 call "%cmder_root%\vendor\lib\lib_base"
 call "%cmder_root%\vendor\lib\lib_path"
@@ -58,9 +59,9 @@ call "%cmder_root%\vendor\lib\lib_profile"
         set fast_init=1
     ) else if /i "%1" == "/t" (
         set time_init=1
-    ) else if /i "%1"=="/v" (
+    ) else if /i "%1" == "/v" (
         set verbose_output=1
-    ) else if /i "%1"=="/d" (
+    ) else if /i "%1" == "/d" (
         set debug_output=1
     ) else if /i "%1" == "/max_depth" (
         if "%~2" geq "1" if "%~2" leq "5" (
@@ -91,7 +92,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
             %print_error% "The Git install root folder "%~2", you specified does not exist!"
             exit /b
         )
-    ) else if /i "%1"=="/nix_tools" (
+    ) else if /i "%1" == "/nix_tools" (
         if "%2" equ "0" (
             REM Do not add *nix tools to path
             set nix_tools=0
@@ -117,13 +118,13 @@ call "%cmder_root%\vendor\lib\lib_profile"
         set SVN_SSH=%2
         shift
     ) else (
-      set "CMDER_USER_FLAGS=%1 %CMDER_USER_FLAGS%"
+        set "CMDER_USER_FLAGS=%1 %CMDER_USER_FLAGS%"
     )
     shift
 goto var_loop
 
 :start
-:: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES
+:: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES variables
 %lib_base% cmder_shell
 %print_debug% init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
 %print_debug% init.bat "Env Var - debug_output=%debug_output%"
@@ -134,7 +135,7 @@ if defined CMDER_USER_CONFIG (
     if not exist "%CMDER_USER_CONFIG%\..\opt" md "%CMDER_USER_CONFIG%\..\opt"
 )
 
-:: Pick right version of clink
+:: Pick right version of Clink
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set clink_architecture=x86
     set architecture_bits=32
@@ -144,75 +145,72 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 )
 
 if "%CMDER_CLINK%" == "1" (
-  %print_verbose% "Injecting Clink!"
+    %print_verbose% "Injecting Clink!"
 
-  :: Run clink
-  if defined CMDER_USER_CONFIG (
-    if not exist "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\clink_settings" (
-      echo Generating clink initial settings in "%CMDER_USER_CONFIG%\clink_settings"
-      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\clink_settings"
-      echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.
-    )
+    :: Run clink
+    if defined CMDER_USER_CONFIG (
+        if not exist "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\clink_settings" (
+            echo Generating clink initial settings in "%CMDER_USER_CONFIG%\clink_settings"
+            copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\clink_settings"
+            echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.
+        )
 
-    if not exist "%CMDER_USER_CONFIG%\cmder_prompt_config.lua" (
-      echo Creating Cmder prompt config file: "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
-      copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
-    )
+        if not exist "%CMDER_USER_CONFIG%\cmder_prompt_config.lua" (
+            echo Creating Cmder prompt config file: "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
+            copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
+        )
 
-    REM Cleanup lagacy Clink Settings file
-    if exist "%CMDER_USER_CONFIG%\settings" if exist "%CMDER_USER_CONFIG%\clink_settings" (
-      del "%CMDER_USER_CONFIG%\settings"
-    )
+        REM Cleanup lagacy Clink Settings file
+        if exist "%CMDER_USER_CONFIG%\settings" if exist "%CMDER_USER_CONFIG%\clink_settings" (
+            del "%CMDER_USER_CONFIG%\settings"
+        )
 
-    REM Cleanup legacy CLink history file
-    if exist "%CMDER_USER_CONFIG%\.history" if exist "%CMDER_USER_CONFIG%\clink_history" (
-      del "%CMDER_USER_CONFIG%\.history"
-    )
+        REM Cleanup legacy Clink history file
+        if exist "%CMDER_USER_CONFIG%\.history" if exist "%CMDER_USER_CONFIG%\clink_history" (
+            del "%CMDER_USER_CONFIG%\.history"
+        )
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
-  ) else (
-    if not exist "%CMDER_ROOT%\config\settings" if not exist "%CMDER_ROOT%\config\clink_settings" (
-      echo Generating clink initial settings in "%CMDER_ROOT%\config\clink_settings"
-      copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\clink_settings"
-      echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
-    )
+    ) else (
+        if not exist "%CMDER_ROOT%\config\settings" if not exist "%CMDER_ROOT%\config\clink_settings" (
+            echo Generating Clink initial settings in "%CMDER_ROOT%\config\clink_settings"
+            copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\clink_settings"
+            echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
+        )
 
-    if not exist "%CMDER_ROOT%\config\cmder_prompt_config.lua" (
-      echo Creating Cmder prompt config file: "%CMDER_ROOT%\config\cmder_prompt_config.lua"
-      copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_ROOT%\config\cmder_prompt_config.lua"
-    )
+        if not exist "%CMDER_ROOT%\config\cmder_prompt_config.lua" (
+            echo Creating Cmder prompt config file: "%CMDER_ROOT%\config\cmder_prompt_config.lua"
+            copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_ROOT%\config\cmder_prompt_config.lua"
+        )
 
-    REM Cleanup lagacy Clink Settings file
-    if exist "%CMDER_ROOT%\config\settings" if exist "%CMDER_ROOT%\config\clink_settings" (
-      del "%CMDER_ROOT%\config\settings"
-    )
+        REM Cleanup lagacy Clink Settings file
+            if exist "%CMDER_ROOT%\config\settings" if exist "%CMDER_ROOT%\config\clink_settings" (
+            del "%CMDER_ROOT%\config\settings"
+        )
 
-    REM Cleanup legacy Clink history file
-    if exist "%CMDER_ROOT%\config\.history" if exist "%CMDER_ROOT%\config\clink_history" (
-      del "%CMDER_ROOT%\config\.history"
-    )
+        REM Cleanup legacy Clink history file
+            if exist "%CMDER_ROOT%\config\.history" if exist "%CMDER_ROOT%\config\clink_history" (
+            del "%CMDER_ROOT%\config\.history"
+        )
 
-    "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
-  )
+        "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+    )
 ) else (
-  %print_verbose% "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
+    %print_verbose% "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
 )
 
 if "%CMDER_CONFIGURED%" GTR "1" (
-  %print_verbose% "Cmder is already configured, skipping Cmder Init!"
+    %print_verbose% "Cmder is already configured, skipping Cmder Init!"
 
-  goto USER_ALIASES
+    goto USER_ALIASES
 ) else if "%CMDER_CONFIGURED%" == "1" (
-  %print_verbose% "Cmder is already configured, skipping to Cmder User Init!"
+    %print_verbose% "Cmder is already configured, skipping to Cmder User Init!"
 
-  goto USER_CONFIG_START
+    goto USER_CONFIG_START
 )
 
 :: Prepare for git-for-windows
 
-:: I do not even know, copypasted from their .bat
-set PLINK_PROTOCOL=ssh
-
-:: The idea:
+:: Detect which git.exe version to use
 :: * if the users points as to a specific git, use that
 :: * test if a git is in path and if yes, use that
 :: * last, use our vendored git
@@ -221,20 +219,20 @@ if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
 ) else if "%fast_init%" == "1" (
     if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
-      %print_debug% init.bat "Skipping Git Auto-Detect!"
-      goto :VENDORED_GIT
+        %print_debug% init.bat "Skipping Git Auto-Detect!"
+        goto :VENDORED_GIT
     )
 )
 
 %print_debug% init.bat "Looking for Git install root..."
 
-:: get the version information for vendored git binary
+:: Get the version information for vendored git binary
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd" 2>nul
 %lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
 
-:: check if git is in path...
+:: Check if git is in path
 for /F "delims=" %%F in ('where git.exe 2^>nul ^| find "\cmd\git.exe"') do (
-    :: get the absolute path to the user provided git binary
+    :: Get the absolute path to the user provided git binary
     %lib_git% is_git_shim "%%~dpF"
     %lib_git% get_user_git_version
     %lib_git% compare_git_versions
@@ -244,7 +242,7 @@ for /F "delims=" %%F in ('where git.exe 2^>nul ^| find "\cmd\git.exe"') do (
     )
 )
 
-:: our last hope: our own git...
+:: Our last hope: use vendored git
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
@@ -267,7 +265,7 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" ""
 
-:: Add the unix commands at the end to not shadow windows commands like more
+:: Add the unix commands at the end to not shadow windows commands like more and find
 if %nix_tools% equ 1 (
     %print_verbose% "Preferring Windows commands"
     set "path_position=append"
@@ -287,24 +285,26 @@ if %nix_tools% geq 1 (
     )
 )
 
-:: define SVN_SSH so we can use git svn with ssh svn repositories
+:: Plink (PuTTY Link) is a command-line connection tool similar to ssh, setting its protocol to ssh
+set PLINK_PROTOCOL=ssh
+
+:: Define SVN_SSH so we can use git svn with ssh svn repositories
 if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 
 :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\locale.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\locale.exe"
-if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" )
+if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^>nul') do ( if not defined git_locale set git_locale="%%F" )
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale
-if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nul') do ( if not defined git_locale  set git_locale="%%F" /usr/bin/locale )
+if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nul') do ( if not defined git_locale set git_locale="%%F" /usr/bin/locale )
 
 setlocal enabledelayedexpansion
 if defined git_locale (
-
-  REM %print_debug% init.bat "Env Var - git_locale=!git_locale!"
-  if not defined LANG (
-      for /F "delims=" %%F in ('!git_locale! -uU 2') do (
-          set "LANG=%%F"
-      )
-  )
+    REM %print_debug% init.bat "Env Var - git_locale=!git_locale!"
+    if not defined LANG (
+        for /F "delims=" %%F in ('!git_locale! -uU 2') do (
+            set "LANG=%%F"
+        )
+    )
 )
 endlocal && set LANG=%LANG%
 
@@ -322,7 +322,7 @@ endlocal
 :USER_CONFIG_START
 %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
 if defined CMDER_USER_BIN (
-  %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
+    %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
 )
 %lib_path% enhance_path "%CMDER_ROOT%" append
 
@@ -330,7 +330,7 @@ if defined CMDER_USER_BIN (
 :: to run them at startup.
 %lib_profile% run_profile_d "%CMDER_ROOT%\config\profile.d"
 if defined CMDER_USER_CONFIG (
-  %lib_profile% run_profile_d "%CMDER_USER_CONFIG%\profile.d"
+    %lib_profile% run_profile_d "%CMDER_USER_CONFIG%\profile.d"
 )
 
 :USER_ALIASES
@@ -341,46 +341,46 @@ if defined CMDER_USER_CONFIG (
 :: must also be self executing, see '.\user_aliases.cmd.default',
 :: and be in profile.d folder.
 if not defined user_aliases (
-  if defined CMDER_USER_CONFIG (
-     set "user_aliases=%CMDER_USER_CONFIG%\user_aliases.cmd"
-  ) else (
-     set "user_aliases=%CMDER_ROOT%\config\user_aliases.cmd"
-  )
+    if defined CMDER_USER_CONFIG (
+        set "user_aliases=%CMDER_USER_CONFIG%\user_aliases.cmd"
+    ) else (
+        set "user_aliases=%CMDER_ROOT%\config\user_aliases.cmd"
+    )
 )
 
 if "%CMDER_ALIASES%" == "1" (
-  REM The aliases environment variable is used by alias.bat to id
-  REM the default file to store new aliases in.
-  if not defined aliases (
-    set "aliases=%user_aliases%"
-  )
+    REM The aliases environment variable is used by alias.bat to id
+    REM the default file to store new aliases in.
+    if not defined aliases (
+        set "aliases=%user_aliases%"
+    )
 
-  REM Make sure we have a self-extracting user_aliases.cmd file
-  if not exist "%user_aliases%" (
-      echo Creating initial user_aliases store in "%user_aliases%"...
-      copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
-  ) else (
-    %lib_base% update_legacy_aliases
-  )
+    REM Make sure we have a self-extracting user_aliases.cmd file
+    if not exist "%user_aliases%" (
+        echo Creating initial user_aliases store in "%user_aliases%"...
+        copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
+    ) else (
+        %lib_base% update_legacy_aliases
+    )
 
-  :: Update old 'user_aliases' to new self executing 'user_aliases.cmd'
-  if exist "%CMDER_ROOT%\config\aliases" (
-    echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
-    type "%CMDER_ROOT%\config\aliases" >> "%user_aliases%"
-    del "%CMDER_ROOT%\config\aliases"
-  ) else if exist "%user_aliases%.old_format" (
-    echo Updating old "%user_aliases%" to new format...
-    type "%user_aliases%.old_format" >> "%user_aliases%"
-    del "%user_aliases%.old_format"
-  )
+    :: Update old 'user_aliases' to new self executing 'user_aliases.cmd'
+    if exist "%CMDER_ROOT%\config\aliases" (
+        echo Updating old "%CMDER_ROOT%\config\aliases" to new format...
+        type "%CMDER_ROOT%\config\aliases" >> "%user_aliases%"
+        del "%CMDER_ROOT%\config\aliases"
+    ) else if exist "%user_aliases%.old_format" (
+        echo Updating old "%user_aliases%" to new format...
+        type "%user_aliases%.old_format" >> "%user_aliases%"
+        del "%user_aliases%.old_format"
+    )
 )
 
 :: Add aliases to the environment
 type "%user_aliases%" | findstr /b /l /i "history=cat " >nul
 if "%ERRORLEVEL%" == "0" (
-  echo Migrating alias 'history' to new Clink 1.x.x...
-  call "%CMDER_ROOT%\vendor\bin\alias.cmd" /d history
-  echo Restart the session to activate changes!
+    echo Migrating alias 'history' to new Clink 1.x.x...
+    call "%CMDER_ROOT%\vendor\bin\alias.cmd" /d history
+    echo Restart the session to activate changes!
 )
 
 call "%user_aliases%"
@@ -409,12 +409,12 @@ if exist "%CMDER_ROOT%\config\user_profile.cmd" (
 )
 
 if defined CMDER_USER_CONFIG (
-  set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
-  if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
-      REM Create this file and place your own command in there
-      %print_debug% init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
-      call "%CMDER_USER_CONFIG%\user_profile.cmd"
-  )
+    set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
+    if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
+        REM Create this file and place your own command in there
+        %print_debug% init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
+        call "%CMDER_USER_CONFIG%\user_profile.cmd"
+    )
 )
 
 if not exist "%initialConfig%" (
@@ -423,16 +423,16 @@ if not exist "%initialConfig%" (
 )
 
 if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
-  echo Cmder's 'alias' command has been moved into "%CMDER_ROOT%\vendor\bin\alias.cmd"
-  echo to get rid of this message either:
-  echo.
-  echo Delete the file "%CMDER_ROOT%\bin\alias.bat"
-  echo.
-  echo or
-  echo.
-  echo If you have customized it and want to continue using it instead of the included version
-  echo   * Rename "%CMDER_ROOT%\bin\alias.bat" to "%CMDER_ROOT%\bin\alias.cmd".
-  echo   * Search for 'user-aliases' and replace it with 'user_aliases'.
+    echo Cmder's 'alias' command has been moved into "%CMDER_ROOT%\vendor\bin\alias.cmd"
+    echo to get rid of this message either:
+    echo.
+    echo Delete the file "%CMDER_ROOT%\bin\alias.bat"
+    echo.
+    echo or
+    echo.
+    echo If you have customized it and want to continue using it instead of the included version
+    echo   * Rename "%CMDER_ROOT%\bin\alias.bat" to "%CMDER_ROOT%\bin\alias.cmd".
+    echo   * Search for 'user-aliases' and replace it with 'user_aliases'.
 )
 
 set initialConfig=
@@ -443,6 +443,6 @@ if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
 set CMDER_INIT_END=%time%
 
 if %time_init% gtr 0 (
-  "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
+    "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
 )
 exit /b
