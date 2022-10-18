@@ -23,7 +23,7 @@ if not defined fast_init set fast_init=0
 :: Use /max_depth 1-5 to set max recurse depth for calls to `enhance_path_recursive`
 if not defined max_depth set max_depth=1
 
-:: Add *nix tools to end of path. 0 turns off *nix tools, 2 adds *nix tools to the front of thr path.
+:: Add *nix tools to end of path. 0 turns off *nix tools, 2 adds *nix tools to the front of the path.
 if not defined nix_tools set nix_tools=1
 
 set "CMDER_USER_FLAGS= "
@@ -227,6 +227,7 @@ if "%CMDER_CONFIGURED%" GTR "1" (
 :: also check that we have a recent enough version of git by examining the version string
 if defined GIT_INSTALL_ROOT (
     if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
+    set GIT_INSTALL_ROOT=
 ) else if "%fast_init%" == "1" (
     if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
         %print_debug% init.bat "Skipping Git Auto-Detect!"
@@ -241,16 +242,25 @@ if defined GIT_INSTALL_ROOT (
 %lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
 
 :: Check if git is in path
-for /F "delims=" %%F in ('where git.exe 2^>nul ^| find "\cmd\git.exe"') do (
-    :: Get the absolute path to the user provided git binary
-    %lib_git% is_git_shim "%%~dpF"
-    %lib_git% get_user_git_version
-    %lib_git% compare_git_versions
+for /F "delims=" %%F in ('where git.exe 2^>nul') do call :check_git "%%~fF"
 
-    if defined GIT_INSTALL_ROOT (
-        goto :FOUND_GIT
-    )
+if defined GIT_INSTALL_ROOT (
+    goto :FOUND_GIT
+) else (
+    goto :VENDORED_GIT
 )
+
+:check_git
+    set full_path="%~f1"
+    if not defined GIT_INSTALL_ROOT (
+        if not [\%full_path:\cmd\git.exe=:%]==[\%full_path%] (
+            :: Get the absolute path to the user provided git binary
+            %lib_git% is_git_shim "%%~dp1"
+            %lib_git% get_user_git_version
+            %lib_git% compare_git_versions
+        )
+    )
+    exit /b
 
 :: Our last hope: use vendored git
 :VENDORED_GIT
