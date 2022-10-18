@@ -169,7 +169,8 @@ if "%CMDER_CLINK%" == "1" (
         if exist "%CMDER_USER_CONFIG%\.history" if exist "%CMDER_USER_CONFIG%\clink_history" (
             del "%CMDER_USER_CONFIG%\.history"
         )
-    "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
+
+        "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
     ) else (
         if not exist "%CMDER_ROOT%\config\settings" if not exist "%CMDER_ROOT%\config\clink_settings" (
             echo Generating Clink initial settings in "%CMDER_ROOT%\config\clink_settings"
@@ -194,8 +195,12 @@ if "%CMDER_CLINK%" == "1" (
 
         "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
     )
+
+    if errorlevel 1 (
+        %print_error% "Failed to initialize Clink with error code: %errorlevel%"
+    )
 ) else (
-    %print_verbose% "WARNING: Incompatible 'ComSpec/Shell' Detetected Skipping Clink Injection!"
+    %print_verbose% "WARNING: Incompatible 'ComSpec/Shell' Detetected, Skipping Clink Injection!"
 )
 
 if "%CMDER_CONFIGURED%" GTR "1" (
