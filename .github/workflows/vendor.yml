@@ -29,6 +29,7 @@ jobs:
         fetch-depth: 0
 
     - id: make-changes
+      name: Checking for updates
       run: |
           $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           . .\scripts\update.ps1 -verbose
