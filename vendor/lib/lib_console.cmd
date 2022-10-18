@@ -2,6 +2,7 @@
 
 call "%~dp0lib_base.cmd"
 set lib_console=call "%~dp0lib_console.cmd"
+set ESC=
 
 :: Much faster than using "%lib_console% debug_output ..." etc.
 set print_debug=if %debug_output% gtr 0 %lib_console% debug_output
@@ -80,5 +81,5 @@ exit /b
 :::.
 :::-------------------------------------------------------------------------------
 
-    echo ERROR: %~1
+    echo %ESC%[91;1mERROR:%ESC%[0m %~1
     exit /b
