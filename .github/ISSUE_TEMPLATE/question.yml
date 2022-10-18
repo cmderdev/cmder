@@ -8,25 +8,19 @@ body:
       value: |
         Before you ask your question, please make sure you read and follow the following instructions carefully.
 
-        Make sure that you have:
+        - Read both the README.md and the Wiki, as well as the existing issues:
 
-        - Read both the README.md and the Wiki:
-
-          | **README.md** | **Wiki** |
-          | ------------- | -------- |
-          | 🌐 [Open Link](https://github.com/cmderdev/cmder/blob/master/README.md) | 🌐 [Open Link](https://github.com/cmderdev/cmder/wiki) |
+          | **README.md** | **Wiki** | **Issues** |
+          | ------------- | -------- | ---------- |
+          | 🌐 [Open Link](https://github.com/cmderdev/cmder/blob/master/README.md) | 🌐 [Open Link](https://github.com/cmderdev/cmder/wiki) | 🗃 [Open Link](https://github.com/cmderdev/cmder/issues?q=is:issue) |
 
           (What you may be asking here could already be explained there!)
-
-        - Searched for existing issues (including the **closed** ones) here:
-
-          🗃 https://github.com/cmderdev/cmder/issues?q=is:issue
 
         - If you would like to ask for guides on how to integrate Cmder with your favorite IDE of choice, or how to perform a specific task with Cmder, make sure you visit our label section first.
 
           You may already have an answer under the Guides or Questions section.
 
-          For a list of labels, visit **[🌐 Labels](https://github.com/cmderdev/cmder/labels).
+          For a list of labels, visit **[Labels](https://github.com/cmderdev/cmder/labels)**.
 
           (Be sure to also check “Closed” issues in the labels section!)
 

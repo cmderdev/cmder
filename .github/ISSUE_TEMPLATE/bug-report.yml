@@ -92,7 +92,7 @@ body:
         - We do not support any versions older than the current release series, if you are using an older Cmder please update to the latest version first.
         - Verify that the issue is not fixed and is reproducible in the **[latest official Cmder version](https://github.com/cmderdev/cmder/releases).**
         - Check the **[current issues list](https://github.com/cmderdev/cmder/issues?q=is%3Aissue)** and perform a **search of the issue tracker (including closed ones)** to avoid posting a duplicate bug report.
-        - Make sure this is not a support request or question, both of which are better suited for either the **[discussions section](https://github.com/cmderdev/cmder/discussions)**, or the **[questions section](https://github.com/cmderdev/cmder/issues/new?template=questions.yml)**.
+        - Make sure this is not a support request or question, both of which are better suited for either the **[discussions section](https://github.com/cmderdev/cmder/discussions)**, or the **[questions section](https://github.com/cmderdev/cmder/issues/new?template=question.yml)**.
         - Verify that the **[wiki](https://github.com/cmderdev/cmder/wiki)** did not contain a suitable solution either.
 
         Thank you for making sure you are opening a new valid issue! ♥
