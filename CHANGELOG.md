@@ -1,11 +1,12 @@
 # Change Log
 
-## [1.3.20-unreleased](https://ci.appveyor.com/project/MartiUK/cmder/build/artifacts) (2022-03-17)
+## [1.3.20](https://github.com/cmderdev/cmder/tree/v1.3.20) (2022-03-18)
 
 ### Changes
 
-- Update Git for Windows to 2.37.1
-- Update to Clink 1.3.36
+- Update Git for Windows to 2.38.0.windows.1
+- Update Clink to 1.3.47
+- Update ConEmu to 22.08.07
 
 ### Fixes
 
@@ -14,7 +15,18 @@
 - Fix using Git from vendored Git and other Git for Windows tools from other Git in path.
 - Remove setting `term=cygwin` in `init.bat` to fix random `ABCD` characters when using arrow keys in `vim`.
   - See: [Sometimes pressing on arrow keys prints symbols #1691](https://github.com/Maximus5/ConEmu/issues/169)
-- Fix Git prompt branch when using Git worktree.
+- Fix #2654: blank space added between {cwd} and version_control variable by @geekrumper in https://github.com/cmderdev/cmder/pull/2661
+- Fix #2659: Use get_hg_branch() to get Mercurial branch information. by @vsajip in https://github.com/cmderdev/cmder/pull/2660
+- Fix Git prompt branch when using Git worktree by @daxgames in https://github.com/cmderdev/cmder/pull/2680
+- Add optional clink async prompt update for svn status by @Mikaz-fr in https://github.com/cmderdev/cmder/pull/2703
+- Better bat by @daxgames in https://github.com/cmderdev/cmder/pull/2742
+- Related to #2654: Move space from "{git}{hg}{svn}" to individual parts by @DRSDavidSoft in https://github.com/cmderdev/cmder/pull/2738
+- Use TaskDialog instead of MessageBox (Fixes Builds) by @DRSDavidSoft in https://github.com/cmderdev/cmder/pull/2746
+- Add bin\cmder_shell.cmd by @DRSDavidSoft in https://github.com/cmderdev/cmder/pull/2747
+- Fix build system scripts (closes #2723) by @DRSDavidSoft in https://github.com/cmderdev/cmder/pull/2748
+- Custom option for launcher title by @DRSDavidSoft in https://github.com/cmderdev/cmder/pull/2752
+- Use Github Actions to build and release by @MartiUK in https://github.com/cmderdev/cmder/pull/2725
+- Re-factor the build script to distinguish each step by @DRSDavidSoft in https://github.com/cmderdev/cmder/pull/2758
 
 ## [1.3.19](https://github.com/cmderdev/cmder/tree/v1.3.19) (2022-01-15)
 
