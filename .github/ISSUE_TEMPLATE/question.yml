@@ -1,6 +1,7 @@
 name: "❓ Question"
 description: Something is unclear or needs to be discussed
-labels: [❓ Question]
+title: "Question: "
+labels: "❔ Type: Question"
 
 body:
   - type: markdown
