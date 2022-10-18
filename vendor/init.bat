@@ -147,7 +147,12 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 if "%CMDER_CLINK%" == "1" (
     %print_verbose% "Injecting Clink!"
 
-    :: Run clink
+    :: Check if Clink is not present
+    if not exist "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" (
+        %print_error% "Clink executable is not present in 'vendor\clink\clink_%clink_architecture%.exe'"
+    )
+
+    :: Run Clink
     if defined CMDER_USER_CONFIG (
         if not exist "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\clink_settings" (
             echo Generating clink initial settings in "%CMDER_USER_CONFIG%\clink_settings"
