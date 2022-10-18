@@ -666,7 +666,7 @@ We now use a forked version of clink since its original author is missing and we
 * 'ls' is no longer recognized command [\#757](https://github.com/cmderdev/cmder/issues/757)
 * I can't run de Cmder.exe [\#755](https://github.com/cmderdev/cmder/issues/755)
 * Multiple location references when maximizing [\#753](https://github.com/cmderdev/cmder/issues/753)
-* CLink completions for npm increase cmder startup time for one second [\#750](https://github.com/cmderdev/cmder/issues/750)
+* Clink completions for npm increase cmder startup time for one second [\#750](https://github.com/cmderdev/cmder/issues/750)
 * Prevent other apps from overwriting the prompt? [\#749](https://github.com/cmderdev/cmder/issues/749)
 * cmder.exe infected with Variant.Kazy.767238 [\#748](https://github.com/cmderdev/cmder/issues/748)
 * cmder.exe considered harmful by Bitdefender [\#744](https://github.com/cmderdev/cmder/issues/744)
