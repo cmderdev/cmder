@@ -549,14 +549,14 @@
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
-					<value name="Cmd1" type="string" data="*&quot;%ConEmuDir%\..\git-for-windows\usr\bin\bash.exe&quot; --login -i"/>
+					<value name="Cmd1" type="string" data="*set &quot;PATH=%ConEmuDir%\..\git-for-windows\usr\bin;%PATH%&quot; &amp; %ConEmuDir%\..\git-for-windows\git-cmd.exe --no-cd --command=%ConEmuBaseDirShort%\conemu-msys2-64.exe &quot;%ConEmuDir%\..\git-for-windows\usr\bin\bash.exe&quot; --login -i"/>
 				</key>
 				<key name="Task8" modified="2018-02-22 06:05:13" build="171109">
 					<value name="Name" type="string" data="{bash::bash}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=" /icon &quot;%CMDER_ROOT%\icons\cmder.ico&quot;"/>
-					<value name="Cmd1" type="string" data="&quot;%ConEmuDir%\..\git-for-windows\usr\bin\bash.exe&quot; --login -i"/>
+					<value name="Cmd1" type="string" data="set &quot;PATH=%ConEmuDir%\..\git-for-windows\usr\bin;%PATH%&quot; &amp; %ConEmuDir%\..\git-for-windows\git-cmd.exe --no-cd --command=%ConEmuBaseDirShort%\conemu-msys2-64.exe &quot;%ConEmuDir%\..\git-for-windows\usr\bin\bash.exe&quot; --login -i"/>
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 				</key>
