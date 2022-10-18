@@ -29,7 +29,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Initialize vendors
       run: |
-          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "Invoke-Expression '. ''scripts\build.ps1'' -verbose'"
+          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "Invoke-Expression '. ''scripts\build.ps1'' -verbose -sourcesPath .\vendor\sources.json'"
     - name: Testing Clink Shell
       run: |
           cmd /c vendor\init.bat /v /d /t
