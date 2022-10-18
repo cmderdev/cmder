@@ -386,7 +386,7 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
 
 You can download builds of the current development branch by going to AppVeyor via the following link:
 
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/MartiUK/cmder/branch/master/artifacts)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/cmderdev/cmder/branch/master/artifacts)
 
 ## License
 
