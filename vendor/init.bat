@@ -255,7 +255,7 @@ if defined GIT_INSTALL_ROOT (
     if not defined GIT_INSTALL_ROOT (
         if not [\%full_path:\cmd\git.exe=:%]==[\%full_path%] (
             :: Get the absolute path to the user provided git binary
-            %lib_git% is_git_shim "%%~dp1"
+            %lib_git% is_git_shim "%~dp1"
             %lib_git% get_user_git_version
             %lib_git% compare_git_versions
         )
