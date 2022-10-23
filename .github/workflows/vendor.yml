@@ -58,6 +58,6 @@ jobs:
           ${{ env.UPDATE_MESSAGE }}
           ---
           Please verify and then **Merge** the pull request to update.
-        commit-message: 'Update vendored dependencies (${{ env.LIST_UPDATED }})'
+        commit-message: '⬆️ Update dependencies (${{ env.LIST_UPDATED }})'
         branch: update-vendor
         base: master
