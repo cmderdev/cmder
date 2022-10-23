@@ -40,8 +40,9 @@ jobs:
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
+              $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
               $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| **$($s.name)** | $oldVersion | **$($s.version)** |`n"
+              $updateMessage += "| **[$($s.name)]($repoUrl)** | $oldVersion | **$($s.version)** |`n"
             }
           }
           if ($count -eq 0) { return }
