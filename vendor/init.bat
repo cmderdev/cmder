@@ -132,7 +132,7 @@ goto var_loop
 :: Sets Cmder directory paths
 SET CMDER_CONFIG_DIR=%CMDER_ROOT%\config
 
-:: Check if wre're using Cmder individual user profile
+:: Check if we're using Cmder individual user profile
 if defined CMDER_USER_CONFIG (
     %print_debug% init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 
@@ -191,11 +191,11 @@ if "%CMDER_CLINK%" == "1" (
 if "%CMDER_CONFIGURED%" GTR "1" (
     %print_verbose% "Cmder is already configured, skipping Cmder Init!"
 
-    goto USER_ALIASES
+    goto :USER_ALIASES
 ) else if "%CMDER_CONFIGURED%" == "1" (
     %print_verbose% "Cmder is already configured, skipping to Cmder User Init!"
 
-    goto USER_CONFIG_START
+    goto :USER_CONFIG_START
 )
 
 :: Prepare for git-for-windows
