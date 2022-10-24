@@ -121,7 +121,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
         set "CMDER_USER_FLAGS=%1 %CMDER_USER_FLAGS%"
     )
     shift
-goto var_loop
+goto :var_loop
 
 :start
 :: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES variables
@@ -381,7 +381,7 @@ if "%ERRORLEVEL%" == "0" (
 
 call "%user_aliases%"
 
-if "%CMDER_CONFIGURED%" gtr "1" goto CMDER_CONFIGURED
+if "%CMDER_CONFIGURED%" gtr "1" goto :CMDER_CONFIGURED
 
 :: See vendor\git-for-windows\README.portable for why we do this
 :: Basically we need to execute this post-install.bat because we are
