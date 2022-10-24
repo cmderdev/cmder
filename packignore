@@ -3,6 +3,9 @@ launcher
 .gitattributes
 .git
 .github
+.vs
+.vscode
+.idea
 *.md
 build
 scripts

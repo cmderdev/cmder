@@ -29,3 +29,5 @@ build/
 launcher/.vs
 launcher/src/version.rc2
 .vs/*
+.vscode
+.idea
