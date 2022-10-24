@@ -1,5 +1,6 @@
-# Init Script for PowerShell
-# Created as part of cmder project
+﻿# Init Script for PowerShell
+# Created as part of Cmder project
+# This file must be saved using UTF-8 with BOM encoding for prompt to work correctly.
 
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
@@ -16,8 +17,8 @@ if ($ENV:CMDER_USER_CONFIG) {
 }
 
 # We do this for Powershell as Admin Sessions because CMDER_ROOT is not being set.
-if ($null -eq $ENV:CMDER_ROOT) {
-    if (-Not($null -eq $ENV:ConEmuDir)) {
+if (!$ENV:CMDER_ROOT) {
+    if ($ENV:ConEmuDir) {
         $ENV:CMDER_ROOT = Resolve-Path($ENV:ConEmuDir + "\..\..")
     } else {
         $ENV:CMDER_ROOT = Resolve-Path($PSScriptRoot + "\..")
@@ -25,7 +26,7 @@ if ($null -eq $ENV:CMDER_ROOT) {
 }
 
 # Remove trailing '\'
-$ENV:CMDER_ROOT = ($ENV:CMDER_ROOT).trimend("\")
+$ENV:CMDER_ROOT = ($ENV:CMDER_ROOT).TrimEnd("\")
 
 # Do not load bundled PsGet if a module installer is already available
 # -> recent PowerShell versions include PowerShellGet out of the box
@@ -85,7 +86,7 @@ if (-Not ($null -eq $ENV:GIT_INSTALL_ROOT)) {
     $env:Path = Configure-Git -gitRoot "$ENV:GIT_INSTALL_ROOT" -gitType $ENV:GIT_INSTALL_TYPE -gitPathUser $gitPathUser
 }
 
-if (Get-Command -Name "vim" -ErrorAction silentlycontinue) {
+if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
     New-Alias -name "vi" -value vim
 }
 
@@ -98,10 +99,15 @@ $env:gitLoaded = $false
 [ScriptBlock]$PrePrompt = {}
 [ScriptBlock]$PostPrompt = {}
 [ScriptBlock]$CmderPrompt = {
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = [Security.Principal.WindowsPrincipal] $identity
+    $adminRole = [Security.Principal.WindowsBuiltInRole]::Administrator
+    $color = "White"
+    if ($principal.IsInRole($adminRole)) { $color = "Red" }
     $Host.UI.RawUI.ForegroundColor = "White"
-    Write-Host -NoNewline "PS "
+    Microsoft.PowerShell.Utility\Write-Host -NoNewline "PS " -ForegroundColor $color
     Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-    if (Get-Command git -erroraction silentlycontinue) {
+    if (Get-Command git -ErrorAction SilentlyContinue) {
         checkGit($pwd.ProviderPath)
     }
     Microsoft.PowerShell.Utility\Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray"
@@ -170,7 +176,7 @@ if ($ENV:CMDER_USER_CONFIG) {
 }
 
 if (-Not (Test-Path $CmderUserProfilePath)) {
-    Write-Host -BackgroundColor Darkgreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
+    Write-Host -BackgroundColor DarkGreen -ForegroundColor White "First Run: Creating user startup file: $CmderUserProfilePath"
     Copy-Item "$env:CMDER_ROOT\vendor\user_profile.ps1.default" -Destination $CmderUserProfilePath
 }
 
@@ -190,8 +196,13 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
     Custom prompt functions are loaded in as constants to get the same behaviour
     #>
     [ScriptBlock]$Prompt = {
+        $lastSUCCESS = $?
         $realLASTEXITCODE = $LASTEXITCODE
         $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
+        Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x200B)`r$([char]0x1B)[K"
+        if ($lastSUCCESS -Or ($LASTEXITCODE -ne 0)) {
+            Microsoft.PowerShell.Utility\Write-Host
+        }
         PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
         CmderPrompt
         PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
@@ -201,9 +212,9 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
 
 
     # Once Created these code blocks cannot be overwritten
-    # if (-not $(Get-Command PrePrompt).Options -match 'Constant') {Set-Item -Path function:\PrePrompt   -Value $PrePrompt   -Options Constant}
+    # if (-not $(Get-Command PrePrompt).Options   -match 'Constant') {Set-Item -Path function:\PrePrompt   -Value $PrePrompt   -Options Constant}
     # if (-not $(Get-Command CmderPrompt).Options -match 'Constant') {Set-Item -Path function:\CmderPrompt -Value $CmderPrompt -Options Constant}
-    # if (-not $(Get-Command PostPrompt).Options -match 'Constant') {Set-Item -Path function:\PostPrompt  -Value $PostPrompt  -Options Constant}
+    # if (-not $(Get-Command PostPrompt).Options  -match 'Constant') {Set-Item -Path function:\PostPrompt  -Value $PostPrompt  -Options Constant}
 
     Set-Item -Path function:\PrePrompt   -Value $PrePrompt   -Options Constant
     Set-Item -Path function:\CmderPrompt -Value $CmderPrompt -Options Constant
@@ -216,4 +227,4 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
 }
 
 $CMDER_INIT_END = $(Get-Date -UFormat %s)
-# Write-Host "Elapsed Time: $(get-Date) `($($CMDER_INIT_END - $CMDER_INIT_START) total`)"
+Write-Verbose "Elapsed Time: $(get-Date) `($($CMDER_INIT_END - $CMDER_INIT_START) total`)"

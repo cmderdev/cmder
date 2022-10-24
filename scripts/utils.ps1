@@ -98,8 +98,8 @@ function Get-VersionStr {
 
     # Determine if git is available
     if (Get-Command "git.exe" -ErrorAction SilentlyContinue) {
-        # Determine if the current diesctory is a git repository
-        $GitPresent = Invoke-Expression "git rev-parse --is-inside-work-tree" -erroraction SilentlyContinue
+        # Determine if the current directory is a git repository
+        $GitPresent = Invoke-Expression "git rev-parse --is-inside-work-tree" -ErrorAction SilentlyContinue
 
         if ( $GitPresent -eq 'true' ) {
             $string = Invoke-Expression "git describe --abbrev=0 --tags"

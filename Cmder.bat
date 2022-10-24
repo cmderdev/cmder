@@ -5,7 +5,7 @@ SET CMDER_ROOT=%~dp0
 @if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
 
 if not exist "%CMDER_ROOT%\config\user_ConEmu.xml" (
-  copy "%CMDER_ROOT%\vendor\ConEmu.xml.default" "%CMDER_ROOT%\config\user_ConEmu.xml"
+    copy "%CMDER_ROOT%\vendor\ConEmu.xml.default" "%CMDER_ROOT%\config\user_ConEmu.xml"
 )
 
 if exist "%~1" (

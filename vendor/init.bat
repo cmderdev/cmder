@@ -129,10 +129,15 @@ goto var_loop
 %print_debug% init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
 %print_debug% init.bat "Env Var - debug_output=%debug_output%"
 
+:: Sets Cmder directory paths
+SET CMDER_CONFIG_DIR=%CMDER_ROOT%\config
+
+:: Check if wre're using Cmder individual user profile
 if defined CMDER_USER_CONFIG (
     %print_debug% init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 
     if not exist "%CMDER_USER_CONFIG%\..\opt" md "%CMDER_USER_CONFIG%\..\opt"
+    set CMDER_CONFIG_DIR=%CMDER_USER_CONFIG%
 )
 
 :: Pick right version of Clink
@@ -153,53 +158,28 @@ if "%CMDER_CLINK%" == "1" (
     )
 
     :: Run Clink
-    if defined CMDER_USER_CONFIG (
-        if not exist "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\clink_settings" (
-            echo Generating clink initial settings in "%CMDER_USER_CONFIG%\clink_settings"
-            copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\clink_settings"
-            echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.
-        )
-
-        if not exist "%CMDER_USER_CONFIG%\cmder_prompt_config.lua" (
-            echo Creating Cmder prompt config file: "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
-            copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_USER_CONFIG%\cmder_prompt_config.lua"
-        )
-
-        REM Cleanup lagacy Clink Settings file
-        if exist "%CMDER_USER_CONFIG%\settings" if exist "%CMDER_USER_CONFIG%\clink_settings" (
-            del "%CMDER_USER_CONFIG%\settings"
-        )
-
-        REM Cleanup legacy Clink history file
-        if exist "%CMDER_USER_CONFIG%\.history" if exist "%CMDER_USER_CONFIG%\clink_history" (
-            del "%CMDER_USER_CONFIG%\.history"
-        )
-
-        "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_USER_CONFIG%" --scripts "%CMDER_ROOT%\vendor"
-    ) else (
-        if not exist "%CMDER_ROOT%\config\settings" if not exist "%CMDER_ROOT%\config\clink_settings" (
-            echo Generating Clink initial settings in "%CMDER_ROOT%\config\clink_settings"
-            copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_ROOT%\config\clink_settings"
-            echo Additional *.lua files in "%CMDER_ROOT%\config" are loaded on startup.
-        )
-
-        if not exist "%CMDER_ROOT%\config\cmder_prompt_config.lua" (
-            echo Creating Cmder prompt config file: "%CMDER_ROOT%\config\cmder_prompt_config.lua"
-            copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_ROOT%\config\cmder_prompt_config.lua"
-        )
-
-        REM Cleanup lagacy Clink Settings file
-            if exist "%CMDER_ROOT%\config\settings" if exist "%CMDER_ROOT%\config\clink_settings" (
-            del "%CMDER_ROOT%\config\settings"
-        )
-
-        REM Cleanup legacy Clink history file
-            if exist "%CMDER_ROOT%\config\.history" if exist "%CMDER_ROOT%\config\clink_history" (
-            del "%CMDER_ROOT%\config\.history"
-        )
-
-        "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_ROOT%\config" --scripts "%CMDER_ROOT%\vendor"
+    if not exist "%CMDER_CONFIG_DIR%\settings" if not exist "%CMDER_CONFIG_DIR%\clink_settings" (
+        echo Generating Clink initial settings in "%CMDER_CONFIG_DIR%\clink_settings"
+        copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_CONFIG_DIR%\clink_settings"
+        echo Additional *.lua files in "%CMDER_CONFIG_DIR%" are loaded on startup.
     )
+
+    if not exist "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua" (
+        echo Creating Cmder prompt config file: "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
+        copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
+    )
+
+    :: Cleanup lagacy Clink Settings file
+    if exist "%CMDER_CONFIG_DIR%\settings" if exist "%CMDER_CONFIG_DIR%\clink_settings" (
+        del "%CMDER_CONFIG_DIR%\settings"
+    )
+
+    :: Cleanup legacy Clink history file
+    if exist "%CMDER_CONFIG_DIR%\.history" if exist "%CMDER_CONFIG_DIR%\clink_history" (
+        del "%CMDER_CONFIG_DIR%\.history"
+    )
+
+    "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
 
     if errorlevel 1 (
         %print_error% "Failed to initialize Clink with error code: %errorlevel%"
@@ -361,11 +341,7 @@ if defined CMDER_USER_CONFIG (
 :: must also be self executing, see '.\user_aliases.cmd.default',
 :: and be in profile.d folder.
 if not defined user_aliases (
-    if defined CMDER_USER_CONFIG (
-        set "user_aliases=%CMDER_USER_CONFIG%\user_aliases.cmd"
-    ) else (
-        set "user_aliases=%CMDER_ROOT%\config\user_aliases.cmd"
-    )
+    set "user_aliases=%CMDER_CONFIG_DIR%\user_aliases.cmd"
 )
 
 if "%CMDER_ALIASES%" == "1" (
