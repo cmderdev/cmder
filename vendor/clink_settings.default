@@ -17,3 +17,12 @@ history.max_lines = 10000
 # name: Share history between instances
 # type: boolean
 history.shared = True
+
+# name: Auto-answer terminate prompt
+# type: enum
+# options: off,answer_yes,answer_no
+cmd.auto_answer = answer_yes
+
+# name: Doskey completions
+# type: color
+color.doskey = yellow

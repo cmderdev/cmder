@@ -1,6 +1,6 @@
 # How to contribute
 
-Unfortunately we all can't work on cmder every day of the year, so I have decided to write some guidelines for contributing.
+Unfortunately we all can't work on Cmder every day of the year, so I have decided to write some guidelines for contributing.
 
 If you follow them your contribution will likely be pulled in quicker.
 

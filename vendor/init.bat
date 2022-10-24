@@ -155,7 +155,7 @@ if "%CMDER_CLINK%" == "1" (
     :: Run Clink
     if defined CMDER_USER_CONFIG (
         if not exist "%CMDER_USER_CONFIG%\settings" if not exist "%CMDER_USER_CONFIG%\clink_settings" (
-            echo Generating clink initial settings in "%CMDER_USER_CONFIG%\clink_settings"
+            echo Generating Clink initial settings in "%CMDER_USER_CONFIG%\clink_settings"
             copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_USER_CONFIG%\clink_settings"
             echo Additional *.lua files in "%CMDER_USER_CONFIG%" are loaded on startup.
         )

@@ -15,34 +15,34 @@ dofile(clink_lua_file)
 
 
 local function get_uah_color()
-  return uah_color or "\x1b[1;33;49m" -- Green = uah = [user]@[hostname]
+    return uah_color or "\x1b[1;33;49m" -- Green = uah = [user]@[hostname]
 end
 
 local function get_cwd_color()
-  return cwd_color or "\x1b[1;32;49m" -- Yellow cwd = Current Working Directory
+    return cwd_color or "\x1b[1;32;49m" -- Yellow cwd = Current Working Directory
 end
 
 local function get_lamb_color()
-  return lamb_color or "\x1b[1;30;49m" -- Light Grey = Lambda Color
+    return lamb_color or "\x1b[1;30;49m" -- Light Grey = Lambda Color
 end
 
 
 local function get_clean_color()
-  return clean_color or "\x1b[1;37;49m"
+    return clean_color or "\x1b[1;37;49m"
 end
 
 
 local function get_dirty_color()
-  return dirty_color or "\x1b[33;3m"
+    return dirty_color or "\x1b[33;3m"
 end
 
 
 local function get_conflict_color()
-  return conflict_color or "\x1b[31;1m"
+    return conflict_color or "\x1b[31;1m"
 end
 
 local function get_unknown_color()
-  return unknown_color or "\x1b[37;1m"
+    return unknown_color or "\x1b[37;1m"
 end
 
 ---
@@ -57,9 +57,9 @@ end
 -- Ex: Input C:\Windows\System32 returns System32
 ---
 local function get_folder_name(path)
-  local reversePath = string.reverse(path)
-  local slashIndex = string.find(reversePath, "\\")
-  return string.sub(path, string.len(path) - slashIndex + 2)
+    local reversePath = string.reverse(path)
+    local slashIndex = string.find(reversePath, "\\")
+    return string.sub(path, string.len(path) - slashIndex + 2)
 end
 
 
@@ -115,32 +115,32 @@ local function set_prompt_filter()
     -- Much of the below was 'borrowed' from https://github.com/AmrEldib/cmder-powerline-prompt
     -- Symbol displayed for the home dir in the prompt.
     if not prompt_homeSymbol then
-      prompt_homeSymbol = "~"
+        prompt_homeSymbol = "~"
     end
 
     -- Symbol displayed in the new line below the prompt.
     if not prompt_lambSymbol then
-      prompt_lambSymbol = "λ"
+        prompt_lambSymbol = "λ"
     end
 
     if not prompt_type then
-      prompt_type = "full"
+        prompt_type = "full"
     end
 
     if prompt_useHomeSymbol == nil then
-      prompt_useHomeSymbol = false
+        prompt_useHomeSymbol = false
     end
 
     if prompt_useUserAtHost == nil then
-      prompt_useUserAtHost = false
+        prompt_useUserAtHost = false
     end
 
     if prompt_singleLine == nil then
-      prompt_singleLine = false
+        prompt_singleLine = false
     end
 
     if prompt_includeVersionControl == nil then
-      prompt_includeVersionControl = true
+        prompt_includeVersionControl = true
     end
 
     if prompt_type == 'folder' then
@@ -158,8 +158,10 @@ local function set_prompt_filter()
 
     cr = "\n"
     if prompt_singleLine then
-      cr = ' '
+        cr = ' '
     end
+
+    cr = "\x1b[0m" .. cr
 
     if env ~= nil then env = "("..env..") " else env = "" end
 
@@ -168,7 +170,7 @@ local function set_prompt_filter()
 
     local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
 
-    prompt = "{uah}{cwd}" .. version_control .. get_lamb_color() .. cr .. "{env}{lamb} \x1b[0m"
+    prompt = "{uah}{cwd}" .. version_control .. cr .. get_lamb_color() .. "{env}{lamb}\x1b[0m "
     prompt = string.gsub(prompt, "{uah}", uah)
     prompt = string.gsub(prompt, "{cwd}", cwd)
     prompt = string.gsub(prompt, "{env}", env)
@@ -363,12 +365,12 @@ local function get_git_status()
         local code = line:sub(1, 2)
         -- print (string.format("code: %s, line: %s", code, line))
         if code == "DD" or code == "AU" or code == "UD" or code == "UA" or code == "DU" or code == "AA" or code == "UU" then
-          is_status = false
-          conflict_found = true
-          break
+            is_status = false
+            conflict_found = true
+            break
         -- unversioned files are ignored, comment out 'code ~= "!!"' to unignore them
         elseif code ~= "!!" and code ~= "??" then
-          is_status = false
+            is_status = false
         end
     end
     file:close()
@@ -440,16 +442,16 @@ local function get_git_status_setting()
 
     for line in gitStatusConfig:lines() do
         if string.match(line, 'false') then
-          gitStatusConfig:close()
-          return false
+            gitStatusConfig:close()
+            return false
         end
     end
 
     local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
     for line in gitCmdStatusConfig:lines() do
         if string.match(line, 'false') then
-          gitCmdStatusConfig:close()
-          return false
+            gitCmdStatusConfig:close()
+            return false
         end
     end
     gitStatusConfig:close()
@@ -640,11 +642,11 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
 end
 
 if clink.get_env('CMDER_USER_CONFIG') then
-  local cmder_config_dir = clink.get_env('CMDER_ROOT')..'/config/'
-  for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
-    local filename = cmder_config_dir..lua_module
-    -- use dofile instead of require because require caches loaded modules
-    -- so config reloading using Alt-Q won't reload updated modules.
-    dofile(filename)
-  end
+    local cmder_config_dir = clink.get_env('CMDER_ROOT')..'/config/'
+    for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
+        local filename = cmder_config_dir..lua_module
+        -- use dofile instead of require because require caches loaded modules
+        -- so config reloading using Alt-Q won't reload updated modules.
+        dofile(filename)
+    end
 end
