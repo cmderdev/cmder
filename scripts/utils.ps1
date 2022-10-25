@@ -235,7 +235,7 @@ function Download-File {
         }
     }
     catch {
-        Write-Error "Failed to download file using BITS, reason: $_`nUsing fallback method instead...`n"
+        Write-Error "Failed to download file using BITS, reason: $_`nUsing fallback method instead...`n" -ErrorAction:Continue
     }
 
     Write-Verbose "Downloading from $Url to $File`n"
