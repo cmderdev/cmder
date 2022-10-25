@@ -11,7 +11,7 @@ build
 scripts
 config\.history
 packignore
-icons\Thumbs.db
+Thumbs.db
 icons\cmder_icon.psd
 icons\icon_16*.png
 icons\icon_32*.png
