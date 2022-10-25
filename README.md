@@ -8,7 +8,7 @@ Cmder is a **software package** created out of pure frustration over absence of 
 
 ## Why use it
 
-The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like wget, curl and git) with you anywhere.
+The main advantage of Cmder is portability. It is designed to be totally self-contained with no external dependencies, which makes it great for **USB Sticks** or **cloud storage**. So you can carry your console, aliases and binaries (like `wget`, `curl` and `git`) with you anywhere.
 
 The Cmder's user interface is also designed to be more eye pleasing, and you can compare the main differences between Cmder and ConEmu [here](https://conemu.github.io/en/cmder.html).
 
@@ -71,7 +71,7 @@ So you've experimented with Cmder a little and want to give it a shot in a more 
 1. Open a terminal as an Administrator
 2. Navigate to the directory you have placed Cmder
 3. Execute `.\cmder.exe /REGISTER ALL`
-   _If you get a message "Access Denied" ensure you are executing the command in an **Administrator** prompt._
+   _If you get an "Access Denied" message, make sure you are executing the command in an **Administrator** prompt._
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
 
@@ -188,7 +188,7 @@ Documentation is in the file for each setting.
 | (custom arguments)              | User defined arguments processed by `cexec`. Type `cexec /?` for more usage.                                                                      | not set                                |
 
 ### Cmder Shell User Config
-Single user portable configuration is possible using the cmder specific shell config files.  Edit the below files to add your own configuration:
+Single user portable configuration is possible using the Cmder specific shell config files.  Edit the below files to add your own configuration:
 
 | Shell         | Cmder Portable User Config                |
 | ------------- | ----------------------------------------- |
@@ -196,7 +196,7 @@ Single user portable configuration is possible using the cmder specific shell co
 | PowerShell    | `$ENV:CMDER_ROOT\config\user_profile.ps1` |
 | Bash/Mintty   | `$CMDER_ROOT/config/user_profile.sh`      |
 
-Note: Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user_profile.sh`.
+**Note:** Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user_profile.sh`.
 
 You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in the `%CMDER_ROOT%\config\profile.d` folder to add startup config to Cmder.
 
@@ -230,7 +230,7 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow Cmder to another machine.
 
 * `%CMDER_ROOT%\config\profile.d\*.cmd` and `\*.bat`
 * `%CMDER_ROOT%\config\user_aliases.cmd`
@@ -241,7 +241,7 @@ Bash shells support simple and complex aliases with optional parameters natively
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$CMDER_ROOT/vendor/git-for-windows/etc/profile.d/cmder.sh`.  Anything stored in `$CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$CMDER_ROOT/vendor/git-for-windows/etc/profile.d/cmder.sh`.  Anything stored in `$CMDER_ROOT` will be a portable setting and will follow Cmder to another machine.
 
 * `$CMDER_ROOT/config/profile.d/*.sh`
 * `$CMDER_ROOT/config/user_profile.sh`
@@ -254,7 +254,7 @@ PowerShell has native simple alias support, for example `[new-alias | set-alias]
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$ENV:CMDER_ROOT\vendor\user_profile.ps1`.  Anything stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow cmder to another machine.
+Note: These are loaded in this order by `$ENV:CMDER_ROOT\vendor\user_profile.ps1`.  Anything stored in `$ENV:CMDER_ROOT` will be a portable setting and will follow Cmder to another machine.
 
 * `$ENV:CMDER_ROOT\config\profile.d\*.ps1`
 * `$ENV:CMDER_ROOT\config\user_profile.ps1`
@@ -292,7 +292,7 @@ The destination file extension depends on the shell you use in that environment.
 * bash - Copy to `/etc/profile.d/cmder_exinit.sh`
 * zsh  - Copy to `/etc/profile.d/cmder_exinit.zsh`
 
-Uncomment and edit the below line in the script to use Cmder config even when launched from outside Cmder.
+Uncomment and edit the line below in the script to use Cmder config even when launched from outside Cmder.
 
 ```
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
@@ -344,9 +344,9 @@ To conditionally start `notepad.exe` when you start a specific `cmder` task:
 
   ```
 
-To see detailed usage of `cexec`, type `cexec /?` in cmder.
+To see detailed usage of `cexec`, type `cexec /?` in Cmder.
 
-### Integrating Cmder with [Hyper](https://github.com/zeit/hyper), [Microsoft VS Code](https://code.visualstudio.com/), and your favorite IDEs
+### Integrating Cmder with [Windows Terminal](https://github.com/cmderdev/cmder/wiki/Seamless-Windows-Terminal-Integration), [VS Code](https://github.com/cmderdev/cmder/wiki/Seamless-VS-Code-Integration), and your favorite IDEs
 
 Cmder by default comes with a vendored ConEmu installation as the underlying terminal emulator, as stated [here](https://conemu.github.io/en/cmder.html).
 
@@ -387,6 +387,10 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
 You can download builds of the current development branch by going to AppVeyor via the following link:
 
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/cmderdev/cmder/branch/master/artifacts)
+
+The latest download builds by GitHub Actions can be downloaded from the link below:
+
+[![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg)](https://github.com/cmderdev/cmder/actions/workflows/build.yml)
 
 ## License
 
