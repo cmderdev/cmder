@@ -42,8 +42,8 @@ $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
 $targets = @{
-    "cmder.7z" = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on";
-    "cmder.zip" = "-mm=Deflate -mfb=258 -mpass=15";
+    "cmder.7z" = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
+    "cmder.zip" = "-mm=Deflate -mfb=128 -mpass=3";
     "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
 }
 
