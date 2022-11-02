@@ -20,6 +20,7 @@ body:
       label: Version Information
       description: |
         Please write your Cmder and ConEmu version below.  If applicable, write down your Windows edition too.
+        **👉 See:** [How to find out which Cmder version I'm using](https://github.com/cmderdev/cmder/wiki/Cmder-troubleshooting)
       placeholder: |
         Cmder version:
         Operating system:
