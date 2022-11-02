@@ -78,7 +78,7 @@ body:
               - **[Clink](https://github.com/chrisant996/clink)**, the default shell in Cmder
               - **[ConEmu](https://github.com/Maximus5/ConEmu)**, the terminal emulator
               - **[Git/MinGW](https://github.com/git-for-windows/git)**, which also provide *NIX tools (such as `ls`, `mv`, `cp`, etc)
-              - **[clink-completions](https://github.com/repos/vladimir-kotikov/clink-completions)**, which provide autocompletion for clink
+              - **[clink-completions](https://github.com/vladimir-kotikov/clink-completions)**, which provides autocompletion for clink
 
           We'll try our best to help you -- but we recommend creating an issue specifically at each of the corresponding repositories for the best result.
 
