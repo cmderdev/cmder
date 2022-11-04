@@ -130,19 +130,19 @@ function Fetch-DownloadUrl {
                 continue
             }
 
-			# Skip some download links as we're not interested in them
+            # Skip some download links as we're not interested in them
             if ( $a.browser_download_url -ilike "*_symbols*" ) {
                 continue
             }
 
             $score = Match-Filenames $url $a.browser_download_url
 
-			# Skip links that don't match or are less similar
+            # Skip links that don't match or are less similar
             if ( ($score -eq 0) -or ($score -lt $charCount) ) {
                 continue
             }
 
-			# If we reach the same download link as we have
+            # If we reach the same download link as we have
             if ( $score -eq [System.IO.Path]::GetFileName($url).Length ) {
             }
 
@@ -150,13 +150,13 @@ function Fetch-DownloadUrl {
             $downloadLinks.Add($a.browser_download_url)
         }
 
-		# If at least one download link was found, don't continue with older releases
+        # If at least one download link was found, don't continue with older releases
         if ( $downloadLinks.Length -gt 0 ) {
             break :loop
         }
     }
 
-	# Special case for archive downloads of repository
+    # Special case for archive downloads of repository
     if (($null -eq $downloadLinks) -Or (-Not $downloadLinks)) {
         if ((($p | % {$_.Trim('/')}) -Contains "archive") -And $info[0].tag_name) {
             for ($i = 0; $i -lt $p.Length; $i++) {
@@ -207,7 +207,7 @@ $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
 foreach ($s in $sources) {
     Write-Verbose "Updating sources link for $($s.name)..."
 
-	Write-Verbose "Old Link: $($s.url)"
+    Write-Verbose "Old Link: $($s.url)"
 
     $downloadUrl = Fetch-DownloadUrl $s.url
 
@@ -236,13 +236,13 @@ foreach ($s in $sources) {
 
     Write-Verbose "Version: $version"
 
-	if ( $s.version -ne $version ) {
-		# if ( ([System.Version] $s.version) -gt ([System.Version] $version) ) {
-		# 	throw "The current version $($s.version) is already newer than the found version $version!"
-		# }
+    if ( $s.version -ne $version ) {
+        # if ( ([System.Version] $s.version) -gt ([System.Version] $version) ) {
+        # 	throw "The current version $($s.version) is already newer than the found version $version!"
+        # }
 
-		$count++
-	}
+        $count++
+    }
 
     $s.url = $downloadUrl
     $s.version = $version
@@ -251,8 +251,8 @@ foreach ($s in $sources) {
 $sources | ConvertTo-Json | Set-Content $sourcesPath
 
 if ($count -eq 0) {
-	Write-Host -ForegroundColor yellow "No new releases were found."
-	return
+    Write-Host -ForegroundColor yellow "No new releases were found."
+    return
 }
 
 if ( $Env:APPVEYOR -eq 'True' ) {
