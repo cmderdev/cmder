@@ -22,7 +22,7 @@
     https://github.com/cmderdev/cmder - Project Home
 #>
 
-[CmdletBinding(SupportsShouldProcess=$true)]
+[CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
     # -verbose switch to turn on logging and
@@ -42,8 +42,8 @@ $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
 $targets = @{
-    "cmder.7z" = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
-    "cmder.zip" = "-mm=Deflate -mfb=128 -mpass=3";
+    "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
+    "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
     "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
 }
 
@@ -63,7 +63,7 @@ $version = Get-VersionStr
 
 if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
     Write-Verbose "Packing Cmder $version in $saveTo..."
-    $excluded = (Get-Content -Path "$cmderRoot\packignore") -Split [System.Environment]::NewLine | Where-Object {$_}
+    $excluded = (Get-Content -Path "$cmderRoot\packignore") -Split [System.Environment]::NewLine | Where-Object { $_ }
     Get-ChildItem $cmderRoot -Force -Exclude $excluded
 }
 

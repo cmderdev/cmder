@@ -25,7 +25,7 @@
 .LINK
     http://cmder.app/ - Project Home
 #>
-[CmdletBinding(SupportsShouldProcess=$true)]
+[CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
     # -verbose switch to turn on logging and
@@ -158,10 +158,10 @@ function Fetch-DownloadUrl {
 
     # Special case for archive downloads of repository
     if (($null -eq $downloadLinks) -Or (-Not $downloadLinks)) {
-        if ((($p | % {$_.Trim('/')}) -Contains "archive") -And $info[0].tag_name) {
+        if ((($p | % { $_.Trim('/') }) -Contains "archive") -And $info[0].tag_name) {
             for ($i = 0; $i -lt $p.Length; $i++) {
                 if ($p[$i].Trim('/') -eq "archive") {
-                    $p[$i+1] = $info[0].tag_name + ".zip"
+                    $p[$i + 1] = $info[0].tag_name + ".zip"
                     $downloadLinks = $url.Scheme + "://" + $url.Host + ($p -Join '')
                     return $downloadLinks
                 }

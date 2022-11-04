@@ -35,7 +35,7 @@
 .LINK
     http://cmder.app/ - Project Home
 #>
-[CmdletBinding(SupportsShouldProcess=$true)]
+[CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
     # -verbose switch to turn on logging and
@@ -108,12 +108,14 @@ if (-Not $noVendor) {
             $ConEmuXmlSave = Join-Path $config "ConEmu.xml"
             Write-Verbose "Backup '$ConEmuXml' to '$ConEmuXmlSave'"
             Copy-Item $ConEmuXml $ConEmuXmlSave
-        } else { $ConEmuXml = "" }
-    } else { $ConEmuXml = "" }
+        }
+        else { $ConEmuXml = "" }
+    }
+    else { $ConEmuXml = "" }
 
     # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-        if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\','\\')) {
+        if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\', '\\')) {
             Write-Verbose $("Stopping " + $ssh_agent.path + "!")
             Stop-Process $ssh_agent.id
         }
