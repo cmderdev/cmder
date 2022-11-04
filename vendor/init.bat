@@ -129,8 +129,8 @@ goto :var_loop
 %print_debug% init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
 %print_debug% init.bat "Env Var - debug_output=%debug_output%"
 
-:: Sets Cmder directory paths
-SET CMDER_CONFIG_DIR=%CMDER_ROOT%\config
+:: Set the Cmder directory paths
+set CMDER_CONFIG_DIR=%CMDER_ROOT%\config
 
 :: Check if we're using Cmder individual user profile
 if defined CMDER_USER_CONFIG (
