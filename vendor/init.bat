@@ -46,9 +46,9 @@ if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
 :: Include Cmder libraries
 call "%cmder_root%\vendor\bin\cexec.cmd" /setpath
+call "%cmder_root%\vendor\lib\lib_console"
 call "%cmder_root%\vendor\lib\lib_base"
 call "%cmder_root%\vendor\lib\lib_path"
-call "%cmder_root%\vendor\lib\lib_console"
 call "%cmder_root%\vendor\lib\lib_git"
 call "%cmder_root%\vendor\lib\lib_profile"
 
@@ -89,7 +89,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
             set "GIT_INSTALL_ROOT=%~2"
             shift
         ) else (
-            %print_error% "The Git install root folder "%~2", you specified does not exist!"
+            %print_error% "The Git install root folder "%~2" that you specified does not exist!"
             exit /b
         )
     ) else if /i "%1" == "/nix_tools" (
@@ -111,7 +111,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
             set "HOME=%~2"
             shift
         ) else (
-            %print_error% The home folder "%2", you specified does not exist!
+            %print_error% The home folder "%2" that you specified does not exist!
             exit /b
         )
     ) else if /i "%1" == "/svn_ssh" (
@@ -124,6 +124,13 @@ call "%cmder_root%\vendor\lib\lib_profile"
 goto :var_loop
 
 :start
+:: Enable console related methods if verbose/debug is turned on
+if %debug_output% gtr 0 (set print_debug=%lib_console% debug_output)
+if %verbose_output% gtr 0 (
+    set print_verbose=%lib_console% verbose_output
+    set print_warning=%lib_console% show_warning
+)
+
 :: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES variables
 %lib_base% cmder_shell
 %print_debug% init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
@@ -140,13 +147,22 @@ if defined CMDER_USER_CONFIG (
     set CMDER_CONFIG_DIR=%CMDER_USER_CONFIG%
 )
 
+if not "%CMDER_SHELL%" == "cmd" (
+    %print_warning% "Incompatible 'ComSpec/Shell' Detetected: %CMDER_SHELL%"
+    set CMDER_CLINK=0
+    set CMDER_ALIASES=0
+)
+
 :: Pick right version of Clink
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set clink_architecture=x86
     set architecture_bits=32
-) else (
+) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     set clink_architecture=x64
     set architecture_bits=64
+) else (
+    %print_warning% "Incompatible Processor Detetected: %PROCESSOR_ARCHITECTURE%"
+    set CMDER_CLINK=0
 )
 
 if "%CMDER_CLINK%" == "1" (
@@ -182,10 +198,18 @@ if "%CMDER_CLINK%" == "1" (
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
 
     if errorlevel 1 (
-        %print_error% "Failed to initialize Clink with error code: %errorlevel%"
+        %print_error% "Clink initilization has failed with error code: %errorlevel%"
     )
 ) else (
-    %print_verbose% "WARNING: Incompatible 'ComSpec/Shell' Detetected, Skipping Clink Injection!"
+    %print_warning% "Skipping Clink Injection!"
+
+    for /f "tokens=2 delims=:." %%x in ('chcp') do set cp=%%x
+    chcp 65001>nul
+
+    :: Revert back to plain cmd.exe prompt without clink
+    prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
+
+    chcp %cp%>nul
 )
 
 if "%CMDER_CONFIGURED%" GTR "1" (
@@ -265,7 +289,7 @@ goto :CONFIGURE_GIT
 :: Add git to the path
 if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" ""
 
-:: Add the unix commands at the end to not shadow windows commands like more and find
+:: Add the unix commands at the end to not shadow windows commands like `more` and `find`
 if %nix_tools% equ 1 (
     %print_verbose% "Preferring Windows commands"
     set "path_position=append"

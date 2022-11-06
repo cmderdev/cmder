@@ -60,14 +60,14 @@ exit /b
     )
 
     if "%fast_init%" == "1" (
-      if "%position%" == "append" (
-        set "PATH=%PATH%;%add_to_path%"
-      ) else (
-        set "PATH=%add_to_path%;%PATH%"
-      )
-      goto :end_enhance_path
+        if "%position%" == "append" (
+            set "PATH=%PATH%;%add_to_path%"
+        ) else (
+            set "PATH=%add_to_path%;%PATH%"
+        )
+        goto :end_enhance_path
     ) else if "add_to_path" equ "" (
-      goto :end_enhance_path
+        goto :end_enhance_path
     )
 
     set found=0
@@ -78,23 +78,23 @@ exit /b
 
     setlocal enabledelayedexpansion
     if "!found!" == "0" (
-      echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!;"
-      call :set_found
+        echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!;"
+        call :set_found
     )
     %print_debug%  :enhance_path "Env Var INSIDE PATH !find_query! - found=!found!"
 
     if /i "!position!" == "append" (
-      if "!found!" == "0" (
-        echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!\"$"
-        call :set_found
-      )
-      %print_debug%  :enhance_path "Env Var END PATH !find_query! - found=!found!"
+        if "!found!" == "0" (
+            echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!\"$"
+            call :set_found
+        )
+        %print_debug%  :enhance_path "Env Var END PATH !find_query! - found=!found!"
     ) else (
-      if "!found!" == "0" (
-        echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:"^\"!find_query!;"
-        call :set_found
-      )
-      %print_debug%  :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
+        if "!found!" == "0" (
+            echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:"^\"!find_query!;"
+            call :set_found
+        )
+        %print_debug%  :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
     )
     endlocal & set found=%found%
 
@@ -121,24 +121,24 @@ exit /b
     exit /b
 
     :toolong
-      echo "%OLD_PATH%">"%temp%\cmder_lib_pathA"
-      echo "%PATH%">"%temp%\cmder_lib_pathB"
-      fc /b "%temp%\cmder_lib_pathA" "%temp%\cmder_lib_pathB" 2>nul 1>nul
-      if errorlevel 1 ( del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB" & goto :changed )
-      del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB"
-      exit /b
+        echo "%OLD_PATH%">"%temp%\cmder_lib_pathA"
+        echo "%PATH%">"%temp%\cmder_lib_pathB"
+        fc /b "%temp%\cmder_lib_pathA" "%temp%\cmder_lib_pathB" 2>nul 1>nul
+        if errorlevel 1 ( del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB" & goto :changed )
+        del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB"
+        exit /b
 
     :changed
-      %print_debug%  :enhance_path "END Env Var - PATH=%path%"
-      %print_debug%  :enhance_path "Env Var %find_query% - found=%found%"
-      exit /b
+        %print_debug%  :enhance_path "END Env Var - PATH=%path%"
+        %print_debug%  :enhance_path "Env Var %find_query% - found=%found%"
+        exit /b
 
     exit /b
 
 
 :set_found
     if "%ERRORLEVEL%" == "0" (
-      set found=1
+        set found=1
     )
 
     exit /b
@@ -202,7 +202,7 @@ exit /b
 
     set "PATH=%PATH:;;=;%"
     if "%fast_init%" == "1" (
-      exit /b
+        exit /b
     )
 
     %print_debug%  :enhance_path_recursive "Env Var - add_path=%add_to_path%"

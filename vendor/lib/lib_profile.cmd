@@ -32,15 +32,15 @@ exit /b
 :::  path       <out> Sets the path env variable if required.
 :::-------------------------------------------------------------------------------
 
-  if not exist "%~1" (
-    mkdir "%~1"
-  )
+    if not exist "%~1" (
+        mkdir "%~1"
+    )
 
-  pushd "%~1"
-  for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
-    %print_verbose% "Calling '%~1\%%x'..."
-    call "%~1\%%x"
-  )
-  popd
-  exit /b
+    pushd "%~1"
+    for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
+        %print_verbose% "Calling '%~1\%%x'..."
+        call "%~1\%%x"
+    )
+    popd
+    exit /b
 
