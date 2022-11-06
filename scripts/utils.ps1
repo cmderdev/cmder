@@ -32,17 +32,19 @@ function Delete-Existing($path) {
 function Extract-Archive($source, $target) {
     Write-Verbose $("Extracting Archive '$cmder_root\vendor\" + $source.replace('/','\') + " to '$cmder_root\vendor\$target'")
     Invoke-Expression "7z x -y -o`"$($target)`" `"$source`"  > `$null"
-    if ($lastexitcode -ne 0) {
+    if ($LastExitCode -ne 0) {
         Write-Error "Extracting of $source failed"
     }
     Remove-Item $source
 }
 
 function Create-Archive($source, $target, $params) {
-    $command = "7z a -xr@`"$source\packignore`" $params `"$target`" `"$source\*`"  > `$null"
+    $command = "7z a -x@`"$source\packignore`" $params `"$target`" `"*`"  > `$null"
     Write-Verbose "Creating Archive from '$source' in '$target' with parameters '$params'"
+    Push-Location $source
     Invoke-Expression $command
-    if ($lastexitcode -ne 0) {
+    Pop-Location
+    if ($LastExitCode -ne 0) {
         Write-Error "Compressing $source failed"
     }
 }
@@ -54,7 +56,7 @@ function Flatten-Directory($name) {
     $moving = "$($name)_moving"
     Rename-Item $name -NewName $moving
     Write-Verbose "Flattening the '$name' directory..."
-    $child = (Get-Childitem $moving)[0] | Resolve-Path
+    $child = (Get-ChildItem $moving)[0] | Resolve-Path
     Move-Item -Path $child -Destination $name
     Remove-Item -Recurse $moving
 }
@@ -78,7 +80,7 @@ function Set-GHVariable {
     Write-Verbose "Setting CI variable $Name to $Value" -Verbose
 
     if ($env:GITHUB_ENV) {
-        echo "$Name=$Value" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        Write-Output "$Name=$Value" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
     }
 }
 
@@ -130,7 +132,7 @@ function Parse-Changelog($file) {
     [regex]$regex = '^## \[(?<version>[\w\-\.]+)\]\([^\n()]+\)\s+\([^\n()]+\)$';
 
     # Find the first match of the version string which means the latest version
-    $version = Select-String -Path $file -Pattern $regex | Select-Object -First 1 | % { $_.Matches.Groups[1].Value }
+    $version = Select-String -Path $file -Pattern $regex | Select-Object -First 1 | ForEach-Object { $_.Matches.Groups[1].Value }
 
     return $version
 }
@@ -226,12 +228,12 @@ function Download-File {
 
     $useBitTransfer = $null -ne (Get-Module -Name BitsTransfer -ListAvailable) -and ($PSVersionTable.PSVersion.Major -le 5)
 
-    $File = $File -Replace "/", "\"
+    $File = $File -replace "/", "\"
 
     try {
         if ($useBitTransfer) {
-            Start-BitsTransfer -Source $Url -Destination $File -DisplayName "Downloading $Url to $File"
-            Return
+            Start-BitsTransfer -Source $Url -Destination $File -DisplayName "Downloading '$Url' to $File"
+            return
         }
     }
     catch {

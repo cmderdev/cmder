@@ -68,13 +68,9 @@ exit /b
     set CMDER_SHELL=%~n1
     if not defined CMDER_CLINK (
         set CMDER_CLINK=1
-        if "%CMDER_SHELL%" equ "tcc" set CMDER_CLINK=0
-        if "%CMDER_SHELL%" equ "tccle" set CMDER_CLINK=0
     )
     if not defined CMDER_ALIASES (
         set CMDER_ALIASES=1
-        if "%CMDER_SHELL%" equ "tcc" set CMDER_ALIASES=0
-        if "%CMDER_SHELL%" equ "tccle" set CMDER_ALIASES=0
     )
     exit /b
 
