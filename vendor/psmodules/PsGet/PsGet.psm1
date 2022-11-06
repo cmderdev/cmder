@@ -1818,7 +1818,7 @@ function Expand-ZipModule {
 
         # Check if powershell v3+ and .net v4.5 is available
         $netFailed = $true
-        if ( $PSVersionTable.PSVersion.Major -ge 3 -and (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4' -Recurse | Get-ItemProperty -Name Version | Where-Object { $_.Version -like '4.5*' -Or $_.Version -ge '4.5' }) ) {
+        if ( $PSVersionTable.PSVersion.Major -ge 3 -and (Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4' -Recurse | Get-ItemProperty -Name Version | Where-Object { $_.Version -like '4.5*' -or $_.Version -ge '4.5' }) ) {
             Write-Debug 'Attempting unzip using the .NET Framework...'
 
             try {

@@ -55,7 +55,7 @@ function Match-Filenames {
 
     $position = 0
 
-    if ([String]::IsNullOrEmpty($filename) -Or [String]::IsNullOrEmpty($filenameDownload)) {
+    if ([String]::IsNullOrEmpty($filename) -or [String]::IsNullOrEmpty($filenameDownload)) {
         throw "Either one or both filenames are empty!"
     }
 
@@ -88,15 +88,15 @@ function Fetch-DownloadUrl {
 
     $url = [uri] $urlStr
 
-    if ((-Not $url) -Or ($null -eq $url) -Or ($url -eq '')) {
+    if ((-not $url) -or ($null -eq $url) -or ($url -eq '')) {
         throw "Failed to parse url: $urlStr"
     }
 
-    if (-Not ("http", "https" -Contains $url.Scheme)) {
+    if (-not ("http", "https" -contains $url.Scheme)) {
         throw "unknown source scheme: $($url.Scheme)"
     }
 
-    if (-Not ($url.Host -ilike "*github.com")) {
+    if (-not ($url.Host -ilike "*github.com")) {
         throw "unknown source domain: $($url.Host)"
     }
 
@@ -116,12 +116,12 @@ function Fetch-DownloadUrl {
 
     $charCount = 0
 
-    if (-Not ($info -Is [array])) {
+    if (-not ($info -is [array])) {
         throw "The response received from API server is invalid"
     }
 
     :loop foreach ($i in $info) {
-        if (-Not ($i.assets -Is [array])) {
+        if (-not ($i.assets -is [array])) {
             continue
         }
 
@@ -157,12 +157,12 @@ function Fetch-DownloadUrl {
     }
 
     # Special case for archive downloads of repository
-    if (($null -eq $downloadLinks) -Or (-Not $downloadLinks)) {
-        if ((($p | % { $_.Trim('/') }) -Contains "archive") -And $info[0].tag_name) {
+    if (($null -eq $downloadLinks) -or (-not $downloadLinks)) {
+        if ((($p | ForEach-Object { $_.Trim('/') }) -contains "archive") -and $info[0].tag_name) {
             for ($i = 0; $i -lt $p.Length; $i++) {
                 if ($p[$i].Trim('/') -eq "archive") {
                     $p[$i + 1] = $info[0].tag_name + ".zip"
-                    $downloadLinks = $url.Scheme + "://" + $url.Host + ($p -Join '')
+                    $downloadLinks = $url.Scheme + "://" + $url.Host + ($p -join '')
                     return $downloadLinks
                 }
             }
@@ -188,11 +188,11 @@ function Fetch-DownloadUrl {
 
     $downloadLinks = $temp | Where-Object { (Match-Filenames $url $_ true) -eq $charCount }
 
-    if (($null -eq $downloadLinks) -Or (-Not $downloadLinks)) {
+    if (($null -eq $downloadLinks) -or (-not $downloadLinks)) {
         throw "No suitable download links matched for the url!"
     }
 
-    if (-Not($downloadLinks -is [String])) {
+    if (-not($downloadLinks -is [String])) {
         throw "Found multiple matches for the same url:`n" + $downloadLinks
     }
 
@@ -211,7 +211,7 @@ foreach ($s in $sources) {
 
     $downloadUrl = Fetch-DownloadUrl $s.url
 
-    if (($null -eq $downloadUrl) -Or ($downloadUrl -eq '')) {
+    if (($null -eq $downloadUrl) -or ($downloadUrl -eq '')) {
         Write-Verbose "No new links were found"
         continue
     }
@@ -222,15 +222,15 @@ foreach ($s in $sources) {
 
     $version = ''
 
-    if ( ($url.Segments[-3] -eq "download/") -And ($url.Segments[-2].StartsWith("v")) ) {
+    if (($url.Segments[-3] -eq "download/") -and ($url.Segments[-2].StartsWith("v"))) {
         $version = $url.Segments[-2].TrimStart('v').TrimEnd('/')
     }
 
-    if ( ($url.Segments[-2] -eq "archive/") ) {
+    if (($url.Segments[-2] -eq "archive/")) {
         $version = [System.IO.Path]::GetFileNameWithoutExtension($url.Segments[-1].TrimStart('v').TrimEnd('/'))
     }
 
-    if ( $version -eq '' ) {
+    if ($version -eq '') {
         throw "Unable to extract version from url string"
     }
 
@@ -255,11 +255,11 @@ if ($count -eq 0) {
     return
 }
 
-if ( $Env:APPVEYOR -eq 'True' ) {
+if ($Env:APPVEYOR -eq 'True') {
     Add-AppveyorMessage -Message "Successfully updated $count dependencies." -Category Information
 }
 
-if ( $Env:GITHUB_ACTIONS -eq 'true' ) {
+if ($Env:GITHUB_ACTIONS -eq 'true') {
     Write-Output "::notice title=Task Complete::Successfully updated $count dependencies."
 }
 

@@ -88,7 +88,7 @@ if ($Compile) {
     Pop-Location
 }
 
-if (-Not $noVendor) {
+if (-not $noVendor) {
     # Check for requirements
     Ensure-Exists $sourcesPath
     Ensure-Executable "7z"
@@ -162,7 +162,7 @@ if (-Not $noVendor) {
     Pop-Location
 }
 
-if (-Not $Compile -Or $noVendor) {
+if (-not $Compile -or $noVendor) {
     Write-Warning "You are not building the full project, Use -Compile without -noVendor"
     Write-Warning "This cannot be a release. Test build only!"
     return

@@ -226,12 +226,12 @@ function Download-File {
 
     $useBitTransfer = $null -ne (Get-Module -Name BitsTransfer -ListAvailable) -and ($PSVersionTable.PSVersion.Major -le 5)
 
-    $File = $File -Replace "/", "\"
+    $File = $File -replace "/", "\"
 
     try {
         if ($useBitTransfer) {
-            Start-BitsTransfer -Source $Url -Destination $File -DisplayName "Downloading $Url to $File"
-            Return
+            Start-BitsTransfer -Source $Url -Destination $File -DisplayName "Downloading '$Url' to $File"
+            return
         }
     }
     catch {
