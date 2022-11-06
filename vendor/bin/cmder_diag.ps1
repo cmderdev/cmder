@@ -1,4 +1,4 @@
-if (Test-Path  $env:temp\cmder_diag_ps.log) {
+if (test-path  $env:temp\cmder_diag_ps.log) {
   remove-item $env:temp\cmder_diag_ps.log
 }
 
