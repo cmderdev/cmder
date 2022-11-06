@@ -196,16 +196,16 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
     #>
     [ScriptBlock]$Prompt = {
         $lastSUCCESS = $?
-        $realLASTEXITCODE = $LASTEXITCODE
+        $realLastExitCode = $LastExitCode
         $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
         Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x200B)`r$([char]0x1B)[K"
-        if ($lastSUCCESS -or ($LASTEXITCODE -ne 0)) {
+        if ($lastSUCCESS -or ($LastExitCode -ne 0)) {
             Microsoft.PowerShell.Utility\Write-Host
         }
         PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
         CmderPrompt
         PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
-        $global:LASTEXITCODE = $realLASTEXITCODE
+        $global:LastExitCode = $realLastExitCode
         return " "
     }
 
