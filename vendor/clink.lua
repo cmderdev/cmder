@@ -28,21 +28,21 @@ end
 
 
 local function get_clean_color()
-    return clean_color or "\x1b[37;1m" -- Bold, White
+    return clean_color or "\x1b[37;1m" -- White, Bold
 end
 
 
 local function get_dirty_color()
-    return dirty_color or "\x1b[33;3m" -- Italic, Yellow
+    return dirty_color or "\x1b[33;3m" -- Yellow, Italic
 end
 
 
 local function get_conflict_color()
-    return conflict_color or "\x1b[31;1m" -- Bold, Red
+    return conflict_color or "\x1b[31;1m" -- Red, Bold
 end
 
 local function get_unknown_color()
-    return unknown_color or "\x1b[37;1m" -- Bold, White
+    return unknown_color or "\x1b[37;1m" -- White, Bold
 end
 
 ---
