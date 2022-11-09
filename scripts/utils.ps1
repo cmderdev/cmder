@@ -172,7 +172,7 @@ function Register-Cmder() {
         # Text for the context menu item.
         $MenuText = "Cmder Here"
 
-        # Defaults to the current cmder directory when run from cmder.
+        , # Defaults to the current cmder directory when run from cmder.
         $PathToExe = (Join-Path $env:CMDER_ROOT "cmder.exe")
 
         # Commands the context menu will execute
@@ -190,10 +190,10 @@ function Register-Cmder() {
 
         # -reuse has benifits of reusing the previous instance 
 
-        # -run will run preconfigured env, I've chosen {cmd::Cmder}
+        , # -run will run preconfigured env, I've chosen {cmd::Cmder}
         $Command = "/x `"-Dir \`"%V% \`" -reuse -run {cmd::Cmder}`""
 
-        # Defaults to the icons folder in the cmder package.
+        , # Defaults to the icons folder in the cmder package.
         $icon = (Split-Path $PathToExe | Join-Path -ChildPath 'icons/cmder.ico')
     )
     Begin
