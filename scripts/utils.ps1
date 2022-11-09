@@ -175,8 +175,23 @@ function Register-Cmder() {
         , # Defaults to the current cmder directory when run from cmder.
         $PathToExe = (Join-Path $env:CMDER_ROOT "cmder.exe")
 
-        , # Commands the context menu will execute.
-        $Command = "%V"
+        , # Commands the context menu will execute
+
+        , # /x for ConEmu Extra Argument. Adds lots of possibilitites
+
+        , # `"-Dir \`"%V% \`" is that passed argument where directory is properly escaped
+        , # NOTE:
+        , # Needs an additional space after %V% due to how windows handles files in
+        , # context menu. If the current dir is `C:\` and someone opens cmder from
+        , # there by shift + right click, the command becomes: `..."... \"C:\ \" ..."`
+        , # Interprets to "C:\ ", which is valid
+        , # otherwise, the command becomes `..."... \"C:\\" ..."`
+        , # Interprets to "C:\"(string close), which is invalid
+
+        , # -reuse has benifits of reusing the previous instance 
+
+        , # -run will run preconfigured env, I've chosen {cmd::Cmder}
+        $Command = "/x `"-Dir \`"%V% \`" -reuse -run {cmd::Cmder}`""
 
         , # Defaults to the icons folder in the cmder package.
         $icon = (Split-Path $PathToExe | Join-Path -ChildPath 'icons/cmder.ico')
@@ -190,12 +205,14 @@ function Register-Cmder() {
         New-Item         -Path "HKCR:\Directory\Shell\Cmder" -Force -Value $MenuText
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
         New-ItemProperty -Path "HKCR:\Directory\Shell\Cmder" -Force -Name "NoWorkingDirectory"
-        New-Item         -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+        # Already Escaped Command. No need to escape again
+        New-Item         -Path "HKCR:\Directory\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" $Command "
 
         New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Value $MenuText
         New-ItemProperty -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Name "Icon" -Value `"$icon`"
         New-ItemProperty -Path "HKCR:\Directory\Background\Shell\Cmder" -Force -Name "NoWorkingDirectory"
-        New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" `"$Command`" "
+        # Already Escaped Command. No need to escape again
+        New-Item         -Path "HKCR:\Directory\Background\Shell\Cmder\Command" -Force -Value "`"$PathToExe`" $Command "
     }
     End
     {

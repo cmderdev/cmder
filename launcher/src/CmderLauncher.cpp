@@ -527,15 +527,29 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 	else {
 		swprintf_s(baseCommandStr, L"\"%s\" /single", exePath);
 	}
+	// /x for ConEmu Extra Argument. Adds lots of possibilitites
 
+	// `"-Dir \`"%V% \`" is that passed argument where directory is properly escaped
+	// NOTE:
+	// Needs an additional space after %V% due to how windows handles files in
+	// context menu. If the current dir is `C:\` and someone opens cmder from
+	// there by shift + right click, the command becomes: `..."... \"C:\ \" ..."`
+	// Interprets to "C:\ ", which is valid
+	// otherwise, the command becomes `..."... \"C:\\" ..."`
+	// Interprets to "C:\"(string close), which is invalid
+
+	// -reuse has benifits of reusing the previous instance 
+
+	// -run will run preconfigured env, I've chosen {cmd::Cmder}
+	const wchar_t conEmuCommands[] = L"/x \"-Dir \\\"%%V%% \\\" -reuse -run {cmd::Cmder}\"";
 	if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 	{
-		swprintf_s(commandStr, L"%s \"%%V\"", baseCommandStr);
+		swprintf_s(commandStr, L"%s %ls", baseCommandStr, conEmuCommands);
 	}
 	else {
 		std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
 		userConfigDirPath[cfgRoot.length()] = 0;
-		swprintf_s(commandStr, L"%s /c \"%s\" \"%%V\"", baseCommandStr, userConfigDirPath);
+		swprintf_s(commandStr, L"%s /c \"%s\" %ls", baseCommandStr, userConfigDirPath, conEmuCommands);
 	}
 
 	// Now that we have `commandStr`, it's OK to change `exePath`...
