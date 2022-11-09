@@ -172,28 +172,28 @@ function Register-Cmder() {
         # Text for the context menu item.
         $MenuText = "Cmder Here"
 
-        , # Defaults to the current cmder directory when run from cmder.
+        # Defaults to the current cmder directory when run from cmder.
         $PathToExe = (Join-Path $env:CMDER_ROOT "cmder.exe")
 
-        , # Commands the context menu will execute
+        # Commands the context menu will execute
 
-        , # /x for ConEmu Extra Argument. Adds lots of possibilitites
+        # /x for ConEmu Extra Argument. Adds lots of possibilitites
 
-        , # `"-Dir \`"%V% \`" is that passed argument where directory is properly escaped
-        , # NOTE:
-        , # Needs an additional space after %V% due to how windows handles files in
-        , # context menu. If the current dir is `C:\` and someone opens cmder from
-        , # there by shift + right click, the command becomes: `..."... \"C:\ \" ..."`
-        , # Interprets to "C:\ ", which is valid
-        , # otherwise, the command becomes `..."... \"C:\\" ..."`
-        , # Interprets to "C:\"(string close), which is invalid
+        # `"-Dir \`"%V% \`" is that passed argument where directory is properly escaped
+        # NOTE:
+        # Needs an additional space after %V% due to how windows handles files in
+        # context menu. If the current dir is `C:\` and someone opens cmder from
+        # there by shift + right click, the command becomes: `..."... \"C:\ \" ..."`
+        # Interprets to "C:\ ", which is valid
+        # otherwise, the command becomes `..."... \"C:\\" ..."`
+        # Interprets to "C:\"(string close), which is invalid
 
-        , # -reuse has benifits of reusing the previous instance 
+        # -reuse has benifits of reusing the previous instance 
 
-        , # -run will run preconfigured env, I've chosen {cmd::Cmder}
+        # -run will run preconfigured env, I've chosen {cmd::Cmder}
         $Command = "/x `"-Dir \`"%V% \`" -reuse -run {cmd::Cmder}`""
 
-        , # Defaults to the icons folder in the cmder package.
+        # Defaults to the icons folder in the cmder package.
         $icon = (Split-Path $PathToExe | Join-Path -ChildPath 'icons/cmder.ico')
     )
     Begin
