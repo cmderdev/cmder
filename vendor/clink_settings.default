@@ -27,5 +27,6 @@ cmd.auto_answer = answer_yes
 # type: color
 color.doskey = yellow
 
-# name turn update checks off
+# name: hide update checks clink in CMD integration
+# type: update
 clink.autoupdate = False
