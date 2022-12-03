@@ -26,3 +26,6 @@ cmd.auto_answer = answer_yes
 # name: Doskey completions
 # type: color
 color.doskey = yellow
+
+# name turn update checks off
+clink.autoupdate = False
