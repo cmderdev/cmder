@@ -409,12 +409,62 @@ local function get_svn_status()
 end
 
 ---
+-- Get the status of working dir
+-- @return {bool}
+---
+local last_git_status_time = nil
+local last_git_status_setting = true
+local function get_git_status_setting()
+    local time = os.clock()
+    local last_time = last_git_status_time
+    last_git_status_time = time
+    if last_time and time >= 0 and time - last_time < 10 then
+        return last_git_status_setting
+    end
+
+    -- When async prompt filtering is available, check the
+    -- prompt_overrideGitStatusOptIn config setting for whether to ignore the
+    -- cmder.status and cmder.cmdstatus git config opt-in settings.
+    if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") then
+        if prompt_overrideGitStatusOptIn then
+            last_git_status_setting = true
+            return true
+        end
+    end
+
+    local gitStatusConfig = io_popenyield("git --no-pager config cmder.status 2>nul")
+    for line in gitStatusConfig:lines() do
+        if string.match(line, 'false') then
+            gitStatusConfig:close()
+            last_git_status_setting = false
+            return false
+        end
+    end
+    gitStatusConfig:close()
+
+    local gitCmdStatusConfig = io_popenyield("git --no-pager config cmder.cmdstatus 2>nul")
+    for line in gitCmdStatusConfig:lines() do
+        if string.match(line, 'false') then
+            gitCmdStatusConfig:close()
+            last_git_status_setting = false
+            return false
+        end
+    end
+    gitCmdStatusConfig:close()
+
+    last_git_status_setting = true
+    return true
+end
+
+---
 -- Use a prompt coroutine to get git status in the background.
 -- Cache the info so we can reuse it next time to reduce flicker.
 ---
 local function get_git_info_table()
     local info = clink_promptcoroutine(function ()
-        return get_git_status()
+        -- Use git status if allowed.
+        local cmderGitStatusOptIn = get_git_status_setting()
+        return cmderGitStatusOptIn and get_git_status() or {}
     end)
     if not info then
         info = cached_info.git_info or {}
@@ -422,42 +472,6 @@ local function get_git_info_table()
         cached_info.git_info = info
     end
     return info
-end
-
----
--- Get the status of working dir
--- @return {bool}
----
-local function get_git_status_setting()
-    -- When async prompt filtering is available, check the
-    -- prompt_overrideGitStatusOptIn config setting for whether to ignore the
-    -- cmder.status and cmder.cmdstatus git config opt-in settings.
-    if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") then
-        if prompt_overrideGitStatusOptIn then
-            return true
-        end
-    end
-
-    local gitStatusConfig = io.popen("git --no-pager config cmder.status 2>nul")
-
-    for line in gitStatusConfig:lines() do
-        if string.match(line, 'false') then
-            gitStatusConfig:close()
-            return false
-        end
-    end
-
-    local gitCmdStatusConfig = io.popen("git --no-pager config cmder.cmdstatus 2>nul")
-    for line in gitCmdStatusConfig:lines() do
-        if string.match(line, 'false') then
-            gitCmdStatusConfig:close()
-            return false
-        end
-    end
-    gitStatusConfig:close()
-    gitCmdStatusConfig:close()
-
-    return true
 end
 
 local function git_prompt_filter()
@@ -477,7 +491,6 @@ local function git_prompt_filter()
 
     local git_dir = get_git_dir()
     local color
-    cmderGitStatusOptIn = get_git_status_setting()
     if git_dir then
         local branch = get_git_branch(git_dir)
         if branch then
@@ -487,28 +500,25 @@ local function git_prompt_filter()
                 cached_info.git_dir = git_dir
                 cached_info.git_branch = branch
             end
-            -- Use git status if allowed.
-            if cmderGitStatusOptIn then
-                -- if we're inside of git repo then try to detect current branch
-                -- Has branch => therefore it is a git folder, now figure out status
-                local gitInfo = get_git_info_table()
-                local gitStatus = gitInfo.status
-                local gitConflict = gitInfo.conflict
 
-                if gitStatus == nil then
-                    color = colors.nostatus
-                elseif gitStatus then
-                    color = colors.clean
-                else
-                    color = colors.dirty
-                end
+            -- If we're inside of git repo then try to detect current branch
+            -- Has branch => therefore it is a git folder, now figure out status
+            local gitInfo = get_git_info_table()
+            local gitStatus = gitInfo.status
+            local gitConflict = gitInfo.conflict
 
-                if gitConflict then
-                    color = colors.conflict
-                end
-            else
+            if gitStatus == nil then
                 color = colors.nostatus
+            elseif gitStatus then
+                color = colors.clean
+            else
+                color = colors.dirty
             end
+
+            if gitConflict then
+                color = colors.conflict
+            end
+
             clink.prompt.value = string.gsub(clink.prompt.value, "{git}", " "..color.."("..verbatim(branch)..")")
             return false
         end
