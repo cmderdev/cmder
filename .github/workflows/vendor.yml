@@ -30,6 +30,8 @@ jobs:
 
     - id: make-changes
       name: Checking for updates
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           . .\scripts\update.ps1 -verbose
