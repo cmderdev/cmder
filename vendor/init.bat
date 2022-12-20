@@ -148,7 +148,7 @@ if defined CMDER_USER_CONFIG (
 )
 
 if not "%CMDER_SHELL%" == "cmd" (
-    %print_warning% "Incompatible 'ComSpec/Shell' Detetected: %CMDER_SHELL%"
+    %print_warning% "Incompatible 'ComSpec/Shell' Detected: %CMDER_SHELL%"
     set CMDER_CLINK=0
     set CMDER_ALIASES=0
 )
@@ -161,7 +161,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set clink_architecture=x64
     set architecture_bits=64
 ) else (
-    %print_warning% "Incompatible Processor Detetected: %PROCESSOR_ARCHITECTURE%"
+    %print_warning% "Incompatible Processor Detected: %PROCESSOR_ARCHITECTURE%"
     set CMDER_CLINK=0
 )
 
@@ -193,7 +193,7 @@ goto :SKIP_CLINK
         copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
     )
 
-    :: Cleanup lagacy Clink Settings file
+    :: Cleanup legacy Clink Settings file
     if exist "%CMDER_CONFIG_DIR%\settings" if exist "%CMDER_CONFIG_DIR%\clink_settings" (
         del "%CMDER_CONFIG_DIR%\settings"
     )
@@ -206,7 +206,7 @@ goto :SKIP_CLINK
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
 
     if errorlevel 1 (
-        %print_error% "Clink initilization has failed with error code: %errorlevel%"
+        %print_error% "Clink initialization has failed with error code: %errorlevel%"
     )
 
     goto :CLINK_FINISH
