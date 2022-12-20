@@ -166,11 +166,19 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 )
 
 if "%CMDER_CLINK%" == "1" (
+    REM TODO: If clink is already injected, goto :CLINK_FINISH
+    goto :INJECT_CLINK
+)
+
+goto :SKIP_CLINK
+
+:INJECT_CLINK
     %print_verbose% "Injecting Clink!"
 
     :: Check if Clink is not present
     if not exist "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" (
         %print_error% "Clink executable is not present in 'vendor\clink\clink_%clink_architecture%.exe'"
+        goto :SKIP_CLINK
     )
 
     :: Run Clink
@@ -200,7 +208,10 @@ if "%CMDER_CLINK%" == "1" (
     if errorlevel 1 (
         %print_error% "Clink initilization has failed with error code: %errorlevel%"
     )
-) else (
+
+    goto :CLINK_FINISH
+
+:SKIP_CLINK
     %print_warning% "Skipping Clink Injection!"
 
     for /f "tokens=2 delims=:." %%x in ('chcp') do set cp=%%x
@@ -210,7 +221,8 @@ if "%CMDER_CLINK%" == "1" (
     prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
 
     chcp %cp%>nul
-)
+
+:CLINK_FINISH
 
 if "%CMDER_CONFIGURED%" GTR "1" (
     %print_verbose% "Cmder is already configured, skipping Cmder Init!"
