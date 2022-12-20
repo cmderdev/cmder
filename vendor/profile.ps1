@@ -123,11 +123,11 @@ if (-not (Test-Path -PathType container "$ENV:CMDER_ROOT\config\profile.d")) {
 
 Push-Location $ENV:CMDER_ROOT\config\profile.d
 foreach ($x in Get-ChildItem *.psm1) {
-    Write-Verbose Write-Host Sourcing $x
+    Write-Verbose "Sourcing $x"
     Import-Module $x
 }
 foreach ($x in Get-ChildItem *.ps1) {
-    Write-Verbose Write-Host Sourcing $x
+    Write-Verbose "Sourcing $x"
     . $x
 }
 Pop-Location
@@ -137,11 +137,11 @@ Pop-Location
 if ($ENV:CMDER_USER_CONFIG -ne "" -and (Test-Path "$ENV:CMDER_USER_CONFIG\profile.d")) {
     Push-Location $ENV:CMDER_USER_CONFIG\profile.d
     foreach ($x in Get-ChildItem *.psm1) {
-        Write-Verbose Write-Host Sourcing $x
+        Write-Verbose "Sourcing $x"
         Import-Module $x
     }
     foreach ($x in Get-ChildItem *.ps1) {
-        Write-Verbose Write-Host Sourcing $x
+        Write-Verbose "Sourcing $x"
         . $x
     }
     Pop-Location
