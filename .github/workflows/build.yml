@@ -8,6 +8,8 @@ name: Build Cmder
 on:
   push:
     branches: [ "master" ]
+    tags:
+      - "v*"
   pull_request:
     branches: [ "master" ]
 
@@ -72,3 +74,15 @@ jobs:
       with:
         path: build/hashes.txt
         name: hashes.txt
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          build/cmder.zip
+          build/cmder.7z
+          build/cmder_mini.zip
+          build/hashes.txt
+        draft: true
+        generate_release_notes: true
+      if: startsWith(github.ref, 'refs/tags/')
