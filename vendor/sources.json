@@ -1,13 +1,13 @@
 [
   {
     "name": "git-for-windows",
-    "version": "2.39.0.windows.1",
-    "url": "https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.1/PortableGit-2.39.0-64-bit.7z.exe"
+    "version": "2.39.0.windows.2",
+    "url": "https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.2/PortableGit-2.39.0.2-64-bit.7z.exe"
   },
   {
     "name": "clink",
-    "version": "1.4.5",
-    "url": "https://github.com/chrisant996/clink/releases/download/v1.4.5/clink.1.4.5.2e84bc.zip"
+    "version": "1.4.6",
+    "url": "https://github.com/chrisant996/clink/releases/download/v1.4.6/clink.1.4.6.8b1dec.zip"
   },
   {
     "name": "conemu-maximus5",
