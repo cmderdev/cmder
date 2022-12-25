@@ -33,7 +33,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          $env:GITHUB_TOKEN = "${{ secrets.GITHUB_TOKEN }}"
           $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           . .\scripts\update.ps1 -verbose
           Set-GHVariable -Name COUNT_UPDATED -Value $count
