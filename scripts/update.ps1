@@ -108,8 +108,6 @@ function Fetch-DownloadUrl {
         $headers["Authorization"] = "token $($env:GITHUB_TOKEN)"
     }
 
-    Write-Host $headers
-
     # Api server for GitHub
     $urlHost = "api.github.com"
 
