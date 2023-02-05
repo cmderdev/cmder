@@ -249,6 +249,13 @@ if defined GIT_INSTALL_ROOT (
         %print_debug% init.bat "Skipping Git Auto-Detect!"
         goto :VENDORED_GIT
     )
+
+    %print_debug% init.bat "Fast init is enabled, vendored Git does not exist"
+    for /F "delims=" %%F in ('where git.exe 2^>nul') do (
+	set "EXT_GIT_EXE=%%~fF"
+        %print_debug% init.bat "Found User installed Git at '%%~fF'. Skipping Git Auto-Detect!"
+        goto :SET_ENV
+    )
 )
 
 %print_debug% init.bat "Looking for Git install root..."
@@ -321,6 +328,8 @@ if %nix_tools% geq 1 (
     )
 )
 
+:SET_ENV
+
 :: Plink (PuTTY Link) is a command-line connection tool similar to ssh, setting its protocol to ssh
 set PLINK_PROTOCOL=ssh
 
@@ -328,6 +337,12 @@ set PLINK_PROTOCOL=ssh
 if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 
 :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
+setlocal enabledelayedexpansion
+if not defined git_locale if defined EXT_GIT_EXE (
+    set "GIT_INSTALL_ROOT=!EXT_GIT_EXE:\cmd\git.exe=!"
+)
+endlocal && set GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
+
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\locale.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\locale.exe"
 if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^>nul') do ( if not defined git_locale set git_locale="%%F" )
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale
