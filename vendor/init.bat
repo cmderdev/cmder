@@ -306,7 +306,9 @@ goto :CONFIGURE_GIT
 :CONFIGURE_GIT
 %print_debug% init.bat "Using Git from '%GIT_INSTALL_ROOT%..."
 :: Add git to the path
-if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" ""
+if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (
+  set "path=%GIT_INSTALL_ROOT%\cmd;%path%"
+)
 
 :: Add the unix commands at the end to not shadow windows commands like `more` and `find`
 if %nix_tools% equ 1 (
@@ -319,12 +321,24 @@ if %nix_tools% equ 1 (
 
 if %nix_tools% geq 1 (
     if exist "%GIT_INSTALL_ROOT%\mingw32" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
+        if "%path_position%" == "append" (
+          set "path=%path%;%GIT_INSTALL_ROOT%\mingw32\bin"
+        ) else (
+          set "path=%GIT_INSTALL_ROOT%\mingw32\bin;%path%"
+        )
     ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
+        if "%path_position%" == "append" (
+          set "path=%path%;%GIT_INSTALL_ROOT%\mingw64\bin"
+        ) else (
+          set "path=%GIT_INSTALL_ROOT%\mingw64\bin;%path%"
+        )
     )
     if exist "%GIT_INSTALL_ROOT%\usr\bin" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
+        if "%path_position%" == "append" (
+          set "path=%path%;%GIT_INSTALL_ROOT%\usr\bin"
+        ) else (
+          set "path=%GIT_INSTALL_ROOT%\usr\bin;%path%"
+        )
     )
 )
 
@@ -368,14 +382,23 @@ goto :PATH_ENHANCE
 endlocal
 
 :PATH_ENHANCE
-%lib_path% enhance_path "%CMDER_ROOT%\vendor\bin"
+set "path=%CMDER_ROOT%\vendor\bin;%path%"
 
 :USER_CONFIG_START
-%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
-if defined CMDER_USER_BIN (
-    %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
+if %max_depth% gtr 1 (
+  %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
+) else (
+  set "path=%CMDER_ROOT%\bin;%path%"
 )
-%lib_path% enhance_path "%CMDER_ROOT%" append
+
+if defined CMDER_USER_BIN (
+  if %max_depth% gtr 1 (
+    %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
+  ) else (
+    set "path=%CMDER_USER_ROOT%\bin;%path%"
+  )
+)
+set "path=%path%;%CMDER_ROOT%"
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
@@ -489,7 +512,6 @@ if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
 
 set CMDER_INIT_END=%time%
 
-if %time_init% gtr 0 (
     "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
 )
 exit /b
