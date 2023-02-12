@@ -165,10 +165,10 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set CMDER_CLINK=0
 )
 
-if exist "%CMDER_ROOT%\config\user_init.cmd" if defined CMDER_USER_CONFIG (
-  call "%CMDER_ROOT%\config\user_init.cmd"
-
-  if exist "%CMDER_USER_CONFIG%\config\user_init.cmd" (
+if defined CMDER_USER_CONFIG (
+  if exist "%CMDER_ROOT%\config\user_init.cmd" (
+    call "%CMDER_ROOT%\config\user_init.cmd"
+  ) else if exist "%CMDER_USER_CONFIG%\config\user_init.cmd" (
     call "%CMDER_USER_CONFIG%\config\user_init.cmd"
   )
   exit /b
