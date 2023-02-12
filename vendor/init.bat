@@ -417,7 +417,7 @@ if %max_depth% gtr 1 (
 %print_debug% init.bat "END - bin(prepend): Env Var - PATH=%path%"
 
 
-if defined CMDER_USER_BIN (
+if defined CMDER_USER_BIN if defined CMDER_USER_ROOT (
   %print_debug% init.bat "START - user_bin(prepend): Env Var - PATH=%path%"
   if %max_depth% gtr 1 (
     %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
@@ -537,6 +537,26 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 )
 
 set initialConfig=
+
+if defined CMDER_USER_CONFIG (
+  if not exist "%CMDER_ROOT%\config\user_init.cmd" if not exist "%CMDER_USER_ROOT%\config\user_init.cmd" (
+    powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
+  )
+
+  if not exist "%CMDER_ROOT%\config\user_init.cmd" if not exist "%CMDER_USER_ROOT%\config\user_init.cmd" (
+    powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_iUSER_ROOT%\config\user_init.cmd"
+  )
+
+  if not exist "%CMDER_ROOT%\config\user_init.cmd" if not exist "%CMDER_USER_ROOT%\config\user_init.cmd" (
+    %print_error% "Failed to generate Cmder config"
+  )
+) else if not exist "%CMDER_ROOT%\config\user_init.cmd" (
+  powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
+
+  if not exist "%CMDER_ROOT%\config\user_init.cmd" (
+    %print_error% "Failed to generate Cmder config"
+  )
+)
 
 :CMDER_CONFIGURED
 if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
