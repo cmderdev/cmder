@@ -561,25 +561,28 @@ if defined CMDER_USER_CONFIG (
 :CMDER_CONFIGURED
   if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
   set CMDER_INIT_END=%time%
-  call "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
 
-:: Cleanup
-set architecture_bits=
-set CMDER_ALIASES=
-set CMDER_INIT_END=
-set CMDER_INIT_START=
-set CMDER_USER_FLAGS=
-set debug_output=
-set fast_init=
-set max_depth=
-set nix_tools=
-set path_position=
-set print_debug=
-set print_error=
-set print_verbose=
-set print_warning=
-set time_init=
-set verbose_output=
-set user_aliases=
+  if "%CMDER_INIT_END%" neq "" if "%CMDER_INIT_START%" neq "" (
+    call "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
+  )
+
+:CLEANUP
+  set architecture_bits=
+  set CMDER_ALIASES=
+  set CMDER_INIT_END=
+  set CMDER_INIT_START=
+  set CMDER_USER_FLAGS=
+  set debug_output=
+  set fast_init=
+  set max_depth=
+  set nix_tools=
+  set path_position=
+  set print_debug=
+  set print_error=
+  set print_verbose=
+  set print_warning=
+  set time_init=
+  set verbose_output=
+  set user_aliases=
 
 exit /b
