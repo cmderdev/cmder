@@ -144,7 +144,7 @@ goto :SKIP_CLINK
   
   set CMDER_INIT_END=%time%
   
-  if "%CMDER_INIT_END%" neq "" if "%CMDER_INIT_START%" neq "" (
+  if "%time_init%" == "1" if "%CMDER_INIT_END%" neq "" if "%CMDER_INIT_START%" neq "" (
     call "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
   )
 
