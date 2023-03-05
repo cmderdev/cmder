@@ -551,7 +551,7 @@ if defined CMDER_USER_CONFIG (
     %print_error% "Failed to generate Cmder config"
   )
 ) else if not exist "%CMDER_ROOT%\config\user_init.cmd" (
-  powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
+  powershell -executionpolicy bypass -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
 
   if not exist "%CMDER_ROOT%\config\user_init.cmd" (
     %print_error% "Failed to generate Cmder config"
