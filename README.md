@@ -60,7 +60,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/SINGLE`                 | Start Cmder in single mode.                                                              |
 | `/START [start_path]`     | Folder path to start in.                                                                 |
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
-| `/X [ConEmu extras pars]` | Forwards parameters to ConEmu                                                            |
+| `-- [ConEmu extras pars]` | Forwards ALL remaining parameters to ConEmu.                                             |
 
 ## Context Menu Integration
 
