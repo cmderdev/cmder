@@ -13,6 +13,7 @@ if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile/cmderde
 
 cd cmderdev
 git checkout vagrant
+git pull origin vagrant
 git remote add upstream  https://github.com/cmderdev/cmder
 git pull upstream master
 
