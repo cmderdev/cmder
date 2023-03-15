@@ -31,3 +31,4 @@ launcher/src/version.rc2
 .vs/*
 .vscode
 .idea
+.vagrant/

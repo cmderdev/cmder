@@ -29,7 +29,7 @@ $env:cmder_root = "C:/tools/cmder"
 write-host "Creating '${env:USERPROFILE}/Desktop/Cmder.lnk'..."
 start-process -NoNewWindow -filePath "$env:userprofile/bin/set-shortcut.ps1" -ArgumentList "-sourceexe `"$env:cmder_root\\Cmder.exe`" -DestinationPath `"${env:USERPROFILE}\\Desktop\\Cmder.lnk`" -WorkingDirectory `"${env:USERPROFILE}`""
 
-$env:cmder_root = ("${env:USERPROFILE}\\cmderdev"
+$env:cmder_root = "${env:USERPROFILE}\\cmderdev"
 write-host "Creating '${env:USERPROFILE}\\Desktop\\Cmderdev.lnk'..."
 start-process -NoNewWindow -filePath "$env:userprofile\\bin\\set-shortcut.ps1" -ArgumentList "-sourceexe `"${env:cmder_root}\\Cmder.exe`" -DestinationPath `"${env:USERPROFILE}\\Desktop\\Cmderdev.lnk`" -WorkingDirectory `"${env:cmder_root}`""
 
