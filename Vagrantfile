@@ -190,4 +190,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision "file", source: "./scripts/windows_terminal_settings.json.default", destination: "windows_terminal_settings.json.default"
   config.vm.provision "file", source: "./scripts/windows_terminal_state.json.default", destination: "windows_terminal_state.json.default"
   config.vm.provision "shell", path: './scripts/vagrantscript.ps1'
+  config.vm.provision "shell", path: './vendor/bin/add-vscodeprofile.ps1'
+  config.vm.provision "shell", path: './vendor/bin/add-windowsterminalprofiles.ps1'
 end

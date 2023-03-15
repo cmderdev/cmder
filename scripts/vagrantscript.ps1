@@ -12,6 +12,7 @@ if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile/cmderde
 }
 
 cd cmderdev
+git checkout vagrant
 git remote add upstream  https://github.com/cmderdev/cmder
 git pull upstream master
 
@@ -24,14 +25,16 @@ cd scripts
 
 copy C:/Tools/Cmder/Cmder.exe $env:userprofile/cmderdev
 
+$env:cmder_root = "C:/tools/cmder"
 write-host "Creating '${env:USERPROFILE}/Desktop/Cmder.lnk'..."
-start-process -filePath "$env:userprofile/bin/set-shortcut.ps1" -ArgumentList "-sourceexe `"C:\\tools\\Cmder\\Cmder.exe`" -DestinationPath `"C:\\Users\\vagrant\\Desktop\\Cmder.lnk`" -WorkingDirectory `"C:\\tools\\Cmder`""
+start-process -NoNewWindow -filePath "$env:userprofile/bin/set-shortcut.ps1" -ArgumentList "-sourceexe `"$env:cmder_root\\Cmder.exe`" -DestinationPath `"${env:USERPROFILE}\\Desktop\\Cmder.lnk`" -WorkingDirectory `"${env:USERPROFILE}`""
 
-write-host "Creating '${env:USERPROFILE}/Desktop/Cmderdev.lnk'..."
-start-process -filePath "$env:userprofile/bin/set-shortcut.ps1" -ArgumentList "-sourceexe `"${env:USERPROFILE}\\cmderdev\\Cmder.exe`" -DestinationPath `"${env:USERPROFILE}\\Desktop\\Cmderdev.lnk`" -WorkingDirectory `"${env:USERPROFILE}\\cmderdev`""
+$env:cmder_root = ("${env:USERPROFILE}\\cmderdev"
+write-host "Creating '${env:USERPROFILE}\\Desktop\\Cmderdev.lnk'..."
+start-process -NoNewWindow -filePath "$env:userprofile\\bin\\set-shortcut.ps1" -ArgumentList "-sourceexe `"${env:cmder_root}\\Cmder.exe`" -DestinationPath `"${env:USERPROFILE}\\Desktop\\Cmderdev.lnk`" -WorkingDirectory `"${env:cmder_root}`""
 
 # tabby
-setx cmder_root '%userprofile%/cmderdev'
+setx cmder_root "$env:cmder_root"
 
 # C:\Users\vagrant\AppData\Roaming\Hyper
 #         // shell: '',
