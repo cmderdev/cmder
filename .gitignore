@@ -32,3 +32,6 @@ launcher/src/version.rc2
 .vscode
 .idea
 .vagrant/
+scripts/packer/iso
+*.box
+

@@ -1,0 +1,241 @@
+{
+  "builders": [
+    {
+      "boot_command": [
+        "<leftShiftOn><f10><leftShiftOff><wait>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassTPMCheck /d 1<return>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassSecureBootCheck /d 1<return><wait>",
+        "exit<return>",
+        "<wait><return>"
+      ],
+      "boot_wait": "2m",
+      "communicator": "winrm",
+      "configuration_version": "8.0",
+      "cpus": "2",
+      "disk_size": "{{user `disk_size`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/packer/scripts/fixnetwork.ps1",
+        "./scripts/packer/scripts/disable-screensaver.ps1",
+        "./scripts/packer/scripts/disable-winrm.ps1",
+        "./scripts/packer/scripts/enable-winrm.ps1",
+        "./scripts/packer/scripts/microsoft-updates.bat",
+        "./scripts/packer/scripts/win-updates.ps1"
+      ],
+      "guest_additions_mode": "none",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "memory": "{{user `memory`}}",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "switch_name": "{{user `switch_name`}}",
+      "type": "hyperv-iso",
+      "vm_name": "{{user `vm_name`}}",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "{{user `winrm_timeout`}}",
+      "winrm_username": "vagrant"
+    },
+    {
+      "boot_command": [
+        "<leftShiftOn><f10><leftShiftOff><wait>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassTPMCheck /d 1<return>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassSecureBootCheck /d 1<return><wait>",
+        "exit<return>",
+        "<wait><return>"
+      ],
+      "boot_wait": "2m",
+      "communicator": "winrm",
+      "cpus": 2,
+      "disk_adapter_type": "lsisas1068",
+      "disk_size": "{{user `disk_size`}}",
+      "disk_type_id": "{{user `disk_type_id`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/packer/scripts/fixnetwork.ps1",
+        "./scripts/packer/scripts/disable-screensaver.ps1",
+        "./scripts/packer/scripts/disable-winrm.ps1",
+        "./scripts/packer/scripts/enable-winrm.ps1",
+        "./scripts/packer/scripts/microsoft-updates.bat",
+        "./scripts/packer/scripts/win-updates.ps1"
+      ],
+      "guest_os_type": "windows9-64",
+      "headless": "{{user `headless`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "memory": "{{user `memory`}}",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "type": "vmware-iso",
+      "version": "{{user `vmx_version`}}",
+      "vm_name": "{{user `vm_name`}}",
+      "vmx_data": {
+        "RemoteDisplay.vnc.enabled": "false",
+        "RemoteDisplay.vnc.port": "5900"
+      },
+      "vmx_remove_ethernet_interfaces": true,
+      "vnc_port_max": 5980,
+      "vnc_port_min": 5900,
+      "winrm_password": "vagrant",
+      "winrm_timeout": "{{user `winrm_timeout`}}",
+      "winrm_username": "vagrant"
+    },
+    {
+      "boot_command": [
+        "<leftShiftOn><f10><leftShiftOff><wait>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassTPMCheck /d 1<return>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassSecureBootCheck /d 1<return><wait>",
+        "exit<return>",
+        "<wait><return>"
+      ],
+      "boot_wait": "2m",
+      "communicator": "winrm",
+      "cpus": 2,
+      "disk_size": "{{user `disk_size`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/packer/scripts/fixnetwork.ps1",
+        "./scripts/packer/scripts/disable-screensaver.ps1",
+        "./scripts/packer/scripts/disable-winrm.ps1",
+        "./scripts/packer/scripts/enable-winrm.ps1",
+        "./scripts/packer/scripts/microsoft-updates.bat",
+        "./scripts/packer/scripts/win-updates.ps1"
+      ],
+      "guest_additions_mode": "disable",
+      "guest_os_type": "Windows10_64",
+      "headless": "{{user `headless`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "memory": "{{user `memory`}}",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "type": "virtualbox-iso",
+      "vm_name": "{{user `vm_name`}}",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "{{user `winrm_timeout`}}",
+      "winrm_username": "vagrant"
+    },
+    {
+      "boot_command": [
+        "<leftShiftOn><f10><leftShiftOff><wait>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassTPMCheck /d 1<return>",
+        "reg add HKLM\\SYSTEM\\Setup\\LabConfig /t REG_DWORD /v BypassSecureBootCheck /d 1<return><wait>",
+        "exit<return>",
+        "<wait><return>"
+      ],
+      "boot_wait": "2m",
+      "communicator": "winrm",
+      "cpus": 2,
+      "disk_size": "{{user `disk_size`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/packer/scripts/fixnetwork.ps1",
+        "./scripts/packer/scripts/disable-screensaver.ps1",
+        "./scripts/packer/scripts/disable-winrm.ps1",
+        "./scripts/packer/scripts/enable-winrm.ps1",
+        "./scripts/packer/scripts/microsoft-updates.bat",
+        "./scripts/packer/scripts/win-updates.ps1"
+      ],
+      "guest_os_type": "win-10",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "memory": "{{user `memory`}}",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "type": "parallels-iso",
+      "parallels_tools_flavor": "win",
+      "parallels_tools_mode": "disable",
+      "prlctl": [
+        [
+          "set",
+          "{{.Name}}",
+          "--adaptive-hypervisor",
+          "on"
+        ],
+        [
+          "set",
+          "{{.Name}}",
+          "--efi-boot",
+          "off"
+        ]
+      ],
+      "vm_name": "{{user `vm_name`}}",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "{{user `winrm_timeout`}}",
+      "winrm_username": "vagrant"
+    }
+  ],
+  "post-processors": [
+    {
+      "keep_input_artifact": false,
+      "output": "windows_11_{{.Provider}}.box",
+      "type": "vagrant",
+      "vagrantfile_template": "vagrantfile-windows_10.template"
+    }
+  ],
+  "provisioners": [
+    {
+      "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
+      "remote_path": "/tmp/script.bat",
+      "scripts": [
+        "./scripts/packer/scripts/enable-rdp.bat"
+      ],
+      "type": "windows-shell"
+    },
+    {
+      "scripts": [
+        "./scripts/packer/scripts/vm-guest-tools.ps1",
+        "./scripts/packer/scripts/debloat-windows.ps1"
+      ],
+      "type": "powershell"
+    },
+    {
+      "restart_timeout": "{{user `restart_timeout`}}",
+      "type": "windows-restart"
+    },
+    {
+      "scripts": [
+        "./scripts/packer/scripts/set-powerplan.ps1",
+        "./scripts/packer/scripts/docker/disable-windows-defender.ps1"
+      ],
+      "type": "powershell"
+    },
+    {
+      "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
+      "remote_path": "/tmp/script.bat",
+      "scripts": [
+        "./scripts/packer/scripts/chocolatey.bat"
+      ],
+      "type": "windows-shell"
+    },
+    {
+      "scripts": [
+        "./scripts/packer/scripts/chocopacks.ps1"
+      ],
+      "type": "powershell"
+    },
+    {
+      "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
+      "remote_path": "/tmp/script.bat",
+      "scripts": [
+        "./scripts/packer/scripts/pin-powershell.bat",
+        "./scripts/packer/scripts/compile-dotnet-assemblies.bat",
+        "./scripts/packer/scripts/set-winrm-automatic.bat",
+        "./scripts/packer/scripts/uac-enable.bat",
+        "./scripts/packer/scripts/dis-updates.bat",
+        "./scripts/packer/scripts/compact.bat"
+      ],
+      "type": "windows-shell"
+    }
+  ],
+  "variables": {
+    "autounattend": "./scripts/packer/answer_files/11/Autounattend.xml",
+    "disk_size": "61440",
+    "disk_type_id": "1",
+    "memory": "4096",
+    "headless": "false",
+    "iso_checksum": "sha256:e8b1d2a1a85a09b4bf6154084a8be8e3c814894a15a7bcf3e8e63fcfa9a528cb",
+    "iso_url": "https://software-download.microsoft.com/download/sg/22000.194.210913-1444.co_release_svc_refresh_CLIENTENTERPRISEEVAL_OEMRET_x64FRE_en-us.iso",
+    "restart_timeout": "5m",
+    "vhv_enable": "false",
+    "virtio_win_iso": "~/virtio-win.iso",
+    "vm_name": "windows_11",
+    "winrm_timeout": "6h",
+    "vmx_version": "14"
+  }
+}

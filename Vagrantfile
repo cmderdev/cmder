@@ -9,7 +9,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "cmderdev-10" do |win10|
     win10.vm.hostname = "cmderdev-10"
-    win10.vm.box = "cmderdev-10"
+    win10.vm.box = "dgames/cmderdev-10"
+    config.vm.box_version = "1.0.0"
 
     # win10.vm.network :private_network, ip: "192.168.56.101"
 
