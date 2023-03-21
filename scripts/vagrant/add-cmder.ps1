@@ -5,7 +5,6 @@ $env:path = "$env:path;c:/tools/cmder/vendor/git-for-windows/cmd;;c:/tools/cmder
 c:
 cd $env:userprofile
 git clone https://github.com/cmderdev/cmder cmderdev
-write-host "USERNAME: $env:USERNAME"
 
 if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile/cmderdev/vendor/git-for-windows")) {
   invoke-expression -command "TAKEOWN /F `"$env:userprofile/cmderdev`" /R /D y /s localhost /u vagrant /p vagrant"
@@ -17,7 +16,6 @@ git pull origin vagrant
 git remote add upstream  https://github.com/cmderdev/cmder
 git pull upstream master
 
-write-host "==> Setting MSBuild Env..."
 cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
 Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
   if ($_ -match "^(.*?)=(.*)$") {
@@ -25,19 +23,14 @@ Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
   }
 }
 
-write-host "==> Changing to '$env:userprofile/cmderdev/scripts'..."
 cd  $env:userprofile/cmderdev/scripts
 
-pwd
-dir
-
-write-host "==> Copying 'Cmder.exe' to '$env:userprofile/cmderdev'..."
 copy "C:/Tools/Cmder/Cmder.exe" "$env:userprofile/cmderdev"
-start-process -nonewwindow -filepath "./build.ps1" -argumentlist "-verbose -compile"
 
-write-host "==> Copying built 'Cmder.exe' to '$env:userprofile/cmderdev'..."
+dir env:
+start-process -nonewwindow -workingdirectory "$env:userprofile/cmderdev/scripts" -filepath "powershell.exe" -argumentlist "./build.ps1 -verbose -compile"
+
 copy $env:userprofile/cmderdev/launcher/x64/release/cmder.exe $env:userprofile/cmderdev
-
 
 # tabby
 setx cmder_root "${env:userprofile}\cmderdev"
