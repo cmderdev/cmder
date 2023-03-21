@@ -1,7 +1,7 @@
 choco install -y --force 7zip 7zip.install
 choco install -y --force cmder
 
-$env:path = "$env:path;c:/tools/cmder/vendor/git-for-windows/cmd"
+$env:path = "$env:path;c:/tools/cmder/vendor/git-for-windows/cmd;;c:/tools/cmder/vendor/git-for-windows/usr/bin;c:/tools/cmder/vendor/git-for-windows/mingw64/bin"
 c:
 cd $env:userprofile
 git clone https://github.com/cmderdev/cmder cmderdev
@@ -11,20 +11,33 @@ if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile/cmderde
   invoke-expression -command "TAKEOWN /F `"$env:userprofile/cmderdev`" /R /D y /s localhost /u vagrant /p vagrant"
 }
 
-cd cmderdev
+cd  $env:userprofile/cmderdev
 git checkout vagrant
 git pull origin vagrant
 git remote add upstream  https://github.com/cmderdev/cmder
 git pull upstream master
 
-# cmd.exe "/K" '"C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat" && powershell -command "& ''$env:userprofile/cmderdev/scripts/build.ps1'' -verbose -compile" && exit'
-# copy $env:userprofile/cmderdev/launcher/x64/release/cmder.exe $env:userprofile/cmderdev
-# cmd.exe "/K" '"C:/Program Files (x86)/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat" && powershell -noexit -command "& ''build.ps1 -verbose -compile''"'
+write-host "==> Setting MSBuild Env..."
+cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
+  if ($_ -match "^(.*?)=(.*)$") {
+    Set-Content "env:\$($matches[1])" $matches[2]
+  }
+}
 
-cd scripts
-./build.ps1 -verbose
+write-host "==> Changing to '$env:userprofile/cmderdev/scripts'..."
+cd  $env:userprofile/cmderdev/scripts
 
-copy C:/Tools/Cmder/Cmder.exe $env:userprofile/cmderdev
+pwd
+dir
+
+write-host "==> Copying 'Cmder.exe' to '$env:userprofile/cmderdev'..."
+copy "C:/Tools/Cmder/Cmder.exe" "$env:userprofile/cmderdev"
+start-process -nonewwindow -filepath "./build.ps1" -argumentlist "-verbose -compile"
+
+write-host "==> Copying built 'Cmder.exe' to '$env:userprofile/cmderdev'..."
+copy $env:userprofile/cmderdev/launcher/x64/release/cmder.exe $env:userprofile/cmderdev
+
 
 # tabby
 setx cmder_root "${env:userprofile}\cmderdev"
