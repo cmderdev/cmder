@@ -23,11 +23,10 @@ Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
   }
 }
 
-cd  $env:userprofile/cmderdev/scripts
+dir env:
 
 copy "C:/Tools/Cmder/Cmder.exe" "$env:userprofile/cmderdev"
 
-dir env:
 start-process -nonewwindow -workingdirectory "$env:userprofile/cmderdev/scripts" -filepath "powershell.exe" -argumentlist "./build.ps1 -verbose -compile"
 
 copy $env:userprofile/cmderdev/launcher/x64/release/cmder.exe $env:userprofile/cmderdev
