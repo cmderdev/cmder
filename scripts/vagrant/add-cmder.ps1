@@ -16,6 +16,9 @@ git pull origin vagrant
 git remote add upstream  https://github.com/cmderdev/cmder
 git pull upstream master
 
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+install-module posh-git -force
+
 cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
 Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
   if ($_ -match "^(.*?)=(.*)$") {
@@ -23,21 +26,13 @@ Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
   }
 }
 
-dir env:
-
-start-sleep 5
-
-copy "C:/Tools/Cmder/Cmder.exe" "$env:userprofile/cmderdev"
+copy-item -erroraction silentlycontinue "C:/Tools/Cmder/Cmder.exe" "$env:userprofile/cmderdev"
 
 del "$env:userprofile/cmderdev/launcher/x64/release/cmder.exe" -force
 
-start-process -nonewwindow -workingdirectory "$env:userprofile/cmderdev/scripts" -filepath "powershell.exe" -argumentlist "./build.ps1 -verbose -compile"
+start-process -erroraction silentlycontinue -nonewwindow -workingdirectory "$env:userprofile/cmderdev/scripts" -filepath "powershell.exe" -argumentlist "./build.ps1 -verbose -compile"
 
-dir "$env:userprofile/cmderdev/launcher/x64/release"
-
-start-sleep 5
-
-copy "$env:userprofile/cmderdev/launcher/x64/release/cmder.exe" "$env:userprofile/cmderdev" -force
+copy-item -erroraction silentlycontinue "$env:userprofile/cmderdev/launcher/x64/release/cmder.exe" "$env:userprofile/cmderdev" -force
 
 # tabby
 setx cmder_root "${env:userprofile}\cmderdev"
