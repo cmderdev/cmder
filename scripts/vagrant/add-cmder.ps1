@@ -11,7 +11,7 @@ if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile/cmderde
 }
 
 cd  $env:userprofile/cmderdev
-git checkout vagrant
+git checkout vagrant+packer
 git pull origin vagrant
 git remote add upstream  https://github.com/cmderdev/cmder
 git pull upstream master
@@ -25,11 +25,19 @@ Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
 
 dir env:
 
+start-sleep 5
+
 copy "C:/Tools/Cmder/Cmder.exe" "$env:userprofile/cmderdev"
+
+del "$env:userprofile/cmderdev/launcher/x64/release/cmder.exe" -force
 
 start-process -nonewwindow -workingdirectory "$env:userprofile/cmderdev/scripts" -filepath "powershell.exe" -argumentlist "./build.ps1 -verbose -compile"
 
-copy $env:userprofile/cmderdev/launcher/x64/release/cmder.exe $env:userprofile/cmderdev
+dir "$env:userprofile/cmderdev/launcher/x64/release"
+
+start-sleep 5
+
+copy "$env:userprofile/cmderdev/launcher/x64/release/cmder.exe" "$env:userprofile/cmderdev" -force
 
 # tabby
 setx cmder_root "${env:userprofile}\cmderdev"
