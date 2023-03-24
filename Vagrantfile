@@ -58,6 +58,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "file", source: "./scripts/vagrant/windows_terminal_settings.json.default", destination: "windows_terminal_settings.json.default"
   config.vm.provision "file", source: "./scripts/vagrant/windows_terminal_state.json.default", destination: "windows_terminal_state.json.default"
+  config.vm.provision "file", source: "./vendor/bin/set-shortcut.ps1", destination: "c:\\windows\\set-shortcut.ps1"
   config.vm.provision "shell", path: './scripts/vagrant/add-cmder.ps1'
   config.vm.provision "shell", path: './vendor/bin/add-vscodeprofile.ps1'
   config.vm.provision "shell", path: './vendor/bin/add-windowsterminalprofiles.ps1'

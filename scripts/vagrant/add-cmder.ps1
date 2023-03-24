@@ -4,17 +4,17 @@ choco install -y --force cmder
 $env:path = "$env:path;c:\tools\cmder\vendor\git-for-windows\cmd;c:\tools\cmder\vendor\git-for-windows\usr\bin;c:\tools\cmder\vendor\git-for-windows\mingw64\bin"
 c:
 cd $env:userprofile
-git clone https://github.com/cmderdev/cmder cmderdev
+git clone https://github.com/cmderdev/cmder cmderdev 2>&1
 
 if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile\cmderdev\vendor\git-for-windows")) {
   invoke-expression -command "TAKEOWN /F `"$env:userprofile\cmderdev`" /R /D y /s localhost /u vagrant /p vagrant"
 }
 
 cd  $env:userprofile/cmderdev
-git checkout vagrant+packer
-git pull origin vagrant
 git remote add upstream  https://github.com/cmderdev/cmder
-git pull upstream master
+
+Install-PackageProvider -Name NuGet -Force
+install-module posh-git -force
 
 cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
 Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
@@ -23,21 +23,12 @@ Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
   }
 }
 
-dir env:
+copy-item -erroraction silentlycontinue "C:\Tools\Cmder\Cmder.exe" "$env:userprofile\cmderdev"
+remove-item -erroraction silentlycontinue "$env:userprofile\cmderdev\launcher\x64\release\cmder.exe" -force
 
-start-sleep 5
+start-process -erroraction silentlycontinue -nonewwindow -workingdirectory "$env:userprofile\cmderdev\scripts" -filepath "powershell.exe" -argumentlist ".\build.ps1 -verbose -compile"
 
-copy "C:\Tools\Cmder\Cmder.exe" "$env:userprofile\cmderdev"
-
-del "$env:userprofile\cmderdev\launcher\x64\release\cmder.exe" -force
-
-start-process -nonewwindow -workingdirectory "$env:userprofile\cmderdev\scripts" -filepath "powershell.exe" -argumentlist ".\build.ps1 -verbose -compile"
-
-dir "$env:userprofile\cmderdev\launcher\x64\release"
-
-start-sleep 5
-
-copy "$env:userprofile\cmderdev\launcher\x64\release\cmder.exe" "$env:userprofile\cmderdev" -force
+copy-item -erroraction silentlycontinue "$env:userprofile\cmderdev\launcher\x64\release\cmder.exe" "$env:userprofile\cmderdev" -force
 
 # tabby
 setx cmder_root "${env:userprofile}\cmderdev"
