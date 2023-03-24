@@ -1,13 +1,13 @@
 choco install -y --force 7zip 7zip.install
 choco install -y --force cmder
 
-$env:path = "$env:path;c:/tools/cmder/vendor/git-for-windows/cmd;;c:/tools/cmder/vendor/git-for-windows/usr/bin;c:/tools/cmder/vendor/git-for-windows/mingw64/bin"
+$env:path = "$env:path;c:\tools\cmder\vendor\git-for-windows\cmd;c:\tools\cmder\vendor\git-for-windows\usr\bin;c:\tools\cmder\vendor\git-for-windows\mingw64\bin"
 c:
 cd $env:userprofile
 git clone https://github.com/cmderdev/cmder cmderdev
 
-if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile/cmderdev/vendor/git-for-windows")) {
-  invoke-expression -command "TAKEOWN /F `"$env:userprofile/cmderdev`" /R /D y /s localhost /u vagrant /p vagrant"
+if ("$env:USERNAME" -eq "vagrant" -and -not (test-path "$env:userprofile\cmderdev\vendor\git-for-windows")) {
+  invoke-expression -command "TAKEOWN /F `"$env:userprofile\cmderdev`" /R /D y /s localhost /u vagrant /p vagrant"
 }
 
 cd  $env:userprofile/cmderdev
@@ -27,17 +27,17 @@ dir env:
 
 start-sleep 5
 
-copy "C:/Tools/Cmder/Cmder.exe" "$env:userprofile/cmderdev"
+copy "C:\Tools\Cmder\Cmder.exe" "$env:userprofile\cmderdev"
 
-del "$env:userprofile/cmderdev/launcher/x64/release/cmder.exe" -force
+del "$env:userprofile\cmderdev\launcher\x64\release\cmder.exe" -force
 
-start-process -nonewwindow -workingdirectory "$env:userprofile/cmderdev/scripts" -filepath "powershell.exe" -argumentlist "./build.ps1 -verbose -compile"
+start-process -nonewwindow -workingdirectory "$env:userprofile\cmderdev\scripts" -filepath "powershell.exe" -argumentlist ".\build.ps1 -verbose -compile"
 
-dir "$env:userprofile/cmderdev/launcher/x64/release"
+dir "$env:userprofile\cmderdev\launcher\x64\release"
 
 start-sleep 5
 
-copy "$env:userprofile/cmderdev/launcher/x64/release/cmder.exe" "$env:userprofile/cmderdev" -force
+copy "$env:userprofile\cmderdev\launcher\x64\release\cmder.exe" "$env:userprofile\cmderdev" -force
 
 # tabby
 setx cmder_root "${env:userprofile}\cmderdev"
