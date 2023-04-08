@@ -216,7 +216,7 @@
     "cpus": "2",
     "disk_size": "262144",
     "disk_type_id": "1",
-    "memory": "4096",
+    "memory": "2048",
     "headless": "false",
     "iso_url": "./scripts/packer/iso/Windows_10.iso",
     "iso_checksum": "none",
