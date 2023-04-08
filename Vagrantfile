@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
       v.customize ["modifyvm", :id, "--name", "cmderdev-10"]
       v.customize ["modifyvm", :id, "--ostype", "Windows10_64"]
       v.customize ["modifyvm", :id, "--graphicscontroller", "vboxsvga"]
-      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--memory", 2048]
       v.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
     end
   end
@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
       v.customize ["modifyvm", :id, "--name", "cmderdev-10s"]
       v.customize ["modifyvm", :id, "--ostype", "Windows10_64"]
       v.customize ["modifyvm", :id, "--graphicscontroller", "vboxsvga"]
-      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--memory", 2048]
       v.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
       v.customize ["setextradata", :id, "GUI/ScaleFactor", "1.75"]
     end
@@ -51,7 +51,7 @@ Vagrant.configure("2") do |config|
       v.customize ["modifyvm", :id, "--name", "cmderdev-11"]
       v.customize ["modifyvm", :id, "--ostype", "Windows11_64"]
       v.customize ["modifyvm", :id, "--graphicscontroller", "vboxvga"]
-      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--memory", 4096]
       v.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
     end
   end
