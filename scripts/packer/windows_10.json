@@ -5,15 +5,15 @@
       "boot_wait": "-1s",
       "cd_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/floppy/WindowsPowershell.lnk",
-        "./scripts/packer/floppy/PinTo10.exe",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.ps1",
-        "./scripts/packer/scripts/win-updates.ps1",
-        "./scripts/packer/scripts/set-shortcut.ps1"
+        "./floppy/WindowsPowershell.lnk",
+        "./floppy/PinTo10.exe",
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.ps1",
+        "./scripts/win-updates.ps1",
+        "./scripts/set-shortcut.ps1"
       ],
       "communicator": "winrm",
       "configuration_version": "10.0",
@@ -41,15 +41,15 @@
       "boot_wait": "-1s",
       "cd_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/floppy/WindowsPowershell.lnk",
-        "./scripts/packer/floppy/PinTo10.exe",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.ps1",
-        "./scripts/packer/scripts/win-updates.ps1",
-        "./scripts/packer/scripts/set-shortcut.ps1"
+        "./floppy/WindowsPowershell.lnk",
+        "./floppy/PinTo10.exe",
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.ps1",
+        "./scripts/win-updates.ps1",
+        "./scripts/set-shortcut.ps1"
       ],
       "communicator": "winrm",
       "cpus": "{{user `cpus`}}",
@@ -82,15 +82,15 @@
       "boot_wait": "-1s",
       "cd_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/floppy/WindowsPowershell.lnk",
-        "./scripts/packer/floppy/PinTo10.exe",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.ps1",
-        "./scripts/packer/scripts/win-updates.ps1",
-        "./scripts/packer/scripts/set-shortcut.ps1"
+        "./floppy/WindowsPowershell.lnk",
+        "./floppy/PinTo10.exe",
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.ps1",
+        "./scripts/win-updates.ps1",
+        "./scripts/set-shortcut.ps1"
       ],
       "communicator": "winrm",
       "cpus": "{{user `cpus`}}",
@@ -117,15 +117,15 @@
       "disk_size": "{{user `disk_size`}}",
       "floppy_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/floppy/WindowsPowershell.lnk",
-        "./scripts/packer/floppy/PinTo10.exe",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.ps1",
-        "./scripts/packer/scripts/win-updates.ps1",
-        "./scripts/packer/scripts/set-shortcut.ps1"
+        "./floppy/WindowsPowershell.lnk",
+        "./floppy/PinTo10.exe",
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.ps1",
+        "./scripts/win-updates.ps1",
+        "./scripts/set-shortcut.ps1"
       ],
       "guest_os_type": "win-10",
       "iso_checksum": "{{user `iso_checksum`}}",
@@ -161,14 +161,14 @@
       "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
       "remote_path": "/tmp/script.bat",
       "scripts": [
-        "./scripts/packer/scripts/enable-rdp.bat"
+        "./scripts/enable-rdp.bat"
       ],
       "type": "windows-shell"
     },
     {
       "scripts": [
-        "./scripts/packer/scripts/vm-guest-tools.ps1",
-        "./scripts/packer/scripts/debloat-windows.ps1"
+        "./scripts/vm-guest-tools.ps1",
+        "./scripts/debloat-windows.ps1"
       ],
       "type": "powershell"
     },
@@ -178,8 +178,8 @@
     },
     {
       "scripts": [
-        "./scripts/packer/scripts/set-powerplan.ps1",
-        "./scripts/packer/scripts/docker/disable-windows-defender.ps1"
+        "./scripts/set-powerplan.ps1",
+        "./scripts/docker/disable-windows-defender.ps1"
       ],
       "type": "powershell"
     },
@@ -187,13 +187,13 @@
       "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
       "remote_path": "/tmp/script.bat",
       "scripts": [
-        "./scripts/packer/scripts/chocolatey.bat"
+        "./scripts/chocolatey.bat"
       ],
       "type": "windows-shell"
     },
     {
       "scripts": [
-        "./scripts/packer/scripts/chocopacks.ps1"
+        "./scripts/chocopacks.ps1"
       ],
       "type": "powershell"
     },
@@ -201,24 +201,24 @@
       "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
       "remote_path": "/tmp/script.bat",
       "scripts": [
-        "./scripts/packer/scripts/pin-powershell.bat",
-        "./scripts/packer/scripts/compile-dotnet-assemblies.bat",
-        "./scripts/packer/scripts/set-winrm-automatic.bat",
-        "./scripts/packer/scripts/uac-enable.bat",
-        "./scripts/packer/scripts/dis-updates.bat",
-        "./scripts/packer/scripts/compact.bat"
+        "./scripts/pin-powershell.bat",
+        "./scripts/compile-dotnet-assemblies.bat",
+        "./scripts/set-winrm-automatic.bat",
+        "./scripts/uac-enable.bat",
+        "./scripts/dis-updates.bat",
+        "./scripts/compact.bat"
       ],
       "type": "windows-shell"
     }
   ],
   "variables": {
-    "autounattend": "./scripts/packer/answer_files/10_efi/Autounattend.xml",
+    "autounattend": "./answer_files/10_efi/Autounattend.xml",
     "cpus": "2",
     "disk_size": "262144",
     "disk_type_id": "1",
     "memory": "2048",
     "headless": "false",
-    "iso_url": "./scripts/packer/iso/Windows_10.iso",
+    "iso_url": "./iso/Windows_10.iso",
     "iso_checksum": "none",
     "restart_timeout": "5m",
     "vhv_enable": "false",
