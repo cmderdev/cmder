@@ -33,5 +33,6 @@ launcher/src/version.rc2
 .idea
 .vagrant/
 scripts/packer/iso
+scripts/packer/packer_cache
 *.box
 

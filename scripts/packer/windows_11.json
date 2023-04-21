@@ -15,12 +15,12 @@
       "disk_size": "{{user `disk_size`}}",
       "floppy_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.bat",
-        "./scripts/packer/scripts/win-updates.ps1"
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.bat",
+        "./scripts/win-updates.ps1"
       ],
       "guest_additions_mode": "none",
       "iso_checksum": "{{user `iso_checksum`}}",
@@ -50,12 +50,12 @@
       "disk_type_id": "{{user `disk_type_id`}}",
       "floppy_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.bat",
-        "./scripts/packer/scripts/win-updates.ps1"
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.bat",
+        "./scripts/win-updates.ps1"
       ],
       "guest_os_type": "windows9-64",
       "headless": "{{user `headless`}}",
@@ -91,12 +91,12 @@
       "disk_size": "{{user `disk_size`}}",
       "floppy_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.bat",
-        "./scripts/packer/scripts/win-updates.ps1"
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.bat",
+        "./scripts/win-updates.ps1"
       ],
       "guest_additions_mode": "disable",
       "guest_os_type": "Windows10_64",
@@ -125,12 +125,12 @@
       "disk_size": "{{user `disk_size`}}",
       "floppy_files": [
         "{{user `autounattend`}}",
-        "./scripts/packer/scripts/fixnetwork.ps1",
-        "./scripts/packer/scripts/disable-screensaver.ps1",
-        "./scripts/packer/scripts/disable-winrm.ps1",
-        "./scripts/packer/scripts/enable-winrm.ps1",
-        "./scripts/packer/scripts/microsoft-updates.bat",
-        "./scripts/packer/scripts/win-updates.ps1"
+        "./scripts/fixnetwork.ps1",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.bat",
+        "./scripts/win-updates.ps1"
       ],
       "guest_os_type": "win-10",
       "iso_checksum": "{{user `iso_checksum`}}",
@@ -173,14 +173,14 @@
       "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
       "remote_path": "/tmp/script.bat",
       "scripts": [
-        "./scripts/packer/scripts/enable-rdp.bat"
+        "./scripts/enable-rdp.bat"
       ],
       "type": "windows-shell"
     },
     {
       "scripts": [
-        "./scripts/packer/scripts/vm-guest-tools.ps1",
-        "./scripts/packer/scripts/debloat-windows.ps1"
+        "./scripts/vm-guest-tools.ps1",
+        "./scripts/debloat-windows.ps1"
       ],
       "type": "powershell"
     },
@@ -190,8 +190,8 @@
     },
     {
       "scripts": [
-        "./scripts/packer/scripts/set-powerplan.ps1",
-        "./scripts/packer/scripts/docker/disable-windows-defender.ps1"
+        "./scripts/set-powerplan.ps1",
+        "./scripts/docker/disable-windows-defender.ps1"
       ],
       "type": "powershell"
     },
@@ -199,13 +199,13 @@
       "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
       "remote_path": "/tmp/script.bat",
       "scripts": [
-        "./scripts/packer/scripts/chocolatey.bat"
+        "./scripts/chocolatey.bat"
       ],
       "type": "windows-shell"
     },
     {
       "scripts": [
-        "./scripts/packer/scripts/chocopacks.ps1"
+        "./scripts/chocopacks.ps1"
       ],
       "type": "powershell"
     },
@@ -213,18 +213,18 @@
       "execute_command": "{{ .Vars }} cmd /c \"{{ .Path }}\"",
       "remote_path": "/tmp/script.bat",
       "scripts": [
-        "./scripts/packer/scripts/pin-powershell.bat",
-        "./scripts/packer/scripts/compile-dotnet-assemblies.bat",
-        "./scripts/packer/scripts/set-winrm-automatic.bat",
-        "./scripts/packer/scripts/uac-enable.bat",
-        "./scripts/packer/scripts/dis-updates.bat",
-        "./scripts/packer/scripts/compact.bat"
+        "./scripts/pin-powershell.bat",
+        "./scripts/compile-dotnet-assemblies.bat",
+        "./scripts/set-winrm-automatic.bat",
+        "./scripts/uac-enable.bat",
+        "./scripts/dis-updates.bat",
+        "./scripts/compact.bat"
       ],
       "type": "windows-shell"
     }
   ],
   "variables": {
-    "autounattend": "./scripts/packer/answer_files/11/Autounattend.xml",
+    "autounattend": "./answer_files/11/Autounattend.xml",
     "disk_size": "61440",
     "disk_type_id": "1",
     "memory": "4096",
