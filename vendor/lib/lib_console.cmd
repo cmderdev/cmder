@@ -40,7 +40,7 @@ exit /b
 :::.
 :::-------------------------------------------------------------------------------
 
-    if %debug_output% gtr 0 echo DEBUG(%~1): %~2 & echo.
+    if %debug_output% gtr 0 echo %time% DEBUG(%~1): %~2 & echo.
     exit /b
 
 :verbose_output

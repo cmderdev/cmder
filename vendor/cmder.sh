@@ -33,11 +33,11 @@ CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
 
 export CMDER_ROOT
 
-if [ -d "/c/Program Files/Git" ] ; then
+if [ -f "/c/Program Files/Git/cmd/git.exe" ] ; then
     GIT_INSTALL_ROOT="/c/Program Files/Git"
-elif [ -d "/c/Program Files(x86)/Git" ] ; then
+elif [ -f "/c/Program Files(x86)/Git/cmd/git.exe" ] ; then
     GIT_INSTALL_ROOT="/c/Program Files(x86)/Git"
-elif [ -d "${CMDER_ROOT}/vendor/git-for-windows" ] ; then
+elif [ -f "${CMDER_ROOT}/vendor/git-for-windows/cmd/git.exe" ] ; then
     GIT_INSTALL_ROOT=${CMDER_ROOT}/vendor/git-for-windows
 fi
 

@@ -5,7 +5,7 @@
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
 
-$CMDER_INIT_START = $(Get-Date -UFormat %s)
+$CMDER_INIT_START = Get-Date
 
 # Compatibility with PS major versions <= 2
 if (!$PSScriptRoot) {
@@ -123,11 +123,11 @@ if (-not (Test-Path -PathType container "$ENV:CMDER_ROOT\config\profile.d")) {
 
 Push-Location $ENV:CMDER_ROOT\config\profile.d
 foreach ($x in Get-ChildItem *.psm1) {
-    Write-Verbose Write-Host Sourcing $x
+    Write-Verbose "Sourcing $x"
     Import-Module $x
 }
 foreach ($x in Get-ChildItem *.ps1) {
-    Write-Verbose Write-Host Sourcing $x
+    Write-Verbose "Sourcing $x"
     . $x
 }
 Pop-Location
@@ -137,11 +137,11 @@ Pop-Location
 if ($ENV:CMDER_USER_CONFIG -ne "" -and (Test-Path "$ENV:CMDER_USER_CONFIG\profile.d")) {
     Push-Location $ENV:CMDER_USER_CONFIG\profile.d
     foreach ($x in Get-ChildItem *.psm1) {
-        Write-Verbose Write-Host Sourcing $x
+        Write-Verbose "Sourcing $x"
         Import-Module $x
     }
     foreach ($x in Get-ChildItem *.ps1) {
-        Write-Verbose Write-Host Sourcing $x
+        Write-Verbose "Sourcing $x"
         . $x
     }
     Pop-Location
@@ -224,5 +224,8 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
     Set-Item -Path function:\prompt  -Value $Prompt  -Options ReadOnly
 }
 
-$CMDER_INIT_END = $(Get-Date -UFormat %s)
-Write-Verbose "Elapsed Time: $(get-Date) `($($CMDER_INIT_END - $CMDER_INIT_START) total`)"
+$CMDER_INIT_END = Get-Date
+
+$ElapsedTime = New-TimeSpan -Start $CMDER_INIT_START -End $CMDER_INIT_END
+
+Write-Verbose "Elapsed Time: $($ElapsedTime.TotalSeconds) seconds total"

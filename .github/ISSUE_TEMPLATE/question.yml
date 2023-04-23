@@ -19,7 +19,7 @@ body:
 
         - If you would like to ask for guides on how to integrate Cmder with your favorite IDE of choice, or how to perform a specific task with Cmder, make sure you visit our label section first.
 
-          You may already have an answer under the Guides or Questions section.
+          You may already have an answer under the [💬 Guides](https://github.com/cmderdev/cmder/issues?q=label%3A%22%F0%9F%92%AC+Type%3A+Guide%22), [📖 Documentation](https://github.com/cmderdev/cmder/issues?q=label%3A%22%F0%9F%93%96+Documentation%22) or [❔ Questions](https://github.com/cmderdev/cmder/issues?q=is%3Aissue+label%3A%22%E2%9D%94+Type%3A+Question%22) section.
 
           For a list of labels, visit **[Labels](https://github.com/cmderdev/cmder/labels)**.
 

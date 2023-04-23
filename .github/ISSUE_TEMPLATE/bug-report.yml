@@ -25,8 +25,8 @@ body:
         Cmder version:
         Operating system:
       value: |
-        Cmder version: 
-        Operating system: 
+        Cmder version:
+        Operating system:
       render: markdown
     validations:
       required: true
@@ -55,7 +55,7 @@ body:
           | 🌐 [Open Link](https://github.com/cmderdev/cmder/blob/master/README.md) | 🌐 [Open Link](https://github.com/cmderdev/cmder/wiki) |
 
           (What you may be asking here could already be explained there!)
-          
+
         - Searched for existing issues (including the **closed** ones) for similar problems here:
 
           🗃 https://github.com/cmderdev/cmder/issues?q=is:issue
@@ -91,7 +91,7 @@ body:
 
         #### Prerequisites before submitting an issue
         - We do not support any versions older than the current release series, if you are using an older Cmder please update to the latest version first.
-        - Verify that the issue is not fixed and is reproducible in the **[latest official Cmder version](https://github.com/cmderdev/cmder/releases).**
+        - Verify that the issue is not already fixed and is reproducible in the **[latest official Cmder version](https://github.com/cmderdev/cmder/releases).**
         - Check the **[current issues list](https://github.com/cmderdev/cmder/issues?q=is%3Aissue)** and perform a **search of the issue tracker (including closed ones)** to avoid posting a duplicate bug report.
         - Make sure this is not a support request or question, both of which are better suited for either the **[discussions section](https://github.com/cmderdev/cmder/discussions)**, or the **[questions section](https://github.com/cmderdev/cmder/issues/new?template=question.yml)**.
         - Verify that the **[wiki](https://github.com/cmderdev/cmder/wiki)** did not contain a suitable solution either.

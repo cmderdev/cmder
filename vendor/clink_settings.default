@@ -8,15 +8,15 @@ history.expand_mode = not_dquoted
 
 # name: Skip adding lines prefixed with whitespace
 # type: boolean
-history.ignore_space = False
+history.ignore_space = True
 
 # name: The number of history lines to save
 # type: integer
-history.max_lines = 10000
+history.max_lines = 25000
 
 # name: Share history between instances
 # type: boolean
-history.shared = True
+history.shared = False
 
 # name: Auto-answer terminate prompt
 # type: enum

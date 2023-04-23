@@ -148,7 +148,7 @@ if defined CMDER_USER_CONFIG (
 )
 
 if not "%CMDER_SHELL%" == "cmd" (
-    %print_warning% "Incompatible 'ComSpec/Shell' Detetected: %CMDER_SHELL%"
+    %print_warning% "Incompatible 'ComSpec/Shell' Detected: %CMDER_SHELL%"
     set CMDER_CLINK=0
     set CMDER_ALIASES=0
 )
@@ -161,16 +161,24 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set clink_architecture=x64
     set architecture_bits=64
 ) else (
-    %print_warning% "Incompatible Processor Detetected: %PROCESSOR_ARCHITECTURE%"
+    %print_warning% "Incompatible Processor Detected: %PROCESSOR_ARCHITECTURE%"
     set CMDER_CLINK=0
 )
 
 if "%CMDER_CLINK%" == "1" (
+    REM TODO: If clink is already injected, goto :CLINK_FINISH
+    goto :INJECT_CLINK
+)
+
+goto :SKIP_CLINK
+
+:INJECT_CLINK
     %print_verbose% "Injecting Clink!"
 
     :: Check if Clink is not present
     if not exist "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" (
         %print_error% "Clink executable is not present in 'vendor\clink\clink_%clink_architecture%.exe'"
+        goto :SKIP_CLINK
     )
 
     :: Run Clink
@@ -185,7 +193,7 @@ if "%CMDER_CLINK%" == "1" (
         copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
     )
 
-    :: Cleanup lagacy Clink Settings file
+    :: Cleanup legacy Clink Settings file
     if exist "%CMDER_CONFIG_DIR%\settings" if exist "%CMDER_CONFIG_DIR%\clink_settings" (
         del "%CMDER_CONFIG_DIR%\settings"
     )
@@ -198,9 +206,12 @@ if "%CMDER_CLINK%" == "1" (
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
 
     if errorlevel 1 (
-        %print_error% "Clink initilization has failed with error code: %errorlevel%"
+        %print_error% "Clink initialization has failed with error code: %errorlevel%"
     )
-) else (
+
+    goto :CLINK_FINISH
+
+:SKIP_CLINK
     %print_warning% "Skipping Clink Injection!"
 
     for /f "tokens=2 delims=:." %%x in ('chcp') do set cp=%%x
@@ -210,7 +221,8 @@ if "%CMDER_CLINK%" == "1" (
     prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
 
     chcp %cp%>nul
-)
+
+:CLINK_FINISH
 
 if "%CMDER_CONFIGURED%" GTR "1" (
     %print_verbose% "Cmder is already configured, skipping Cmder Init!"
@@ -236,6 +248,13 @@ if defined GIT_INSTALL_ROOT (
     if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
         %print_debug% init.bat "Skipping Git Auto-Detect!"
         goto :VENDORED_GIT
+    )
+
+    %print_debug% init.bat "Fast init is enabled, vendored Git does not exist"
+    for /F "delims=" %%F in ('where git.exe 2^>nul') do (
+	set "EXT_GIT_EXE=%%~fF"
+        %print_debug% init.bat "Found User installed Git at '%%~fF'. Skipping Git Auto-Detect!"
+        goto :SET_ENV
     )
 )
 
@@ -309,6 +328,8 @@ if %nix_tools% geq 1 (
     )
 )
 
+:SET_ENV
+
 :: Plink (PuTTY Link) is a command-line connection tool similar to ssh, setting its protocol to ssh
 set PLINK_PROTOCOL=ssh
 
@@ -316,6 +337,12 @@ set PLINK_PROTOCOL=ssh
 if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 
 :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
+setlocal enabledelayedexpansion
+if not defined git_locale if defined EXT_GIT_EXE (
+    set "GIT_INSTALL_ROOT=!EXT_GIT_EXE:\cmd\git.exe=!"
+)
+endlocal && set GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
+
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\locale.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\locale.exe"
 if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^>nul') do ( if not defined git_locale set git_locale="%%F" )
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale

@@ -102,6 +102,12 @@ function Fetch-DownloadUrl {
 
     $p = $url.Segments.Split([Environment]::NewLine)
 
+    $headers = @{}
+
+    if ($env:GITHUB_TOKEN) {
+        $headers["Authorization"] = "token $($env:GITHUB_TOKEN)"
+    }
+
     # Api server for GitHub
     $urlHost = "api.github.com"
 
@@ -110,7 +116,7 @@ function Fetch-DownloadUrl {
 
     $apiUrl = [uri] (New-Object System.UriBuilder -ArgumentList $url.Scheme, $urlHost, -1, $urlPath).Uri
 
-    $info = Invoke-RestMethod -Uri $apiUrl
+    $info = Invoke-RestMethod -Uri $apiUrl -Headers $headers
 
     $downloadLinks = (New-Object System.Collections.Generic.List[System.Object])
 
