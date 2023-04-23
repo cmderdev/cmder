@@ -20,6 +20,8 @@ jobs:
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v3
+        with:
+          ref: development
 
       # Runs a single command using the runners shell
       - name: Merge master into development
