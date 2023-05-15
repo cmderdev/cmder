@@ -151,12 +151,12 @@ local function set_prompt_filter()
         cwd = string.gsub(cwd, clink.get_env("HOME"), prompt_homeSymbol)
     end
 
-    uah = ''
+    local uah = ''
     if prompt_useUserAtHost then
         uah = clink.get_env("USERNAME") .. "@" .. clink.get_env("COMPUTERNAME") .. ' '
     end
 
-    cr = "\n"
+    local cr = "\n"
     if prompt_singleLine then
         cr = ' '
     end
@@ -170,7 +170,7 @@ local function set_prompt_filter()
 
     local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
 
-    prompt = "{uah}{cwd}" .. version_control .. cr .. get_lamb_color() .. "{env}{lamb}\x1b[0m "
+    local prompt = "{uah}{cwd}" .. version_control .. cr .. get_lamb_color() .. "{env}{lamb}\x1b[0m "
     prompt = string.gsub(prompt, "{uah}", uah)
     prompt = string.gsub(prompt, "{cwd}", cwd)
     prompt = string.gsub(prompt, "{env}", env)
