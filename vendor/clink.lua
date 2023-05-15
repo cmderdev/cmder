@@ -255,7 +255,8 @@ local function get_git_dir(path)
         local gitfile = io.open(dir..'/.git')
         if not gitfile then return false end
 
-        local git_dir = gitfile:read():match('gitdir: (.*)')
+        local line = gitfile:read() or ''
+        local git_dir = line:match('gitdir: (.*)')
         gitfile:close()
 
         if os.isdir then -- only available in Clink v1.0.0 and higher
@@ -303,6 +304,9 @@ local function get_git_branch(git_dir)
     local HEAD = head_file:read()
     head_file:close()
 
+    -- If HEAD is missing, something is wrong.
+    if not HEAD then return end
+
     -- if HEAD matches branch expression, then we're on named branch
     -- otherwise it is a detached commit
     local branch_name = HEAD:match('ref: refs/heads/(.+)')
@@ -322,6 +326,9 @@ local function get_hg_branch()
     -- local cmd = "hg prompt \"{branch}{status}{|{patch}}{update}\""
     local cmd = "hg branch 2>nul"
     local file = io.popen(cmd)
+    if not file then
+        return false
+    end
 
     for line in file:lines() do
         local m = line:match("(.+)$")
@@ -341,6 +348,10 @@ end
 ---
 local function get_svn_branch(svn_dir)
     local file = io_popenyield("svn info 2>nul")
+    if not file then
+        return false
+    end
+
     for line in file:lines() do
         local m = line:match("^Relative URL:")
         if m then
@@ -359,6 +370,10 @@ end
 ---
 local function get_git_status()
     local file = io_popenyield("git --no-optional-locks status --porcelain 2>nul")
+    if not file then
+        return {}
+    end
+
     local conflict_found = false
     local is_status = true
     for line in file:lines() do
@@ -374,9 +389,9 @@ local function get_git_status()
         end
     end
     file:close()
+
     return { status = is_status, conflict = conflict_found }
 end
-
 
 ---
 -- Get the status of working dir
@@ -399,13 +414,17 @@ end
 ---
 local function get_svn_status()
     local file = io_popenyield("svn status -q")
-    for line in file:lines() do
+    if not file then
+        return { error = true }
+    end
+
+    for line in file:lines() do -- luacheck: ignore 512, no unused
         file:close()
-        return false
+        return { clean = false }
     end
     file:close()
 
-    return true
+    return { clean = true }
 end
 
 ---
@@ -433,24 +452,28 @@ local function get_git_status_setting()
     end
 
     local gitStatusConfig = io_popenyield("git --no-pager config cmder.status 2>nul")
-    for line in gitStatusConfig:lines() do
-        if string.match(line, 'false') then
-            gitStatusConfig:close()
-            last_git_status_setting = false
-            return false
+    if gitStatusConfig then
+        for line in gitStatusConfig:lines() do
+            if string.match(line, 'false') then
+                gitStatusConfig:close()
+                last_git_status_setting = false
+                return false
+            end
         end
+        gitStatusConfig:close()
     end
-    gitStatusConfig:close()
 
     local gitCmdStatusConfig = io_popenyield("git --no-pager config cmder.cmdstatus 2>nul")
-    for line in gitCmdStatusConfig:lines() do
-        if string.match(line, 'false') then
-            gitCmdStatusConfig:close()
-            last_git_status_setting = false
-            return false
+    if gitCmdStatusConfig then
+        for line in gitCmdStatusConfig:lines() do
+            if string.match(line, 'false') then
+                gitCmdStatusConfig:close()
+                last_git_status_setting = false
+                return false
+            end
         end
+        gitCmdStatusConfig:close()
     end
-    gitCmdStatusConfig:close()
 
     last_git_status_setting = true
     return true
@@ -536,8 +559,6 @@ local function hg_prompt_filter()
         return false
     end
 
-    local result = ""
-
     local hg_dir = get_hg_dir()
     if hg_dir then
         -- Colors for mercurial status
@@ -559,16 +580,20 @@ local function hg_prompt_filter()
             local color = colors.clean
 
             local pipe = io.popen("hg status -amrd 2>&1")
-            local output = pipe:read('*all')
-            local rc = { pipe:close() }
+            if pipe then
+                output = pipe:read('*all')
+                pipe:close()
+                if output ~= nil and output ~= "" then color = colors.dirty end
+            end
 
-            if output ~= nil and output ~= "" then color = colors.dirty end
-            result = color .. "(" .. branch .. ")"
+            local result = color .. "(" .. branch .. ")"
+            clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", " "..verbatim(result))
+            return false
         end
     end
 
-    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", " "..verbatim(result))
-    return false
+    -- No hg present or not in hg repo
+    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", "")
 end
 
 local function svn_prompt_filter()
@@ -589,7 +614,6 @@ local function svn_prompt_filter()
     if svn_dir then
         -- if we're inside of svn repo then try to detect current branch
         local branch = get_svn_branch()
-        local color
         if branch then
             -- If in a different repo or branch than last time, discard cached info
             if cached_info.svn_dir ~= svn_dir or cached_info.svn_branch ~= branch then
@@ -613,9 +637,10 @@ local function svn_prompt_filter()
                 svnStatus = get_svn_status()
             end
 
-            if svnStatus == nil then
+            local color
+            if not svnStatus or svnStatus.error then
                 color = colors.nostatus
-            elseif svnStatus then
+            elseif svnStatus.clean then
                 color = colors.clean
             else
                 color = colors.dirty
