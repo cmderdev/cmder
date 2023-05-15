@@ -397,21 +397,6 @@ end
 -- Get the status of working dir
 -- @return {bool}
 ---
-local function get_hg_status()
-    local file = io.popen("hg status -0")
-    for line in file:lines() do
-        file:close()
-        return false
-    end
-    file:close()
-
-    return true
-end
-
----
--- Get the status of working dir
--- @return {bool}
----
 local function get_svn_status()
     local file = io_popenyield("svn status -q")
     if not file then
