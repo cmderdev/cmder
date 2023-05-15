@@ -3,7 +3,12 @@
 -- !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 -- !!! Use "%CMDER_ROOT%\config\<whatever>.lua" to add your lua startup scripts
 
--- luacheck: globals clink
+-- luacheck: globals CMDER_SESSION
+-- luacheck: globals uah_color cwd_color lamb_color clean_color dirty_color conflict_color unknown_color
+-- luacheck: globals prompt_homeSymbol prompt_lambSymbol prompt_type prompt_useHomeSymbol prompt_useUserAtHost
+-- luacheck: globals prompt_singleLine prompt_includeVersionControl
+-- luacheck: globals prompt_overrideGitStatusOptIn prompt_overrideSvnStatusOptIn
+-- luacheck: globals clink io.popenyield os.isdir settings.get
 
 -- At first, load the original clink.lua file
 -- this is needed as we set the script path to this dir and therefore the original
@@ -191,7 +196,7 @@ end
 local function get_dir_contains(path, dirname)
 
     -- return parent path for specified entry (either file or directory)
-    local function pathname(path)
+    local function pathname(path) -- luacheck: ignore 432
         local prefix = ""
         local i = path:find("[\\/:][^\\/:]*$")
         if i then
@@ -201,14 +206,14 @@ local function get_dir_contains(path, dirname)
     end
 
     -- Navigates up one level
-    local function up_one_level(path)
+    local function up_one_level(path) -- luacheck: ignore 432
         if path == nil then path = '.' end
         if path == '.' then path = clink.get_cwd() end
         return pathname(path)
     end
 
     -- Checks if provided directory contains git directory
-    local function has_specified_dir(path, specified_dir)
+    local function has_specified_dir(path, specified_dir) -- luacheck: ignore 432
         if path == nil then path = '.' end
         local found_dirs = clink.find_dirs(path..'/'..specified_dir)
         if #found_dirs > 0 then return true end
@@ -236,7 +241,7 @@ end
 local function get_git_dir(path)
 
     -- return parent path for specified entry (either file or directory)
-    local function pathname(path)
+    local function pathname(path) -- luacheck: ignore 432
         local prefix = ""
         local i = path:find("[\\/:][^\\/:]*$")
         if i then
@@ -346,7 +351,7 @@ end
 -- Find out current branch
 -- @return {false|svn branch name}
 ---
-local function get_svn_branch(svn_dir)
+local function get_svn_branch()
     local file = io_popenyield("svn info 2>nul")
     if not file then
         return false
@@ -379,7 +384,7 @@ local function get_git_status()
     for line in file:lines() do
         local code = line:sub(1, 2)
         -- print (string.format("code: %s, line: %s", code, line))
-        if code == "DD" or code == "AU" or code == "UD" or code == "UA" or code == "DU" or code == "AA" or code == "UU" then
+        if code == "DD" or code == "AU" or code == "UD" or code == "UA" or code == "DU" or code == "AA" or code == "UU" then -- luacheck: no max line length
             is_status = false
             conflict_found = true
             break
@@ -608,7 +613,7 @@ local function svn_prompt_filter()
             end
             -- Get the svn status using coroutine if available and option is enabled. Otherwise use a blocking call
             local svnStatus
-            if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") and prompt_overrideSvnStatusOptIn then
+            if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") and prompt_overrideSvnStatusOptIn then -- luacheck: no max line length
                 svnStatus = clink_promptcoroutine(function ()
                     return get_svn_status()
                 end)
