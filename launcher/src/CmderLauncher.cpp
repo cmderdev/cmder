@@ -425,11 +425,6 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		swprintf_s(args, L"%s /single", args);
 	}
 
-	if (!streqi(cmderTask.c_str(), L""))
-	{
-		swprintf_s(args, L"%s /run {%s}", args, cmderTask.c_str());
-	}
-
 	if (!streqi(cmderTitle.c_str(), L""))
 	{
 		swprintf_s(args, L"%s /title \"%s\"", args, cmderTitle.c_str());
@@ -443,6 +438,14 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	if (!streqi(cmderConEmuArgs.c_str(), L""))
 	{
 		swprintf_s(args, L"%s %s", args, cmderConEmuArgs.c_str());
+	}
+
+	// The `/run` arg and its value MUST be the last arg of ConEmu
+	// see : https://conemu.github.io/en/ConEmuArgs.html
+	// > This must be the last used switch (excepting -new_console and -cur_console)
+	if (!streqi(cmderTask.c_str(), L""))
+	{
+		swprintf_s(args, L"%s /run {%s}", args, cmderTask.c_str());
 	}
 
 	SetEnvironmentVariable(L"CMDER_ROOT", exeDir);
