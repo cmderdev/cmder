@@ -551,7 +551,7 @@ if defined CMDER_USER_CONFIG (
     %print_error% "Failed to generate Cmder config"
   )
 ) else if not exist "%CMDER_ROOT%\config\user_init.cmd" (
-  powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
+  powershell -executionpolicy bypass -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
 
   if not exist "%CMDER_ROOT%\config\user_init.cmd" (
     %print_error% "Failed to generate Cmder config"
@@ -559,10 +559,31 @@ if defined CMDER_USER_CONFIG (
 )
 
 :CMDER_CONFIGURED
-if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
+  if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
+  set CMDER_INIT_END=%time%
 
-set CMDER_INIT_END=%time%
+  if "%time_init%" == "1" if "%CMDER_INIT_END%" neq "" if "%CMDER_INIT_START%" neq "" (
+    call "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
+  )
 
-    "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
-)
+:CLEANUP
+  set architecture_bits=
+  set CMDER_ALIASES=
+  set CMDER_INIT_END=
+  set CMDER_INIT_START=
+  set CMDER_USER_FLAGS=
+  set CMDER_CLINK=
+  set debug_output=
+  set fast_init=
+  set max_depth=
+  set nix_tools=
+  set path_position=
+  set print_debug=
+  set print_error=
+  set print_verbose=
+  set print_warning=
+  set time_init=
+  set verbose_output=
+  set user_aliases=
+
 exit /b
