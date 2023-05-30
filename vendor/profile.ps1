@@ -87,7 +87,7 @@ if ($null -ne $ENV:GIT_INSTALL_ROOT) {
 }
 
 if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
-    New-Alias -name "vi" -value vim
+    New-Alias -name "vi" -value vim -errorAction SilentlyContinue
 }
 
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
