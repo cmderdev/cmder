@@ -893,8 +893,8 @@
 				<value name="Key.EditMenu2" type="dword" data="00000000"/>
 			</key>
 			<value name="StartCreateDelay" type="ulong" data="100"/>
-			<value name="DefaultTerminalDebugLog" type="hex" data="00"/>
-			<value name="LastMonitor" type="string" data="1680,0,3600,1050"/>
+      <value name="DefaultTerminalDebugLog" type="hex" data="00"/>
+      <value name="LastMonitor" type="string" data="0,0,1440,1050"/>
 			<value name="Restore2ActiveMon" type="hex" data="00"/>
 			<value name="DownShowExOnTopMessage" type="hex" data="00"/>
 			<value name="EnvironmentSet" type="multi">
