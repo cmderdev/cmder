@@ -1,5 +1,12 @@
 # Change Log
 
+## [UNRELEASED](https://github.com/cmderdev/cmder/tree/master) (2022-06-05)
+
+### Adds
+
+- Cmder Mini
+  - Launching Git Bash from external Git for Windows install.
+
 ## [1.3.20](https://github.com/cmderdev/cmder/tree/v1.3.20) (2022-03-18)
 
 ### Changes
