@@ -1,8 +1,8 @@
 [
   {
     "name": "git-for-windows",
-    "version": "2.40.0.windows.1",
-    "url": "https://github.com/git-for-windows/git/releases/download/v2.40.0.windows.1/PortableGit-2.40.0-64-bit.7z.exe"
+    "version": "2.40.1.windows.1",
+    "url": "https://github.com/git-for-windows/git/releases/download/v2.40.1.windows.1/PortableGit-2.40.1-64-bit.7z.exe"
   },
   {
     "name": "clink",
@@ -16,7 +16,7 @@
   },
   {
     "name": "clink-completions",
-    "version": "0.4.7",
-    "url": "https://github.com/vladimir-kotikov/clink-completions/archive/v0.4.7.zip"
+    "version": "0.4.8",
+    "url": "https://github.com/vladimir-kotikov/clink-completions/archive/v0.4.8.zip"
   }
 ]
