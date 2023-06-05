@@ -7,6 +7,10 @@
 - Cmder Mini
   - Launching Git Bash from external Git for Windows install.
 
+### Changes
+
+- Update Git Prompt with changes from Git for Windows
+
 ## [1.3.20](https://github.com/cmderdev/cmder/tree/v1.3.20) (2022-03-18)
 
 ### Changes
