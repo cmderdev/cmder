@@ -551,7 +551,7 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
   set CMDER_INIT_END=%time%
 
-  if "%CMDER_INIT_END%" neq "" if "%CMDER_INIT_START%" neq "" (
+  if "%time_init%" == "1" if "%CMDER_INIT_END%" neq "" if "%CMDER_INIT_START%" neq "" (
     call "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
   )
 
@@ -561,6 +561,7 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   set CMDER_INIT_END=
   set CMDER_INIT_START=
   set CMDER_USER_FLAGS=
+  set CMDER_CLINK=
   set debug_output=
   set fast_init=
   set max_depth=

@@ -28,7 +28,6 @@ if (!$ENV:CMDER_ROOT) {
 # Remove trailing '\'
 $ENV:CMDER_ROOT = ($ENV:CMDER_ROOT).TrimEnd("\")
 
-# Do not load bundled PsGet if a module installer is already available
 # -> recent PowerShell versions include PowerShellGet out of the box
 $moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue)
 
@@ -87,7 +86,7 @@ if ($null -ne $ENV:GIT_INSTALL_ROOT) {
 }
 
 if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
-    New-Alias -name "vi" -value vim
+    New-Alias -name "vi" -value vim -errorAction SilentlyContinue
 }
 
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {

@@ -38,7 +38,7 @@ then
     . ~/.config/git/git-prompt.sh
   fi
 else
-  PS1='\[\033]0;$MSYSTEM:${PWD//[^[:ascii:]]/?}\007\]' # set window title
+  PS1='\[\033]0;$TITLEPREFIX:$PWD\007\]' # set window title
   # PS1="$PS1"'\n'                 # new line
   PS1="$PS1"'\[\033[32m\]'       # change to green
   PS1="$PS1"'\u@\h '             # user@host<space>
@@ -72,3 +72,14 @@ else
 fi
 
 MSYS2_PS1="$PS1"               # for detection by MSYS2 SDK's bash.basrc
+
+# Evaluate all user-specific Bash completion scripts (if any)
+if test -z "$WINELOADERNOEXEC"
+then
+	for c in "$HOME"/bash_completion.d/*.bash
+	do
+		# Handle absence of any scripts (or the folder) gracefully
+		test ! -f "$c" ||
+		. "$c"
+	done
+fi
