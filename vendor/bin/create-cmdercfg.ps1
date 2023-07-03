@@ -11,6 +11,8 @@ if ($shell -match 'powershell') {
 } elseif ($shell -match 'bash') {
   write-host "'$shell' is not supported at this time!"
   exit 0
+} else {
+  exit 0
 }
 
 $CmderModulePath = Join-path $env:cmder_root "vendor/psmodules/"
