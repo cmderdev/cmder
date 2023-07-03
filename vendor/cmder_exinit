@@ -1,4 +1,6 @@
-# Copy this file to your non integrated *nix-like environment,
+#!/usr/bin/env bash
+
+## Copy this file to your non integrated *nix-like environment,
 # Cygwin/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
 # folder to integrate the externally installed Unix like environment
 # into Cmder so it has access to settings stored in Cmder/config
