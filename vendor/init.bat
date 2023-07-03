@@ -220,10 +220,10 @@ goto :SKIP_CLINK
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
     set CMDER_CLINK=2
 
-    if errorlevel 1 (
-        %print_error% "Clink initialization has failed with error code: %errorlevel%"
-        goto :CLINK_FINISH
-    )
+    REM if errorlevel 1 (
+    REM     %print_error% "Clink initialization has failed with error code: %errorlevel%"
+    REM     goto :CLINK_FINISH
+    REM )
 
     set CMDER_CLINK=2
 
