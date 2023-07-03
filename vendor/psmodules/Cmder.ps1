@@ -186,8 +186,9 @@ function yOrn( $question ) {
   return $Answer
 }
 
-function templateExpand($template, $outfile) {
-  $template = Get-Content $template -Raw
+function templateExpand($template_filename, $outfile) {
+  $template = Get-Content "$template_filename" -Raw
+
   $expanded = Invoke-Expression "@`"`r`n$template`r`n`"@"
 
   $overwrite = 'y'

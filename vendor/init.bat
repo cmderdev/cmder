@@ -168,10 +168,11 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 if defined CMDER_USER_CONFIG (
   if exist "%CMDER_ROOT%\config\user_init.cmd" (
     call "%CMDER_ROOT%\config\user_init.cmd"
+    exit /b
   ) else if exist "%CMDER_USER_CONFIG%\config\user_init.cmd" (
     call "%CMDER_USER_CONFIG%\config\user_init.cmd"
+    exit /b
   )
-  exit /b
 ) else if exist "%CMDER_ROOT%\config\user_init.cmd" (
   call "%CMDER_ROOT%\config\user_init.cmd"
   exit /b
@@ -538,20 +539,8 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 
 set initialConfig=
 
-if defined CMDER_USER_CONFIG (
-  if not exist "%CMDER_ROOT%\config\user_init.cmd" if not exist "%CMDER_USER_ROOT%\config\user_init.cmd" (
-    powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
-  )
-
-  if not exist "%CMDER_ROOT%\config\user_init.cmd" if not exist "%CMDER_USER_ROOT%\config\user_init.cmd" (
-    powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_iUSER_ROOT%\config\user_init.cmd"
-  )
-
-  if not exist "%CMDER_ROOT%\config\user_init.cmd" if not exist "%CMDER_USER_ROOT%\config\user_init.cmd" (
-    %print_error% "Failed to generate Cmder config"
-  )
-) else if not exist "%CMDER_ROOT%\config\user_init.cmd" (
-  powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd -outfile "%CMDER_ROOT%\config\user_init.cmd"
+if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
+  powershell -f "%cmder_root%\vendor\bin\create-cmdercfg.ps1" -shell cmd -outfile "%CMDER_CONFIG_DIR%\user_init.cmd"
 
   if not exist "%CMDER_ROOT%\config\user_init.cmd" (
     %print_error% "Failed to generate Cmder config"
