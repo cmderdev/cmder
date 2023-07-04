@@ -153,7 +153,8 @@ if not "%CMDER_SHELL%" == "cmd" (
     set CMDER_ALIASES=0
 )
 
-:: Pick right version of Clink
+:: Pick the right version of Clink
+:: TODO: Support for ARM
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set clink_architecture=x86
     set architecture_bits=32
@@ -166,7 +167,7 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 )
 
 if "%CMDER_CLINK%" == "1" (
-    REM TODO: If clink is already injected, goto :CLINK_FINISH
+    REM TODO: Detect if clink is already injected, if so goto :CLINK_FINISH
     goto :INJECT_CLINK
 )
 
@@ -205,8 +206,10 @@ goto :SKIP_CLINK
 
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
 
-    if errorlevel 1 (
-        %print_error% "Clink initialization has failed with error code: %errorlevel%"
+    :: Check if a fatal error occurred when trying to inject Clink
+    if errorlevel 2 (
+        REM %print_error% "Clink injection has failed with error code: %errorlevel%"
+        goto :SKIP_CLINK
     )
 
     goto :CLINK_FINISH
@@ -237,8 +240,8 @@ if "%CMDER_CONFIGURED%" GTR "1" (
 :: Prepare for git-for-windows
 
 :: Detect which git.exe version to use
-:: * if the users points as to a specific git, use that
-:: * test if a git is in path and if yes, use that
+:: * if the user points to a specific git, use that
+:: * test if git is in path and if yes, use that
 :: * last, use our vendored git
 :: also check that we have a recent enough version of git by examining the version string
 if defined GIT_INSTALL_ROOT (
