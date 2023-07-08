@@ -86,13 +86,28 @@ else
     end
 end
 
-
+local function isempty(s)
+  return s == nil or s == ''
+end
 ---
 -- Global variable so other Lua scripts can detect whether they're in a Cmder
 -- shell session.
 ---
 CMDER_SESSION = true
 
+CMDER_CONFIG_PATH = clink.get_env('CMDER_ROOT')..'\\config'
+-- print (string.format("CMDER_CONFIG_PATH: %s", CMDER_CONFIG_PATH))
+
+---
+-- If Cmder is launched with '/c [folderPath]' indicating Cmder is installed globally and
+-- each user has a private '[folderPath]\config' folder. 
+---
+CMDER_USER_CONFIG_PATH = nil
+-- print (string.format("CMDER_USER_CONFIG_PATH 1: %s", CMDER_USER_CONFIG_PATH))
+if not isempty(clink.get_env('CMDER_USER_CONFIG')) then
+  CMDER_USER_CONFIG_PATH = clink.get_env('CMDER_USER_CONFIG')
+end
+-- print (string.format("CMDER_USER_CONFIG_PATH 2: %s", CMDER_USER_CONFIG_PATH))
 
 ---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
@@ -666,10 +681,15 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
     end
 end
 
-if clink.get_env('CMDER_USER_CONFIG') then
-    local cmder_config_dir = clink.get_env('CMDER_ROOT')..'/config/'
-    for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
-        local filename = cmder_config_dir..lua_module
+---
+-- If Cmder is launched with '/c [folderPath]', indicating Cmder is installed globally and
+-- each user has a private '[folderPath]\config' folder, Clink won't know about the global
+-- '%cmder_root%\config dir, so we need to load scripts from there before Clink loads lua 
+-- scripts from the profile directory given to it when it was injected.
+---
+if not (isempty(CMDER_USER_CONFIG_PATH)) then
+    for _,lua_module in ipairs(clink.find_files(CMDER_CONFIG_PATH..'*.lua')) do
+        local filename = CMDER_CONFIG_PATH..lua_module
         -- use dofile instead of require because require caches loaded modules
         -- so config reloading using Alt-Q won't reload updated modules.
         dofile(filename)
