@@ -680,7 +680,7 @@ end
 ---
 -- If Cmder is launched with '/c [folderPath]', indicating Cmder is installed globally and
 -- each user has a private '[folderPath]\config' folder, Clink won't know about the global
--- '%cmder_root%\config dir, so we need to load scripts from there before Clink loads lua 
+-- 'CMDER_CONFIG_PATH` dir, so we need to load scripts from there before Clink loads lua 
 -- scripts from the profile directory given to it when it was injected.
 ---
 if not (isempty(CMDER_USER_CONFIG_PATH)) then
