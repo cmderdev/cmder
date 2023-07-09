@@ -94,20 +94,16 @@ end
 -- shell session.
 ---
 CMDER_SESSION = true
-
 CMDER_CONFIG_PATH = clink.get_env('CMDER_ROOT')..'\\config'
--- print (string.format("CMDER_CONFIG_PATH: %s", CMDER_CONFIG_PATH))
 
 ---
 -- If Cmder is launched with '/c [folderPath]' indicating Cmder is installed globally and
 -- each user has a private '[folderPath]\config' folder. 
 ---
 CMDER_USER_CONFIG_PATH = nil
--- print (string.format("CMDER_USER_CONFIG_PATH 1: %s", CMDER_USER_CONFIG_PATH))
 if not isempty(clink.get_env('CMDER_USER_CONFIG')) then
   CMDER_USER_CONFIG_PATH = clink.get_env('CMDER_USER_CONFIG')
 end
--- print (string.format("CMDER_USER_CONFIG_PATH 2: %s", CMDER_USER_CONFIG_PATH))
 
 ---
 -- Setting the prompt in clink means that commands which rewrite the prompt do
