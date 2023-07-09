@@ -164,7 +164,7 @@ local function set_prompt_filter()
     end
 
     if prompt_useHomeSymbol and string.find(cwd, clink.get_env("HOME")) then
-        cwd = string.gsub(cwd, clink.get_env("HOME"), prompt_homeSymbol)
+        cwd = string.gsub(cwd, verbatim(clink.get_env("HOME")), verbatim(prompt_homeSymbol))
     end
 
     local uah = ''
@@ -187,14 +187,14 @@ local function set_prompt_filter()
     local version_control = prompt_includeVersionControl and "{git}{hg}{svn}" or ""
 
     local prompt = "{uah}{cwd}" .. version_control .. cr .. get_lamb_color() .. "{env}{lamb}\x1b[0m "
-    prompt = string.gsub(prompt, "{uah}", uah)
-    prompt = string.gsub(prompt, "{cwd}", cwd)
-    prompt = string.gsub(prompt, "{env}", env)
-    clink.prompt.value = string.gsub(prompt, "{lamb}", prompt_lambSymbol)
+    prompt = string.gsub(prompt, verbatim("{uah}"), verbatim(uah))
+    prompt = string.gsub(prompt, verbatim("{cwd}"), verbatim(cwd))
+    prompt = string.gsub(prompt, verbatim("{env}"), verbatim(env))
+    clink.prompt.value = string.gsub(prompt, verbatim("{lamb}"), verbatim(prompt_lambSymbol))
 end
 
 local function percent_prompt_filter()
-    clink.prompt.value = string.gsub(clink.prompt.value, "{percent}", "%%")
+    clink.prompt.value = string.gsub(clink.prompt.value, verbatim("{percent}"), verbatim("%%"))
 end
 
 ---
@@ -543,13 +543,13 @@ local function git_prompt_filter()
                 color = colors.conflict
             end
 
-            clink.prompt.value = string.gsub(clink.prompt.value, "{git}", " "..color.."("..verbatim(branch)..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, verbatim("{git}"), verbatim(" "..color.."("..verbatim(branch)..")"))
             return false
         end
     end
 
     -- No git present or not in git file
-    clink.prompt.value = string.gsub(clink.prompt.value, "{git}", "")
+    clink.prompt.value = string.gsub(clink.prompt.value, verbatim("{git}"), verbatim(""))
     return false
 end
 
@@ -588,13 +588,13 @@ local function hg_prompt_filter()
             end
 
             local result = color .. "(" .. branch .. ")"
-            clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", " "..verbatim(result))
+            clink.prompt.value = string.gsub(clink.prompt.value, verbatim("{hg}"), verbatim(" "..verbatim(result)))
             return false
         end
     end
 
     -- No hg present or not in hg repo
-    clink.prompt.value = string.gsub(clink.prompt.value, "{hg}", "")
+    clink.prompt.value = string.gsub(clink.prompt.value, verbatim("{hg}"), verbatim(""))
 end
 
 local function svn_prompt_filter()
@@ -647,13 +647,13 @@ local function svn_prompt_filter()
                 color = colors.dirty
             end
 
-            clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", " "..color.."("..verbatim(branch)..")")
+            clink.prompt.value = string.gsub(clink.prompt.value, verbatim("{svn}"), verbatim(" "..color.."("..verbatim(branch)..")"))
             return false
         end
     end
 
     -- No svn present or not in svn file
-    clink.prompt.value = string.gsub(clink.prompt.value, "{svn}", "")
+    clink.prompt.value = string.gsub(clink.prompt.value, verbatim("{svn}"), verbatim(""))
     return false
 end
 
