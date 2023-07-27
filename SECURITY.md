@@ -9,14 +9,16 @@
 
 ## Reporting a Vulnerability
 
-Please report any vulnerabilities to [MartiUK](https://github.com/MartiUK).
+If you discover a security issue in our project, please report it to [MartiUK](https://github.com/MartiUK). We will acknowledge your email within 24 hours and provide a more detailed response within 48 hours. We will try to fix the issue as soon as possible and inform you when a new version is released.
 
 Please include as much of the information listed below as you can to help us better understand and resolve the issue:
 
-The type of issue
-Full paths of source file(s) related to the manifestation of the issue
-The location of the affected source code (tag/branch/commit or direct URL)
-Any special configuration required to reproduce the issue
-Step-by-step instructions to reproduce the issue
-Proof-of-concept or exploit code (if possible)
-Impact of the issue, including how an attacker might exploit the issue
+- The nature of the issue
+- The affected source file(s) with full paths
+- The location of the vulnerable code (tag/branch/commit or direct URL)
+- Any special configuration needed to reproduce the issue
+- Detailed steps to reproduce the issue
+- Proof-of-concept or exploit code (if possible)
+- The impact of the issue, including how an attacker could exploit it
+
+Please do not disclose the vulnerability publicly until we have resolved it.
