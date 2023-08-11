@@ -12,6 +12,8 @@
 
 if "%CMDER_CLINK%" == "1" (
   goto :INJECT_CLINK
+) else if "%CMDER_CLINK%" == "2" if defined WT_PROFILE_ID (
+  goto :INJECT_CLINK
 ) else if "%CMDER_CLINK%" == "2" (
   goto :CLINK_FINISH
 )
