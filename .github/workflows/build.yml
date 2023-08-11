@@ -30,7 +30,9 @@ jobs:
   build:
     name: Build Project
     runs-on: windows-latest
-
+    permissions:
+      contents: write
+      discussions: write
     steps:
     - name: Check out repository code (Action from GitHub)
       uses: actions/checkout@v3
