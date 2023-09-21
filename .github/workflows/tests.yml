@@ -36,7 +36,7 @@ jobs:
     continue-on-error: false
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Initialize vendors
       shell: pwsh
       working-directory: scripts
