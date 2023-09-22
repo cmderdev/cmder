@@ -26,13 +26,13 @@ function runProfiled {
   unset profile_d_scripts
   pushd "${1}" >/dev/null
 
-  if [ ! "x${ZSH_VERSION}" = "x"  ]; then
+  if [ -n "${ZSH_VERSION}"  ]; then
     profile_d_scripts=$(ls *.zsh 2>/dev/null)
-  elif [ ! "x${BASH_VERSION}" = "x"  ]; then
+  elif [ -n "${BASH_VERSION}"  ]; then
     profile_d_scripts=$(ls *.sh 2>/dev/null)
   fi
 
-  if [ ! "x${profile_d_scripts}" = "x" ] ; then
+  if [ -n "${profile_d_scripts}" ] ; then
     for x in ${profile_d_scripts} ; do
       . "${1}/${x}"
     done
@@ -52,7 +52,7 @@ elif [ "$CMDER_ROOT" != "" ] ; then
   case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
 fi
 
-if [ ! "$CMDER_ROOT" = "" ] ; then
+if [ -n "$CMDER_ROOT" ] ; then
   # Remove any trailing '/'
   CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
 
