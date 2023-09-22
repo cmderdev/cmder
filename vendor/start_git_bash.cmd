@@ -44,4 +44,8 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
   )
 )
 
-"%gitCmd%" --no-cd %gitCommand% "%bashCmd%" --login -i
+if defined ConEmuDir (
+  "%gitCmd%" --no-cd %gitCommand% "%bashCmd%" --login -i
+) else (
+  "%bashCmd%" --login -i
+)
