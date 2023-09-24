@@ -37,19 +37,15 @@ exit /b
   exit /b
 
 :winterm
-  echo here1
   if not exist "%CMDER_ROOT%\vendor\windows-terminal\settings" md "%CMDER_ROOT%\vendor\windows-terminal\settings" 2>nul
   if not exist "%CMDER_ROOT%\vendor\windows-terminal\.portable" echo "This make this installation of Windows Terminal portable" >"%CMDER_ROOT%\vendor\windows-terminal\.portable" 2>nul
 
   if exist "%CMDER_ROOT%\config\user_windows_terminal_settings.json" (
-      echo here2
       if not exist "%CMDER_ROOT%\vendor\windows-terminal\settings\settings.json" (
-          echo here2.1
           echo "Copying user Windows Terminal settings to '%CMDER_ROOT%\vendor\windows-terminal\settings\settings.json'..."
           copy "%CMDER_ROOT%\config\user_windows_terminal_settings.json" "%CMDER_ROOT%\vendor\windows-terminal\settings\settings.json" 1>nul
       )
   ) else if not exist "%CMDER_ROOT%\config\user_windows_terminal_settings.json" (
-      echo here3
     	if not exist "%CMDER_ROOT%\config" mkdir "%CMDER_ROOT%\config" 2>nul
     	echo "Copying default Windows Terminal settings to '%CMDER_ROOT%\config'..."
     	copy "%CMDER_ROOT%\vendor\windows_terminal_default_settings.json" "%CMDER_ROOT%\config\user_windows_terminal_settings.json" 1>nul
@@ -61,13 +57,9 @@ exit /b
           exit /b 1
       )
   ) else if exist "%cmder_root%\vendor\windows-terminal\settings\settings.json" (
-      echo here4
-      echo "Backing up WIndows Terminal config settings to '%CMDER_ROOT%\config\user_windows_terminal_settings.json'..."
       copy "%cmder_root%\vendor\windows-terminal\settings\settings.json" "%CMDER_ROOT%\config\user_windows_terminal_settings.json"
   )
 
-  echo here5
-  pause 
   start %cmder_root%\vendor\windows-terminal\windowsterminal.exe
   exit /b
 
