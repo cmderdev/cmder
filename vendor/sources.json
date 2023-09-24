@@ -1,5 +1,10 @@
 [
   {
+    "name": "windows-terminal",
+    "version": "1.17.11461.0",
+    "url": "https://github.com/microsoft/terminal/releases/download/v1.17.11461.0/Microsoft.WindowsTerminal_1.17.11461.0_x64.zip"
+  },
+  {
     "name": "git-for-windows",
     "version": "2.41.0.windows.3",
     "url": "https://github.com/git-for-windows/git/releases/download/v2.41.0.windows.3/PortableGit-2.41.0.3-64-bit.7z.exe"
