@@ -52,7 +52,7 @@
         [
             {
                 "colorScheme": "Campbell",
-                "commandline": "cmd /k \"%CMDER_ROOT%\\vendor\\init.bat\" /t",
+                "commandline": "cmd /k \"%CMDER_ROOT%\\vendor\\init.bat\"",
                 "guid": "{48946353-ebe8-4571-a591-7d609f31327a}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder.ico",
