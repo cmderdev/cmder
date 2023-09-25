@@ -624,7 +624,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	wchar_t baseCommandStr[MAX_PATH + 20] = { 0 };
-	if (single && !PathFileExists(windowsTerminalDir)) {
+	if (single) {
 		swprintf_s(baseCommandStr, L"\"%s\" /single", exePath);
 	}
 	else {
@@ -699,6 +699,9 @@ cmderOptions GetOption()
 	cmderOptions cmderOptions;
 	LPWSTR *szArgList;
 	int argCount;
+
+	wchar_t windowsTerminalDir[MAX_PATH] = { 0 };
+	PathCombine(windowsTerminalDir, exeDir, L"vendor\\windows-terminal");
 
 	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
 
@@ -859,12 +862,24 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	cmderOptions cmderOptions = GetOption();
 
+	wchar_t windowsTerminalDir[MAX_PATH] = { 0 };
+	PathCombine(windowsTerminalDir, exeDir, L"vendor\\windows-terminal");
+
 	if (cmderOptions.registerApp == true)
 	{
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
-		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+    if (PathFileExists(windowsTerminalDir) {
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
+		{
+		else
+		{
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, false);
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, false);
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, false);
+			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM, cmderOptions.cmderCfgRoot, false);
+		}
 	}
 	else if (cmderOptions.unRegisterApp == true)
 	{
