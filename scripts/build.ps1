@@ -56,8 +56,8 @@ Param(
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
     
-    # Using this option will specify the emulator to use [conemu-maximus5, or windows-terminal]
-    [string]$emulator = 'conemu-maximus5',
+    # Using this option will specify the emulator to use [all, conemu-maximus5, or windows-terminal]
+    [string]$emulator = 'all',
 
     # Build launcher if you have MSBuild tools installed
     [switch]$Compile
@@ -153,6 +153,16 @@ if (-not $noVendor) {
         Download-File -Url $s.url -File $vend\$tempArchive -ErrorAction Stop
         Extract-Archive $tempArchive $s.name
 
+        # Make Embedded Windows Terminal Portable
+        if ($s.name -eq "windows-terminal") {
+          $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
+					move-item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
+					remove-item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
+          write-verbose "Making Windows Terminal Portable..."
+          New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
+          New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
+        }
+
         if ((Get-ChildItem $s.name).Count -eq 1) {
             Flatten-Directory($s.name)
         }
@@ -171,12 +181,6 @@ if (-not $noVendor) {
     if ($WinTermSettingsJson -ne "") {
         Write-Verbose "Restore '$WinTermSettingsJsonSave' to '$WinTermSettingsJson'"
         Copy-Item $WinTermSettingsJsonSave $WinTermSettingsJson
-    }
-
-    # Make Embedded Windows Terminal Portable
-    if ($emulator -eq "windows-terminal") {
-      New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
-      New-Item -Type leaf -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
     }
 
     # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty

@@ -46,14 +46,16 @@ Ensure-Executable "7z"
 
 if ($emulator -eq "windows-terminal") {
     $targets = @{
-      "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
-      "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
-      "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`"";
+      "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
+      "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
+      "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";
+    }
 } else {
     $targets = @{
-      "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
-      "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
-      "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
+      "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\windows-terminal`"";
+      "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\windows-terminal`"";
+      "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\windows-terminal`"";
+    }
 }
 
 Push-Location -Path $cmderRoot
