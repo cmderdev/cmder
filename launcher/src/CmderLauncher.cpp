@@ -510,11 +510,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	if (is_single_mode)
 	{
-		if (PathFileExists(windowsTerminalDir)) {
-			swprintf_s(args, L"%s -w 0 nt", args);
-		}
-		else
-		{
+		if (!PathFileExists(windowsTerminalDir)) {
 			swprintf_s(args, L"%s /single", args);
 		}
 	}
@@ -750,21 +746,21 @@ cmderOptions GetOption()
 				cmderOptions.cmderTask = szArgList[i + 1];
 				i++;
 			}
-			else if (_wcsicmp(L"/title", szArgList[i]) == 0)
+			else if (_wcsicmp(L"/title", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir))
 			{
 				cmderOptions.cmderTitle = szArgList[i + 1];
 				i++;
 			}
-			else if (_wcsicmp(L"/icon", szArgList[i]) == 0)
+			else if (_wcsicmp(L"/icon", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir))
 			{
 				cmderOptions.cmderIcon = szArgList[i + 1];
 				i++;
 			}
-			else if (_wcsicmp(L"/single", szArgList[i]) == 0)
+			else if (_wcsicmp(L"/single", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir)) {
 			{
 				cmderOptions.cmderSingle = true;
 			}
-			else if (_wcsicmp(L"/m", szArgList[i]) == 0)
+			else if (_wcsicmp(L"/m", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir))
 			{
 				cmderOptions.cmderUserCfg = false;
 			}
