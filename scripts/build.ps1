@@ -55,13 +55,16 @@ Param(
 
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
+    
+    # Using this option will specify the emulator to use [conemu-maximus5, or windows-terminal]
+    [string]$emulator = 'conemu-maximus5',
 
     # Build launcher if you have MSBuild tools installed
     [switch]$Compile
 )
 
 # Get the scripts and cmder root dirs we are building in.
-$cmder_root = Resolve-Path "$PSScriptRoot\.."
+$cmder_root = [string](Resolve-Path "$PSScriptRoot\..")
 
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
@@ -113,6 +116,18 @@ if (-not $noVendor) {
     }
     else { $ConEmuXml = "" }
 
+    # Preserve modified (by user) Windows Terminal setting file
+    if ($config -ne "") {
+        $WinTermSettingsJson = Join-Path $saveTo "windows-terminal\settings\settings.json"
+        if (Test-Path $WinTermSettingsJson -pathType leaf) {
+            $WinTermSettingsJsonSave = Join-Path $config "windows_terminal_settings.json"
+            Write-Verbose "Backup '$WinTermSettingsJson' to '$WinTermSettingsJsonSave'"
+            Copy-Item $WinTermSettingsJson $WinTermSettingsJsonSave
+        }
+        else { $WinTermSettingsJson = "" }
+    }
+    else { $WinTermSettingsJson = "" }
+
     # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
         if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\', '\\')) {
@@ -122,6 +137,12 @@ if (-not $noVendor) {
     }
 
     foreach ($s in $sources) {
+        if ($s.name -eq "conemu-maximus5" -and $emulator -eq "windows-terminal") {
+          return
+        } elseif ($s.name -eq "windows-terminal" -and $emulator -eq  "conemu-maximus5") {
+          return
+        }
+ 
         Write-Verbose "Getting vendored $($s.name) $($s.version)..."
 
         # We do not care about the extensions/type of archive
@@ -144,6 +165,18 @@ if (-not $noVendor) {
     if ($ConEmuXml -ne "") {
         Write-Verbose "Restore '$ConEmuXmlSave' to '$ConEmuXml'"
         Copy-Item $ConEmuXmlSave $ConEmuXml
+    }
+
+    # Restore Windows Terminal user configuration
+    if ($WinTermSettingsJson -ne "") {
+        Write-Verbose "Restore '$WinTermSettingsJsonSave' to '$WinTermSettingsJson'"
+        Copy-Item $WinTermSettingsJsonSave $WinTermSettingsJson
+    }
+
+    # Make Embedded Windows Terminal Portable
+    if ($emulator -eq "windows-terminal") {
+      New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
+      New-Item -Type leaf -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
     }
 
     # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty
