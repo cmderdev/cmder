@@ -624,11 +624,11 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	wchar_t baseCommandStr[MAX_PATH + 20] = { 0 };
-	if (!single) {
-		swprintf_s(baseCommandStr, L"\"%s\"", exePath);
+	if (single && !PathFileExists(windowsTerminalDir)) {
+		swprintf_s(baseCommandStr, L"\"%s\" /single", exePath);
 	}
 	else {
-		swprintf_s(baseCommandStr, L"\"%s\" /single", exePath);
+		swprintf_s(baseCommandStr, L"\"%s\"", exePath);
 	}
 
 	if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
@@ -756,7 +756,7 @@ cmderOptions GetOption()
 				cmderOptions.cmderIcon = szArgList[i + 1];
 				i++;
 			}
-			else if (_wcsicmp(L"/single", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir)) {
+			else if (_wcsicmp(L"/single", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir))
 			{
 				cmderOptions.cmderSingle = true;
 			}
