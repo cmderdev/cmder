@@ -4,7 +4,7 @@ SET CMDER_ROOT=%~dp0
 
 set CMDER_TERMINAl=conemu
 if exist "%CMDER_ROOT%\vendor\windows-terminal\windowsterminal.exe" (
-  SET CMDER_TERMINAL=winterm
+  SET CMDER_TERMINAL=windows-terminal
 )
 
 if NOT "%~1" == "" (
@@ -13,7 +13,7 @@ if NOT "%~1" == "" (
 )
 
 :: Remove Trailing '\'
-@if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
+if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
 
 if not exist "%CMDER_ROOT%\config" md "%CMDER_ROOT%\config" 2>nul
 
@@ -36,7 +36,7 @@ exit /b
   )
   exit /b
 
-:winterm
+:windows-terminal
   if not exist "%CMDER_ROOT%\vendor\windows-terminal\settings" md "%CMDER_ROOT%\vendor\windows-terminal\settings" 2>nul
   if not exist "%CMDER_ROOT%\vendor\windows-terminal\.portable" echo "This make this installation of Windows Terminal portable" >"%CMDER_ROOT%\vendor\windows-terminal\.portable" 2>nul
 
