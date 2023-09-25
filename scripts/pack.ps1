@@ -31,6 +31,9 @@ Param(
     # Path to the vendor configuration source file
     [string]$cmderRoot = "$PSScriptRoot\..",
 
+    # Using this option will pack artifacts for a specific included terminal emulator [conemu-maximus5, or windows-terminal]
+    [string]$emulator = 'conemu-maximus5',
+
     # Vendor folder locaton
     [string]$saveTo = "$PSScriptRoot\..\build"
 )
@@ -41,10 +44,16 @@ $cmderRoot = Resolve-Path $cmderRoot
 $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
-$targets = @{
-    "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
-    "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
-    "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
+if ($emulator -eq "windows-terminal") {
+    $targets = @{
+      "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
+      "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
+      "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`"";
+} else {
+    $targets = @{
+      "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
+      "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
+      "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
 }
 
 Push-Location -Path $cmderRoot
