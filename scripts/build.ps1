@@ -173,6 +173,12 @@ if (-not $noVendor) {
         Copy-Item $WinTermSettingsJsonSave $WinTermSettingsJson
     }
 
+    # Make Embedded Windows Terminal Portable
+    if ($emulator -eq "windows-terminal") {
+      New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
+      New-Item -Type leaf -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
+    }
+
     # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty
     if ( (Test-Path $($saveTo + "git-for-windows/etc/profile.d") ) ) {
         Write-Verbose "Adding cmder.sh /etc/profile.d"
