@@ -4,9 +4,19 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '.github/**'
+      - '**/.gitignore'
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+      - '.github/**'
+      - '**/.gitignore'
 
 defaults:
   run:
@@ -26,7 +36,7 @@ jobs:
     continue-on-error: false
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Initialize vendors
       shell: pwsh
       working-directory: scripts
