@@ -566,7 +566,13 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 #endif
 	PROCESS_INFORMATION pi;
 	if (!CreateProcess(terminalPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi)) {
-		MessageBox(NULL, _T("Unable to create the terminal process!"), _T("Error"), MB_OK);
+		if (PathFileExists(windowsTerminalDir)) {
+			MessageBox(NULL, _T("Unable to create the Windows Terminal process!"), _T("Error"), MB_OK);
+		}
+		else
+		{
+			MessageBox(NULL, _T("Unable to create the ConEmu process!"), _T("Error"), MB_OK);
+		}
 		return;
 	}
 

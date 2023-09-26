@@ -77,7 +77,7 @@
                 "guid": "{eb1f6578-ce9d-47a9-a8c7-9b3fdd22302d}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder_orange.ico",
-                "name": "Cmder - Powershell",
+                "name": "Cmder - PowerShell",
                 "startingDirectory": "",
                 "tabTitle": "Cmder",
                 "useAtlasEngine": false
@@ -89,7 +89,7 @@
                 "guid": "{c5225c3e-8619-4145-8182-2800814eeb17}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder_purple.ico",
-                "name": "Cmder - Powershell as Admin",
+                "name": "Cmder - PowerShell as Admin",
                 "startingDirectory": "",
                 "tabTitle": "Cmder - PowerShell as Admin",
                 "useAtlasEngine": false
