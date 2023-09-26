@@ -38,7 +38,7 @@ exit /b
 
 :windows-terminal
   if not exist "%CMDER_ROOT%\vendor\windows-terminal\settings" md "%CMDER_ROOT%\vendor\windows-terminal\settings" 2>nul
-  if not exist "%CMDER_ROOT%\vendor\windows-terminal\.portable" echo "This make this installation of Windows Terminal portable" >"%CMDER_ROOT%\vendor\windows-terminal\.portable" 2>nul
+  if not exist "%CMDER_ROOT%\vendor\windows-terminal\.portable" echo "This makes this installation of Windows Terminal portable" >"%CMDER_ROOT%\vendor\windows-terminal\.portable" 2>nul
 
   if exist "%CMDER_ROOT%\config\user_windows_terminal_settings.json" (
       if not exist "%CMDER_ROOT%\vendor\windows-terminal\settings\settings.json" (
