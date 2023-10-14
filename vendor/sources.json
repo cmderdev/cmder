@@ -6,8 +6,8 @@
   },
   {
     "name": "clink",
-    "version": "1.5.6",
-    "url": "https://github.com/chrisant996/clink/releases/download/v1.5.6/clink.1.5.6.fc63d3.zip"
+    "version": "1.5.9",
+    "url": "https://github.com/chrisant996/clink/releases/download/v1.5.9/clink.1.5.9.411d0f.zip"
   },
   {
     "name": "conemu-maximus5",
@@ -16,7 +16,7 @@
   },
   {
     "name": "clink-completions",
-    "version": "0.4.10",
-    "url": "https://github.com/vladimir-kotikov/clink-completions/archive/v0.4.10.zip"
+    "version": "0.4.11",
+    "url": "https://github.com/vladimir-kotikov/clink-completions/archive/v0.4.11.zip"
   }
 ]
