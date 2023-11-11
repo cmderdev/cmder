@@ -9,5 +9,5 @@ if "%cmder_init%" == "1" (
 )
 
 pushd "%CMDER_ROOT%"
-call "%CMDER_ROOT%\vendor\init.bat" /f
+call "%CMDER_ROOT%\vendor\init.bat" /f %*
 popd
