@@ -28,7 +28,7 @@ exit /b
           exit /b 1
       )
   )
-  
+
   if exist "%~1" (
       start %cmder_root%\vendor\conemu-maximus5\ConEmu.exe /Icon "%CMDER_ROOT%\icons\cmder.ico" /Title Cmder /LoadCfgFile "%~1"
   ) else (
