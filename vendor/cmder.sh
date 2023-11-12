@@ -22,7 +22,11 @@ function runProfiled {
 }
 
 # We do this for bash as admin sessions since $CMDER_ROOT is not being set
-if [ "$CMDER_ROOT" == "" ] ; then
+if [ -z "$CMDER_ROOT" ] && [ -n "$cmder_root" ] ; then
+  export CMDER_ROOT=$(cygpath -u $cmder_root)
+fi
+
+if [ -z "$CMDER_ROOT" ] ; then
     case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
 else
     case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
