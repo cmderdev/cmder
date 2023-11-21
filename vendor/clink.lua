@@ -692,6 +692,10 @@ for _,lua_module in ipairs(clink.find_files(completions_dir..'*.lua')) do
     end
 end
 
+-- If Cmder is launched with '/c [folderPath]', indicating Cmder is installed globally and
+-- each user has a private '[folderPath]\config' folder, Clink won't know about the global
+-- '%cmder_root%\config dir, so we need to load scripts from there before . Clink loads lua
+-- scripts from the profile directory given to it when it was injected.
 if clink.get_env('CMDER_USER_CONFIG') then
     local cmder_config_dir = clink.get_env('CMDER_ROOT')..'/config/'
     for _,lua_module in ipairs(clink.find_files(cmder_config_dir..'*.lua')) do
