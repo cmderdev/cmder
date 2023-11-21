@@ -144,8 +144,12 @@ exit /b
     exit /b
 
 :enhance_path_recursive
+  call :set_path_recursive "%~1" "%~2" "%~3"
+  exit /b
+
+:set_path_recursive
 :::===============================================================================
-:::enhance_path_recursive - Add a directory and subs to the path env variable if
+:::set_path_recursive - Add a directory and subs to the path env variable if
 :::                         required.
 :::.
 :::include:
@@ -154,7 +158,7 @@ exit /b
 :::.
 :::usage:
 :::.
-:::  call "%~DP0lib_path" enhance_path_recursive "[dir_path]" [max_depth] [append]
+:::  call "%~DP0lib_path" set_path_recursive "[dir_path]" [max_depth] [append]
 :::.
 :::required:
 :::.
@@ -196,7 +200,11 @@ exit /b
 
     if "%fast_init%" == "1" (
         if "%add_to_path%" neq "" (
-            call :enhance_path "%add_to_path%" %position%
+            if "%position%" == "append" (
+              set "path=%path%;%add_to_path%"
+            ) else (
+              set "path=%add_to_path%;%path%"
+            ) 
         )
     )
 
@@ -205,15 +213,19 @@ exit /b
         exit /b
     )
 
-    %print_debug%  :enhance_path_recursive "Env Var - add_path=%add_to_path%"
-    %print_debug%  :enhance_path_recursive "Env Var - position=%position%"
-    %print_debug%  :enhance_path_recursive "Env Var - depth=%depth%"
-    %print_debug%  :enhance_path_recursive "Env Var - max_depth=%max_depth%"
+    %print_debug%  :set_path_recursive "Env Var - add_path=%add_to_path%"
+    %print_debug%  :set_path_recursive "Env Var - position=%position%"
+    %print_debug%  :set_path_recursive "Env Var - depth=%depth%"
+    %print_debug%  :set_path_recursive "Env Var - max_depth=%max_depth%"
 
     if %max_depth% gtr %depth% (
         if "%add_to_path%" neq "" (
-            %print_debug% :enhance_path_recursive "Adding parent directory - '%add_to_path%'"
-            call :enhance_path "%add_to_path%" %position%
+            %print_debug% :set_path_recursive "Adding parent directory - '%add_to_path%'"
+            if "%position%" == "append" (
+              set "path=%path%;%add_to_path%"
+            ) else (
+              set "path=%add_to_path%;%path%"
+            ) 
         )
         call :set_depth
         call :loop_depth
@@ -233,10 +245,10 @@ exit /b
     )
 
     for /d %%i in ("%add_path%\*") do (
-        %print_debug%  :enhance_path_recursive "Env Var BEFORE - depth=%depth%"
-        %print_debug% :enhance_path_recursive "Found Subdirectory - '%%~fi'"
-        call :enhance_path_recursive "%%~fi" %depth% %max_depth% %position%
-        %print_debug%  :enhance_path_recursive "Env Var AFTER- depth=%depth%"
+        %print_debug%  :set_path_recursive "Env Var BEFORE - depth=%depth%"
+        %print_debug% :set_path_recursive "Found Subdirectory - '%%~fi'"
+        call :set_path_recursive "%%~fi" %depth% %max_depth% %position%
+        %print_debug%  :set_path_recursive "Env Var AFTER- depth=%depth%"
     )
     exit /b
 
