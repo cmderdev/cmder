@@ -2,7 +2,7 @@
 
 SET CMDER_ROOT=%~dp0
 
-set CMDER_TERMINAl=conemu
+set CMDER_TERMINAL=conemu
 if exist "%CMDER_ROOT%\vendor\windows-terminal\windowsterminal.exe" (
   SET CMDER_TERMINAL=windows-terminal
 )
