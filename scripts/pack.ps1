@@ -31,7 +31,7 @@ Param(
     # Path to the vendor configuration source file
     [string]$cmderRoot = "$PSScriptRoot\..",
 
-    # Using this option will pack artifacts for a specific included terminal emulator [all, conemu-maximus5, or windows-terminal]
+    # Using this option will pack artifacts for a specific included terminal emulator [none, all, conemu-maximus5, or windows-terminal]
     [string]$terminal = 'all',
 
     # Vendor folder locaton
@@ -44,7 +44,13 @@ $cmderRoot = Resolve-Path $cmderRoot
 $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
-if ($terminal -eq "windows-terminal") {
+if ($terminal -eq "none") {
+    $targets = @{
+      "cmder_slim.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_slim.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_slim_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+    }
+} elseif ($terminal -eq "windows-terminal") {
     $targets = @{
       "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
       "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
@@ -58,6 +64,9 @@ if ($terminal -eq "windows-terminal") {
     }
 } else {
     $targets = @{
+      "cmder_slim.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_slim.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_slim_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
       "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
       "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
       "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";

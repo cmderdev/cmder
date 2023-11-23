@@ -56,7 +56,7 @@ Param(
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
     
-    # Using this option will specify the emulator to use [all, conemu-maximus5, or windows-terminal]
+    # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
     [string]$terminal = 'all',
 
     # Build launcher if you have MSBuild tools installed
@@ -137,7 +137,9 @@ if (-not $noVendor) {
     }
 
     foreach ($s in $sources) {
-        if ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
+        if ($terminal -eq "none") {
+          return
+        } elseif ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
           return
         } elseif ($s.name -eq "windows-terminal" -and $terminal -eq  "conemu-maximus5") {
           return
