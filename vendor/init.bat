@@ -319,7 +319,7 @@ if exist "%CMDER_ROOT%\vendor\git-for-windows" (
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%print_debug% init.bat "Using found Git '%GIT_VERSION_USER%' from 'v%GIT_INSTALL_ROOT%..."
+%print_debug% init.bat "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
@@ -417,7 +417,6 @@ if %max_depth% gtr 1 (
   set "path=%CMDER_ROOT%\bin;%path%"
 )
 %print_debug% init.bat "END - bin(prepend): Env Var - PATH=%path%"
-
 
 if defined CMDER_USER_BIN if defined CMDER_USER_ROOT (
   %print_debug% init.bat "START - user_bin(prepend): Env Var - PATH=%path%"

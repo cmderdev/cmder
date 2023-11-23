@@ -32,7 +32,7 @@ Param(
     [string]$cmderRoot = "$PSScriptRoot\..",
 
     # Using this option will pack artifacts for a specific included terminal emulator [all, conemu-maximus5, or windows-terminal]
-    [string]$emulator = 'all',
+    [string]$terminal = 'all',
 
     # Vendor folder locaton
     [string]$saveTo = "$PSScriptRoot\..\build"
@@ -44,13 +44,13 @@ $cmderRoot = Resolve-Path $cmderRoot
 $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
-if ($emulator -eq "windows-terminal") {
+if ($terminal -eq "windows-terminal") {
     $targets = @{
       "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
       "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
       "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";
     }
-} elseif ($emulator -eq "windows-terminal") {
+} elseif ($terminal -eq "windows-terminal") {
     $targets = @{
       "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\windows-terminal`"";
       "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\windows-terminal`"";

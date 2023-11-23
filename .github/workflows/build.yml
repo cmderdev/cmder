@@ -45,12 +45,12 @@ jobs:
     - name: Build Cmder Launcher
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -Compile -verbose
+      run: .\build.ps1 -Compile -verbose -terminal all
 
     - name: Pack the built files
       shell: pwsh
       working-directory: scripts
-      run: .\pack.ps1 -verbose -emulator all
+      run: .\pack.ps1 -verbose -terminal all
 
     - name: Upload artifact (cmder_wt.zip)
       uses: actions/upload-artifact@v3
