@@ -46,9 +46,9 @@ Ensure-Executable "7z"
 
 if ($terminal -eq "none") {
     $targets = @{
-      "cmder_slim.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_slim.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_slim_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
     }
 } elseif ($terminal -eq "windows-terminal") {
     $targets = @{
@@ -64,9 +64,9 @@ if ($terminal -eq "none") {
     }
 } else {
     $targets = @{
-      "cmder_slim.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_slim.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_slim_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
       "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
       "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
       "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";
