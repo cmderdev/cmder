@@ -1,4 +1,4 @@
-#include <windows.h>/
+#include <windows.h>
 #include <tchar.h>
 #include <Shlwapi.h>
 #include "resource.h"
