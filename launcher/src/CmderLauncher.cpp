@@ -573,7 +573,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			}
 			else if (streqi(cmderTask.c_str(), L"bash"))
 			{
-				swprintf_s(args, L"%s /k \"%s\"", args, initBash);
+				swprintf_s(args, L"%s /c \"%s\"", args, initBash);
 			}
 			else
 			{
