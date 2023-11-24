@@ -56,15 +56,15 @@ Param(
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
     
-    # Using this option will specify the emulator to use [all, conemu-maximus5, or windows-terminal]
-    [string]$emulator = 'all',
+    # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
+    [string]$terminal = 'all',
 
     # Build launcher if you have MSBuild tools installed
     [switch]$Compile
 )
 
 # Get the scripts and cmder root dirs we are building in.
-$cmder_root = [string](Resolve-Path "$PSScriptRoot\..")
+$cmder_root = Resolve-Path "$PSScriptRoot\.."
 
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
@@ -137,9 +137,11 @@ if (-not $noVendor) {
     }
 
     foreach ($s in $sources) {
-        if ($s.name -eq "conemu-maximus5" -and $emulator -eq "windows-terminal") {
+        if ($terminal -eq "none") {
           return
-        } elseif ($s.name -eq "windows-terminal" -and $emulator -eq  "conemu-maximus5") {
+        } elseif ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
+          return
+        } elseif ($s.name -eq "windows-terminal" -and $terminal -eq  "conemu-maximus5") {
           return
         }
  
@@ -156,8 +158,8 @@ if (-not $noVendor) {
         # Make Embedded Windows Terminal Portable
         if ($s.name -eq "windows-terminal") {
           $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
-					move-item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
-					remove-item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
+          move-item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
+          remove-item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
           write-verbose "Making Windows Terminal Portable..."
           New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
           New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
