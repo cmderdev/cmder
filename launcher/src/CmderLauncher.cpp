@@ -442,7 +442,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 						exit(1);
 					}
 				}
-				}
+			}
 		}
 		else if (!CopyFile(defaultCfgPath, cfgPath, FALSE) && PathFileExists(conEmuDir))
 		{
