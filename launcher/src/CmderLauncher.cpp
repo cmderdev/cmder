@@ -135,6 +135,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	wchar_t initCmd[MAX_PATH] = { 0 };
 	wchar_t initPowerShell[MAX_PATH] = { 0 };
 	wchar_t initBash[MAX_PATH] = { 0 };
+	wchar_t vendoredGit[MAX_PATH] = { 0 };
+	wchar_t amdx64Git[MAX_PATH] = { 0 };
+	wchar_t x86Git[MAX_PATH] = { 0 };
+	wchar_t programFiles[MAX_PATH] = { 0 };
+	wchar_t programFilesX86[MAX_PATH] = { 0 };
+	wchar_t minTTYPath[MAX_PATH] = { 0 };
 
 	std::wstring cmderStart = path;
 	std::wstring cmderTask = taskName;
@@ -495,6 +501,13 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
 
+	GetEnvironmentVariable(L"ProgramFiles", programFiles, MAX_PATH);
+	GetEnvironmentVariable(L"ProgramFiles(x86)", programFilesX86, MAX_PATH);
+
+	PathCombine(vendoredGit, vendorDir, L"git-for-windows");
+	PathCombine(amdx64Git, programFiles, L"Git");
+	PathCombine(x86Git, programFilesX86, L"Git");
+
 	SYSTEM_INFO sysInfo;
 	GetNativeSystemInfo(&sysInfo);
 	if (PathFileExists(windowsTerminalDir))
@@ -509,13 +522,26 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	}
 	else
 	{
+		PathCombine(terminalPath, winDir, L"system32\\cmd.exe");
+
 		if (streqi(cmderTask.c_str(), L"powershell"))
 		{
 			PathCombine(terminalPath, winDir, L"System32\\WindowsPowerShell\\v1.0\\powershell.exe");
 		}
-		else
+		else if (streqi(cmderTask.c_str(), L"mintty"))
 		{
-			PathCombine(terminalPath, winDir, L"system32\\cmd.exe");
+			if (PathFileExists(vendoredGit))
+			{
+				PathCombine(terminalPath, vendoredGit, L"git-bash.exe");
+			}
+			else if (PathFileExists(amdx64Git))
+			{
+				PathCombine(terminalPath, amdx64Git, L"git-bash.exe");
+			}
+			else if (PathFileExists(x86Git))
+			{
+				PathCombine(terminalPath, x86Git, L"git-bash.exe");
+			}
 		}
 	}
 
@@ -575,7 +601,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				swprintf_s(args, L"%s /c \"%s\"", args, initBash);
 			}
-			else
+			else if (streqi(cmderTask.c_str(), L"cmder"))
 			{
 				swprintf_s(args, L"%s /k \"%s\"", args, initCmd);
 			}
@@ -588,6 +614,27 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		SetEnvironmentVariable(L"CMDER_USER_CONFIG", userConfigDirPath);
 		SetEnvironmentVariable(L"CMDER_USER_BIN", userBinDirPath);
 	}
+
+	// Try to find m'intty.exe' so ConEmu can launch using %MINTTY_EXE% in external Git for Cmder Mini.
+	// See: https://github.com/Maximus5/ConEmu/issues/2559 for why this is commented.
+
+	/* 
+	if (PathFileExists(vendoredGit))
+	{
+		PathCombine(minTTYPath, vendoredGit, L"usr\\bin\\mintty.exe");
+		SetEnvironmentVariable(L"MINTTY_EXE", minTTYPath);
+	}
+	else if (PathFileExists(amdx64Git))
+	{
+		PathCombine(minTTYPath, amdx64Git, L"usr\\bin\\mintty.exe");
+		SetEnvironmentVariable(L"MINTTY_EXE", minTTYPath);
+	}
+	else if (PathFileExists(x86Git))
+	{
+		PathCombine(minTTYPath, x86Git, L"usr\\bin\\mintty.exe");
+		SetEnvironmentVariable(L"MINTTY_EXE", minTTYPath);
+	}
+	*/
 
 	// Ensure EnvironmentVariables are propagated.
 
