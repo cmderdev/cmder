@@ -135,6 +135,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	wchar_t initCmd[MAX_PATH] = { 0 };
 	wchar_t initPowerShell[MAX_PATH] = { 0 };
 	wchar_t initBash[MAX_PATH] = { 0 };
+	wchar_t initMintty[MAX_PATH] = { 0 };
 	wchar_t vendoredGit[MAX_PATH] = { 0 };
 	wchar_t amdx64Git[MAX_PATH] = { 0 };
 	wchar_t x86Git[MAX_PATH] = { 0 };
@@ -528,6 +529,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		{
 			PathCombine(terminalPath, winDir, L"System32\\WindowsPowerShell\\v1.0\\powershell.exe");
 		}
+		/*
 		else if (streqi(cmderTask.c_str(), L"mintty"))
 		{
 			if (PathFileExists(vendoredGit))
@@ -543,6 +545,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				PathCombine(terminalPath, x86Git, L"git-bash.exe");
 			}
 		}
+		*/
 	}
 
 	if (!streqi(cmderStart.c_str(), L""))
@@ -581,6 +584,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(initCmd, vendorDir, L"init.bat");
 	PathCombine(initPowerShell, vendorDir, L"profile.ps1");
 	PathCombine(initBash, vendorDir, L"start_git_bash.cmd");
+	PathCombine(initMintty, vendorDir, L"start_git_mintty.cmd");
 
 	if (!streqi(cmderTask.c_str(), L""))
 	{
@@ -600,6 +604,10 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			else if (streqi(cmderTask.c_str(), L"bash"))
 			{
 				swprintf_s(args, L"%s /c \"%s\"", args, initBash);
+			}
+			else if (streqi(cmderTask.c_str(), L"mintty"))
+			{
+				swprintf_s(args, L"%s /c \"%s\"", args, initMintty);
 			}
 			else if (streqi(cmderTask.c_str(), L"cmder"))
 			{
