@@ -11,7 +11,7 @@ on:
     tags:
       - "v*"
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "development" ]
 
 #---------------------------------#
 #    environment configuration    #
