@@ -47,70 +47,80 @@
     ],
     "profiles": 
     {
-        "defaults": {},
+        "defaults": 
+        {
+            "colorScheme": "One Half Dark",
+            "font": 
+            {
+                "face": "Cascadia Code"
+            }
+        },
         "list": 
         [
             {
-                "colorScheme": "Campbell",
+                "colorScheme": "One Half Dark",
                 "commandline": "cmd /k \"%CMDER_ROOT%\\vendor\\init.bat\"",
                 "guid": "{48946353-ebe8-4571-a591-7d609f31327a}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder.ico",
                 "name": "Cmder",
-                "startingDirectory": "",
+                "startingDirectory": null,
                 "tabTitle": "Cmder",
                 "useAtlasEngine": false
             },
             {
+                "colorScheme": "One Half Dark",
                 "commandline": "%SystemRoot%\\System32\\cmd.exe /k \"%CMDER_ROOT%\\vendor\\init.bat\"",
                 "elevate": true,
                 "guid": "{bdd957d0-c15a-49e6-9816-14b02351a071}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder_red.ico",
                 "name": "Cmder as Admin",
-                "startingDirectory": "",
+                "startingDirectory": null,
                 "tabTitle": "Cmder as Admin"
             },
             {
-                "colorScheme": "Campbell",
+                "colorScheme": "One Half Dark",
                 "commandline": "PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%CMDER_ROOT%\\vendor.\\profile.ps1'''\"",
                 "guid": "{eb1f6578-ce9d-47a9-a8c7-9b3fdd22302d}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder_orange.ico",
                 "name": "Cmder - PowerShell",
-                "startingDirectory": "",
+                "startingDirectory": null,
                 "tabTitle": "Cmder",
                 "useAtlasEngine": false
             },
             {
-                "colorScheme": "Campbell",
+                "colorScheme": "One Half Dark",
                 "commandline": "PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%CMDER_ROOT%\\vendor.\\profile.ps1'''\"",
                 "elevate": true,
                 "guid": "{c5225c3e-8619-4145-8182-2800814eeb17}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder_purple.ico",
                 "name": "Cmder - PowerShell as Admin",
-                "startingDirectory": "",
+                "startingDirectory": null,
                 "tabTitle": "Cmder - PowerShell as Admin",
                 "useAtlasEngine": false
             },
             {
+                "colorScheme": "One Half Dark",
                 "commandline": "%CMDER_ROOT%\\vendor\\start_git_bash.cmd",
                 "guid": "{c5c298e9-010e-4b8c-bc55-e3df81846b4c}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder_blue.ico",
                 "name": "Cmder - Bash",
-                "startingDirectory": "",
+                "startingDirectory": null,
                 "tabTitle": "Cmder - Bash"
             },
             {
+                "colorScheme": "One Half Dark",
                 "commandline": "%CMDER_ROOT%\\vendor\\start_git_bash.cmd",
                 "elevate": true,
                 "guid": "{545eb9ed-4c1c-49b3-8cc6-7eb41bd280ff}",
                 "hidden": false,
                 "icon": "%CMDER_ROOT%\\icons\\cmder_yellow.ico",
                 "name": "Cmder - Bash as Admin",
-                "startingDirectory": "",
+                "startingDirectory": null,
                 "tabTitle": "Cmder - Bash as Admin"
             },
             {
@@ -175,6 +185,52 @@
             "selectionBackground": "#FFFFFF",
             "white": "#CCCCCC",
             "yellow": "#C19C00"
+        },
+        {
+            "background": "#282828",
+            "black": "#282828",
+            "blue": "#458588",
+            "brightBlack": "#928374",
+            "brightBlue": "#83A598",
+            "brightCyan": "#8EC07C",
+            "brightGreen": "#B8BB26",
+            "brightPurple": "#D3869B",
+            "brightRed": "#FB4934",
+            "brightWhite": "#EBDBB2",
+            "brightYellow": "#FABD2F",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#689D6A",
+            "foreground": "#EBDBB2",
+            "green": "#98971A",
+            "name": "Gruvbox Dark",
+            "purple": "#B16286",
+            "red": "#CC241D",
+            "selectionBackground": "#FFFFFF",
+            "white": "#A89984",
+            "yellow": "#D79921"
+        },
+        {
+            "background": "#272822",
+            "black": "#3E3D32",
+            "blue": "#03395C",
+            "brightBlack": "#272822",
+            "brightBlue": "#66D9EF",
+            "brightCyan": "#66D9EF",
+            "brightGreen": "#A6E22E",
+            "brightPurple": "#AE81FF",
+            "brightRed": "#F92672",
+            "brightWhite": "#F8F8F2",
+            "brightYellow": "#FD971F",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#66D9EF",
+            "foreground": "#F8F8F2",
+            "green": "#A6E22E",
+            "name": "Monokai",
+            "purple": "#AE81FF",
+            "red": "#F92672",
+            "selectionBackground": "#FFFFFF",
+            "white": "#F8F8F2",
+            "yellow": "#FFE792"
         },
         {
             "background": "#282C34",
