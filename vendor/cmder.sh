@@ -11,7 +11,7 @@ function runProfiled {
   unset profile_d_scripts
   pushd "${1}" >/dev/null
   profile_d_scripts=$(ls *.sh 2>/dev/null)
-
+ffffff
   if [ ! "x${profile_d_scripts}" = "x" ] ; then
     for x in ${profile_d_scripts} ; do
       # echo Sourcing "${1}/${x}"...
