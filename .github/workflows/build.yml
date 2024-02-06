@@ -11,7 +11,7 @@ on:
     tags:
       - "v*"
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "development" ]
 
 #---------------------------------#
 #    environment configuration    #
@@ -40,7 +40,7 @@ jobs:
         fetch-depth: 0
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1
+      uses: microsoft/setup-msbuild@v2
 
     - name: Build Cmder Launcher
       shell: pwsh
@@ -72,26 +72,26 @@ jobs:
         name: cmder_wt_mini.zip
 
     - name: Upload artifact (cmder.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder.zip
         name: cmder.zip
         if-no-files-found: error
 
     - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder.7z
         name: cmder.7z
 
     - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_mini.zip
         name: cmder_mini.zip
 
     - name: Upload artifact (hashes.txt)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/hashes.txt
         name: hashes.txt

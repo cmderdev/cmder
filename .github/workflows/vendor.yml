@@ -51,7 +51,7 @@ jobs:
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
           echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-    - uses: peter-evans/create-pull-request@v5
+    - uses: peter-evans/create-pull-request@v6
       if: env.COUNT_UPDATED > 0
       with:
         title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
