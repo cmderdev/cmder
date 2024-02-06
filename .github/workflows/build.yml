@@ -40,7 +40,7 @@ jobs:
         fetch-depth: 0
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1
+      uses: microsoft/setup-msbuild@v2
 
     - name: Build Cmder Launcher
       shell: pwsh
