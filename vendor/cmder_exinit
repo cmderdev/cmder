@@ -1,4 +1,6 @@
-# Copy this file to your non integrated *nix-like environment,
+#!/usr/bin/env bash
+
+## Copy this file to your non integrated *nix-like environment,
 # Cygwin/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
 # folder to integrate the externally installed Unix like environment
 # into Cmder so it has access to settings stored in Cmder/config
@@ -34,7 +36,6 @@ function runProfiled {
 
   if [ ! "x${profile_d_scripts}" = "x" ] ; then
     for x in ${profile_d_scripts} ; do
-      echo Sourcing "${1}/${x}"...
       . "${1}/${x}"
     done
   fi
@@ -46,10 +47,8 @@ function runProfiled {
 
 # We do this for bash as admin sessions since $CMDER_ROOT is not being set
 if [ "$CMDER_ROOT" = "" -a "$ConEmuDir" != "" ] ; then
-  if [ -d "${ConEmuDir}../../vendor" ] ; then
+  if [ -d "${ConEmuDir}/../../vendor" ] ; then
     case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
-  else
-    echo "Running in ConEmu without Cmder, skipping Cmder integration."
   fi
 elif [ "$CMDER_ROOT" != "" ] ; then
   case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
@@ -58,8 +57,6 @@ fi
 if [ ! "$CMDER_ROOT" = "" ] ; then
   # Remove any trailing '/'
   CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
-
-  echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"."
 
   export CMDER_ROOT
 
