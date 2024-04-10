@@ -79,7 +79,7 @@ if ($Compile) {
 
     Write-Verbose "Building the launcher..."
 
-    # Referene: https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+    # Reference: https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
     msbuild CmderLauncher.vcxproj /t:Clean,Build /p:configuration=Release /m
 
     if ($LastExitCode -ne 0) {
