@@ -78,7 +78,7 @@ jobs:
         name: hashes.txt
 
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           build/cmder.zip
