@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - development
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -12,6 +13,7 @@ on:
   pull_request:
     branches:
       - master
+      - development
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
