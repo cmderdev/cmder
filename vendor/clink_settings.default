@@ -1,6 +1,10 @@
 # For explanation of these and other settings see:
 # https://chrisant996.github.io/clink/clink.html
 
+# name: Expand envvars when completing
+# type: boolean
+match.expand_envvars = True
+
 # name: Sets how command history expansion is applied
 # type: enum
 # options: off,on,not_squoted,not_dquoted,not_quoted
