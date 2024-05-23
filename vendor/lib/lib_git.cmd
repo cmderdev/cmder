@@ -55,6 +55,7 @@ exit /b
             set "GIT_VERSION=%%C"
         ) else (
             echo "'git --version' returned an improper version string!"
+            echo "executable: %git_executable%"
             pause
             exit /b
         )
