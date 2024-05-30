@@ -55,6 +55,7 @@ exit /b
             set "GIT_VERSION=%%C"
         ) else (
             echo "'git --version' returned an improper version string!"
+            %print_debug% :read_version "returned string: '%%A %%B %%C' by executable path: %git_executable%"
             pause
             exit /b
         )
