@@ -73,7 +73,7 @@
       },
       {
         "colorScheme": "One Half Dark",
-        "commandline": "PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%WT_SETTINGS_DIR%\\..\\...\\profile.ps1'''\"",
+        "commandline": "PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%WT_SETTINGS_DIR%\\..\\..\\profile.ps1'''\"",
         "guid": "{eb1f6578-ce9d-47a9-a8c7-9b3fdd22302d}",
         "hidden": false,
         "icon": "%WT_SETTINGS_DIR%\\..\\..\\..\\icons\\cmder_orange.ico",
