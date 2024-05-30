@@ -11,7 +11,7 @@ on:
     tags:
       - "v*"
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "development" ]
 
 #---------------------------------#
 #    environment configuration    #
@@ -40,50 +40,72 @@ jobs:
         fetch-depth: 0
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1
+      uses: microsoft/setup-msbuild@v2
 
     - name: Build Cmder Launcher
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -Compile -verbose
+      run: .\build.ps1 -Compile -verbose -terminal all
 
     - name: Pack the built files
       shell: pwsh
       working-directory: scripts
-      run: .\pack.ps1 -verbose
+      run: .\pack.ps1 -verbose -terminal all
+
+    - name: Upload artifact (cmder_wt.zip)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder_wt.zip
+        name: cmder_wt.zip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_wt.7z)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder_wt.7z
+        name: cmder_wt.7z
+
+    - name: Upload artifact (cmder_wt_mini.zip)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder_wt_mini.zip
+        name: cmder_wt_mini.zip
 
     - name: Upload artifact (cmder.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder.zip
         name: cmder.zip
         if-no-files-found: error
 
     - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder.7z
         name: cmder.7z
 
     - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_mini.zip
         name: cmder_mini.zip
 
     - name: Upload artifact (hashes.txt)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/hashes.txt
         name: hashes.txt
 
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           build/cmder.zip
+          build/cmder_wt.zip
           build/cmder.7z
+          build/cmder_wt.7z
           build/cmder_mini.zip
+          build/cmder_wt_mini.zip
           build/hashes.txt
         draft: true
         generate_release_notes: true
