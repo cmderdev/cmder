@@ -64,7 +64,7 @@ Param(
 )
 
 # Get the scripts and cmder root dirs we are building in.
-$cmder_root = Resolve-Path "$PSScriptRoot\.."
+$cmder_root = (Resolve-Path "$PSScriptRoot\..").toString()
 
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
