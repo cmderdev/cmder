@@ -253,7 +253,7 @@ exit /b
         :: if the user provided git executable is not found
         IF ERRORLEVEL -255 IF NOT ERRORLEVEL -254 (
         :: if not exist "%git_executable%" (
-            %print_debug% ":compare_git_versions" "No git at "%git_executable%" found."
+            %print_debug% ":compare_git_versions" "No git at '%git_executable%' found."
             set test_dir=
         )
     )
