@@ -300,57 +300,61 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
 
-	if (wcscmp(cpuCfgPath, L"") == 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // config/ConEmu-%COMPUTERNAME%.xml file exists or /m was specified on command line, use machine specific config.
+	if ( PathFileExists(cpuCfgPath) || use_user_cfg == false ) // config/[cpu specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
-			if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
+			if (PathFileExists(cfgPath)) // [terminal emulator config] file exists, copy [terminal emulator config] to config/user_[terminal emulator config] file to backup any settings changes from previous sessions.
 			{
-				if (PathFileExists(windowsTerminalDir)) {
-					MessageBox(NULL,
-						(GetLastError() == ERROR_ACCESS_DENIED)
-						? L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_terminal_%COMPUTERNAME%_settings.json! Access Denied."
-						: L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_teerminal_%COMPUTERNAME%_settigns.json!", MB_TITLE, MB_ICONSTOP);
-					exit(1);
-				}
-				else if (PathFileExists(conEmuDir))
+				if (!CopyFile(cfgPath, cpuCfgPath, FALSE))
 				{
-					MessageBox(NULL,
-						(GetLastError() == ERROR_ACCESS_DENIED)
-						? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml! Access Denied."
-						: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml!", MB_TITLE, MB_ICONSTOP);
-					exit(1);
+					if (PathFileExists(windowsTerminalDir))
+					{
+						MessageBox(NULL,
+							(GetLastError() == ERROR_ACCESS_DENIED)
+							? L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_terminal_%COMPUTERNAME%_settings.json! Access Denied."
+							: L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_teerminal_%COMPUTERNAME%_settigns.json!", MB_TITLE, MB_ICONSTOP);
+						exit(1);
+					}
+					else if (PathFileExists(conEmuDir))
+					{
+						MessageBox(NULL,
+							(GetLastError() == ERROR_ACCESS_DENIED)
+							? L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml! Access Denied."
+							: L"Failed to copy vendor/conemu-maximus5/ConEmu.xml file to config/ConEmu-%COMPUTERNAME%.xml!", MB_TITLE, MB_ICONSTOP);
+						exit(1);
+					}
 				}
 			}
-		}
-		else // vendor/conemu-maximus5/ConEmu.xml config file does not exist, copy config/ConEmu-%COMPUTERNAME%.xml to vendor/conemu-maximus5/ConEmu.xml file
-		{
-			if (!CopyFile(cpuCfgPath, cfgPath, FALSE))
+			else // [terminal emulator config] file does not exist, copy config/[cpu specific terminal emulator config] file to [terminal emulator config] file
 			{
-				if (PathFileExists(windowsTerminalDir))
+				if (!CopyFile(cpuCfgPath, cfgPath, FALSE))
 				{
-					MessageBox(NULL,
-						(GetLastError() == ERROR_ACCESS_DENIED)
-						? L"Failed to copy config/windows_terminal_%COMPUTERNAME%_settings.json file to vendor/windows-terminal/settings/settings.json! Access Denied."
-						: L"Failed to copy config/windows_terminal_%COMPUTERNAME%_settings.json file to vendor/windows-terminal/settings/settings.json!", MB_TITLE, MB_ICONSTOP);
-					exit(1);
-				}
-				else if (PathFileExists(conEmuDir))
-				{
-					MessageBox(NULL,
-						(GetLastError() == ERROR_ACCESS_DENIED)
-						? L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
-						: L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
-					exit(1);
+					if (PathFileExists(windowsTerminalDir))
+					{
+						MessageBox(NULL,
+							(GetLastError() == ERROR_ACCESS_DENIED)
+							? L"Failed to copy config/windows_terminal_%COMPUTERNAME%_settings.json file to vendor/windows-terminal/settings/settings.json! Access Denied."
+							: L"Failed to copy config/windows_terminal_%COMPUTERNAME%_settings.json file to vendor/windows-terminal/settings/settings.json!", MB_TITLE, MB_ICONSTOP);
+						exit(1);
+					}
+					else if (PathFileExists(conEmuDir))
+					{
+						MessageBox(NULL,
+							(GetLastError() == ERROR_ACCESS_DENIED)
+							? L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+							: L"Failed to copy config/ConEmu-%COMPUTERNAME%.xml file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+						exit(1);
+					}
 				}
 			}
 		}
 	}
-	else if (wcscmp(userCfgPath, L"") == 0 && PathFileExists(userCfgPath)) // config/user_conemu.xml exists, use it.
+	else if (PathFileExists(userCfgPath)) // config/user[terminal emulator config] file exists, use it.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
-			if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml.
+			if (PathFileExists(cfgPath)) // [terminal emulator config] file exists, copy [terminal emulator config] to config/user_[terminal emulator config] file to backup any settings changes from previous sessions.
 			{
 				if (!CopyFile(cfgPath, userCfgPath, FALSE))
 				{
@@ -372,7 +376,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 					}
 				}
 			}
-			else // vendor/conemu-maximus5/ConEmu.xml does not exist, copy config/user-conemu.xml to vendor/conemu-maximus5/ConEmu.xml
+			else // [terminal emulator config] file does not exist, copy config/user_[terminal emulator config] file to [terminal emulator config] file
 			{
 				if (!CopyFile(userCfgPath, cfgPath, FALSE))
 				{
@@ -395,13 +399,13 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				}
 			}
 		}
-		else if (!PathFileExists(windowsTerminalDir)) { // '/c [path]' was specified, don't copy anything and use existing user_conemu.xml to start comemu.
+		else if (!PathFileExists(windowsTerminalDir)) { // '/c [path]' was specified, don't copy anything and use existing user_[terminal emulator config] file.
 			PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 		}
 	}
 	else if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 	{
-		if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
+		if (PathFileExists(cfgPath)) // [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
 		{
 			if (!CopyFile(cfgPath, userCfgPath, FALSE))
 			{
@@ -422,7 +426,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 					exit(1);
 				}
 			}
-			else // vendor/ConEmu.xml.default config exists, copy Cmder vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml.
+			else // vendor/[terminal emulator config].default config exists, copy Cmder vendor/[terminal emulator config].default file to [terminal emulator config] file.
 			{
 				if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
 				{
@@ -454,7 +458,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			exit(1);
 		}
 	}
-	else if (wcscmp(cfgPath, L"") == 0 && PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
+	else if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
 	{
 		if (!CopyFile(cfgPath, userCfgPath, FALSE))
 		{
@@ -478,7 +482,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
-	else if (wcscmp(defaultCfgPath, L"") == 0) // '/c [path]' was specified and 'vendor/ConEmu.xml.default' config exists, copy Cmder 'vendor/ConEmu.xml.default' file to '[user specified path]/config/user_ConEmu.xml'.
+	else if (wcscmp(defaultCfgPath, L"") == 0) // '/c [path]' was specified and 'vendor/[terminal emulator config].default' config exists, copy Cmder 'vendor/[terminal emulator config].default' file to '[user specified path]/config/user_[terminal emulator config]'.
 	{
 		if (!CopyFile(defaultCfgPath, userCfgPath, FALSE))
 		{
