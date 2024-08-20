@@ -434,13 +434,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			}
 		}
 		else if (!CopyFile(defaultCfgPath, cfgPath, FALSE) && PathFileExists(conEmuDir))
-			{
-				MessageBox(NULL,
-					(GetLastError() == ERROR_ACCESS_DENIED)
-					? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
-					: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
-					exit(1);
-			}
+		{
+			MessageBox(NULL,
+			(GetLastError() == ERROR_ACCESS_DENIED)
+    		? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+			: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+			exit(1);
 		}
 	}
 	else if (PathFileExists(cfgPath)) // This is a first time Cmder.exe run and [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
@@ -468,7 +467,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	}
 	else if (wcscmp(defaultCfgPath, L"") == 0) // '/c [path]' was specified and 'vendor/[terminal emulator config].default' config exists, copy Cmder 'vendor/[terminal emulator config].default' file to '[user specified path]/config/user_[terminal emulator config]'.
 	{
-		if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
+if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
 		{
 			if (PathFileExists(windowsTerminalDir)) {
 				MessageBox(NULL,
