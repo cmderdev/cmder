@@ -52,6 +52,27 @@ jobs:
       working-directory: scripts
       run: .\pack.ps1 -verbose -terminal all
 
+    - name: Upload artifact (cmder_win_mini.zip)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder_win_mini.zip
+        name: cmder_win_mini.zip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_win.7z)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder_win.7z
+        name: cmder_win.7z
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_win.zip)
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/cmder_win.zip
+        name: cmder_win.zip
+        if-no-files-found: error
+
     - name: Upload artifact (cmder_wt.zip)
       uses: actions/upload-artifact@v3
       with:

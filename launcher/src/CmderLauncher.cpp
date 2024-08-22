@@ -329,7 +329,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				if (!CopyFile(cpuCfgPath, cfgPath, FALSE))
 				{
-				if (PathFileExists(windowsTerminalDir)) {
+    				if (PathFileExists(windowsTerminalDir)) {
 						MessageBox(NULL,
 							(GetLastError() == ERROR_ACCESS_DENIED)
 							? L"Failed to copy config/windows_terminal_%COMPUTERNAME%_settings.json file to vendor/windows-terminal/settings/settings.json! Access Denied."
@@ -447,7 +447,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		{
 			MessageBox(NULL,
 				(GetLastError() == ERROR_ACCESS_DENIED)
-				? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+    			? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
 				: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
