@@ -452,7 +452,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			exit(1);
 		}
 	}
-	else if (PathFileExists(cfgPath)) // vendor/conemu-maximus5/ConEmu.xml exists, copy vendor/conemu-maximus5/ConEmu.xml to config/user_conemu.xml
+	else if (PathFileExists(cfgPath)) // This is a first time Cmder.exe run and [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
 	{
 		if (!CopyFile(cfgPath, userCfgPath, FALSE))
 		{
