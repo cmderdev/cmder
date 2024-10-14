@@ -12,7 +12,6 @@ if "%~1" == "/h" (
 
 exit /b
 
-:read_version
 :::===============================================================================
 :::read_version - Get the git.exe version
 :::.
@@ -34,6 +33,7 @@ exit /b
 :::  GIT_VERSION_[GIT SCOPE] <out> Env variable containing Git semantic version string
 :::-------------------------------------------------------------------------------
 
+:read_version
     :: clear the variables
     set GIT_VERSION_%~1=
 
@@ -64,7 +64,6 @@ exit /b
 
     exit /b
 
-:parse_version
 :::===============================================================================
 :::parse_version - Parse semantic version string 'x.x.x.x' and return the pieces
 :::.
@@ -89,6 +88,7 @@ exit /b
 :::  [SCOPE]_BUILD <out> Scoped Build version.
 :::-------------------------------------------------------------------------------
 
+:parse_version
     :: process a `x.x.x.xxxx.x` formatted string
     %print_debug% :parse_version "ARGV[1]=%~1, ARGV[2]=%~2"
 
@@ -111,9 +111,8 @@ exit /b
 
 :endlocal_set_git_version
 
-:validate_version
 :::===============================================================================
-:::validate_version - Validate semantic version string 'x.x.x.x'.
+:::validate_version - Validate semantic version string 'x.x.x.x'
 :::.
 :::include:
 :::.
@@ -129,6 +128,7 @@ exit /b
 :::  [VERSION]   <in> Semantic version String. Ex: 1.2.3.4
 :::-------------------------------------------------------------------------------
 
+:validate_version
     :: now parse the version information into the corresponding variables
     %print_debug% :validate_version "ARGV[1]=%~1, ARGV[2]=%~2"
 
@@ -143,9 +143,8 @@ exit /b
     )
     exit /b
 
-:compare_versions
 :::===============================================================================
-:::compare_version - Compare semantic versions return latest version.
+:::compare_version - Compare semantic versions and return latest version
 :::.
 :::include:
 :::.
@@ -161,6 +160,7 @@ exit /b
 :::  [SCOPE2]    <in> Example: VENDOR
 :::-------------------------------------------------------------------------------
 
+:compare_versions
     :: checks all major, minor, patch and build variables for the given arguments.
     :: whichever binary that has the most recent version will be used based on the return code.
 
@@ -185,7 +185,7 @@ exit /b
     endlocal & exit /b 0
 
 :::===============================================================================
-:::is_git_shim
+:::is_git_shim - Check if the directory has a git.shim file
 :::.
 :::include:
 :::.
@@ -219,7 +219,7 @@ exit /b
     exit /b
 
 :::===============================================================================
-:::compare_git_versions
+:::compare_git_versions - Compare the user git version against the vendored version
 :::.
 :::include:
 :::.
@@ -262,7 +262,7 @@ exit /b
     exit /b
 
 :::===============================================================================
-:::get_user_git_version - get the version information for the user provided git binary
+:::get_user_git_version - Get the version information for the user provided git binary
 :::.
 :::include:
 :::.
@@ -278,5 +278,4 @@ exit /b
     %lib_git% read_version USER "%test_dir%" 2>nul
     %print_debug% ":get_user_git_version" "get_user_git_version GIT_VERSION_USER: %GIT_VERSION_USER%"
     %lib_git% validate_version USER %GIT_VERSION_USER%
-    exit  /b
-
+    exit /b
