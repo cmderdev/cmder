@@ -18,7 +18,8 @@ function readVersion($gitPath) {
 }
 
 function isGitShim($gitPath) {
-    # check if there's shim - and if yes follow the path
+    # check if there is a shim file - if yes, read the actual executable path
+    # See: github.com/ScoopInstaller/Shim
 
     if (Test-Path "${gitPath}\git.shim") {
         $shim = (get-content "${gitPath}\git.shim")
