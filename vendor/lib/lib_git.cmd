@@ -187,6 +187,11 @@ exit /b
 :::===============================================================================
 :::is_git_shim - Check if the directory has a git.shim file
 :::.
+:::description:
+:::.
+:::  Shim is a small helper program for Scoop that calls the executable configured in git.shim file
+:::  See: github.com/ScoopInstaller/Shim and github.com/cmderdev/cmder/pull/1905
+:::.
 :::include:
 :::.
 :::  call "$0"
@@ -202,7 +207,7 @@ exit /b
 
 :is_git_shim
     pushd "%~1"
-    :: check if there's shim - and if yes follow the path
+    :: check if there is a shim file - if yes, read the actual executable path
     setlocal enabledelayedexpansion
     if exist git.shim (
         for /F "tokens=2 delims== " %%I in (git.shim) do (
