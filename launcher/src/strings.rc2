@@ -6,7 +6,7 @@ STRINGTABLE
 {
 	IDS_TITLE             "Cmder Launcher"
 
-	IDS_SWITCHES          L"Valid options:\n\n    /c [CMDER User Root Path]\n    /task [ConEmu Task Name]\n    /icon [CMDER Icon Path]\n    [/start [Start in Path] | [Start in Path]]\n    /single\n    /m\n    /x [ConEmu extra arguments]\n\nor, either:\n    /register [USER | ALL]\n    /unregister [USER | ALL]"
+	IDS_SWITCHES          L"Valid options:\n\n    /a Admin - Native Terminals ONLY!\n    /c [CMDER User Root Path]\n    /task [Windows Terminal Profile/ConEmu Task Name]\n    /icon [CMDER Icon Path] - ConEmu ONLY!\n    [/start [Start in Path] | [Start in Path]]\n    /single - ConEmu ONLY!\n    /m\n    -- [ConEmu/Windows Terminal extra arguments]\n\nNote: '-- [...]' must be the last argument!\n\nor, either:\n    /register [USER | ALL]\n    /unregister [USER | ALL]"
 }
 
 /////////////////////////////////////////////////////////////////////////////
