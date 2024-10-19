@@ -55,6 +55,9 @@ Param(
 
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
+    
+    # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
+    [string]$terminal = 'all',
 
     # Build launcher if you have MSBuild tools installed
     [switch]$Compile
@@ -113,6 +116,18 @@ if (-not $noVendor) {
     }
     else { $ConEmuXml = "" }
 
+    # Preserve modified (by user) Windows Terminal setting file
+    if ($config -ne "") {
+        $WinTermSettingsJson = Join-Path $saveTo "windows-terminal\settings\settings.json"
+        if (Test-Path $WinTermSettingsJson -pathType leaf) {
+            $WinTermSettingsJsonSave = Join-Path $config "windows_terminal_settings.json"
+            Write-Verbose "Backup '$WinTermSettingsJson' to '$WinTermSettingsJsonSave'"
+            Copy-Item $WinTermSettingsJson $WinTermSettingsJsonSave
+        }
+        else { $WinTermSettingsJson = "" }
+    }
+    else { $WinTermSettingsJson = "" }
+
     # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
         if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\', '\\')) {
@@ -122,6 +137,14 @@ if (-not $noVendor) {
     }
 
     foreach ($s in $sources) {
+        if ($terminal -eq "none") {
+          return
+        } elseif ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
+          return
+        } elseif ($s.name -eq "windows-terminal" -and $terminal -eq  "conemu-maximus5") {
+          return
+        }
+ 
         Write-Verbose "Getting vendored $($s.name) $($s.version)..."
 
         # We do not care about the extensions/type of archive
@@ -131,6 +154,16 @@ if (-not $noVendor) {
 
         Download-File -Url $s.url -File $vend\$tempArchive -ErrorAction Stop
         Extract-Archive $tempArchive $s.name
+
+        # Make Embedded Windows Terminal Portable
+        if ($s.name -eq "windows-terminal") {
+          $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
+          move-item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
+          remove-item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
+          write-verbose "Making Windows Terminal Portable..."
+          New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
+          New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
+        }
 
         if ((Get-ChildItem $s.name).Count -eq 1) {
             Flatten-Directory($s.name)
@@ -144,6 +177,12 @@ if (-not $noVendor) {
     if ($ConEmuXml -ne "") {
         Write-Verbose "Restore '$ConEmuXmlSave' to '$ConEmuXml'"
         Copy-Item $ConEmuXmlSave $ConEmuXml
+    }
+
+    # Restore Windows Terminal user configuration
+    if ($WinTermSettingsJson -ne "") {
+        Write-Verbose "Restore '$WinTermSettingsJsonSave' to '$WinTermSettingsJson'"
+        Copy-Item $WinTermSettingsJsonSave $WinTermSettingsJson
     }
 
     # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty
