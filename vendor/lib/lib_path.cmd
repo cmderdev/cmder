@@ -1,6 +1,5 @@
 @echo off
 
-
 call "%~dp0lib_base.cmd"
 call "%%~dp0lib_console"
 set lib_path=call "%~dp0lib_path.cmd"
@@ -32,13 +31,12 @@ exit /b
 :::options:
 :::
 :::  append     <in> Append to the path env variable rather than pre-pend.
-::B
+:::
 :::
 :::output:
 :::
 :::  path       <out> Sets the path env variable if required.
 :::-------------------------------------------------------------------------------
-
     if "%~1" neq "" (
         set "add_path=%~1"
     ) else (
@@ -53,6 +51,7 @@ exit /b
     )
 
     dir "%add_path%" 2>NUL | findstr -i "\.COM \.EXE \.BAT \.CMD \.PS1 \.VBS" >NUL
+
     if "%ERRORLEVEL%" == "0" (
         set "add_to_path=%add_path%"
     ) else (
@@ -134,7 +133,6 @@ exit /b
         exit /b
 
     exit /b
-
 
 :set_found
     if "%ERRORLEVEL%" == "0" (
@@ -223,7 +221,7 @@ exit /b
 
     exit /b
 
-: set_depth
+:set_depth
     set /a "depth=%depth%+1"
     exit /b
 
@@ -239,4 +237,3 @@ exit /b
         %print_debug%  :enhance_path_recursive "Env Var AFTER- depth=%depth%"
     )
     exit /b
-
