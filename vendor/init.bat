@@ -426,7 +426,7 @@ if "%CMDER_ALIASES%" == "1" (
 )
 
 :: Add aliases to the environment
-type "%user_aliases%" | findstr /b /l /i "history=cat " >nul
+type "%user_aliases%" | %WINDIR%\System32\findstr /b /l /i "history=cat " >nul
 if "%ERRORLEVEL%" == "0" (
     echo Migrating alias 'history' to new Clink 1.x.x...
     call "%CMDER_ROOT%\vendor\bin\alias.cmd" /d history
