@@ -10,6 +10,13 @@ if "%~1" == "/h" (
     call :%*
 )
 
+setlocal enabledelayedexpansion
+if not defined find_pathext (
+    set "find_pathext=!PATHEXT:;= !"
+    set "find_pathext=!find_pathext:.=\.!"
+)
+endlocal & set "find_pathext=%find_pathext%"
+
 exit /b
 
 :enhance_path
@@ -50,7 +57,7 @@ exit /b
         set "position="
     )
 
-    dir "%add_path%" 2>NUL | findstr -i "\.COM \.EXE \.BAT \.CMD \.PS1 \.VBS" >NUL
+    dir "%add_path%" 2>NUL | findstr -i -e "%find_pathext%" >NUL
 
     if "%ERRORLEVEL%" == "0" (
         set "add_to_path=%add_path%"
@@ -184,7 +191,7 @@ exit /b
         set "position="
     )
 
-    dir "%add_path%" 2>NUL | findstr -i "\.COM \.EXE \.BAT \.CMD \.PS1 \.VBS" >NUL
+    dir "%add_path%" 2>NUL | findstr -i -e "%find_pathext%" >NUL
 
     if "%ERRORLEVEL%" == "0" (
         set "add_to_path=%add_path%"
