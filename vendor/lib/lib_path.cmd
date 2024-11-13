@@ -149,8 +149,8 @@ exit /b
     exit /b
 
 :enhance_path_recursive
-  call :set_path_recursive "%~1" "%~2" "%~3"
-  exit /b
+    call :set_path_recursive "%~1" "%~2" "%~3"
+    exit /b
 
 :set_path_recursive
 :::===============================================================================
@@ -206,9 +206,9 @@ exit /b
     if "%fast_init%" == "1" (
         if "%add_to_path%" neq "" (
             if "%position%" == "append" (
-              set "path=%path%;%add_to_path%"
+                set "path=%path%;%add_to_path%"
             ) else (
-              set "path=%add_to_path%;%path%"
+                set "path=%add_to_path%;%path%"
             )
         )
     )
@@ -227,9 +227,9 @@ exit /b
         if "%add_to_path%" neq "" (
             %print_debug% :set_path_recursive "Adding parent directory - '%add_to_path%'"
             if "%position%" == "append" (
-              set "path=%path%;%add_to_path%"
+                set "path=%path%;%add_to_path%"
             ) else (
-              set "path=%add_to_path%;%path%"
+                set "path=%add_to_path%;%path%"
             )
         )
         call :set_depth
@@ -250,16 +250,9 @@ exit /b
     )
 
     for /d %%i in ("%add_path%\*") do (
-<<<<<<< HEAD
-        %print_debug%  :set_path_recursive "Env Var BEFORE - depth=%depth%"
+        %print_debug% :set_path_recursive "Env Var BEFORE - depth=%depth%"
         %print_debug% :set_path_recursive "Found Subdirectory - '%%~fi'"
         call :set_path_recursive "%%~fi" %depth% %max_depth% %position%
-        %print_debug%  :set_path_recursive "Env Var AFTER- depth=%depth%"
-=======
-        %print_debug% :enhance_path_recursive "Env Var BEFORE - depth=%depth%"
-        %print_debug% :enhance_path_recursive "Found Subdirectory - '%%~fi'"
-        call :enhance_path_recursive "%%~fi" %depth% %max_depth% %position%
-        %print_debug% :enhance_path_recursive "Env Var AFTER- depth=%depth%"
->>>>>>> 126347025f9cade241beff182738b2527da7535e
+        %print_debug% :set_path_recursive "Env Var AFTER- depth=%depth%"
     )
     exit /b
