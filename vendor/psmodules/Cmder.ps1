@@ -179,27 +179,27 @@ function getGitStatusSetting() {
 }
 
 function yOrn( $question ) {
-  Do {
-    $Answer = Read-Host -Prompt "`n${question}? (y/n) "
-  }
-  Until ($Answer -eq 'y' -or $Answer -eq 'n' -or $Answer -eq 'yes' -or $Answer -eq 'no')
+    Do {
+        $Answer = Read-Host -Prompt "`n${question}? (y/n) "
+    }
+    Until ($Answer -eq 'y' -or $Answer -eq 'n' -or $Answer -eq 'yes' -or $Answer -eq 'no')
 
-  return $Answer
+    return $Answer
 }
 
 function templateExpand($template_filename, $outfile) {
-  $template = Get-Content "$template_filename" -Raw
+    $template = Get-Content "$template_filename" -Raw
 
-  $expanded = Invoke-Expression "@`"`r`n$template`r`n`"@"
+    $expanded = Invoke-Expression "@`"`r`n$template`r`n`"@"
 
-  $overwrite = 'y'
-  if ((test-path "$outfile")) {
-    $overwrite = yOrn "'$outfile' already exists do you want to overwrite it"
-  }
+    $overwrite = 'y'
+    if ((test-path "$outfile")) {
+        $overwrite = yOrn "'$outfile' already exists do you want to overwrite it"
+    }
 
-  if ($overwrite -match 'y') {
-    $expanded | out-file -ErrorAction silentlycontinue -encoding ascii "$outfile"
-  } else {
-    write-host "Skipping Cmder '$shell' config generation  at user request!"
-  }
+    if ($overwrite -match 'y') {
+        $expanded | out-file -ErrorAction silentlycontinue -encoding ascii "$outfile"
+    } else {
+        write-host "Skipping Cmder '$shell' config generation  at user request!"
+    }
 }
