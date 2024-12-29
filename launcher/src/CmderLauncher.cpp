@@ -290,7 +290,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
 
-	if ( PathFileExists(cpuCfgPath) || use_user_cfg == false ) // config/[cpu specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
+	if ( PathFileExists(cpuCfgPath) || use_user_cfg == false ) // config/[host specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
@@ -315,7 +315,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 					}
 				}
 			}
-			else // [terminal emulator config] file does not exist, copy config/[cpu specific terminal emulator config] file to [terminal emulator config] file
+			else // [terminal emulator config] file does not exist, copy config/[host specific terminal emulator config] file to [terminal emulator config] file
 			{
 				if (!CopyFile(cpuCfgPath, cfgPath, FALSE))
 				{
