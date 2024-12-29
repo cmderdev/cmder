@@ -10,9 +10,8 @@ if "%~1" == "/h" (
 
 exit /b
 
-:help
 :::===============================================================================
-:::show_subs - shows all sub routines in a .bat/.cmd file with documentation
+:::help - shows all sub routines in a .bat/.cmd file with documentation
 :::.
 :::include:
 :::.
@@ -20,16 +19,15 @@ exit /b
 :::.
 :::usage:
 :::.
-:::       %lib_base% show_subs "file"
+:::       %lib_base% help "file"
 :::.
 :::options:
 :::.
 :::       file <in> full path to file containing lib_routines to display
-:::.
 :::-------------------------------------------------------------------------------
-    for /f "tokens=* delims=:" %%a in ('type "%~1" ^| %WINDIR%\System32\findstr /i /r "^:::"') do (
-        rem echo a="%%a"
 
+:help
+    for /f "tokens=* delims=:" %%a in ('%WINDIR%\System32\findstr /i /r "^:::" "%~1"') do (
         if "%%a"=="." (
             echo.
         ) else if /i "%%a" == "usage" (
@@ -44,9 +42,13 @@ exit /b
     pause
     exit /b
 
-:cmder_shell
 :::===============================================================================
-:::show_subs - shows all sub routines in a .bat/.cmd file with documentation
+:::cmder_shell - Initializes the Cmder shell environment variables
+:::.
+:::description:
+:::.
+:::       This routine sets up the Cmder shell environment by detecting the
+:::       command shell and initializing related variables.
 :::.
 :::include:
 :::.
@@ -55,14 +57,29 @@ exit /b
 :::usage:
 :::.
 :::       %lib_base% cmder_shell
-:::.
-:::options:
-:::.
-:::       file <in> full path to file containing lib_routines to display
-:::.
 :::-------------------------------------------------------------------------------
+
+:cmder_shell
     call :detect_comspec %ComSpec%
     exit /b
+
+:::===============================================================================
+:::detect_comspec - Detects the command shell being used:::
+:::.
+:::description:
+:::.
+:::       This function sets the CMDER_SHELL variable to the name of the
+:::       detected command shell. It also initializes the CMDER_CLINK and
+:::       CMDER_ALIASES variables if they are not already defined.
+:::.
+:::include:
+:::.
+:::       call "lib_base.cmd"
+:::.
+:::usage:
+:::.
+:::       %lib_base% detect_comspec %ComSpec%
+:::-------------------------------------------------------------------------------
 
 :detect_comspec
     set CMDER_SHELL=%~n1
@@ -73,6 +90,27 @@ exit /b
         set CMDER_ALIASES=1
     )
     exit /b
+
+:::===============================================================================
+:::update_legacy_aliases - Updates the legacy alias definitions in the user_aliases file
+:::.
+:::description:
+:::.
+:::       This function checks if the user_aliases file contains the marker
+:::       ";= Add aliases below here". If the marker is not found, it creates
+:::       an initial user_aliases store by copying the default user_aliases file
+:::       from the CMDER_ROOT directory. If the CMDER_USER_CONFIG environment
+:::       variable is defined, it creates a backup of the existing user_aliases
+:::       file before copying the default file.
+:::.
+:::include:
+:::.
+:::       call "lib_base.cmd"
+:::.
+:::usage:
+:::.
+:::       %lib_base% update_legacy_aliases
+:::-------------------------------------------------------------------------------
 
 :update_legacy_aliases
     type "%user_aliases%" | %WINDIR%\System32\findstr /i ";= Add aliases below here" >nul
