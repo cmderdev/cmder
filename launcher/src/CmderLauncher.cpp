@@ -290,10 +290,6 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
 	
-	// Check if the user has specified a config file to use
-	// If cpuCfgPath is set and exists, use it.
-	// If userCfgPath is set and exists, use it.
-
 	if (wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // config/[host specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
