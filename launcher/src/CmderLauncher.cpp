@@ -436,9 +436,9 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		else if (!CopyFile(defaultCfgPath, cfgPath, FALSE) && PathFileExists(conEmuDir))
 		{
 			MessageBox(NULL,
-			(GetLastError() == ERROR_ACCESS_DENIED)
-    		? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
-			: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
+				(GetLastError() == ERROR_ACCESS_DENIED)
+    			? L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml! Access Denied."
+				: L"Failed to copy vendor/ConEmu.xml.default file to vendor/conemu-maximus5/ConEmu.xml!", MB_TITLE, MB_ICONSTOP);
 			exit(1);
 		}
 	}
