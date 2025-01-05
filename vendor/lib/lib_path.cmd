@@ -1,6 +1,5 @@
 @echo off
 
-
 call "%~dp0lib_base.cmd"
 call "%%~dp0lib_console"
 set lib_path=call "%~dp0lib_path.cmd"
@@ -10,6 +9,13 @@ if "%~1" == "/h" (
 ) else if "%1" neq "" (
     call :%*
 )
+
+setlocal enabledelayedexpansion
+if not defined find_pathext (
+    set "find_pathext=!PATHEXT:;= !"
+    set "find_pathext=!find_pathext:.=\.!"
+)
+endlocal & set "find_pathext=%find_pathext%"
 
 exit /b
 
@@ -32,13 +38,12 @@ exit /b
 :::options:
 :::
 :::  append     <in> Append to the path env variable rather than pre-pend.
-::B
+:::
 :::
 :::output:
 :::
 :::  path       <out> Sets the path env variable if required.
 :::-------------------------------------------------------------------------------
-
     if "%~1" neq "" (
         set "add_path=%~1"
     ) else (
@@ -52,7 +57,8 @@ exit /b
         set "position="
     )
 
-    dir "%add_path%" | findstr -i "\.COM \.EXE \.BAT \.CMD \.PS1 \.VBS" >NUL
+    dir "%add_path%" 2>NUL | findstr -i -e "%find_pathext%" >NUL
+
     if "%ERRORLEVEL%" == "0" (
         set "add_to_path=%add_path%"
     ) else (
@@ -81,20 +87,20 @@ exit /b
         echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!;"
         call :set_found
     )
-    %print_debug%  :enhance_path "Env Var INSIDE PATH !find_query! - found=!found!"
+    %print_debug% :enhance_path "Env Var INSIDE PATH !find_query! - found=!found!"
 
     if /i "!position!" == "append" (
         if "!found!" == "0" (
             echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!\"$"
             call :set_found
         )
-        %print_debug%  :enhance_path "Env Var END PATH !find_query! - found=!found!"
+        %print_debug% :enhance_path "Env Var END PATH !find_query! - found=!found!"
     ) else (
         if "!found!" == "0" (
             echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:"^\"!find_query!;"
             call :set_found
         )
-        %print_debug%  :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
+        %print_debug% :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
     )
     endlocal & set found=%found%
 
@@ -129,12 +135,11 @@ exit /b
         exit /b
 
     :changed
-        %print_debug%  :enhance_path "END Env Var - PATH=%path%"
-        %print_debug%  :enhance_path "Env Var %find_query% - found=%found%"
+        %print_debug% :enhance_path "END Env Var - PATH=%path%"
+        %print_debug% :enhance_path "Env Var %find_query% - found=%found%"
         exit /b
 
     exit /b
-
 
 :set_found
     if "%ERRORLEVEL%" == "0" (
@@ -144,8 +149,8 @@ exit /b
     exit /b
 
 :enhance_path_recursive
-  call :set_path_recursive "%~1" "%~2" "%~3"
-  exit /b
+    call :set_path_recursive "%~1" "%~2" "%~3"
+    exit /b
 
 :set_path_recursive
 :::===============================================================================
@@ -190,7 +195,7 @@ exit /b
         set "position="
     )
 
-    dir "%add_path%" 2>NUL | findstr -i "\.COM \.EXE \.BAT \.CMD \.PS1 \.VBS" >NUL
+    dir "%add_path%" 2>NUL | findstr -i -e "%find_pathext%" >NUL
 
     if "%ERRORLEVEL%" == "0" (
         set "add_to_path=%add_path%"
@@ -201,10 +206,10 @@ exit /b
     if "%fast_init%" == "1" (
         if "%add_to_path%" neq "" (
             if "%position%" == "append" (
-              set "path=%path%;%add_to_path%"
+                set "path=%path%;%add_to_path%"
             ) else (
-              set "path=%add_to_path%;%path%"
-            ) 
+                set "path=%add_to_path%;%path%"
+            )
         )
     )
 
@@ -213,19 +218,19 @@ exit /b
         exit /b
     )
 
-    %print_debug%  :set_path_recursive "Env Var - add_path=%add_to_path%"
-    %print_debug%  :set_path_recursive "Env Var - position=%position%"
-    %print_debug%  :set_path_recursive "Env Var - depth=%depth%"
-    %print_debug%  :set_path_recursive "Env Var - max_depth=%max_depth%"
+    %print_debug% :set_path_recursive "Env Var - add_path=%add_to_path%"
+    %print_debug% :set_path_recursive "Env Var - position=%position%"
+    %print_debug% :set_path_recursive "Env Var - depth=%depth%"
+    %print_debug% :set_path_recursive "Env Var - max_depth=%max_depth%"
 
     if %max_depth% gtr %depth% (
         if "%add_to_path%" neq "" (
             %print_debug% :set_path_recursive "Adding parent directory - '%add_to_path%'"
             if "%position%" == "append" (
-              set "path=%path%;%add_to_path%"
+                set "path=%path%;%add_to_path%"
             ) else (
-              set "path=%add_to_path%;%path%"
-            ) 
+                set "path=%add_to_path%;%path%"
+            )
         )
         call :set_depth
         call :loop_depth
@@ -235,7 +240,7 @@ exit /b
 
     exit /b
 
-: set_depth
+:set_depth
     set /a "depth=%depth%+1"
     exit /b
 
@@ -245,10 +250,9 @@ exit /b
     )
 
     for /d %%i in ("%add_path%\*") do (
-        %print_debug%  :set_path_recursive "Env Var BEFORE - depth=%depth%"
+        %print_debug% :set_path_recursive "Env Var BEFORE - depth=%depth%"
         %print_debug% :set_path_recursive "Found Subdirectory - '%%~fi'"
         call :set_path_recursive "%%~fi" %depth% %max_depth% %position%
-        %print_debug%  :set_path_recursive "Env Var AFTER- depth=%depth%"
+        %print_debug% :set_path_recursive "Env Var AFTER- depth=%depth%"
     )
     exit /b
-
