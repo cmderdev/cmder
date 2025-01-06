@@ -12,26 +12,26 @@ if "%~1" == "/h" (
 
 exit /b
 
-:run_profile_d
 :::===============================================================================
-:::run_profile_d - Run all scripts in the passed dir path
-:::
+:::run_profile_d - Run all scripts in the passed directory path
+:::.
 :::include:
-:::
+:::.
 :::  call "lib_profile.cmd"
-:::
+:::.
 :::usage:
-:::
+:::.
 :::  %lib_profile% "[dir_path]"
-:::
+:::.
 :::required:
-:::
+:::.
 :::  [dir_path] <in> Fully qualified directory path containing init *.cmd|*.bat.
 :::                  Example: "c:\bin"
-:::
+:::.
 :::  path       <out> Sets the path env variable if required.
 :::-------------------------------------------------------------------------------
 
+:run_profile_d
     if not exist "%~1" (
         mkdir "%~1"
     )
@@ -43,4 +43,3 @@ exit /b
     )
     popd
     exit /b
-

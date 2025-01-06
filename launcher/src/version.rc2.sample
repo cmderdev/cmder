@@ -1,9 +1,8 @@
 
 /**
- * WARNING: do NOT modify this file! the content of this file should be
- *          automatically generated before AppVeyor builds using the
- *          respective .ps1 Powershell scripts.
- *
+ * WARNING: This file should NOT be manually modified!
+ *          The contents will be automatically generated using the `.ps1` PowerShell scripts,
+ *          during builds by the CI.
  */
 
 /////////////////////////////////////////////////////////////////////////////
