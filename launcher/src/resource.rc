@@ -1,15 +1,6 @@
-/*                  _
-  ___ _ __ ___   __| | ___ _ __
- / __| '_ ` _ \ / _` |/ _ \ '__|
-| (__| | | | | | (_| |  __/ |
- \___|_| |_| |_|\__,_|\___|_|
-=============================================================================
- The Cmder Console Emulator Project
-*/
-
+// Microsoft Visual C++ generated resource script.
+//
 #include "resource.h"
-#include "version.rc2"
-#include "strings.rc2"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +17,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -33,24 +25,25 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
-"resource.h\0"
+    "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
-"#include ""winres.h""\r\n"
-"\0"
+    "#include ""winres.h""\r\n"
+    "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
-"\r\n"
-"\0"
+    "\r\n"
+    "\0"
 END
 
 #endif    // APSTUDIO_INVOKED
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -60,8 +53,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_CMDER               ICON                    "..\\..\\icons\\cmder.ico"
-#endif    // English (United States) resources
-/////////////////////////////////////////////////////////////////////////////
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -69,26 +61,30 @@ IDI_CMDER               ICON                    "..\\..\\icons\\cmder.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION CMDER_MAJOR_VERSION,CMDER_MINOR_VERSION,CMDER_REVISION_VERSION,CMDER_BUILD_VERSION
- PRODUCTVERSION CMDER_MAJOR_VERSION,CMDER_MINOR_VERSION,CMDER_REVISION_VERSION,CMDER_BUILD_VERSION
- FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
- FILEFLAGS (CMDER_DEBUGFLAG | CMDER_BUILDFLAGS)
- FILEOS VOS_NT_WINDOWS32
- FILETYPE VFT_APP
- FILESUBTYPE VFT2_UNKNOWN
+ FILEVERSION 1,3,6,1
+ PRODUCTVERSION 1,3,6,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
         BLOCK "100904b0"
         BEGIN
-            VALUE "CompanyName", CMDER_COMPANY_NAME_STR "\0"
-            VALUE "FileDescription", CMDER_FILE_DESCRIPTION_STR "\0"
-            VALUE "FileVersion", CMDER_VERSION_STR "\0"
-            VALUE "InternalName", CMDER_INTERNAL_NAME_STR "\0"
-            VALUE "LegalCopyright", "Copyright (C) " CMDER_COPYRIGHT_YEAR_STR " " CMDER_COMPANY_NAME_STR "\0"
-            VALUE "OriginalFilename", CMDER_ORIGINAL_FILENAME_STR "\0"
-            VALUE "ProductName", CMDER_PRODUCT_NAME_STR "\0"
-            VALUE "ProductVersion", CMDER_VERSION_STR "\0"
+            VALUE "CompanyName", "Samuel Vasko"
+            VALUE "FileDescription", "Cmder: Lovely Console Emulator."
+            VALUE "FileVersion", "1.3.6-pre1"
+            VALUE "InternalName", "Cmder"
+            VALUE "LegalCopyright", "Copyright (C) 2016 Samuel Vasko"
+            VALUE "OriginalFilename", "Cmder.exe"
+            VALUE "ProductName", "Cmder"
+            VALUE "ProductVersion", "1.3.6-pre1"
         END
     END
     BLOCK "VarFileInfo"
@@ -97,7 +93,26 @@ BEGIN
     END
 END
 
+
 /////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_TITLE               "Cmder Launcher"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SWITCHES            "Valid options:\n\n    /c [CMDER User Root Path]\n    /task [Windows Terminal Profile/ConEmu Task Name]\n    /icon [CMDER Icon Path] - ConEmu ONLY!\n    [/start [Start in Path] | [Start in Path]]\n    /single - ConEmu ONLY!\n    /m\n    -- [ConEmu/Windows Terminal extra arguments]\n\nNote: '-- [...]' must be the last argument!\n\nor, either:\n    /register [USER | ALL]\n    /unregister [USER | ALL]"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -105,5 +120,7 @@ END
 // Generated from the TEXTINCLUDE 3 resource.
 //
 
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+

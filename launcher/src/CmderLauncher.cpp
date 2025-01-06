@@ -105,11 +105,11 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
-void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring title = L"", std::wstring iconPath = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"", bool admin = false)
+void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring title = L"", std::wstring iconPath = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"")
 {
-#if USE_TASKBAR_API
-	wchar_t appId[MAX_PATH] = { 0 };
-#endif
+	#if USE_TASKBAR_API
+		wchar_t appId[MAX_PATH] = { 0 };
+	#endif
 	wchar_t exeDir[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 	wchar_t cfgPath[MAX_PATH] = { 0 };
@@ -153,9 +153,9 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
 
-#if USE_TASKBAR_API
-	wcscpy_s(appId, exeDir);
-#endif
+	#if USE_TASKBAR_API
+		wcscpy_s(appId, exeDir);
+	#endif
 
 	PathRemoveFileSpec(exeDir);
 
@@ -651,44 +651,13 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	STARTUPINFO si = { 0 };
 
 	si.cb = sizeof(STARTUPINFO);
-#if USE_TASKBAR_API
-	si.lpTitle = appId;
-	si.dwFlags = STARTF_TITLEISAPPID;
-#endif
+	#if USE_TASKBAR_API
+		si.lpTitle = appId;
+		si.dwFlags = STARTF_TITLEISAPPID;
+	#endif
 	PROCESS_INFORMATION pi;
 
-	// MessageBox(NULL, terminalPath, _T("Error"), MB_OK);
-	// MessageBox(NULL, args, _T("Error"), MB_OK);
-	// Let's try to rerun as Administrator
-	SHELLEXECUTEINFO sei = { sizeof(sei) };
-	sei.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS;
-	sei.lpVerb = L"runas";
-	sei.lpFile = terminalPath;
-	sei.lpParameters = args;
-	sei.nShow = SW_SHOWNORMAL;
-	
-	if (admin && ShellExecuteEx(&sei))
-	{
-		if (!sei.hProcess)
-		{
-			Sleep(500);
-			_ASSERTE(sei.hProcess != nullptr);
-		}
-
-		if (sei.hProcess)
-		{
-			WaitForSingleObject(sei.hProcess, INFINITE);
-		}
-
-		// int nZone = 0;
-		// if (!HasZoneIdentifier(lsFile, nZone)
-		// 	|| (nZone != 0 /*LocalComputer*/))
-		// {
-		// 	// Assuming that elevated copy has fixed all zone problems
-		// 	break;
-		// }
-	}
-	else if (!CreateProcess(terminalPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi))
+	if (!CreateProcess(terminalPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi))
 	{
 		if (PathFileExists(windowsTerminalDir))
 		{
@@ -819,7 +788,6 @@ struct cmderOptions
 	std::wstring cmderIcon = L"";
 	std::wstring cmderRegScope = L"USER";
 	std::wstring cmderTerminalArgs = L"";
-	bool cmderAdmin = false;
 	bool cmderSingle = false;
 	bool cmderUserCfg = true;
 	bool registerApp = false;
@@ -907,10 +875,6 @@ cmderOptions GetOption()
 			else if (_wcsicmp(L"/m", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir) && PathFileExists(conEmuDir))
 			{
 				cmderOptions.cmderUserCfg = false;
-			}
-			else if (_wcsicmp(L"/a", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir) && !PathFileExists(conEmuDir))
-			{
-				cmderOptions.cmderAdmin = true;
 			}
 			else if (_wcsicmp(L"/register", szArgList[i]) == 0)
 			{
@@ -1048,7 +1012,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	else
 	{
-		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderTitle, cmderOptions.cmderIcon, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderTerminalArgs, cmderOptions.cmderAdmin);	}
+		StartCmder(cmderOptions.cmderStart, cmderOptions.cmderSingle, cmderOptions.cmderTask, cmderOptions.cmderTitle, cmderOptions.cmderIcon, cmderOptions.cmderCfgRoot, cmderOptions.cmderUserCfg, cmderOptions.cmderTerminalArgs);
+	}
 
 	return 0;
 }
