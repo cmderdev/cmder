@@ -1,18 +1,18 @@
 [
   {
     "name": "windows-terminal",
-    "version": "1.20.11271.0",
-    "url": "https://github.com/microsoft/terminal/releases/download/v1.20.11271.0/Microsoft.WindowsTerminal_1.20.11271.0_x64.zip"
+    "version": "1.23.10353.0",
+    "url": "https://github.com/microsoft/terminal/releases/download/v1.23.10353.0/Microsoft.WindowsTerminalPreview_1.23.10353.0_x64.zip"
   },
   {
     "name": "git-for-windows",
-    "version": "2.47.0.windows.1",
-    "url": "https://github.com/git-for-windows/git/releases/download/v2.47.0.windows.1/PortableGit-2.47.0-64-bit.7z.exe"
+    "version": "2.47.1.windows.1",
+    "url": "https://github.com/git-for-windows/git/releases/download/v2.47.1.windows.1/PortableGit-2.47.1-64-bit.7z.exe"
   },
   {
     "name": "clink",
-    "version": "1.7.3",
-    "url": "https://github.com/chrisant996/clink/releases/download/v1.7.3/clink.1.7.3.f8fb96.zip"
+    "version": "1.7.12",
+    "url": "https://github.com/chrisant996/clink/releases/download/v1.7.12/clink.1.7.12.625e8b.zip"
   },
   {
     "name": "conemu-maximus5",
