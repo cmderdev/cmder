@@ -443,7 +443,7 @@ if "%CMDER_CONFIGURED%" gtr "1" goto :CMDER_CONFIGURED
 if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
     echo Running Git for Windows one time Post Install....
     pushd "%GIT_INSTALL_ROOT%\"
-    "%GIT_INSTALL_ROOT%\git-cmd.exe" --no-needs-console --no-cd --command=post-install.bat
+    "%GIT_INSTALL_ROOT%\git-cmd.exe" 2>nul --no-needs-console --no-cd --command=post-install.bat
     popd
 )
 
