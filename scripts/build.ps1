@@ -129,8 +129,9 @@ if (-not $noVendor) {
     else { $WinTermSettingsJson = "" }
 
     # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
+    $cmder_folder = $cmder_root.toString()
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-        if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\', '\\')) {
+        if ([string]$($ssh_agent.path) -Match $cmder_folder.Replace('\', '\\')) {
             Write-Verbose $("Stopping " + $ssh_agent.path + "!")
             Stop-Process $ssh_agent.id
         }
