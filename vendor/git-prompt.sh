@@ -38,13 +38,13 @@ then
     . ~/.config/git/git-prompt.sh
   fi
 else
-  # Taken from https://github.com/git-for-windows/build-extra/blob/main/git-extra/git-prompt.sh
-  PS1='\[\033]0;$TITLEPREFIX:${PWD//[^[:ascii:]]/?}\007\]' # set window title
+  # Taken parts from https://github.com/git-for-windows/build-extra/blob/main/git-extra/git-prompt.sh
+  PS1='\[\033]0;${TITLEPREFIX:+$TITLEPREFIX:}${PWD//[^[:ascii:]]/?}\007\]' # set window title to TITLEPREFIX (if set) and current working directory
   # PS1="$PS1"'\n'               # new line (disabled)
-  PS1="$PS1"'\[\033[32m\]'       # change to green
+  PS1="$PS1"'\[\033[32m\]'       # change to green and bold
   PS1="$PS1"'\u@\h '             # user@host<space>
   PS1="$PS1${MSYSTEM:+\[\033[35m\]$MSYSTEM }" # show MSYSTEM in purple (if set)
-  PS1="$PS1"'\[\033[33m\]'       # change to brownish yellow
+  PS1="$PS1"'\[\033[1;33m\]'     # change to dark yellow in bold
   PS1="$PS1"'\w'                 # current working directory
   if test -z "$WINELOADERNOEXEC"
   then
@@ -66,9 +66,11 @@ else
       fi
     fi
   fi
-  PS1="$PS1"'\[\033[0m\]'        # change color
+  PS1="$PS1"'\[\033[0m\]'        # reset color
   PS1="$PS1"'\n'                 # new line
+  PS1="$PS1"'\[\033[30;1m\]'     # change color to grey in bold
   PS1="$PS1"'λ '                 # prompt: Cmder uses λ
+  PS1="$PS1"'\[\033[0m\]'        # reset color
 fi
 
 MSYS2_PS1="$PS1"               # for detection by MSYS2 SDK's bash.basrc
