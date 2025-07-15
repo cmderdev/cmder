@@ -72,3 +72,14 @@ else
 fi
 
 MSYS2_PS1="$PS1"               # for detection by MSYS2 SDK's bash.basrc
+
+# Evaluate all user-specific Bash completion scripts (if any)
+if test -z "$WINELOADERNOEXEC"
+then
+  for c in "$HOME"/bash_completion.d/*.bash
+  do
+    # Handle absence of any scripts (or the folder) gracefully
+    test ! -f "$c" ||
+    . "$c"
+  done
+fi
