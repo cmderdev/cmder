@@ -1,24 +1,32 @@
 function getGitStatusSetting() {
-  gitStatusSetting=$(git --no-pager config -l 2>/dev/null)
+  local gitConfig
 
-  if [[ -n ${gitStatusSetting} ]] && [[ ${gitStatusSetting} =~ cmder.status=false ]] || [[ ${gitStatusSetting} =~ cmder.shstatus=false ]]
+  # Get all git config entries for the current repository without pager
+  gitConfig=$(git --no-pager config -l 2>/dev/null) || return 0  # treat failure as enabled
+
+  # Check if git status for Cmder is disabled
+  if [[ $gitConfig =~ (^|$'\n')cmder\.status=false($|$'\n') ]] || \
+     [[ $gitConfig =~ (^|$'\n')cmder\.shstatus=false($|$'\n') ]]
   then
-    echo false
-  else
-    echo true
+    return 1  # disabled
   fi
+
+  return 0
 }
 
+# Prints current branch or detached HEAD short commit hash
 function getSimpleGitBranch() {
-  gitDir=$(git rev-parse --git-dir 2>/dev/null)
-  if [ -z "$gitDir" ]; then
-    return 0
-  fi
+  local gitDir
+  gitDir=$(git rev-parse --git-dir 2>/dev/null) || return 0
 
-  headContent=$(< "$gitDir/HEAD")
-  if [[ "$headContent" == "ref: refs/heads/"* ]]
+  local headFile="$gitDir/HEAD"
+  [ -f "$headFile" ] || return 0
+
+  local headContent
+  headContent=$(< "$headFile")
+  if [[ "$headContent" =~ ^ref:\ refs/heads/(.+)$ ]]
   then
-    echo " (${headContent:16})"
+    echo " (${BASH_REMATCH[1]})"
   else
     echo " (HEAD detached at ${headContent:0:7})"
   fi
@@ -33,7 +41,7 @@ fi
 
 if test -f ~/.config/git/git-prompt.sh
 then
-  if [[ $(getGitStatusSetting) == true ]]
+  if getGitStatusSetting
   then
     . ~/.config/git/git-prompt.sh
   fi
@@ -55,7 +63,7 @@ else
     if test -f "$COMPLETION_PATH/git-prompt.sh"
     then
       . "$COMPLETION_PATH/git-completion.bash"
-      if [[ $(getGitStatusSetting) == true ]]
+      if getGitStatusSetting
       then
         . "$COMPLETION_PATH/git-prompt.sh"
         PS1="$PS1"'\[\033[36m\]'  # change color to cyan
