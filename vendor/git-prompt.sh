@@ -1,3 +1,4 @@
+# Returns 1 if git status for Cmder is disabled, otherwise returns 0
 function getGitStatusSetting() {
   local gitConfig
 
