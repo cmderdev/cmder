@@ -21,7 +21,7 @@
 
     Skip all downloads and only build launcher.
 .EXAMPLE
-    .\build -verbose
+    .\build.ps1 -verbose
 
     Execute the build and see what's going on.
 .EXAMPLE
@@ -33,7 +33,7 @@
     Samuel Vasko, Jack Bennett
     Part of the Cmder project.
 .LINK
-    http://cmder.app/ - Project Home
+    https://github.com/cmderdev/cmder - Project Home
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(

@@ -1,7 +1,6 @@
 function Ensure-Exists($path) {
     if (-not (Test-Path $path)) {
-        Write-Error "Missing required $path! Ensure it is installed"
-        exit 1
+        throw "Missing required $path! Ensure it is installed"
     }
     return $true > $null
 }
@@ -16,8 +15,7 @@ function Ensure-Executable($command) {
             Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
         else {
-            Write-Error "Missing $command! Ensure it is installed and on in the PATH"
-            exit 1
+            throw "Missing $command! Ensure it is installed and on in the PATH"
         }
     }
 }
