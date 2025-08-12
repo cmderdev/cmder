@@ -35,7 +35,7 @@ jobs:
       discussions: write
     steps:
     - name: Check out repository code (Action from GitHub)
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
