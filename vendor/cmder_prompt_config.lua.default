@@ -38,11 +38,6 @@ prompt_includeVersionControl = true
  -- NOTE: This only takes effect if using Clink v1.2.10 or higher.
 prompt_overrideGitStatusOptIn = false
 
--- OPTIONAL. If true then always ignore the cmder.status and cmder.cmdstatus svn config settings and run the svn prompt commands in the background.
- -- default is false
- -- NOTE: This only takes effect if using Clink v1.2.10 or higher.
-prompt_overrideSvnStatusOptIn = false
-
 -- Prompt Attributes
 --
 -- Colors: https://github.com/cmderdev/cmder/wiki/Customization#list-of-colors
