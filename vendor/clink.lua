@@ -598,12 +598,8 @@ local function hg_prompt_filter()
 
     local hg_dir = get_hg_dir()
     if hg_dir then
-        local output = get_hg_branch() or ""
-
-        -- strip the trailing spaces and newline from the branch name
-        local branch = output:gsub("%s+$", "")
-
-        if branch ~= nil and
+        local branch = get_hg_branch()
+        if branch and
            string.sub(branch,1,7) ~= "abort: " and             -- not an HG working copy
            (not string.find(branch, "is not recognized")) then -- 'hg' not in path
             -- If in a different repo or branch than last time, discard cached info
