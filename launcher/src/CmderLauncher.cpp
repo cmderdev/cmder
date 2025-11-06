@@ -312,7 +312,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 						MessageBox(NULL,
 							(GetLastError() == ERROR_ACCESS_DENIED)
 							? L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_terminal_%COMPUTERNAME%_settings.json! Access Denied."
-							: L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_teerminal_%COMPUTERNAME%_settigns.json!", MB_TITLE, MB_ICONSTOP);
+							: L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_terminal_%COMPUTERNAME%_settigns.json!", MB_TITLE, MB_ICONSTOP);
 						exit(1);
 					}
 					else if (PathFileExists(conEmuDir))
@@ -361,7 +361,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 						MessageBox(NULL,
 							(GetLastError() == ERROR_ACCESS_DENIED)
 							? L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_terminal_settings.json! Access Denied."
-							: L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_teerminal_settigns.json!", MB_TITLE, MB_ICONSTOP);
+							: L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_terminal_settigns.json!", MB_TITLE, MB_ICONSTOP);
 						exit(1);
 					}
 					else if (PathFileExists(conEmuDir))
