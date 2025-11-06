@@ -128,8 +128,14 @@ exit /b
 
     :toolong
         set "_rand=%RANDOM%"
+        if exist "%temp%\%_rand%_cmder_lib_pathA" del "%temp%\%_rand%_cmder_lib_pathA" 2>nul 1>nul
+        if exist "%temp%\%_rand%_cmder_lib_pathB" del "%temp%\%_rand%_cmder_lib_pathB" 2>nul 1>nul
+        if exist "%temp%\%_rand%_cmder_lib_pathA" goto :toolong
+        if exist "%temp%\%_rand%_cmder_lib_pathB" goto :toolong
         echo "%OLD_PATH%">"%temp%\%_rand%_cmder_lib_pathA"
+        if errorlevel 1 ( if exist "%temp%\%_rand%_cmder_lib_pathA" del "%temp%\%_rand%_cmder_lib_pathA" & goto :toolong )
         echo "%PATH%">"%temp%\%_rand%_cmder_lib_pathB"
+        if errorlevel 1 ( if exist "%temp%\%_rand%_cmder_lib_pathA" del "%temp%\%_rand%_cmder_lib_pathA" & if exist "%temp%\%_cmder_lib_pathB" del "%temp%\%_rand%_cmder_lib_pathB" & goto :toolong )
         fc /b "%temp%\%_rand%_cmder_lib_pathA" "%temp%\%_rand%_cmder_lib_pathB" 2>nul 1>nul
         if errorlevel 1 ( del "%temp%\%_rand%_cmder_lib_pathA" & del "%temp%\%_rand%_cmder_lib_pathB" & set "_rand=" & goto :changed )
         del "%temp%\%_rand%_cmder_lib_pathA" & del "%temp%\%_rand%_cmder_lib_pathB" & set "_rand="
