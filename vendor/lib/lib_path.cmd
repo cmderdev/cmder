@@ -1,12 +1,12 @@
 @echo off
 
 call "%~dp0lib_base.cmd"
-call "%%~dp0lib_console"
+call "%~dp0lib_console.cmd"
 set lib_path=call "%~dp0lib_path.cmd"
 
 if "%~1" == "/h" (
     %lib_base% help "%~0"
-) else if "%1" neq "" (
+) else if "%~1" neq "" (
     call :%*
 )
 
@@ -48,7 +48,7 @@ exit /b
         set "add_path=%~1"
     ) else (
         %print_error% "You must specify a directory to add to the path!"
-        exit 1
+        exit /b 1
     )
 
     if "%~2" neq "" if /i "%~2" == "append" (
@@ -72,7 +72,7 @@ exit /b
             set "PATH=%add_to_path%;%PATH%"
         )
         goto :end_enhance_path
-    ) else if "add_to_path" equ "" (
+    ) else if "%add_to_path%" equ "" (
         goto :end_enhance_path
     )
 
@@ -84,20 +84,20 @@ exit /b
 
     setlocal enabledelayedexpansion
     if "!found!" == "0" (
-        echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!;"
+        echo "!PATH!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!;"
         call :set_found
     )
     %print_debug% :enhance_path "Env Var INSIDE PATH !find_query! - found=!found!"
 
     if /i "!position!" == "append" (
         if "!found!" == "0" (
-            echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!\"$"
+            echo "!PATH!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!\"$"
             call :set_found
         )
         %print_debug% :enhance_path "Env Var END PATH !find_query! - found=!found!"
     ) else (
         if "!found!" == "0" (
-            echo "!path!"|!WINDIR!\System32\findstr >nul /I /R /C:"^\"!find_query!;"
+            echo "!PATH!"|!WINDIR!\System32\findstr >nul /I /R /C:"^\"!find_query!;"
             call :set_found
         )
         %print_debug% :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
@@ -119,7 +119,7 @@ exit /b
     :end_enhance_path
     set "PATH=%PATH:;;=;%"
 
-    REM echo %path%|"C:\Users\dgames\cmder - dev\vendor\git-for-windows\usr\bin\wc" -c
+    REM echo %PATH%|wc -c
     if "%fast_init%" == "1" exit /b
 
     if not "%OLD_PATH:~0,3000%" == "%OLD_PATH:~0,3001%" goto :toolong
@@ -142,7 +142,7 @@ exit /b
         exit /b
 
     :changed
-        %print_debug% :enhance_path "END Env Var - PATH=%path%"
+        %print_debug% :enhance_path "END Env Var - PATH=%PATH%"
         %print_debug% :enhance_path "Env Var %find_query% - found=%found%"
         exit /b
 
@@ -186,7 +186,7 @@ exit /b
         set "add_path=%~1"
     ) else (
         %print_error% "You must specify a directory to add to the path!"
-        exit 1
+        exit /b 1
     )
 
     set "depth=%~2"

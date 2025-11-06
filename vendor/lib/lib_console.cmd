@@ -14,7 +14,7 @@ if %fast_init% gtr %verbose_output% if %fast_init% gtr %debug_output% exit /b
 
 if "%~1" == "/h" (
     %lib_base% help "%~0"
-) else if "%1" neq "" (
+) else if "%~1" neq "" (
     call :%*
 )
 

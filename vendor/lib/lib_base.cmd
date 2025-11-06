@@ -4,7 +4,7 @@ set lib_base=call "%~dp0lib_base.cmd"
 
 if "%~1" == "/h" (
     %lib_base% help "%~0"
-) else if "%1" neq "" (
+) else if "%~1" neq "" (
     call :%*
 )
 
