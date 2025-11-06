@@ -127,11 +127,12 @@ exit /b
     exit /b
 
     :toolong
-        echo "%OLD_PATH%">"%temp%\cmder_lib_pathA"
-        echo "%PATH%">"%temp%\cmder_lib_pathB"
-        fc /b "%temp%\cmder_lib_pathA" "%temp%\cmder_lib_pathB" 2>nul 1>nul
-        if errorlevel 1 ( del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB" & goto :changed )
-        del "%temp%\cmder_lib_pathA" & del "%temp%\cmder_lib_pathB"
+        set "_rand=%RANDOM%"
+        echo "%OLD_PATH%">"%temp%\%_rand%_cmder_lib_pathA"
+        echo "%PATH%">"%temp%\%_rand%_cmder_lib_pathB"
+        fc /b "%temp%\%_rand%_cmder_lib_pathA" "%temp%\%_rand%_cmder_lib_pathB" 2>nul 1>nul
+        if errorlevel 1 ( del "%temp%\%_rand%_cmder_lib_pathA" & del "%temp%\%_rand%_cmder_lib_pathB" & set "_rand=" & goto :changed )
+        del "%temp%\%_rand%_cmder_lib_pathA" & del "%temp%\%_rand%_cmder_lib_pathB" & set "_rand="
         exit /b
 
     :changed
