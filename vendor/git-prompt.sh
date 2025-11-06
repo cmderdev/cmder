@@ -1,24 +1,33 @@
+# Returns 1 if git status for Cmder is disabled, otherwise returns 0
 function getGitStatusSetting() {
-  gitStatusSetting=$(git --no-pager config -l 2>/dev/null)
+  local gitConfig
 
-  if [[ -n ${gitStatusSetting} ]] && [[ ${gitStatusSetting} =~ cmder.status=false ]] || [[ ${gitStatusSetting} =~ cmder.shstatus=false ]]
+  # Get all git config entries for the current repository without pager
+  gitConfig=$(git --no-pager config -l 2>/dev/null) || return 0  # treat failure as enabled
+
+  # Check if git status for Cmder is disabled
+  if [[ $gitConfig =~ (^|$'\n')cmder\.status=false($|$'\n') ]] || \
+     [[ $gitConfig =~ (^|$'\n')cmder\.shstatus=false($|$'\n') ]]
   then
-    echo false
-  else
-    echo true
+    return 1  # disabled
   fi
+
+  return 0
 }
 
+# Prints current branch or detached HEAD short commit hash
 function getSimpleGitBranch() {
-  gitDir=$(git rev-parse --git-dir 2>/dev/null)
-  if [ -z "$gitDir" ]; then
-    return 0
-  fi
+  local gitDir
+  gitDir=$(git rev-parse --git-dir 2>/dev/null) || return 0
 
-  headContent=$(< "$gitDir/HEAD")
-  if [[ "$headContent" == "ref: refs/heads/"* ]]
+  local headFile="$gitDir/HEAD"
+  [ -f "$headFile" ] || return 0
+
+  local headContent
+  headContent=$(< "$headFile")
+  if [[ "$headContent" =~ ^ref:\ refs/heads/(.+)$ ]]
   then
-    echo " (${headContent:16})"
+    echo " (${BASH_REMATCH[1]})"
   else
     echo " (HEAD detached at ${headContent:0:7})"
   fi
@@ -33,18 +42,18 @@ fi
 
 if test -f ~/.config/git/git-prompt.sh
 then
-  if [[ $(getGitStatusSetting) == true ]]
+  if getGitStatusSetting
   then
     . ~/.config/git/git-prompt.sh
   fi
 else
-  # Taken from https://github.com/git-for-windows/build-extra/blob/main/git-extra/git-prompt.sh
-  PS1='\[\033]0;$TITLEPREFIX:${PWD//[^[:ascii:]]/?}\007\]' # set window title
+  # Taken parts from https://github.com/git-for-windows/build-extra/blob/main/git-extra/git-prompt.sh
+  PS1='\[\033]0;${TITLEPREFIX:+$TITLEPREFIX:}${PWD//[^[:ascii:]]/?}\007\]' # set window title to TITLEPREFIX (if set) and current working directory
   # PS1="$PS1"'\n'               # new line (disabled)
-  PS1="$PS1"'\[\033[32m\]'       # change to green
+  PS1="$PS1"'\[\033[32m\]'       # change to green and bold
   PS1="$PS1"'\u@\h '             # user@host<space>
   PS1="$PS1${MSYSTEM:+\[\033[35m\]$MSYSTEM }" # show MSYSTEM in purple (if set)
-  PS1="$PS1"'\[\033[33m\]'       # change to brownish yellow
+  PS1="$PS1"'\[\033[1;33m\]'     # change to dark yellow in bold
   PS1="$PS1"'\w'                 # current working directory
   if test -z "$WINELOADERNOEXEC"
   then
@@ -55,7 +64,7 @@ else
     if test -f "$COMPLETION_PATH/git-prompt.sh"
     then
       . "$COMPLETION_PATH/git-completion.bash"
-      if [[ $(getGitStatusSetting) == true ]]
+      if getGitStatusSetting
       then
         . "$COMPLETION_PATH/git-prompt.sh"
         PS1="$PS1"'\[\033[36m\]'  # change color to cyan
@@ -66,9 +75,11 @@ else
       fi
     fi
   fi
-  PS1="$PS1"'\[\033[0m\]'        # change color
+  PS1="$PS1"'\[\033[0m\]'        # reset color
   PS1="$PS1"'\n'                 # new line
+  PS1="$PS1"'\[\033[30;1m\]'     # change color to grey in bold
   PS1="$PS1"'λ '                 # prompt: Cmder uses λ
+  PS1="$PS1"'\[\033[0m\]'        # reset color
 fi
 
 MSYS2_PS1="$PS1"               # for detection by MSYS2 SDK's bash.basrc
