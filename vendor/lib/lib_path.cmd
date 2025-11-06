@@ -119,7 +119,8 @@ exit /b
     :end_enhance_path
     set "PATH=%PATH:;;=;%"
 
-    REM echo %PATH%|wc -c
+    REM echo %path%|wc -c
+
     if "%fast_init%" == "1" exit /b
 
     if not "%OLD_PATH:~0,3000%" == "%OLD_PATH:~0,3001%" goto :toolong
@@ -135,7 +136,7 @@ exit /b
         echo "%OLD_PATH%">"%temp%\%_rand%_cmder_lib_pathA"
         if errorlevel 1 ( if exist "%temp%\%_rand%_cmder_lib_pathA" del "%temp%\%_rand%_cmder_lib_pathA" & goto :toolong )
         echo "%PATH%">"%temp%\%_rand%_cmder_lib_pathB"
-        if errorlevel 1 ( if exist "%temp%\%_rand%_cmder_lib_pathA" del "%temp%\%_rand%_cmder_lib_pathA" & if exist "%temp%\%_cmder_lib_pathB" del "%temp%\%_rand%_cmder_lib_pathB" & goto :toolong )
+        if errorlevel 1 ( if exist "%temp%\%_rand%_cmder_lib_pathA" del "%temp%\%_rand%_cmder_lib_pathA" & if exist "%temp%\%_rand%_cmder_lib_pathB" del "%temp%\%_rand%_cmder_lib_pathB" & goto :toolong )
         fc /b "%temp%\%_rand%_cmder_lib_pathA" "%temp%\%_rand%_cmder_lib_pathB" 2>nul 1>nul
         if errorlevel 1 ( del "%temp%\%_rand%_cmder_lib_pathA" & del "%temp%\%_rand%_cmder_lib_pathB" & set "_rand=" & goto :changed )
         del "%temp%\%_rand%_cmder_lib_pathA" & del "%temp%\%_rand%_cmder_lib_pathB" & set "_rand="
