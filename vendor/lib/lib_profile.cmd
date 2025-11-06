@@ -1,12 +1,12 @@
 @echo off
 
 call "%~dp0lib_base.cmd"
-call "%%~dp0lib_console"
+call "%~dp0lib_console.cmd"
 set lib_profile=call "%~dp0lib_profile.cmd"
 
 if "%~1" == "/h" (
     %lib_base% help "%~0"
-) else if "%1" neq "" (
+) else if "%~1" neq "" (
     call :%*
 )
 
