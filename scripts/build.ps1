@@ -55,7 +55,7 @@ Param(
 
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
-    
+
     # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
     [string]$terminal = 'all',
 
@@ -139,13 +139,13 @@ if (-not $noVendor) {
 
     foreach ($s in $sources) {
         if ($terminal -eq "none") {
-          return
+            continue
         } elseif ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
-          return
+            continue
         } elseif ($s.name -eq "windows-terminal" -and $terminal -eq  "conemu-maximus5") {
-          return
+            continue
         }
- 
+
         Write-Verbose "Getting vendored $($s.name) $($s.version)..."
 
         # We do not care about the extensions/type of archive
@@ -158,12 +158,12 @@ if (-not $noVendor) {
 
         # Make Embedded Windows Terminal Portable
         if ($s.name -eq "windows-terminal") {
-          $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
-          move-item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
-          remove-item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
-          write-verbose "Making Windows Terminal Portable..."
-          New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
-          New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
+            $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
+            Move-Item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
+            Remove-Item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
+            Write-Verbose "Making Windows Terminal Portable..."
+            New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
+            New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
         }
 
         if ((Get-ChildItem $s.name).Count -eq 1) {

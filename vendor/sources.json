@@ -1,10 +1,5 @@
 [
   {
-    "name": "windows-terminal",
-    "version": "1.20.11271.0",
-    "url": "https://github.com/microsoft/terminal/releases/download/v1.20.11271.0/Microsoft.WindowsTerminal_1.20.11271.0_x64.zip"
-  },
-  {
     "name": "git-for-windows",
     "version": "2.49.0.windows.1",
     "url": "https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe"
@@ -18,6 +13,11 @@
     "name": "conemu-maximus5",
     "version": "23.07.24",
     "url": "https://github.com/Maximus5/ConEmu/releases/download/v23.07.24/ConEmuPack.230724.7z"
+  },
+  {
+    "name": "windows-terminal",
+    "version": "1.20.11271.0",
+    "url": "https://github.com/microsoft/terminal/releases/download/v1.20.11271.0/Microsoft.WindowsTerminal_1.20.11271.0_x64.zip"
   },
   {
     "name": "clink-completions",
