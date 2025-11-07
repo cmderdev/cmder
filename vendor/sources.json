@@ -15,6 +15,11 @@
     "url": "https://github.com/ConEmu/ConEmu/releases/download/v23.07.24/ConEmuPack.230724.7z"
   },
   {
+    "name": "windows-terminal",
+    "version": "1.23.12811.0",
+    "url": "https://github.com/microsoft/terminal/releases/download/v1.23.12811.0/Microsoft.WindowsTerminal_1.23.12811.0_x64.zip"
+  },
+  {
     "name": "clink-completions",
     "version": "0.6.6",
     "url": "https://github.com/vladimir-kotikov/clink-completions/archive/v0.6.6.zip"
