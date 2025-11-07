@@ -83,6 +83,31 @@ function Match-Filenames {
     return $position
 }
 
+# Checks if a release is a pre-release based on GitHub API flag and version tag keywords
+# Pre-release keywords include: -rc (release candidate), -beta, -alpha, -preview, -pre
+function Test-IsPrerelease {
+    param (
+        [Parameter(Mandatory = $true)]
+        $release
+    )
+
+    # Check if marked as pre-release by GitHub
+    if ($release.prerelease -eq $true) {
+        return $true
+    }
+
+    # Check for common pre-release keywords in tag name
+    # This catches versions like v2.50.0-rc, v1.0.0-beta, v1.0.0-alpha, etc.
+    $prereleaseKeywords = @('-rc', '-beta', '-alpha', '-preview', '-pre')
+    foreach ($keyword in $prereleaseKeywords) {
+        if ($release.tag_name -ilike "*$keyword*") {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 # Uses the GitHub api in order to fetch the current download links for the latest releases of the repo.
 function Fetch-DownloadUrl {
     param (
@@ -137,24 +162,8 @@ function Fetch-DownloadUrl {
         # Skip pre-release versions unless explicitly included
         # Pre-releases include RC (Release Candidate), beta, alpha, and other test versions
         if (-not $includePrerelease) {
-            # Check if marked as pre-release by GitHub
-            if ($i.prerelease -eq $true) {
+            if (Test-IsPrerelease $i) {
                 Write-Verbose "Skipping pre-release version: $($i.tag_name)"
-                continue
-            }
-
-            # Check for common pre-release keywords in tag name
-            # This catches versions like v2.50.0-rc, v1.0.0-beta, v1.0.0-alpha, etc.
-            $prereleaseKeywords = @('-rc', '-beta', '-alpha', '-preview', '-pre')
-            $isPrerelease = $false
-            foreach ($keyword in $prereleaseKeywords) {
-                if ($i.tag_name -ilike "*$keyword*") {
-                    Write-Verbose "Skipping version with pre-release keyword '$keyword': $($i.tag_name)"
-                    $isPrerelease = $true
-                    break
-                }
-            }
-            if ($isPrerelease) {
                 continue
             }
         }
@@ -202,18 +211,7 @@ function Fetch-DownloadUrl {
             foreach ($release in $info) {
                 # Apply the same filtering logic
                 if (-not $includePrerelease) {
-                    if ($release.prerelease -eq $true) {
-                        continue
-                    }
-                    $prereleaseKeywords = @('-rc', '-beta', '-alpha', '-preview', '-pre')
-                    $isPrerelease = $false
-                    foreach ($keyword in $prereleaseKeywords) {
-                        if ($release.tag_name -ilike "*$keyword*") {
-                            $isPrerelease = $true
-                            break
-                        }
-                    }
-                    if ($isPrerelease) {
+                    if (Test-IsPrerelease $release) {
                         continue
                     }
                 }
