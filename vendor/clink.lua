@@ -7,7 +7,7 @@
 -- luacheck: globals uah_color cwd_color lamb_color clean_color dirty_color conflict_color unknown_color
 -- luacheck: globals prompt_homeSymbol prompt_lambSymbol prompt_type prompt_useHomeSymbol prompt_useUserAtHost
 -- luacheck: globals prompt_singleLine prompt_includeVersionControl
--- luacheck: globals prompt_overrideGitStatusOptIn prompt_overrideSvnStatusOptIn
+-- luacheck: globals prompt_overrideGitStatusOptIn
 -- luacheck: globals clink io.popenyield os.isdir settings.get
 
 -- At first, load the original clink.lua file
@@ -350,13 +350,8 @@ end
 -- @return {false|mercurial branch information}
 ---
 local function get_hg_branch()
-    -- Return the branch information. The default is to get just the
-    -- branch name, but you could e.g. use the "hg-prompt" extension to
-    -- get more information, such as any applied mq patches. Here's an
-    -- example of that:
-    -- local cmd = "hg prompt \"{branch}{status}{|{patch}}{update}\""
-    local cmd = "hg branch 2>nul"
-    local file = io.popen(cmd)
+    -- Return the branch information.
+    local file = io.popen("hg branch 2>nul")
     if not file then
         return false
     end
@@ -428,8 +423,29 @@ end
 -- Get the status of working dir
 -- @return {bool}
 ---
+local function get_hg_status()
+    -- The default is to just use the branch name, but you could e.g. use the
+    -- "hg-prompt" extension to get more information, such as any applied mq
+    -- patches.  Here's an example of that:
+    -- "hg prompt \"{branch}{status}{|{patch}}{update}\""
+    local pipe = io_popenyield("hg status -amrd 2>&1")
+    if not pipe then
+        return { error = true }
+    end
+
+    local output = pipe:read('*all')
+    pipe:close()
+
+    local dirty = (output ~= nil and output ~= "")
+    return { clean = not dirty }
+end
+
+---
+-- Get the status of working dir
+-- @return {bool}
+---
 local function get_svn_status()
-    local file = io_popenyield("svn status -q")
+    local file = io_popenyield("svn status -q 2>nul")
     if not file then
         return { error = true }
     end
@@ -520,14 +536,6 @@ local function git_prompt_filter()
         return false
     end
 
-    -- Colors for git status
-    local colors = {
-        clean = get_clean_color(),
-        dirty = get_dirty_color(),
-        conflict = get_conflict_color(),
-        nostatus = get_unknown_color()
-    }
-
     local git_dir = get_git_dir()
     local color
     if git_dir then
@@ -547,18 +555,19 @@ local function git_prompt_filter()
             local gitConflict = gitInfo.conflict
 
             if gitStatus == nil then
-                color = colors.nostatus
+                color = get_unknown_color()
             elseif gitStatus then
-                color = colors.clean
+                color = get_clean_color()
             else
-                color = colors.dirty
+                color = get_dirty_color()
             end
 
             if gitConflict then
-                color = colors.conflict
+                color = get_conflict_color()
             end
 
-            clink.prompt.value = gsub_plain(clink.prompt.value, "{git}", " "..color.."("..branch..")")
+            local result = " "..color.."("..branch..")"
+            clink.prompt.value = gsub_plain(clink.prompt.value, "{git}", result)
             return false
         end
     end
@@ -566,6 +575,18 @@ local function git_prompt_filter()
     -- No git present or not in git file
     clink.prompt.value = gsub_plain(clink.prompt.value, "{git}", "")
     return false
+end
+
+local function get_hg_info_table()
+    local info = clink_promptcoroutine(function ()
+        return get_hg_status() or {}
+    end)
+    if not info then
+        info = cached_info.hg_info or {}
+    else
+        cached_info.hg_info = info
+    end
+    return info
 end
 
 local function hg_prompt_filter()
@@ -577,33 +598,30 @@ local function hg_prompt_filter()
 
     local hg_dir = get_hg_dir()
     if hg_dir then
-        -- Colors for mercurial status
-        local colors = {
-            clean = get_clean_color(),
-            dirty = get_dirty_color(),
-            nostatus = get_unknown_color()
-        }
-        local output = get_hg_branch()
-
-        -- strip the trailing newline from the branch name
-        local n = #output
-        while n > 0 and output:find("^%s", n) do n = n - 1 end
-        local branch = output:sub(1, n)
-
-        if branch ~= nil and
+        local branch = get_hg_branch()
+        if branch and
            string.sub(branch,1,7) ~= "abort: " and             -- not an HG working copy
            (not string.find(branch, "is not recognized")) then -- 'hg' not in path
-            local color = colors.clean
-
-            local pipe = io.popen("hg status -amrd 2>&1")
-            if pipe then
-                output = pipe:read('*all')
-                pipe:close()
-                if output ~= nil and output ~= "" then color = colors.dirty end
+            -- If in a different repo or branch than last time, discard cached info
+            if cached_info.hg_dir ~= hg_dir or cached_info.hg_branch ~= branch then
+                cached_info.hg_info = nil
+                cached_info.hg_dir = hg_dir
+                cached_info.hg_branch = branch
             end
 
-            local result = color .. "(" .. branch .. ")"
-            clink.prompt.value = gsub_plain(clink.prompt.value, "{hg}", " "..result)
+            local hgInfo = get_hg_info_table()
+
+            local color
+            if not hgInfo or hgInfo.error then
+                color = get_unknown_color()
+            elseif hgInfo.clean then
+                color = get_clean_color()
+            else
+                color = get_dirty_color()
+            end
+
+            local result = " "..color.."("..branch..")"
+            clink.prompt.value = gsub_plain(clink.prompt.value, "{hg}", result)
             return false
         end
     end
@@ -612,19 +630,24 @@ local function hg_prompt_filter()
     clink.prompt.value = gsub_plain(clink.prompt.value, "{hg}", "")
 end
 
+local function get_svn_info_table()
+    local info = clink_promptcoroutine(function ()
+        return get_svn_status() or {}
+    end)
+    if not info then
+        info = cached_info.svn_info or {}
+    else
+        cached_info.svn_info = info
+    end
+    return info
+end
+
 local function svn_prompt_filter()
 
     -- Don't do any svn processing if the prompt doesn't want to show svn info.
     if not clink.prompt.value:find("{svn}") then
         return false
     end
-
-    -- Colors for svn status
-    local colors = {
-        clean = get_clean_color(),
-        dirty = get_dirty_color(),
-        nostatus = get_unknown_color()
-    }
 
     local svn_dir = get_svn_dir()
     if svn_dir then
@@ -637,29 +660,16 @@ local function svn_prompt_filter()
                 cached_info.svn_dir = svn_dir
                 cached_info.svn_branch = branch
             end
-            -- Get the svn status using coroutine if available and option is enabled. Otherwise use a blocking call
-            local svnStatus
-            if clink.promptcoroutine and io.popenyield and settings.get("prompt.async") and prompt_overrideSvnStatusOptIn then -- luacheck: no max line length
-                svnStatus = clink_promptcoroutine(function ()
-                    return get_svn_status()
-                end)
-                -- If the status result is pending, use the cached version instead, otherwise store it to the cache
-                if svnStatus == nil then
-                    svnStatus = cached_info.svn_info
-                else
-                    cached_info.svn_info = svnStatus
-                end
-            else
-                svnStatus = get_svn_status()
-            end
+
+            local svnInfo = get_svn_info_table()
 
             local color
-            if not svnStatus or svnStatus.error then
-                color = colors.nostatus
-            elseif svnStatus.clean then
-                color = colors.clean
+            if not svnInfo or svnInfo.error then
+                color = get_unknown_color()
+            elseif svnInfo.clean then
+                color = get_clean_color()
             else
-                color = colors.dirty
+                color = get_dirty_color()
             end
 
             clink.prompt.value = gsub_plain(clink.prompt.value, "{svn}", " "..color.."("..branch..")")
