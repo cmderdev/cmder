@@ -352,6 +352,8 @@ Cmder by default comes with a vendored ConEmu installation as the underlying ter
 
 However, Cmder can in fact run in a variety of other terminal emulators, and even integrated IDEs. Assuming you have the latest version of Cmder, follow the following instructions to get Cmder working with your own terminal emulator.
 
+⚠ *Note:* Cmder includes built-in support for Windows Terminal directory tracking via OSC 9;9 sequences. This enables "Duplicate Tab" and "Split Pane" features to preserve the current working directory for both `cmd.exe` and PowerShell sessions.
+
 For instructions on how to integrate Cmder with your IDE, please read our [Wiki section](https://github.com/cmderdev/cmder/wiki#cmder-integration).
 
 ## Upgrading
