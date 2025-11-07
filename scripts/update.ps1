@@ -32,7 +32,11 @@ Param(
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json"
+    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json",
+
+    # Include pre-release versions (RC, beta, alpha, etc.)
+    # By default, only stable releases are considered
+    [switch]$IncludePrerelease = $false
 )
 
 # Get the root directory of the cmder project.
@@ -83,7 +87,10 @@ function Match-Filenames {
 function Fetch-DownloadUrl {
     param (
         [Parameter(Mandatory = $true)]
-        $urlStr
+        $urlStr,
+
+        [Parameter(Mandatory = $false)]
+        [bool]$includePrerelease = $false
     )
 
     $url = [uri] $urlStr
@@ -127,6 +134,31 @@ function Fetch-DownloadUrl {
     }
 
     :loop foreach ($i in $info) {
+        # Skip pre-release versions unless explicitly included
+        # Pre-releases include RC (Release Candidate), beta, alpha, and other test versions
+        if (-not $includePrerelease) {
+            # Check if marked as pre-release by GitHub
+            if ($i.prerelease -eq $true) {
+                Write-Verbose "Skipping pre-release version: $($i.tag_name)"
+                continue
+            }
+
+            # Check for common pre-release keywords in tag name
+            # This catches versions like v2.50.0-rc, v1.0.0-beta, v1.0.0-alpha, etc.
+            $prereleaseKeywords = @('-rc', '-beta', '-alpha', '-preview', '-pre')
+            $isPrerelease = $false
+            foreach ($keyword in $prereleaseKeywords) {
+                if ($i.tag_name -ilike "*$keyword*") {
+                    Write-Verbose "Skipping version with pre-release keyword '$keyword': $($i.tag_name)"
+                    $isPrerelease = $true
+                    break
+                }
+            }
+            if ($isPrerelease) {
+                continue
+            }
+        }
+
         if (-not ($i.assets -is [array])) {
             continue
         }
@@ -215,7 +247,7 @@ foreach ($s in $sources) {
 
     Write-Verbose "Old Link: $($s.url)"
 
-    $downloadUrl = Fetch-DownloadUrl $s.url
+    $downloadUrl = Fetch-DownloadUrl $s.url -includePrerelease $IncludePrerelease
 
     if (($null -eq $downloadUrl) -or ($downloadUrl -eq '')) {
         Write-Verbose "No new links were found"
