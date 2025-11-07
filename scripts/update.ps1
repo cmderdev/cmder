@@ -196,12 +196,39 @@ function Fetch-DownloadUrl {
 
     # Special case for archive downloads of repository
     if (($null -eq $downloadLinks) -or (-not $downloadLinks)) {
-        if ((($p | ForEach-Object { $_.Trim('/') }) -contains "archive") -and $info[0].tag_name) {
-            for ($i = 0; $i -lt $p.Length; $i++) {
-                if ($p[$i].Trim('/') -eq "archive") {
-                    $p[$i + 1] = $info[0].tag_name + ".zip"
-                    $downloadLinks = $url.Scheme + "://" + $url.Host + ($p -join '')
-                    return $downloadLinks
+        if ((($p | ForEach-Object { $_.Trim('/') }) -contains "archive")) {
+            # Find the first release that matches our pre-release filtering criteria
+            $selectedRelease = $null
+            foreach ($release in $info) {
+                # Apply the same filtering logic
+                if (-not $includePrerelease) {
+                    if ($release.prerelease -eq $true) {
+                        continue
+                    }
+                    $prereleaseKeywords = @('-rc', '-beta', '-alpha', '-preview', '-pre')
+                    $isPrerelease = $false
+                    foreach ($keyword in $prereleaseKeywords) {
+                        if ($release.tag_name -ilike "*$keyword*") {
+                            $isPrerelease = $true
+                            break
+                        }
+                    }
+                    if ($isPrerelease) {
+                        continue
+                    }
+                }
+                # Use the first release that passes the filter
+                $selectedRelease = $release
+                break
+            }
+
+            if ($selectedRelease -and $selectedRelease.tag_name) {
+                for ($i = 0; $i -lt $p.Length; $i++) {
+                    if ($p[$i].Trim('/') -eq "archive") {
+                        $p[$i + 1] = $selectedRelease.tag_name + ".zip"
+                        $downloadLinks = $url.Scheme + "://" + $url.Host + ($p -join '')
+                        return $downloadLinks
+                    }
                 }
             }
         }
