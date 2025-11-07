@@ -32,7 +32,11 @@ Param(
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json"
+    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json",
+
+    # Include pre-release versions (RC, beta, alpha, etc.)
+    # By default, only stable releases are considered
+    [switch]$IncludePrerelease = $false
 )
 
 # Get the root directory of the cmder project.
@@ -79,11 +83,39 @@ function Match-Filenames {
     return $position
 }
 
+# Checks if a release is a pre-release based on GitHub API flag and version tag keywords
+# Pre-release keywords include: -rc (release candidate), -beta, -alpha, -preview, -pre
+function Test-IsPrerelease {
+    param (
+        [Parameter(Mandatory = $true)]
+        $release
+    )
+
+    # Check if marked as pre-release by GitHub
+    if ($release.prerelease -eq $true) {
+        return $true
+    }
+
+    # Check for common pre-release keywords in tag name
+    # This catches versions like v2.50.0-rc, v1.0.0-beta, v1.0.0-alpha, etc.
+    $prereleaseKeywords = @('-rc', '-beta', '-alpha', '-preview', '-pre')
+    foreach ($keyword in $prereleaseKeywords) {
+        if ($release.tag_name -ilike "*$keyword*") {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 # Uses the GitHub api in order to fetch the current download links for the latest releases of the repo.
 function Fetch-DownloadUrl {
     param (
         [Parameter(Mandatory = $true)]
-        $urlStr
+        $urlStr,
+
+        [Parameter(Mandatory = $false)]
+        [bool]$includePrerelease = $false
     )
 
     $url = [uri] $urlStr
@@ -127,6 +159,13 @@ function Fetch-DownloadUrl {
     }
 
     :loop foreach ($i in $info) {
+        # Skip pre-release versions unless explicitly included
+        # Pre-releases include RC (Release Candidate), beta, alpha, and other test versions
+        if (-not $includePrerelease -and (Test-IsPrerelease $i)) {
+            Write-Verbose "Skipping pre-release version: $($i.tag_name)"
+            continue
+        }
+
         if (-not ($i.assets -is [array])) {
             continue
         }
@@ -164,12 +203,26 @@ function Fetch-DownloadUrl {
 
     # Special case for archive downloads of repository
     if (($null -eq $downloadLinks) -or (-not $downloadLinks)) {
-        if ((($p | ForEach-Object { $_.Trim('/') }) -contains "archive") -and $info[0].tag_name) {
-            for ($i = 0; $i -lt $p.Length; $i++) {
-                if ($p[$i].Trim('/') -eq "archive") {
-                    $p[$i + 1] = $info[0].tag_name + ".zip"
-                    $downloadLinks = $url.Scheme + "://" + $url.Host + ($p -join '')
-                    return $downloadLinks
+        if ((($p | ForEach-Object { $_.Trim('/') }) -contains "archive")) {
+            # Find the first release that matches our pre-release filtering criteria
+            $selectedRelease = $null
+            foreach ($release in $info) {
+                # Apply the same filtering logic
+                if (-not $includePrerelease -and (Test-IsPrerelease $release)) {
+                    continue
+                }
+                # Use the first release that passes the filter
+                $selectedRelease = $release
+                break
+            }
+
+            if ($selectedRelease -and $selectedRelease.tag_name) {
+                for ($i = 0; $i -lt $p.Length; $i++) {
+                    if ($p[$i].Trim('/') -eq "archive") {
+                        $p[$i + 1] = $selectedRelease.tag_name + ".zip"
+                        $downloadLinks = $url.Scheme + "://" + $url.Host + ($p -join '')
+                        return $downloadLinks
+                    }
                 }
             }
         }
@@ -215,7 +268,7 @@ foreach ($s in $sources) {
 
     Write-Verbose "Old Link: $($s.url)"
 
-    $downloadUrl = Fetch-DownloadUrl $s.url
+    $downloadUrl = Fetch-DownloadUrl $s.url -includePrerelease $IncludePrerelease
 
     if (($null -eq $downloadUrl) -or ($downloadUrl -eq '')) {
         Write-Verbose "No new links were found"
