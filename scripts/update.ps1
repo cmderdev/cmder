@@ -161,11 +161,9 @@ function Fetch-DownloadUrl {
     :loop foreach ($i in $info) {
         # Skip pre-release versions unless explicitly included
         # Pre-releases include RC (Release Candidate), beta, alpha, and other test versions
-        if (-not $includePrerelease) {
-            if (Test-IsPrerelease $i) {
-                Write-Verbose "Skipping pre-release version: $($i.tag_name)"
-                continue
-            }
+        if (-not $includePrerelease -and (Test-IsPrerelease $i)) {
+            Write-Verbose "Skipping pre-release version: $($i.tag_name)"
+            continue
         }
 
         if (-not ($i.assets -is [array])) {
@@ -210,10 +208,8 @@ function Fetch-DownloadUrl {
             $selectedRelease = $null
             foreach ($release in $info) {
                 # Apply the same filtering logic
-                if (-not $includePrerelease) {
-                    if (Test-IsPrerelease $release) {
-                        continue
-                    }
+                if (-not $includePrerelease -and (Test-IsPrerelease $release)) {
+                    continue
                 }
                 # Use the first release that passes the filter
                 $selectedRelease = $release
