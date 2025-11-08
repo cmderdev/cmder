@@ -1,4 +1,4 @@
-function readVersion($gitPath) {
+function readGitVersion($gitPath) {
     $gitExecutable = "${gitPath}\git.exe"
 
     if (-not (Test-Path "$gitExecutable")) {
@@ -18,7 +18,7 @@ function readVersion($gitPath) {
 }
 
 function isGitShim($gitPath) {
-    # check if there is a shim file - if yes, read the actual executable path
+    # Check if there is a shim file - if yes, read the actual executable path
     # See: github.com/ScoopInstaller/Shim
 
     if (Test-Path "${gitPath}\git.shim") {

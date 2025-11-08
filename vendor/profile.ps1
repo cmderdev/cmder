@@ -34,22 +34,25 @@ $moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorActi
 # Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
+# Import Cmder functions
 $CmderFunctions  = Join-Path $CmderModulePath "Cmder.ps1"
 . $CmderFunctions
 
-if(-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderModulePath) ) {
+# Configure PSModulePath to include Cmder modules if not already present
+if (-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderModulePath) ) {
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
 
-$gitVersionVendor = (readVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-windows\cmd")
+# Read vendored Git Version
+$gitVersionVendor = (readGitVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-windows\cmd")
 Write-Debug "GIT VENDOR: ${gitVersionVendor}"
 
-# Get user installed Git Version[s] and Compare with vendored if found.
+# Get user installed Git version(s) if found, and compare them with vendored version.
 foreach ($git in (Get-Command -ErrorAction SilentlyContinue 'git')) {
     Write-Debug "GIT PATH: {$git.Path}"
     $gitDir = Split-Path -Path $git.Path
     $gitDir = isGitShim -gitPath $gitDir
-    $gitVersionUser = (readVersion -gitPath $gitDir)
+    $gitVersionUser = (readGitVersion -gitPath $gitDir)
     Write-Debug "GIT USER: ${gitVersionUser}"
 
     $useGitVersion = compare_git_versions -userVersion $gitVersionUser -vendorVersion $gitVersionVendor
@@ -72,7 +75,7 @@ foreach ($git in (Get-Command -ErrorAction SilentlyContinue 'git')) {
     }
 }
 
-# User vendored Git.
+# Use vendored Git if no user Git found or user Git is older than vendored Git
 if ($null -eq $ENV:GIT_INSTALL_ROOT -and $null -ne $gitVersionVendor) {
     $ENV:GIT_INSTALL_ROOT = "$ENV:CMDER_ROOT\vendor\git-for-windows"
     $ENV:GIT_INSTALL_TYPE = 'VENDOR'
@@ -85,11 +88,14 @@ if ($null -ne $ENV:GIT_INSTALL_ROOT) {
     $env:Path = Configure-Git -gitRoot "$ENV:GIT_INSTALL_ROOT" -gitType $ENV:GIT_INSTALL_TYPE -gitPathUser $gitPathUser
 }
 
+# Create 'vi' alias for 'vim' if vim is available
 if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
     New-Alias -name "vi" -value vim
 }
 
+# PSReadline configuration
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
+    # Display an extra prompt line between the prompt and the command input
     Set-PSReadlineOption -ExtraPromptLineCount 1
     
     # Add OSC 133;C support for Windows Terminal shell integration
@@ -106,17 +112,17 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
             
             # Emit OSC 133;C sequence to mark start of command output
             # This is written directly to the console after the command is accepted
-            [Console]::Write("$([char]27)]133;C$([char]7)")
+            [Console]::Write("$([char]0x1B)]133;C$([char]7)")
         }
     }
 }
 
-# Pre-assign default prompt hooks so the first run of cmder gets a working prompt.
+# Pre-assign default prompt hooks so the first run of Cmder gets a working prompt
 $env:gitLoaded = $null
 [ScriptBlock]$PrePrompt = {}
 [ScriptBlock]$PostPrompt = {}
 [ScriptBlock]$CmderPrompt = {
-    # Check if we're currently running under Admin privileges.
+    # Check if we're currently running under Admin privileges
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = [Security.Principal.WindowsPrincipal] $identity
     $adminRole = [Security.Principal.WindowsBuiltInRole]::Administrator
@@ -220,7 +226,7 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         # Only active in Windows Terminal ($env:WT_SESSION) or ConEmu ($env:ConEmuPID)
         $loc = $executionContext.SessionState.Path.CurrentLocation
         if (($env:WT_SESSION -or $env:ConEmuPID) -and $loc.Provider.Name -eq "FileSystem") {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]27)]9;9;`"$($loc.ProviderPath)`"$([char]27)\"
+            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]9;9;`"$($loc.ProviderPath)`"$([char]0x1B)\"
         }
         
         # Emit OSC 133;A sequence for Windows Terminal shell integration
@@ -228,7 +234,7 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         # Enables features like command navigation, selection, and visual separators
         # Only active in Windows Terminal ($env:WT_SESSION)
         if ($env:WT_SESSION) {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]27)]133;A$([char]7)"
+            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;A$([char]7)"
         }
         
         $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
@@ -243,7 +249,7 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         # Emit OSC 133;B sequence for Windows Terminal shell integration
         # This marks the start of command input (after prompt, before user types)
         if ($env:WT_SESSION) {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]27)]133;B$([char]7)"
+            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;B$([char]7)"
         }
         
         $global:LastExitCode = $realLastExitCode
