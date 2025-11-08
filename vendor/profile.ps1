@@ -227,8 +227,8 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
                 Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;D;$realLastExitCode$([char]7)"
             }
             
-            # Emit OSC 9;9 to mark the start of the prompt
-            # Enables directory tracking for "Duplicate Tab" and "Split Pane"
+            # Emit OSC 9;9 to enable directory tracking
+            # Enables "Duplicate Tab" and "Split Pane" to preserve the working directory
             $loc = $executionContext.SessionState.Path.CurrentLocation
             if ($loc.Provider.Name -eq "FileSystem") {
                 Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]9;9;`"$($loc.ProviderPath)`"$([char]0x1B)\"
