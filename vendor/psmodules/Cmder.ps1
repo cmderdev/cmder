@@ -176,8 +176,10 @@ function Import-Git {
         return $false
     }
 
+    # Import posh-git module (works for all versions)
     Import-Module Posh-Git -ErrorAction SilentlyContinue | Out-Null
 
+    # Apply version-specific settings for posh-git 1.0.0+
     if (($gitModule.Version -ge [version]"1.0.0") -and (Get-Variable -Name GitPromptSettings -ErrorAction SilentlyContinue)) {
         $GitPromptSettings.AnsiConsole = $false
     }
