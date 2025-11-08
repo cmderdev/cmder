@@ -10,6 +10,7 @@ function Get-GitVersion {
         return $null
     }
 
+    # Execute 'git --version' and capture output
     $gitVersion = & $gitExecutable --version 2>$null
 
     if ($gitVersion -match 'git version\s+(\S+)') {
@@ -28,11 +29,13 @@ function Get-GitShimPath {
         [Parameter(Mandatory = $true)]
         [string]$GitPath
     )
+    # Check if there is a shim file - if yes, read the actual executable path
+    # See: github.com/ScoopInstaller/Shim
 
     $shimFile = Join-Path $GitPath "git.shim"
     if (Test-Path $shimFile) {
         $shimContent = Get-Content $shimFile -Raw
-        if ($shimContent -match 'path\s*=\s*(.+)') {
+        if ($shimContent -match '^\s*path\s*=\s*(.+)\s*$') {
             $GitPath = $Matches[1].Trim().Replace('\git.exe', '')
         }
     }
@@ -123,6 +126,13 @@ function Set-GitPath {
         [string]$GitPathUser
     )
 
+    # Proposed Behavior
+
+    # Modify the path if we are using VENDORED Git, do nothing if using USER Git.
+    # If User Git is installed but is older, match its path config adding paths
+    # in the same path positions allowing a user to configure Cmder Git path
+    # using locally installed Git Path Config.
+
     if ($GitType -ne 'VENDOR') {
         return $env:Path
     }
@@ -134,19 +144,24 @@ function Set-GitPath {
         Write-Verbose "Cmder 'profile.ps1': Replacing older user Git path '$GitPathUser' with newer vendored Git path '$GitRoot' in the system path..."
         $newPath = $newPath -ireplace [regex]::Escape($GitPathUser), $GitRoot
     } else {
-        # Add Git cmd directory
+        # Add Git cmd directory to the path
         $gitCmd = Join-Path $GitRoot "cmd"
         if (-not ($newPath -match [regex]::Escape($gitCmd))) {
             Write-Debug "Adding $gitCmd to the path"
             $newPath = "$gitCmd;$newPath"
         }
 
+<<<<<<< HEAD
+        # Add mingw[32|64]\bin directories to the path, if they exist and not already present
+        foreach ($mingw in @('mingw64', 'mingw32')) {
+=======
         # Add mingw bin directory
         # Prefer mingw64 on 64-bit systems, mingw32 on 32-bit systems
         $is64Bit = [Environment]::Is64BitOperatingSystem
         $mingwDirs = if ($is64Bit) { @('mingw64', 'mingw32') } else { @('mingw32') }
 
         foreach ($mingw in $mingwDirs) {
+>>>>>>> a1def7195e8050d0f964f292d51c695e0e07dbef
             $mingwBin = Join-Path $GitRoot "$mingw\bin"
             if ((Test-Path $mingwBin) -and -not ($newPath -match [regex]::Escape($mingwBin))) {
                 Write-Debug "Adding $mingwBin to the path"
@@ -155,7 +170,7 @@ function Set-GitPath {
             }
         }
 
-        # Add usr bin directory
+        # Add usr\bin directory to the path
         $usrBin = Join-Path $GitRoot "usr\bin"
         if ((Test-Path $usrBin) -and -not ($newPath -match [regex]::Escape($usrBin))) {
             Write-Debug "Adding $usrBin to the path"
