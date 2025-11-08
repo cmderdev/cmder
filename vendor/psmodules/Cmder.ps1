@@ -151,17 +151,12 @@ function Set-GitPath {
             $newPath = "$gitCmd;$newPath"
         }
 
-<<<<<<< HEAD
         # Add mingw[32|64]\bin directories to the path, if they exist and not already present
-        foreach ($mingw in @('mingw64', 'mingw32')) {
-=======
-        # Add mingw bin directory
         # Prefer mingw64 on 64-bit systems, mingw32 on 32-bit systems
         $is64Bit = [Environment]::Is64BitOperatingSystem
         $mingwDirs = if ($is64Bit) { @('mingw64', 'mingw32') } else { @('mingw32') }
 
         foreach ($mingw in $mingwDirs) {
->>>>>>> a1def7195e8050d0f964f292d51c695e0e07dbef
             $mingwBin = Join-Path $GitRoot "$mingw\bin"
             if ((Test-Path $mingwBin) -and -not ($newPath -match [regex]::Escape($mingwBin))) {
                 Write-Debug "Adding $mingwBin to the path"
