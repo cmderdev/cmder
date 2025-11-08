@@ -91,6 +91,24 @@ if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
 
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     Set-PSReadlineOption -ExtraPromptLineCount 1
+    
+    # Add OSC 133;C support for Windows Terminal shell integration
+    # This marks the start of command output (emitted when Enter is pressed)
+    if ($env:WT_SESSION) {
+        Set-PSReadLineKeyHandler -Key Enter -ScriptBlock {
+            # Get the current command line
+            $line = $null
+            $cursor = $null
+            [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+            
+            # Accept the line first
+            [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+            
+            # Emit OSC 133;C sequence to mark start of command output
+            # This is written directly to the console after the command is accepted
+            [Console]::Write("$([char]27)]133;C$([char]7)")
+        }
+    }
 }
 
 # Pre-assign default prompt hooks so the first run of cmder gets a working prompt.
@@ -205,6 +223,14 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
             Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]27)]9;9;`"$($loc.ProviderPath)`"$([char]27)\"
         }
         
+        # Emit OSC 133;A sequence for Windows Terminal shell integration
+        # This marks the start of the prompt
+        # Enables features like command navigation, selection, and visual separators
+        # Only active in Windows Terminal ($env:WT_SESSION)
+        if ($env:WT_SESSION) {
+            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]27)]133;A$([char]7)"
+        }
+        
         $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
         Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x200B)`r$([char]0x1B)[K"
         if ($lastSUCCESS -or ($LastExitCode -ne 0)) {
@@ -213,6 +239,13 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
         CmderPrompt
         PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
+        
+        # Emit OSC 133;B sequence for Windows Terminal shell integration
+        # This marks the start of command input (after prompt, before user types)
+        if ($env:WT_SESSION) {
+            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]27)]133;B$([char]7)"
+        }
+        
         $global:LastExitCode = $realLastExitCode
         return " "
     }
