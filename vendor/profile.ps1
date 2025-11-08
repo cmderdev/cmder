@@ -221,28 +221,23 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         $lastSUCCESS = $?
         $realLastExitCode = $LastExitCode
         
-        # Emit OSC 133;D sequence for Windows Terminal shell integration
-        # This marks the end of command execution with the exit code
-        # Must be emitted before OSC 133;A (start of next prompt)
-        # Only active in Windows Terminal ($env:WT_SESSION)
-        if ($env:WT_SESSION) {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;D;$realLastExitCode$([char]7)"
-        }
-        
-        # Emit OSC 9;9 sequence for Windows Terminal directory tracking
-        # This enables "Duplicate Tab" and "Split Pane" to preserve the working directory
-        # Only active in Windows Terminal ($env:WT_SESSION) or ConEmu ($env:ConEmuPID)
-        $loc = $executionContext.SessionState.Path.CurrentLocation
-        if (($env:WT_SESSION -or $env:ConEmuPID) -and $loc.Provider.Name -eq "FileSystem") {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]9;9;`"$($loc.ProviderPath)`"$([char]0x1B)\"
-        }
-        
-        # Emit OSC 133;A sequence for Windows Terminal shell integration
-        # This marks the start of the prompt
-        # Enables features like command navigation, selection, and visual separators
-        # Only active in Windows Terminal ($env:WT_SESSION)
-        if ($env:WT_SESSION) {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;A$([char]7)"
+        # Emit terminal-specific escape sequences for Windows Terminal and ConEmu
+        if ($env:WT_SESSION -or $env:ConEmuPID) {
+            # OSC 133;D - Mark end of command execution with exit code (Windows Terminal only)
+            if ($env:WT_SESSION) {
+                Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;D;$realLastExitCode$([char]7)"
+            }
+            
+            # OSC 9;9 - Enable directory tracking for "Duplicate Tab" and "Split Pane"
+            $loc = $executionContext.SessionState.Path.CurrentLocation
+            if ($loc.Provider.Name -eq "FileSystem") {
+                Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]9;9;`"$($loc.ProviderPath)`"$([char]0x1B)\"
+            }
+            
+            # OSC 133;A - Mark start of prompt (Windows Terminal only)
+            if ($env:WT_SESSION) {
+                Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;A$([char]7)"
+            }
         }
         
         $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
@@ -254,8 +249,7 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         CmderPrompt
         PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
         
-        # Emit OSC 133;B sequence for Windows Terminal shell integration
-        # This marks the start of command input (after prompt, before user types)
+        # OSC 133;B - Mark start of command input (Windows Terminal only)
         if ($env:WT_SESSION) {
             Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;B$([char]7)"
         }

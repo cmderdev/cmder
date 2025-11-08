@@ -221,7 +221,12 @@ goto :SKIP_CLINK
     chcp 65001>nul
 
     :: Revert back to plain cmd.exe prompt without clink
-    prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
+    :: With Windows Terminal shell integration support (OSC 133 sequences)
+    if defined WT_SESSION (
+        prompt $e]133;D$e\$e]133;A$e\$e]9;9;$P$e\$E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m$e]133;B$e\
+    ) else (
+        prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
+    )
 
     chcp %cp%>nul
 
