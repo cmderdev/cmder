@@ -190,7 +190,7 @@ function Show-GitStatus {
 function Get-GitStatusSetting {
     $gitConfig = git --no-pager config -l 2>$null | Out-String
 
-    if ($gitConfig -match 'cmder\.(ps)?status=false') {
+    if ($gitConfig -match '(?m)^cmder\.(ps)?status=false') {
         return $false
     }
 
