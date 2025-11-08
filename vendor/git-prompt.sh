@@ -5,9 +5,9 @@ function getGitStatusSetting() {
   # Get all git config entries for the current repository without pager
   gitConfig=$(git --no-pager config -l 2>/dev/null) || return 0  # treat failure as enabled
 
-  # Check if git status for Cmder is disabled
-  if [[ $gitConfig =~ (^|$'\n')cmder\.status=false($|$'\n') ]] || \
-     [[ $gitConfig =~ (^|$'\n')cmder\.shstatus=false($|$'\n') ]]
+  # Check if git status display for Cmder is disabled via config
+  # Matches: cmder.status=false or cmder.shstatus=false (Bash-specific)
+  if [[ $gitConfig =~ (^|$'\n')cmder\.(sh)?status=false($|$'\n') ]]
   then
     return 1  # disabled
   fi
