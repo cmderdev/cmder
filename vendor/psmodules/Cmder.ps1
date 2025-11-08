@@ -196,7 +196,6 @@ function Get-GitStatusSetting {
 
     # Check if git status display is disabled via config
     # Matches: cmder.status=false or cmder.psstatus=false (PowerShell-specific)
-    # Anchored to match complete lines only to avoid false positives
     if ($gitConfig -match '(?m)^cmder\.(ps)?status=false$') {
         return $false
     }
