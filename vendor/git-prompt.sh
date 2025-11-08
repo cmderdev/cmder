@@ -58,7 +58,8 @@ else
     }
 
     __cmder_preexec() {
-      printf '\e]133;C\a'                       # Emit OSC 133;C to mark the start of command execution
+      # Emit OSC 133;C to mark the start of command execution
+      printf '\e]133;C\a'
     }
 
     # Append to PROMPT_COMMAND to emit sequences just before each prompt
@@ -67,7 +68,7 @@ else
     else
       PROMPT_COMMAND="__cmder_prompt_command;$PROMPT_COMMAND"
     fi
-    
+
     # Use DEBUG trap to emit OSC 133;C before command execution
     trap '__cmder_preexec' DEBUG
   fi
