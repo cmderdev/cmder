@@ -98,8 +98,7 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     # Display an extra prompt line between the prompt and the command input
     Set-PSReadlineOption -ExtraPromptLineCount 1
     
-    # Add OSC 133;C support for Windows Terminal shell integration
-    # This marks the start of command output (emitted when Enter is pressed)
+    # Invoked when Enter is pressed to submit a command
     if ($env:WT_SESSION) {
         Set-PSReadLineKeyHandler -Key Enter -ScriptBlock {
             # Get the current command line
@@ -110,7 +109,7 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
             # Accept the line first
             [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
             
-            # Emit OSC 133;C sequence to mark start of command output
+            # Emit OSC 133;C to mark start of command output
             # This is written directly to the console after the command is accepted
             [Console]::Write("$([char]0x1B)]133;C$([char]7)")
         }
@@ -221,20 +220,25 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         $lastSUCCESS = $?
         $realLastExitCode = $LastExitCode
         
-        # Emit OSC 9;9 sequence for Windows Terminal directory tracking
-        # This enables "Duplicate Tab" and "Split Pane" to preserve the working directory
-        # Only active in Windows Terminal ($env:WT_SESSION) or ConEmu ($env:ConEmuPID)
-        $loc = $executionContext.SessionState.Path.CurrentLocation
-        if (($env:WT_SESSION -or $env:ConEmuPID) -and $loc.Provider.Name -eq "FileSystem") {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]9;9;`"$($loc.ProviderPath)`"$([char]0x1B)\"
-        }
-        
-        # Emit OSC 133;A sequence for Windows Terminal shell integration
-        # This marks the start of the prompt
-        # Enables features like command navigation, selection, and visual separators
-        # Only active in Windows Terminal ($env:WT_SESSION)
-        if ($env:WT_SESSION) {
-            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;A$([char]7)"
+        # Terminal-specific escape sequences for Windows Terminal and ConEmu
+        if ($env:WT_SESSION -or $env:ConEmuPID) {
+            # Emit OSC 133;D to mark the end of command execution with exit code
+            if ($env:WT_SESSION) {
+                Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;D;$realLastExitCode$([char]7)"
+            }
+            
+            # Emit OSC 9;9 to enable directory tracking
+            # Enables "Duplicate Tab" and "Split Pane" to preserve the working directory
+            $loc = $executionContext.SessionState.Path.CurrentLocation
+            if ($loc.Provider.Name -eq "FileSystem") {
+                Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]9;9;`"$($loc.ProviderPath)`"$([char]0x1B)\"
+            }
+            
+            # Emit OSC 133;A to mark the start of the prompt
+            # Enables features like command navigation, selection, and visual separators
+            if ($env:WT_SESSION) {
+                Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;A$([char]7)"
+            }
         }
         
         $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
@@ -246,8 +250,7 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         CmderPrompt
         PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
         
-        # Emit OSC 133;B sequence for Windows Terminal shell integration
-        # This marks the start of command input (after prompt, before user types)
+        # Emit OSC 133;B to mark the start of command input (after prompt, before user types)
         if ($env:WT_SESSION) {
             Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;B$([char]7)"
         }
