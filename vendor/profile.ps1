@@ -221,6 +221,14 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         $lastSUCCESS = $?
         $realLastExitCode = $LastExitCode
         
+        # Emit OSC 133;D sequence for Windows Terminal shell integration
+        # This marks the end of command execution with the exit code
+        # Must be emitted before OSC 133;A (start of next prompt)
+        # Only active in Windows Terminal ($env:WT_SESSION)
+        if ($env:WT_SESSION) {
+            Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;D;$realLastExitCode$([char]7)"
+        }
+        
         # Emit OSC 9;9 sequence for Windows Terminal directory tracking
         # This enables "Duplicate Tab" and "Split Pane" to preserve the working directory
         # Only active in Windows Terminal ($env:WT_SESSION) or ConEmu ($env:ConEmuPID)
