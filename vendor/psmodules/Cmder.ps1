@@ -53,14 +53,22 @@ function Compare-Version {
     if ($null -eq $UserVersion) { return -1 }
     if ($null -eq $VendorVersion) { return 1 }
 
-    try {
-        $userVer = [version]$UserVersion
-        $vendorVer = [version]$VendorVersion
-        return $userVer.CompareTo($vendorVer)
-    } catch {
-        # Fallback to string comparison if version parsing fails
-        return [string]::Compare($UserVersion, $VendorVersion)
+    # Extract all numeric parts from version strings (e.g., "2.49.0.windows.1" -> 2, 49, 0, 1)
+    # This handles Git version strings like "2.49.0.windows.1" correctly
+    $userParts = [regex]::Matches($UserVersion, '\d+') | ForEach-Object { [int]$_.Value }
+    $vendorParts = [regex]::Matches($VendorVersion, '\d+') | ForEach-Object { [int]$_.Value }
+
+    # Compare each numeric part sequentially
+    $maxLength = [Math]::Max($userParts.Count, $vendorParts.Count)
+    for ($i = 0; $i -lt $maxLength; $i++) {
+        $userPart = if ($i -lt $userParts.Count) { $userParts[$i] } else { 0 }
+        $vendorPart = if ($i -lt $vendorParts.Count) { $vendorParts[$i] } else { 0 }
+
+        if ($userPart -gt $vendorPart) { return 1 }
+        if ($userPart -lt $vendorPart) { return -1 }
     }
+
+    return 0
 }
 
 function Compare-GitVersion {
