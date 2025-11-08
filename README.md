@@ -354,6 +354,8 @@ However, Cmder can in fact run in a variety of other terminal emulators, and eve
 
 ⚠ *Note:* Cmder includes built-in support for Windows Terminal directory tracking via OSC 9;9 sequences. This enables "Duplicate Tab" and "Split Pane" features to preserve the current working directory for both `cmd.exe` and PowerShell sessions.
 
+⚠ *Note:* Cmder also includes built-in support for [Windows Terminal shell integration](https://learn.microsoft.com/en-us/windows/terminal/tutorials/shell-integration) via OSC 133 sequences (A, B, C) for PowerShell sessions. This enables features like command navigation (jump between commands), command selection, visual command separators, and improved command history management in Windows Terminal.
+
 For instructions on how to integrate Cmder with your IDE, please read our [Wiki section](https://github.com/cmderdev/cmder/wiki#cmder-integration).
 
 ## Upgrading
