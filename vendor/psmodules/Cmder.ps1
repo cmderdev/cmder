@@ -50,22 +50,45 @@ function Compare-Version {
         [string]$VendorVersion
     )
 
-    if ($null -eq $UserVersion) { return -1 }
-    if ($null -eq $VendorVersion) { return 1 }
+    if ([string]::IsNullOrEmpty($UserVersion)) { return -1 }
+    if ([string]::IsNullOrEmpty($VendorVersion)) { return 1 }
 
-    # Extract all numeric parts from version strings (e.g., "2.49.0.windows.1" -> 2, 49, 0, 1)
-    # This handles Git version strings like "2.49.0.windows.1" correctly
-    $userParts = [regex]::Matches($UserVersion, '\d+') | ForEach-Object { [int]$_.Value }
-    $vendorParts = [regex]::Matches($VendorVersion, '\d+') | ForEach-Object { [int]$_.Value }
+    # Split version strings by dots to compare segment by segment
+    # For "2.49.0.windows.1", we get: ["2", "49", "0", "windows", "1"]
+    $userParts = $UserVersion -split '\.'
+    $vendorParts = $VendorVersion -split '\.'
 
-    # Compare each numeric part sequentially
     $maxLength = [Math]::Max($userParts.Count, $vendorParts.Count)
-    for ($i = 0; $i -lt $maxLength; $i++) {
-        $userPart = if ($i -lt $userParts.Count) { $userParts[$i] } else { 0 }
-        $vendorPart = if ($i -lt $vendorParts.Count) { $vendorParts[$i] } else { 0 }
 
-        if ($userPart -gt $vendorPart) { return 1 }
-        if ($userPart -lt $vendorPart) { return -1 }
+    for ($i = 0; $i -lt $maxLength; $i++) {
+        $userPart = if ($i -lt $userParts.Count) { $userParts[$i] } else { '' }
+        $vendorPart = if ($i -lt $vendorParts.Count) { $vendorParts[$i] } else { '' }
+
+        # Check if both parts are purely numeric
+        $userIsNumeric = $userPart -match '^\d+$'
+        $vendorIsNumeric = $vendorPart -match '^\d+$'
+
+        if ($userIsNumeric -and $vendorIsNumeric) {
+            # Both numeric: compare as integers (so 49 > 5, not lexicographic)
+            $userNum = [int]$userPart
+            $vendorNum = [int]$vendorPart
+
+            if ($userNum -gt $vendorNum) { return 1 }
+            if ($userNum -lt $vendorNum) { return -1 }
+        }
+        elseif ($userIsNumeric -and -not $vendorIsNumeric) {
+            # Numeric segment comes before text segment (e.g., "2.0" < "2.0.rc1")
+            return -1
+        }
+        elseif (-not $userIsNumeric -and $vendorIsNumeric) {
+            # Text segment comes after numeric segment
+            return 1
+        }
+        else {
+            # Both are text: use case-insensitive lexicographic comparison
+            $cmp = [string]::Compare($userPart, $vendorPart, $true)
+            if ($cmp -ne 0) { return [Math]::Sign($cmp) }
+        }
     }
 
     return 0
