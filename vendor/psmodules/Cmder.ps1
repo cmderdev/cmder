@@ -16,6 +16,10 @@ function Get-GitVersion {
         return $Matches[1]
     }
 
+    Write-Debug "Git executable path: $gitExecutable"
+    Write-Error "'git --version' returned an improper version string!"
+    Write-Error "Unable to determine Git version from output: $gitVersion"
+
     return $null
 }
 
