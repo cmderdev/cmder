@@ -48,7 +48,7 @@ jobs:
           cmd /c vendor\init.bat /v /d /t
     - name: Testing PowerShell
       run: |
-          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "Invoke-Expression '. ''vendor\profile.ps1'''"
+          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "$DebugPreference='Continue'; . 'vendor\profile.ps1' 5>&1"
     - name: Testing Bash
       run: |
           bash vendor/cmder.sh
