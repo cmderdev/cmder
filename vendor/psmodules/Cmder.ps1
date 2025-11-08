@@ -1,178 +1,197 @@
-function readGitVersion($gitPath) {
-    $gitExecutable = "${gitPath}\git.exe"
+function Get-GitVersion {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$GitPath
+    )
 
-    if (-not (Test-Path "$gitExecutable")) {
+    $gitExecutable = Join-Path $GitPath "git.exe"
+
+    if (-not (Test-Path $gitExecutable)) {
         return $null
     }
 
-    $gitVersion = (cmd /c "${gitExecutable}" --version)
+    $gitVersion = & $gitExecutable --version 2>$null
 
-    if ($gitVersion -match 'git version') {
-        ($trash1, $trash2, $gitVersion) = $gitVersion.split(' ', 3)
-    } else {
-        pause
-        return $null
+    if ($gitVersion -match 'git version\s+(\S+)') {
+        return $Matches[1]
     }
 
-    return $gitVersion.toString()
+    return $null
 }
 
-function isGitShim($gitPath) {
-    # Check if there is a shim file - if yes, read the actual executable path
-    # See: github.com/ScoopInstaller/Shim
+function Get-GitShimPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$GitPath
+    )
 
-    if (Test-Path "${gitPath}\git.shim") {
-        $shim = (get-content "${gitPath}\git.shim")
-        ($trash, $gitPath) = $shim.replace(' ', '').split('=')
-
-        $gitPath = $gitPath.replace('\git.exe', '')
+    $shimFile = Join-Path $GitPath "git.shim"
+    if (Test-Path $shimFile) {
+        $shimContent = Get-Content $shimFile -Raw
+        if ($shimContent -match 'path\s*=\s*(.+)') {
+            $GitPath = $Matches[1].Trim().Replace('\git.exe', '')
+        }
     }
 
-    return $gitPath.toString()
+    return $GitPath
 }
 
-function compareVersions($userVersion, $vendorVersion) {
-    if ($null -ne $userVersion) {
-        ($userMajor, $userMinor, $userPatch, $userBuild) = $userVersion.split('.', 4)
-    } else {
-        return -1
+function Compare-Version {
+    param(
+        [Parameter(Mandatory = $false)]
+        [AllowNull()]
+        [string]$UserVersion,
+        [Parameter(Mandatory = $false)]
+        [AllowNull()]
+        [string]$VendorVersion
+    )
+
+    if ($null -eq $UserVersion) { return -1 }
+    if ($null -eq $VendorVersion) { return 1 }
+
+    try {
+        $userVer = [version]$UserVersion
+        $vendorVer = [version]$VendorVersion
+        return $userVer.CompareTo($vendorVer)
+    } catch {
+        # Fallback to string comparison if version parsing fails
+        return [string]::Compare($UserVersion, $VendorVersion)
     }
-
-    if ($null -ne $vendorVersion) {
-        ($vendorMajor, $vendorMinor, $vendorPatch, $vendorBuild) = $vendorVersion.split('.', 4)
-    } else {
-        return 1
-    }
-
-    if (($userMajor -eq $vendorMajor) -and ($userMinor -eq $vendorMinor) -and ($userPatch -eq $vendorPatch) -and ($userBuild -eq $vendorBuild)) {
-        return 1
-    }
-
-    if ($userMajor -gt $vendorMajor) { return 1 }
-    if ($userMajor -lt $vendorMajor) { return -1 }
-
-    if ($userMinor -gt $vendorMinor) { return 1 }
-    if ($userMinor -lt $vendorMinor) { return -1 }
-
-    if ($userPatch -gt $vendorPatch) { return 1 }
-    if ($userPatch -lt $vendorPatch) { return -1 }
-
-    if ($userBuild -gt $vendorBuild) { return 1 }
-    if ($userBuild -lt $vendorBuild) { return -1 }
-
-    return 0
 }
 
-function compare_git_versions($userVersion, $vendorVersion) {
-    $result = compareVersions -userVersion $userVersion -vendorVersion $vendorVersion
+function Compare-GitVersion {
+    param(
+        [Parameter(Mandatory = $false)]
+        [AllowNull()]
+        [string]$UserVersion,
+        [Parameter(Mandatory = $false)]
+        [AllowNull()]
+        [string]$VendorVersion
+    )
 
-    Write-Debug "Compare Versions Result: ${result}"
+    $result = Compare-Version -UserVersion $UserVersion -VendorVersion $VendorVersion
+
+    Write-Debug "Compare Versions Result: $result"
     if ($result -ge 0) {
-        return $userVersion
+        return $UserVersion
     }
-    else {
-        return $vendorVersion
-    }
+    return $VendorVersion
 }
 
-function Configure-Git($gitRoot, $gitType, $gitPathUser) {
-    # Proposed Behavior
+function Set-GitPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$GitRoot,
+        [Parameter(Mandatory = $true)]
+        [string]$GitType,
+        [Parameter(Mandatory = $false)]
+        [string]$GitPathUser
+    )
 
-    # Modify the path if we are using VENDORED Git, do nothing if using USER Git.
-    # If User Git is installed but is older, match its path config adding paths
-    # in the same path positions allowing a user to configure Cmder Git path
-    # using locally installed Git Path Config.
-    if ($gitType -eq 'VENDOR') {
-        # If User Git is installed replace its path config with Newer Vendored Git Path
-        if (($null -ne $gitPathUser) -and ($gitPathUser -ne '')) {
-            Write-Verbose "Cmder 'profile.ps1': Replacing older user Git path '$gitPathUser' with newer vendored Git path '$gitRoot' in the system path..."
-
-            $newPath = ($env:path -ireplace [regex]::Escape($gitPathUser), $gitRoot)
-        }
-        else {
-            if (-not ($env:Path -match [regex]::Escape("$gitRoot\cmd"))) {
-                Write-Debug "Adding $gitRoot\cmd to the path"
-                $newPath = $($gitRoot + "\cmd" + ";" + $env:Path)
-            }
-
-            # Add "$gitRoot\mingw[32|64]\bin" to the path if exists and not done already
-            if ((Test-Path "$gitRoot\mingw32\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw32\bin"))) {
-                Write-Debug "Adding $gitRoot\mingw32\bin to the path"
-                $newPath = "$newPath;$gitRoot\mingw32\bin"
-            }
-            elseif ((Test-Path "$gitRoot\mingw64\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\mingw64\bin"))) {
-                Write-Debug "Adding $gitRoot\mingw64\bin to the path"
-                $newPath = "$newPath;$gitRoot\mingw64\bin"
-            }
-
-            # Add "$gitRoot\usr\bin" to the path if exists and not done already
-            if ((Test-Path "$gitRoot\usr\bin") -and -not ($env:path -match [regex]::Escape("$gitRoot\usr\bin"))) {
-                Write-Debug "Adding $gitRoot\usr\bin to the path"
-                $newPath = "$newPath;$gitRoot\usr\bin"
-            }
-        }
-
-        return $newPath
+    if ($GitType -ne 'VENDOR') {
+        return $env:Path
     }
 
-    return $env:path
+    $newPath = $env:Path
+
+    # Replace user Git path with vendored Git if user path exists
+    if ($GitPathUser) {
+        Write-Verbose "Cmder 'profile.ps1': Replacing older user Git path '$GitPathUser' with newer vendored Git path '$GitRoot' in the system path..."
+        $newPath = $newPath -ireplace [regex]::Escape($GitPathUser), $GitRoot
+    } else {
+        # Add Git cmd directory
+        $gitCmd = Join-Path $GitRoot "cmd"
+        if (-not ($newPath -match [regex]::Escape($gitCmd))) {
+            Write-Debug "Adding $gitCmd to the path"
+            $newPath = "$gitCmd;$newPath"
+        }
+
+        # Add mingw bin directory
+        foreach ($mingw in @('mingw64', 'mingw32')) {
+            $mingwBin = Join-Path $GitRoot "$mingw\bin"
+            if ((Test-Path $mingwBin) -and -not ($newPath -match [regex]::Escape($mingwBin))) {
+                Write-Debug "Adding $mingwBin to the path"
+                $newPath = "$newPath;$mingwBin"
+                break
+            }
+        }
+
+        # Add usr bin directory
+        $usrBin = Join-Path $GitRoot "usr\bin"
+        if ((Test-Path $usrBin) -and -not ($newPath -match [regex]::Escape($usrBin))) {
+            Write-Debug "Adding $usrBin to the path"
+            $newPath = "$newPath;$usrBin"
+        }
+    }
+
+    return $newPath
 }
 
-function Import-Git() {
-    $GitModule = Get-Module -Name Posh-Git -ListAvailable
-    if ($GitModule | Select-Object version | Where-Object version -le ([version]"0.6.1.20160330")) {
-        Import-Module Posh-Git > $null
-    }
-    if ($GitModule | Select-Object version | Where-Object version -ge ([version]"1.0.0")) {
-        Import-Module Posh-Git > $null
-        $GitPromptSettings.AnsiConsole = $false
-    }
-    if (-not $GitModule) {
-        Write-Host -NoNewline "`r`n"
+function Import-Git {
+    $gitModule = Get-Module -Name Posh-Git -ListAvailable
+
+    if (-not $gitModule) {
+        Microsoft.PowerShell.Utility\Write-Host -NoNewline "`r`n"
         Write-Warning "Missing git support, install posh-git with 'Install-Module posh-git' and restart Cmder."
-        Write-Host -NoNewline "`r$([char]0x1B)[A"
+        Microsoft.PowerShell.Utility\Write-Host -NoNewline "`r$([char]0x1B)[A"
         return $false
     }
-    # Make sure we only run once by always returning true
+
+    Import-Module Posh-Git -ErrorAction SilentlyContinue | Out-Null
+
+    if (($gitModule.Version -ge [version]"1.0.0") -and (Get-Variable -Name GitPromptSettings -ErrorAction SilentlyContinue)) {
+        $GitPromptSettings.AnsiConsole = $false
+    }
+
     return $true
 }
 
-function checkGit($Path) {
+function Show-GitStatus {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
         return
     }
-    if (-not (Test-Path -Path (Join-Path $Path '.git'))) {
-        $SplitPath = Split-Path $path
-        if ($SplitPath) { checkGit($SplitPath) }
+
+    $gitDir = Join-Path $Path '.git'
+    if (-not (Test-Path $gitDir)) {
+        $parentPath = Split-Path $Path
+        if ($parentPath) {
+            Show-GitStatus -Path $parentPath
+        }
         return
     }
-    if (getGitStatusSetting -eq $true) {
+
+    if (Get-GitStatusSetting) {
         if ($null -eq $env:gitLoaded) {
             $env:gitLoaded = Import-Git
         }
         if ($env:gitLoaded -eq $true) {
             Write-VcsStatus
         }
-    }
-    else {
-        $headContent = Get-Content (Join-Path $Path '.git/HEAD')
-        if ($headContent -like "ref: refs/heads/*") {
-            $branchName = $headContent.Substring(16)
+    } else {
+        $headFile = Join-Path $gitDir 'HEAD'
+        if (Test-Path $headFile) {
+            $headContent = Get-Content $headFile -Raw
+            if ($headContent -match 'ref: refs/heads/(.+)') {
+                $branchName = $Matches[1].Trim()
+            } else {
+                $shortHash = $headContent.Substring(0, [Math]::Min(7, $headContent.Length))
+                $branchName = "HEAD detached at $shortHash"
+            }
+            Microsoft.PowerShell.Utility\Write-Host " [$branchName]" -NoNewline -ForegroundColor White
         }
-        else {
-            $branchName = "HEAD detached at $($headContent.Substring(0, 7))"
-        }
-        Write-Host " [$branchName]" -NoNewline -ForegroundColor White
     }
 }
 
-function getGitStatusSetting() {
-    $gitStatus = (git --no-pager config -l) | Out-String
+function Get-GitStatusSetting {
+    $gitConfig = git --no-pager config -l 2>$null | Out-String
 
-    foreach ($line in $($gitStatus -split "`r`n")) {
-        if (($line -match 'cmder.status=false') -or ($line -match 'cmder.psstatus=false')) {
-            return $false
-        }
+    if ($gitConfig -match 'cmder\.(ps)?status=false') {
+        return $false
     }
 
     return $true
