@@ -44,18 +44,18 @@ if (-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderMo
 }
 
 # Read vendored Git Version
-$gitVersionVendor = (readGitVersion -gitPath "$ENV:CMDER_ROOT\vendor\git-for-windows\cmd")
+$gitVersionVendor = Get-GitVersion -GitPath "$ENV:CMDER_ROOT\vendor\git-for-windows\cmd"
 Write-Debug "GIT VENDOR: ${gitVersionVendor}"
 
 # Get user installed Git version(s) if found, and compare them with vendored version.
 foreach ($git in (Get-Command -ErrorAction SilentlyContinue 'git')) {
     Write-Debug "GIT PATH: {$git.Path}"
     $gitDir = Split-Path -Path $git.Path
-    $gitDir = isGitShim -gitPath $gitDir
-    $gitVersionUser = (readGitVersion -gitPath $gitDir)
+    $gitDir = Get-GitShimPath -GitPath $gitDir
+    $gitVersionUser = Get-GitVersion -GitPath $gitDir
     Write-Debug "GIT USER: ${gitVersionUser}"
 
-    $useGitVersion = compare_git_versions -userVersion $gitVersionUser -vendorVersion $gitVersionVendor
+    $useGitVersion = Compare-GitVersion -UserVersion $gitVersionUser -VendorVersion $gitVersionVendor
     Write-Debug "Using Git Version: ${useGitVersion}"
 
     # Use user installed Git
@@ -85,7 +85,7 @@ Write-Debug "GIT_INSTALL_ROOT: ${ENV:GIT_INSTALL_ROOT}"
 Write-Debug "GIT_INSTALL_TYPE: ${ENV:GIT_INSTALL_TYPE}"
 
 if ($null -ne $ENV:GIT_INSTALL_ROOT) {
-    $env:Path = Configure-Git -gitRoot "$ENV:GIT_INSTALL_ROOT" -gitType $ENV:GIT_INSTALL_TYPE -gitPathUser $gitPathUser
+    $env:Path = Set-GitPath -GitRoot "$ENV:GIT_INSTALL_ROOT" -GitType $ENV:GIT_INSTALL_TYPE -GitPathUser $gitPathUser
 }
 
 # Create 'vi' alias for 'vim' if vim is available
@@ -130,7 +130,7 @@ $env:gitLoaded = $null
     $Host.UI.RawUI.ForegroundColor = "White"
     Microsoft.PowerShell.Utility\Write-Host "PS " -NoNewline -ForegroundColor $color
     Microsoft.PowerShell.Utility\Write-Host $pwd.ProviderPath -NoNewLine -ForegroundColor Green
-    checkGit($pwd.ProviderPath)
+    Show-GitStatus -Path $pwd.ProviderPath
     Microsoft.PowerShell.Utility\Write-Host "`nλ" -NoNewLine -ForegroundColor "DarkGray"
 }
 
