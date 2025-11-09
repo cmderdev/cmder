@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copy this file to your non integrated *nix-like environment,
 # Cygwin/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
 # folder to integrate the externally installed Unix like environment
@@ -29,14 +30,17 @@ run_profile_d() {
   pushd "${1}" >/dev/null || return
 
   if [ -n "${ZSH_VERSION}" ]; then
+    # shellcheck disable=SC2035
     profile_d_scripts=$(ls *.zsh 2>/dev/null)
   elif [ -n "${BASH_VERSION}" ]; then
+    # shellcheck disable=SC2035
     profile_d_scripts=$(ls *.sh 2>/dev/null)
   fi
 
   if [ -n "${profile_d_scripts}" ]; then
     for script in ${profile_d_scripts}; do
       echo "Sourcing ${1}/${script}..."
+      # shellcheck disable=SC1090
       . "${1}/${script}"
     done
   fi
@@ -48,6 +52,7 @@ run_profile_d() {
 
 # Detect and set CMDER_ROOT for bash admin sessions
 # Converts Windows paths to Unix paths if needed
+# ConEmuDir is set by ConEmu/Cmder environment
 if [ -z "$CMDER_ROOT" ] && [ -n "$ConEmuDir" ]; then
   if [ -d "${ConEmuDir}../../vendor" ]; then
     case "$ConEmuDir" in 
@@ -97,6 +102,7 @@ if [ -n "$CMDER_ROOT" ]; then
 
   # Source user profile from CMDER_ROOT config
   if [ -f "${CMDER_ROOT}/config/user_profile.sh" ]; then
+      # shellcheck disable=SC1091
       . "${CMDER_ROOT}/config/user_profile.sh"
   fi
 
@@ -111,6 +117,7 @@ if [ -n "$CMDER_ROOT" ]; then
 
     # Source user profile from CMDER_USER_CONFIG
     if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ]; then
+      # shellcheck disable=SC1091
       . "${CMDER_USER_CONFIG}/user_profile.sh"
     fi
   fi
