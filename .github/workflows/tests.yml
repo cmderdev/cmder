@@ -47,8 +47,10 @@ jobs:
       run: |
           cmd /c vendor\init.bat /v /d /t
     - name: Testing PowerShell
+      env:
+        CMDER_DEBUG: '1'
       run: |
-          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "$DebugPreference='Continue'; . 'vendor\profile.ps1' 5>&1"
+          PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "'vendor\profile.ps1'"
     - name: Testing Bash
       run: |
           bash vendor/cmder.sh
