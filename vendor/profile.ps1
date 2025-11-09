@@ -5,20 +5,11 @@
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
 
-if ($env:CMDER_DEBUG -and ($env:CMDER_DEBUG -match '^(1|true)$')) {
-    $DebugPreference = 'Continue'
-    $VerbosePreference = 'Continue'
-}
-
 $CMDER_INIT_START = Get-Date
 
-# Compatibility with PS major versions <= 2
+# Determine the script root if not already set
 if (!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $Script:MyInvocation.MyCommand.Path
-}
-
-if ($ENV:CMDER_USER_CONFIG) {
-    Write-Verbose "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '$ENV:CMDER_USER_CONFIG'!"
 }
 
 # We do this for Powershell as Admin Sessions because CMDER_ROOT is not being set.
@@ -36,6 +27,12 @@ $ENV:CMDER_ROOT = ($ENV:CMDER_ROOT).TrimEnd("\")
 # Recent PowerShell versions include PowerShellGet out of the box
 $moduleInstallerAvailable = [bool](Get-Command -Name 'Install-Module' -ErrorAction SilentlyContinue)
 
+# Enable Debug and Verbose output if CMDER_DEBUG environment variable is set to '1' or 'true'
+if ($env:CMDER_DEBUG -and ($env:CMDER_DEBUG -match '^(1|true)$')) {
+    $DebugPreference = 'Continue'
+    $VerbosePreference = 'Continue'
+}
+
 # Add Cmder modules directory to the autoload path.
 $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 
@@ -48,17 +45,26 @@ if (-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderMo
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
 
+if ($ENV:CMDER_USER_CONFIG) {
+    Write-Verbose "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '$ENV:CMDER_USER_CONFIG'!"
+}
+
 # Read vendored Git Version
-$gitVersionVendor = Get-GitVersion -GitPath "$ENV:CMDER_ROOT\vendor\git-for-windows\cmd"
-Write-Debug "GIT VENDOR: ${gitVersionVendor}"
+$gitVendorPath = Join-Path $ENV:CMDER_ROOT 'vendor\git-for-windows\cmd'
+$gitVersionVendor = Get-GitVersion -GitPath $gitVendorPath
+if (-not [string]::IsNullOrEmpty($gitVersionVendor)) {
+    Write-Debug "GIT VENDOR: ${gitVersionVendor}"
+} else {
+    Write-Debug "GIT VENDOR is not present at '$gitVendorPath'"
+}
 
 # Get user installed Git version(s) if found, and compare them with vendored version.
 foreach ($git in (Get-Command -ErrorAction SilentlyContinue 'git')) {
-    Write-Debug "GIT PATH: {$git.Path}"
+    Write-Debug "GIT USER PATH: $($git.Path)"
     $gitDir = Split-Path -Path $git.Path
     $gitDir = Get-GitShimPath -GitPath $gitDir
     $gitVersionUser = Get-GitVersion -GitPath $gitDir
-    Write-Debug "GIT USER: ${gitVersionUser}"
+    Write-Debug "GIT USER VERSION: ${gitVersionUser}"
 
     $useGitVersion = Compare-GitVersion -UserVersion $gitVersionUser -VendorVersion $gitVersionVendor
     Write-Debug "Using Git Version: ${useGitVersion}"
@@ -102,7 +108,7 @@ if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
 if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
     # Display an extra prompt line between the prompt and the command input
     Set-PSReadlineOption -ExtraPromptLineCount 1
-    
+
     # Invoked when Enter is pressed to submit a command
     if ($env:WT_SESSION) {
         Set-PSReadLineKeyHandler -Key Enter -ScriptBlock {
@@ -110,10 +116,10 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
             $line = $null
             $cursor = $null
             [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
-            
+
             # Accept the line first
             [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
-            
+
             # Emit OSC 133;C to mark start of command output
             # This is written directly to the console after the command is accepted
             [Console]::Write("$([char]0x1B)]133;C$([char]7)")
@@ -224,28 +230,28 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
     [ScriptBlock]$Prompt = {
         $lastSUCCESS = $?
         $realLastExitCode = $LastExitCode
-        
+
         # Terminal-specific escape sequences for Windows Terminal and ConEmu
         if ($env:WT_SESSION -or $env:ConEmuPID) {
             # Emit OSC 133;D to mark the end of command execution with exit code
             if ($env:WT_SESSION) {
                 Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;D;$realLastExitCode$([char]7)"
             }
-            
+
             # Emit OSC 9;9 to enable directory tracking
             # Enables "Duplicate Tab" and "Split Pane" to preserve the working directory
             $loc = $executionContext.SessionState.Path.CurrentLocation
             if ($loc.Provider.Name -eq "FileSystem") {
                 Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]9;9;`"$($loc.ProviderPath)`"$([char]0x1B)\"
             }
-            
+
             # Emit OSC 133;A to mark the start of the prompt
             # Enables features like command navigation, selection, and visual separators
             if ($env:WT_SESSION) {
                 Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;A$([char]7)"
             }
         }
-        
+
         $host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath -Leaf
         Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x200B)`r$([char]0x1B)[K"
         if ($lastSUCCESS -or ($LastExitCode -ne 0)) {
@@ -254,12 +260,12 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
         PrePrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
         CmderPrompt
         PostPrompt | Microsoft.PowerShell.Utility\Write-Host -NoNewline
-        
+
         # Emit OSC 133;B to mark the start of command input (after prompt, before user types)
         if ($env:WT_SESSION) {
             Microsoft.PowerShell.Utility\Write-Host -NoNewline "$([char]0x1B)]133;B$([char]7)"
         }
-        
+
         $global:LastExitCode = $realLastExitCode
         return " "
     }
