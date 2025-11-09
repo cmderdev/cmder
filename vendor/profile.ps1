@@ -5,6 +5,11 @@
 # !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 # !!! Use "%CMDER_ROOT%\config\user_profile.ps1" to add your own startup commands
 
+if ($env:CMDER_DEBUG -and ($env:CMDER_DEBUG -match '^(1|true)$')) {
+    $DebugPreference = 'Continue'
+    $VerbosePreference = 'Continue'
+}
+
 $CMDER_INIT_START = Get-Date
 
 # Compatibility with PS major versions <= 2
