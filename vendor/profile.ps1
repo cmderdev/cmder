@@ -45,7 +45,7 @@ if (-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderMo
     $env:PSModulePath = $env:PSModulePath.Insert(0, "$CmderModulePath;")
 }
 
-if ($ENV:CMDER_USER_CONFIG) {
+if ($env:CMDER_USER_CONFIG) {
     Write-Verbose "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '$ENV:CMDER_USER_CONFIG'!"
 }
 
@@ -71,11 +71,14 @@ foreach ($git in (Get-Command -ErrorAction SilentlyContinue 'git')) {
 
     # Use user installed Git
     if ($null -eq $gitPathUser) {
+        Write-Debug "Detected Git from mingw bin directory"
+        Write-Debug "Git Dir: ${gitDir}"
         if ($gitDir -match '\\mingw32\\bin' -or $gitDir -match '\\mingw64\\bin') {
-            $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 12))
+            $gitPathUser = $gitDir.subString(0, $gitDir.Length - 12)
         } else {
-            $gitPathUser = ($gitDir.subString(0,$gitDir.Length - 4))
+            $gitPathUser = $gitDir.subString(0, $gitDir.Length - 4)
         }
+        Write-Debug "Git Path User: ${gitDir}"
     }
 
     if ($useGitVersion -eq $gitVersionUser) {
