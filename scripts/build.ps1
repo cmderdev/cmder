@@ -27,7 +27,7 @@
 .EXAMPLE
     .\build.ps1 -SourcesPath '~/custom/vendors.json'
 
-    Build cmder with your own packages. See vendor/sources.json for the syntax you need to copy.
+    Build Cmder with your own packages. See vendor/sources.json for the syntax you need to copy.
 .NOTES
     AUTHORS
     Samuel Vasko, Jack Bennett
@@ -60,7 +60,7 @@ Param(
     [switch]$Compile
 )
 
-# Get the scripts and cmder root dirs we are building in.
+# Get the scripts and Cmder root dirs we are building in.
 $cmder_root = Resolve-Path "$PSScriptRoot\.."
 
 # Dot source util functions into this scope

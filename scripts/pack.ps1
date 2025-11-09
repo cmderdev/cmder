@@ -2,18 +2,18 @@
 .Synopsis
     Pack Cmder
 .DESCRIPTION
-    Use this script to pack cmder into release archives
+    Use this script to pack Cmder into release archives
 
     You will need to make this script executable by setting your Powershell Execution Policy to Remote signed
     Then unblock the script for execution with UnblockFile .\pack.ps1
 .EXAMPLE
     .\pack.ps1
 
-    Creates default archives for cmder
+    Creates default archives for Cmder
 .EXAMPLE
     .\pack.ps1 -verbose
 
-    Creates default archives for cmder with plenty of information
+    Creates default archives for Cmder with plenty of information
 .NOTES
     AUTHORS
     Samuel Vasko, Jack Bennett, Martin Kemp
