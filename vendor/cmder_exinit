@@ -67,6 +67,21 @@ elif [ -n "$CMDER_ROOT" ]; then
   esac
 fi
 
+# If CMDER_ROOT is still not set, try to derive from script location
+# Note: This only works if cmder_exinit is in its original location (vendor/)
+if [ -z "$CMDER_ROOT" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+  # Check if we're in the vendor directory
+  script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  if [[ "$script_dir" == */vendor ]] || [[ "$script_dir" == */vendor/* ]]; then
+    # Extract the Cmder root (parent of vendor)
+    CMDER_ROOT="$( cd "$script_dir/.." && pwd )"
+    # Verify this looks like a Cmder installation
+    if [ ! -d "${CMDER_ROOT}/vendor" ]; then
+      unset CMDER_ROOT
+    fi
+  fi
+fi
+
 if [ -n "$CMDER_ROOT" ]; then
   # Remove any trailing '/' from CMDER_ROOT
   CMDER_ROOT="${CMDER_ROOT%/}"

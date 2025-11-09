@@ -30,9 +30,15 @@ run_profile_d() {
 # Converts Windows paths to Unix paths if needed
 # ConEmuDir is set by ConEmu/Cmder environment
 if [ -z "$CMDER_ROOT" ]; then
+    # Try to get CMDER_ROOT from ConEmuDir
     case "$ConEmuDir" in 
         *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." && pwd );;
     esac
+    
+    # If still not set, derive from script location (vendor -> root)
+    if [ -z "$CMDER_ROOT" ]; then
+        CMDER_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+    fi
 else
     case "$CMDER_ROOT" in 
         *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";;
