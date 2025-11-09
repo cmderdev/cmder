@@ -35,7 +35,7 @@ Param(
     [string]$saveTo = "$PSScriptRoot\..\build"
 )
 
-$cmderRoot = Resolve-Path $cmderRoot
+$cmder_root = Resolve-Path $cmderRoot
 
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
@@ -47,10 +47,10 @@ $targets = @{
     "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
 }
 
-Push-Location -Path $cmderRoot
+Push-Location -Path $cmder_root
 
-Delete-Existing "$cmderRoot\Version*"
-Delete-Existing "$cmderRoot\build\*"
+Delete-Existing "$cmder_root\Version*"
+Delete-Existing "$cmder_root\build\*"
 
 if (-not (Test-Path -PathType container $saveTo)) {
     (New-Item -ItemType Directory -Path $saveTo) | Out-Null
@@ -59,16 +59,16 @@ if (-not (Test-Path -PathType container $saveTo)) {
 $saveTo = Resolve-Path $saveTo
 
 $version = Get-VersionStr
-(New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
+(New-Item -ItemType file "$cmder_root\Version $version") | Out-Null
 
 if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
     Write-Verbose "Packing Cmder $version in $saveTo..."
-    $excluded = (Get-Content -Path "$cmderRoot\packignore") -Split [System.Environment]::NewLine | Where-Object { $_ }
-    Get-ChildItem $cmderRoot -Force -Exclude $excluded
+    $excluded = (Get-Content -Path "$cmder_root\packignore") -Split [System.Environment]::NewLine | Where-Object { $_ }
+    Get-ChildItem $cmder_root -Force -Exclude $excluded
 }
 
 foreach ($t in $targets.GetEnumerator()) {
-    Create-Archive "$cmderRoot" "$saveTo\$($t.Name)" $t.Value
+    Create-Archive "$cmder_root" "$saveTo\$($t.Name)" $t.Value
     $hash = (Digest-Hash "$saveTo\$($t.Name)")
     Add-Content -path "$saveTo\hashes.txt" -value ($t.Name + ' ' + $hash)
 }
