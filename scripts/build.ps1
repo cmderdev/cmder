@@ -27,7 +27,7 @@
 .EXAMPLE
     .\build.ps1 -SourcesPath '~/custom/vendors.json'
 
-    Build cmder with your own packages. See vendor/sources.json for the syntax you need to copy.
+    Build Cmder with your own packages. See vendor/sources.json for the syntax you need to copy.
 .NOTES
     AUTHORS
     Samuel Vasko, Jack Bennett
