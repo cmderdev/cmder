@@ -7,7 +7,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "lint": "eslint mobile-app/src --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint mobile-app/src --ext .js,.jsx,.ts,.tsx",
+    "validate": "node mobile-app/scripts/validate.js"
   },
   "dependencies": {
     "react": "^18.2.0",
