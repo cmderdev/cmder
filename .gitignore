@@ -31,3 +31,16 @@ launcher/src/version.rc2
 .vs/*
 .vscode
 .idea
+
+# Mobile app dependencies and build artifacts
+node_modules/
+mobile-app/build/
+mobile-app/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+package-lock.json
+yarn.lock
+.env
+.env.local
