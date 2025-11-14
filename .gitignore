@@ -31,3 +31,10 @@ launcher/src/version.rc2
 .vs/*
 .vscode
 .idea
+
+## Vue applications
+mobile-app/node_modules
+mobile-app/dist
+admin-panel/node_modules
+admin-panel/dist
+
