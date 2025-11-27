@@ -38,25 +38,20 @@ prompt_includeVersionControl = true
  -- NOTE: This only takes effect if using Clink v1.2.10 or higher.
 prompt_overrideGitStatusOptIn = false
 
--- OPTIONAL. If true then always ignore the cmder.status and cmder.cmdstatus svn config settings and run the svn prompt commands in the background.
- -- default is false
- -- NOTE: This only takes effect if using Clink v1.2.10 or higher.
-prompt_overrideSvnStatusOptIn = false
-
 -- Prompt Attributes
 --
 -- Colors: https://github.com/cmderdev/cmder/wiki/Customization#list-of-colors
 -- Effects: https://github.com/cmderdev/cmder/wiki/Customization#list-of-effects
 --
--- Green:      "\x1b[1;33;49m"
--- Yellow:     "\x1b[1;32;49m"
+-- Green:      "\x1b[1;32;49m"
+-- Yellow:     "\x1b[1;33;49m"
 -- Light Grey: "\x1b[1;30;49m"
 
 -- Prompt Element Colors
-uah_color = "\x1b[1;33;49m" -- Green = uah = [user]@[hostname]
-cwd_color = "\x1b[1;32;49m" -- Yellow cwd = Current Working Directory
+uah_color = "\x1b[1;33;49m" -- Yellow uah = [user]@[hostname]
+cwd_color = "\x1b[1;32;49m" -- Green cwd = Current Working Directory
 lamb_color = "\x1b[1;30;49m" -- Light Grey = Lambda Color
 clean_color = "\x1b[37;1m"
 dirty_color = "\x1b[33;3m" -- Yellow, Italic
 conflict_color = "\x1b[31;1m" -- Red, Bold
-unknown_color = "\x1b[37;1m" -- White = No VCS Status Branch Color
+unknown_color = "\x1b[37;1m" -- White, Bold = No VCS Status Branch Color

@@ -172,13 +172,13 @@ function Register-Cmder() {
         # Text for the context menu item.
         $MenuText = "Cmder Here"
 
-        , # Defaults to the current cmder directory when run from cmder.
+        , # Defaults to the current Cmder directory when run from Cmder.
         $PathToExe = (Join-Path $env:CMDER_ROOT "cmder.exe")
 
         , # Commands the context menu will execute.
         $Command = "%V"
 
-        , # Defaults to the icons folder in the cmder package.
+        , # Defaults to the icons folder in the Cmder package.
         $icon = (Split-Path $PathToExe | Join-Path -ChildPath 'icons/cmder.ico')
     )
     Begin

@@ -35,7 +35,7 @@ jobs:
       discussions: write
     steps:
     - name: Check out repository code (Action from GitHub)
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -53,66 +53,66 @@ jobs:
       run: .\pack.ps1 -verbose -terminal all
 
     - name: Upload artifact (cmder_win_mini.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_win_mini.zip
         name: cmder_win_mini.zip
         if-no-files-found: error
 
     - name: Upload artifact (cmder_win.7z)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_win.7z
         name: cmder_win.7z
         if-no-files-found: error
 
     - name: Upload artifact (cmder_win.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_win.zip
         name: cmder_win.zip
         if-no-files-found: error
 
     - name: Upload artifact (cmder_wt.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_wt.zip
         name: cmder_wt.zip
         if-no-files-found: error
 
     - name: Upload artifact (cmder_wt.7z)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_wt.7z
         name: cmder_wt.7z
 
     - name: Upload artifact (cmder_wt_mini.zip)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/cmder_wt_mini.zip
         name: cmder_wt_mini.zip
 
     - name: Upload artifact (cmder.zip)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: build/cmder.zip
         name: cmder.zip
         if-no-files-found: error
 
     - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: build/cmder.7z
         name: cmder.7z
 
     - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: build/cmder_mini.zip
         name: cmder_mini.zip
 
     - name: Upload artifact (hashes.txt)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: build/hashes.txt
         name: hashes.txt
