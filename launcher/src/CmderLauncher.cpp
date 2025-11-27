@@ -299,7 +299,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		// Set path to Cmder user ConEmu config file
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
-
+	
 	if (wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // config/[host specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
@@ -356,7 +356,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				if (!CopyFile(cfgPath, userCfgPath, FALSE))
 				{
-					if (PathFileExists(windowsTerminalDir)) {
+					if (PathFileExists(windowsTerminalDir))
+					{
 						MessageBox(NULL,
 							(GetLastError() == ERROR_ACCESS_DENIED)
 							? L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/windows_terminal_settings.json! Access Denied."
@@ -377,7 +378,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				if (!CopyFile(userCfgPath, cfgPath, FALSE))
 				{
-					if (PathFileExists(windowsTerminalDir)) {
+					if (PathFileExists(windowsTerminalDir))
+					{
 						MessageBox(NULL,
 							(GetLastError() == ERROR_ACCESS_DENIED)
 							? L"Failed to copy config/user_windows_terminal_settings.json file to vendor/windows-terminal/settings/settings.json! Access Denied."
@@ -405,7 +407,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		{
 			if (!CopyFile(cfgPath, userCfgPath, FALSE))
 			{
-				if (PathFileExists(windowsTerminalDir)) {
+				if (PathFileExists(windowsTerminalDir))
+				{
 					MessageBox(NULL,
 						(GetLastError() == ERROR_ACCESS_DENIED)
 						? L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/user_windows_terminal_settings.json! Access Denied."
@@ -425,7 +428,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			{
 				if (!CopyFile(defaultCfgPath, cfgPath, FALSE))
 				{
-					if (PathFileExists(windowsTerminalDir)) {
+					if (PathFileExists(windowsTerminalDir))
+					{
 						MessageBox(NULL,
 							(GetLastError() == ERROR_ACCESS_DENIED)
 							? L"Failed to copy vendor/windows-terminal_default_settings_settings.json file to vendor/windows-terminal/settings/settings.json! Access Denied."
@@ -456,7 +460,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	{
 		if (!CopyFile(cfgPath, userCfgPath, FALSE))
 		{
-			if (PathFileExists(windowsTerminalDir)) {
+			if (PathFileExists(windowsTerminalDir))
+			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
 					? L"Failed to copy vendor/windows-terminal/settings/settings.json file to config/user_windows_terminal_settings_settings.json! Access Denied."
@@ -479,7 +484,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	{
 		if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
 		{
-			if (PathFileExists(windowsTerminalDir)) {
+			if (PathFileExists(windowsTerminalDir))
+			{
 				MessageBox(NULL,
 					(GetLastError() == ERROR_ACCESS_DENIED)
 					? L"Failed to copy vendor/windows-terminal_default_settings_settings.json file to [user specified path]/config/user_windows_terminal_settings.json! Access Denied."
@@ -622,7 +628,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	// Try to find m'intty.exe' so ConEmu can launch using %MINTTY_EXE% in external Git for Cmder Mini.
 	// See: https://github.com/Maximus5/ConEmu/issues/2559 for why this is commented.
 
-	/*
+	/* 
 	if (PathFileExists(vendoredGit))
 	{
 		PathCombine(minTTYPath, vendoredGit, L"usr\\bin\\mintty.exe");
@@ -850,6 +856,11 @@ cmderOptions GetOption()
 			else if (_wcsicmp(L"/task", szArgList[i]) == 0 || PathFileExists(windowsTerminalDir) || PathFileExists(conEmuDir))
 			{
 				cmderOptions.cmderTask = szArgList[i + 1];
+				i++;
+			}
+			else if ((_wcsicmp(L"bash", szArgList[i]) == 0 || _wcsicmp(L"powershell", szArgList[i]) == 0) || PathFileExists(windowsTerminalDir) || PathFileExists(conEmuDir))
+			{
+				cmderOptions.cmderTask = szArgList[i];
 				i++;
 			}
 			else if (_wcsicmp(L"/title", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir) && PathFileExists(conEmuDir))
