@@ -91,13 +91,13 @@ exit /b
 
     if /i "!position!" == "append" (
         if "!found!" == "0" (
-            echo "!PATH!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!\"$"
+            echo "!PATH!"|!WINDIR!\System32\findstr >nul /I /R /C:";!find_query!$"
             call :set_found
         )
         %print_debug% :enhance_path "Env Var END PATH !find_query! - found=!found!"
     ) else (
         if "!found!" == "0" (
-            echo "!PATH!"|!WINDIR!\System32\findstr >nul /I /R /C:"^\"!find_query!;"
+            echo "!PATH!"|!WINDIR!\System32\findstr >nul /I /R /C:"^!find_query!;"
             call :set_found
         )
         %print_debug% :enhance_path "Env Var BEGIN PATH !find_query! - found=!found!"
@@ -194,13 +194,28 @@ exit /b
         exit /b 1
     )
 
+    rem Parse arguments robustly:
+    rem Accept either public form: "[dir_path]" [max_depth] [append]
+    rem or internal recursive form: "[dir_path]" [depth] [max_depth] [append]
     set "depth=%~2"
     set "max_depth=%~3"
+    set "position="
 
-    if "%~4" neq "" if /i "%~4" == "append" (
-        set "position=%~4"
-    ) else (
-        set "position="
+    if /i "%~4" == "append" set "position=append"
+    if /i "%~3" == "append" (
+        set "position=append"
+        set "max_depth="
+    )
+
+    if not defined depth set "depth=0"
+    if not defined max_depth (
+        if defined depth (
+            rem If only one numeric argument provided, treat it as max_depth
+            set "max_depth=%depth%"
+            set "depth=0"
+        ) else (
+            set "max_depth=1"
+        )
     )
 
     dir "%add_path%" 2>NUL | findstr -i -e "%find_pathext%" >NUL
@@ -243,8 +258,6 @@ exit /b
         call :set_depth
         call :loop_depth
     )
-
-    set "PATH=%PATH%"
 
     exit /b
 
