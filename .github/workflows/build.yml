@@ -82,20 +82,14 @@ jobs:
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "| Artifact | Size | Hash (SHA256) |" >> $env:GITHUB_STEP_SUMMARY
         echo "| --- | --- | --- |" >> $env:GITHUB_STEP_SUMMARY
-        if (Test-Path "build/cmder.zip") {
-          $size = (Get-Item "build/cmder.zip").Length / 1MB
-          $hash = (Get-FileHash "build/cmder.zip" -Algorithm SHA256).Hash.Substring(0, 16)
-          echo "| \`cmder.zip\` | $([math]::Round($size, 2)) MB | \`$hash...\` |" >> $env:GITHUB_STEP_SUMMARY
-        }
-        if (Test-Path "build/cmder.7z") {
-          $size = (Get-Item "build/cmder.7z").Length / 1MB
-          $hash = (Get-FileHash "build/cmder.7z" -Algorithm SHA256).Hash.Substring(0, 16)
-          echo "| \`cmder.7z\` | $([math]::Round($size, 2)) MB | \`$hash...\` |" >> $env:GITHUB_STEP_SUMMARY
-        }
-        if (Test-Path "build/cmder_mini.zip") {
-          $size = (Get-Item "build/cmder_mini.zip").Length / 1MB
-          $hash = (Get-FileHash "build/cmder_mini.zip" -Algorithm SHA256).Hash.Substring(0, 16)
-          echo "| \`cmder_mini.zip\` | $([math]::Round($size, 2)) MB | \`$hash...\` |" >> $env:GITHUB_STEP_SUMMARY
+        $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip")
+        foreach ($artifact in $artifacts) {
+          $path = "build/$artifact"
+          if (Test-Path $path) {
+            $size = (Get-Item $path).Length / 1MB
+            $hash = (Get-FileHash $path -Algorithm SHA256).Hash.Substring(0, 16)
+            echo "| \`$artifact\` | $([math]::Round($size, 2)) MB | \`$hash...\` |" >> $env:GITHUB_STEP_SUMMARY
+          }
         }
         echo "" >> $env:GITHUB_STEP_SUMMARY
 
