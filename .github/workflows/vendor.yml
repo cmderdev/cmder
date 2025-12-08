@@ -48,10 +48,20 @@ jobs:
           $listUpdated = ""
           $updateMessage = "| Name | Old Version | New Version |`n| :--- | :---: | :---: |`n"
           $majorUpdates = @()
+          $singleDepName = ""
+          $singleDepOldVersion = ""
+          $singleDepNewVersion = ""
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
               $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
+
+              # Store single dependency info for messages
+              if ($count -eq 1) {
+                $singleDepName = $s.name
+                $singleDepOldVersion = $oldVersion
+                $singleDepNewVersion = $s.version
+              }
 
               # Determine change type and emoji
               $changeType = "unknown"
@@ -109,6 +119,9 @@ jobs:
           }
           if ($count -eq 0) { return }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
+          Set-GHVariable -Name SINGLE_DEP_NAME -Value $singleDepName
+          Set-GHVariable -Name SINGLE_DEP_OLD_VERSION -Value $singleDepOldVersion
+          Set-GHVariable -Name SINGLE_DEP_NEW_VERSION -Value $singleDepNewVersion
           echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
           # Generate major updates changelog section
@@ -136,10 +149,13 @@ jobs:
           echo "All vendor dependencies are up to date! 🎉" >> $env:GITHUB_STEP_SUMMARY
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
-          $emoji = if ($count -eq 1) { '📦' } else { '📦📦' }
           echo "### 🔄 Updates Found" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "$emoji **$count** vendor $word updated:" >> $env:GITHUB_STEP_SUMMARY
+          if ($count -eq 1) {
+            echo "📦 **$env:SINGLE_DEP_NAME** updated from \`$env:SINGLE_DEP_OLD_VERSION\` to \`$env:SINGLE_DEP_NEW_VERSION\`" >> $env:GITHUB_STEP_SUMMARY
+          } else {
+            echo "📦 **$count** vendor $word updated:" >> $env:GITHUB_STEP_SUMMARY
+          }
           echo "" >> $env:GITHUB_STEP_SUMMARY
           echo "$env:UPDATE_MESSAGE" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
@@ -204,7 +220,7 @@ jobs:
       with:
         title: ${{ env.COUNT_UPDATED == '1' && format('⬆️ Update {0}', env.LIST_UPDATED) || format('⬆️ Update {0} vendored dependencies', env.COUNT_UPDATED) }}
         body: |
-          ### ${{ env.COUNT_UPDATED == '1' && '📦 Automatically updated 1 dependency' || format('📦 Automatically updated {0} dependencies', env.COUNT_UPDATED) }}
+          ### ${{ env.COUNT_UPDATED == '1' && format('📦 Updated {0} from `{1}` to `{2}`', env.SINGLE_DEP_NAME, env.SINGLE_DEP_OLD_VERSION, env.SINGLE_DEP_NEW_VERSION) || format('📦 Automatically updated {0} dependencies', env.COUNT_UPDATED) }}
 
           ${{ env.UPDATE_MESSAGE }}
 
