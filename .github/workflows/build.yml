@@ -120,6 +120,7 @@ jobs:
         name: hashes.txt
 
     - name: Summary - Artifacts uploaded
+      if: success()
       shell: pwsh
       run: |
         echo "### ☁️ Upload Status" >> $env:GITHUB_STEP_SUMMARY

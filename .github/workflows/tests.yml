@@ -104,6 +104,11 @@ jobs:
       shell: pwsh
       run: |
         echo "| Bash | ✅ Passed |" >> $env:GITHUB_STEP_SUMMARY
+
+    - name: Summary - All tests completed
+      if: success()
+      shell: pwsh
+      run: |
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "### ✅ All Tests Completed" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
