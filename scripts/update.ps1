@@ -303,21 +303,38 @@ foreach ($s in $sources) {
         # }
 
         $count++
-        
+
         # Analyze version change type
         $changeType = "unknown"
         try {
             # Try parsing as semantic version
-            $oldVer = [System.Version]::Parse($s.version.Split('-')[0])
-            $newVer = [System.Version]::Parse($version.Split('-')[0])
-            
-            if ($newVer.Major -gt $oldVer.Major) {
-                $changeType = "major"
-                $hasBreakingChanges = $true
-            } elseif ($newVer.Minor -gt $oldVer.Minor) {
-                $changeType = "minor"
+            # Handle versions with more than 4 parts by taking only the first 3-4 parts
+            $oldVerStr = $s.version.Split('-')[0]
+            $newVerStr = $version.Split('-')[0]
+
+            # Split by dots and take only numeric parts, first 4 max
+            $oldParts = $oldVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+            $newParts = $newVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+
+            # Ensure we have at least 2 parts (major.minor)
+            if ($oldParts.Count -ge 2 -and $newParts.Count -ge 2) {
+                $oldVerParseable = $oldParts -join '.'
+                $newVerParseable = $newParts -join '.'
+
+                $oldVer = [System.Version]::Parse($oldVerParseable)
+                $newVer = [System.Version]::Parse($newVerParseable)
+
+                if ($newVer.Major -gt $oldVer.Major) {
+                    $changeType = "major"
+                    $hasBreakingChanges = $true
+                } elseif ($newVer.Minor -gt $oldVer.Minor) {
+                    $changeType = "minor"
+                } else {
+                    $changeType = "patch"
+                }
             } else {
-                $changeType = "patch"
+                # Not enough numeric parts for semantic versioning
+                throw "Not enough numeric version parts"
             }
         } catch {
             # If semantic versioning fails, treat as unknown (potentially breaking)
@@ -325,7 +342,7 @@ foreach ($s in $sources) {
             $hasBreakingChanges = $true
             Write-Verbose "Could not parse version as semantic version, treating as potentially breaking"
         }
-        
+
         $updateDetails += @{
             name = $s.name
             oldVersion = $s.version

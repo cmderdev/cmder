@@ -56,18 +56,32 @@ jobs:
               $changeType = "unknown"
               $emoji = "🔄"
               try {
-                $oldVer = [System.Version]::Parse($oldVersion.Split('-')[0])
-                $newVer = [System.Version]::Parse($s.version.Split('-')[0])
+                # Handle versions with more than 4 parts
+                $oldVerStr = $oldVersion.Split('-')[0]
+                $newVerStr = $s.version.Split('-')[0]
 
-                if ($newVer.Major -gt $oldVer.Major) {
-                  $changeType = "major"
-                  $emoji = "⚠️"
-                } elseif ($newVer.Minor -gt $oldVer.Minor) {
-                  $changeType = "minor"
-                  $emoji = "✨"
-                } else {
-                  $changeType = "patch"
-                  $emoji = "🐛"
+                # Split by dots and take only numeric parts, first 4 max
+                $oldParts = $oldVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+                $newParts = $newVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+
+                # Ensure we have at least 2 parts (major.minor)
+                if ($oldParts.Count -ge 2 -and $newParts.Count -ge 2) {
+                  $oldVerParseable = $oldParts -join '.'
+                  $newVerParseable = $newParts -join '.'
+
+                  $oldVer = [System.Version]::Parse($oldVerParseable)
+                  $newVer = [System.Version]::Parse($newVerParseable)
+
+                  if ($newVer.Major -gt $oldVer.Major) {
+                    $changeType = "major"
+                    $emoji = "⚠️"
+                  } elseif ($newVer.Minor -gt $oldVer.Minor) {
+                    $changeType = "minor"
+                    $emoji = "✨"
+                  } else {
+                    $changeType = "patch"
+                    $emoji = "🐛"
+                  }
                 }
               } catch {
                 $changeType = "unknown"
