@@ -63,6 +63,7 @@ jobs:
       run: .\build.ps1 -Compile -verbose
 
     - name: Summary - Build completed
+      if: success()
       shell: pwsh
       run: |
         echo "### ✅ Build Status" >> $env:GITHUB_STEP_SUMMARY
@@ -76,6 +77,7 @@ jobs:
       run: .\pack.ps1 -verbose
 
     - name: Summary - Package artifacts
+      if: success()
       shell: pwsh
       run: |
         echo "### 📦 Artifacts Created" >> $env:GITHUB_STEP_SUMMARY
