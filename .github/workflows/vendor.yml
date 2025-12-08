@@ -31,9 +31,9 @@ jobs:
     - name: Summary - Workflow started
       shell: pwsh
       run: |
-        echo "## 📦 Update Vendor - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
+        echo "## 📦 Vendor Update - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Checking for vendor dependency updates..." >> $env:GITHUB_STEP_SUMMARY
+        echo "🔍 Checking for vendor dependency updates..." >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
 
     - id: make-changes
@@ -46,13 +46,36 @@ jobs:
           Set-GHVariable -Name COUNT_UPDATED -Value $count
           $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           $listUpdated = ""
-          $updateMessage = "| Name | Old Version | New Version |`n| :--- | ---- | ---- |`n"
+          $updateMessage = "| Name | Old Version | New Version | Change Type |`n| :--- | :---: | :---: | :---: |`n"
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
               $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
+              
+              # Determine change type and emoji
+              $changeType = "unknown"
+              $emoji = "🔄"
+              try {
+                $oldVer = [System.Version]::Parse($oldVersion.Split('-')[0])
+                $newVer = [System.Version]::Parse($s.version.Split('-')[0])
+                
+                if ($newVer.Major -gt $oldVer.Major) {
+                  $changeType = "major"
+                  $emoji = "⚠️"
+                } elseif ($newVer.Minor -gt $oldVer.Minor) {
+                  $changeType = "minor"
+                  $emoji = "✨"
+                } else {
+                  $changeType = "patch"
+                  $emoji = "🐛"
+                }
+              } catch {
+                $changeType = "unknown"
+                $emoji = "🔄"
+              }
+              
               $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| **[$($s.name)]($repoUrl)** | $oldVersion | **$($s.version)** |`n"
+              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | \`$oldVersion\` | \`$($s.version)\` | $changeType |`n"
             }
           }
           if ($count -eq 0) { return }
@@ -66,32 +89,89 @@ jobs:
         if ($count -eq 0) {
           echo "### ✅ No Updates Available" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "All vendor dependencies are up to date." >> $env:GITHUB_STEP_SUMMARY
+          echo "All vendor dependencies are up to date! 🎉" >> $env:GITHUB_STEP_SUMMARY
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
+          $emoji = if ($count -eq 1) { '📦' } else { '📦📦' }
           echo "### 🔄 Updates Found" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "**$count** vendor $word updated:" >> $env:GITHUB_STEP_SUMMARY
+          echo "$emoji **$count** vendor $word updated:" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
           echo "$env:UPDATE_MESSAGE" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
+          
+          # Check if we can auto-merge (only minor/patch changes)
+          $hasBreaking = $env:HAS_BREAKING_CHANGES -eq 'True'
+          if ($hasBreaking) {
+            echo "> ⚠️ **Note:** This update contains major version changes that may include breaking changes." >> $env:GITHUB_STEP_SUMMARY
+          } else {
+            echo "> ℹ️ **Note:** This update only contains minor or patch changes." >> $env:GITHUB_STEP_SUMMARY
+          }
+        }
+
+    - name: Auto-merge minor updates
+      if: env.COUNT_UPDATED > 0 && env.HAS_BREAKING_CHANGES != 'True'
+      shell: pwsh
+      run: |
+        try {
+          echo "### 🚀 Auto-merging Updates" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "Attempting to automatically merge non-breaking changes to master..." >> $env:GITHUB_STEP_SUMMARY
+          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Commit the changes
+          git add vendor/sources.json
+          git commit -m "⬆️ Update dependencies ($env:LIST_UPDATED)"
+          
+          # Push directly to master
+          git push origin HEAD:master
+          
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "✅ **Success!** Updates have been automatically merged to master." >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Updated dependencies:** $env:LIST_UPDATED" >> $env:GITHUB_STEP_SUMMARY
+          
+          # Set a flag to skip PR creation
+          echo "AUTO_MERGED=true" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        } catch {
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "⚠️ **Warning:** Unable to automatically merge updates." >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Error:** $($_.Exception.Message)" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "Falling back to creating a pull request..." >> $env:GITHUB_STEP_SUMMARY
+          
+          Write-Warning "Failed to auto-merge: $($_.Exception.Message)"
+          
+          # Reset changes so PR creation can work
+          git reset --hard HEAD~1
+          
+          # Set flag to create PR instead
+          echo "AUTO_MERGED=false" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
         }
 
     - uses: peter-evans/create-pull-request@v7
-      if: env.COUNT_UPDATED > 0
+      if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       with:
-        title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
+        title: ${{ env.COUNT_UPDATED == '1' && format('⬆️ Update {0}', env.LIST_UPDATED) || format('⬆️ Update {0} vendored dependencies', env.COUNT_UPDATED) }}
         body: |
-          ### Automatically updated `${{ env.COUNT_UPDATED }}` dependencies:
+          ### ${{ env.COUNT_UPDATED == '1' && '📦 Automatically updated 1 dependency' || format('📦 Automatically updated {0} dependencies', env.COUNT_UPDATED) }}
+          
           ${{ env.UPDATE_MESSAGE }}
+          
           ---
-          Please verify and then **Merge** the pull request to update.
+          
+          ${{ env.HAS_BREAKING_CHANGES == 'True' && '⚠️ **This update contains major version changes that may include breaking changes.**' || 'ℹ️ This update only contains minor or patch changes.' }}
+          
+          Please verify and then **Merge** the pull request to apply the updates.
         commit-message: '⬆️ Update dependencies (${{ env.LIST_UPDATED }})'
         branch: update-vendor
         base: master
 
     - name: Summary - Pull request created
-      if: env.COUNT_UPDATED > 0
+      if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       shell: pwsh
       run: |
         echo "### 🎉 Pull Request Created" >> $env:GITHUB_STEP_SUMMARY
@@ -102,4 +182,10 @@ jobs:
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "**Updated dependencies:** $env:LIST_UPDATED" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "> Please review and merge the pull request to apply the updates." >> $env:GITHUB_STEP_SUMMARY
+        if ($env:HAS_BREAKING_CHANGES -eq 'True') {
+          echo "> ⚠️ **Manual review required:** This update contains major version changes." >> $env:GITHUB_STEP_SUMMARY
+        } else {
+          echo "> ℹ️ **Note:** Auto-merge failed, manual review required." >> $env:GITHUB_STEP_SUMMARY
+        }
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "Please review and merge the pull request to apply the updates." >> $env:GITHUB_STEP_SUMMARY
