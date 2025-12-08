@@ -137,7 +137,7 @@ jobs:
 
           # Commit the changes
           git add vendor/sources.json
-          git commit -m "⬆️ Update dependencies ($env:LIST_UPDATED)"
+          $commitResult = git commit -m "⬆️ Update dependencies ($env:LIST_UPDATED)"
 
           # Push directly to master
           git push origin HEAD:master
@@ -159,8 +159,11 @@ jobs:
 
           Write-Warning "Failed to auto-merge: $($_.Exception.Message)"
 
-          # Reset changes so PR creation can work
-          git reset --hard HEAD~1
+          # Reset only if a commit was made (check if HEAD moved)
+          $headBeforeReset = git rev-parse HEAD
+          if ($commitResult) {
+            git reset --hard HEAD~1
+          }
 
           # Set flag to create PR instead
           echo "AUTO_MERGED=false" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
