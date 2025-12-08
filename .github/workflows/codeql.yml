@@ -47,6 +47,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6
 
+    - name: Summary - CodeQL analysis started
+      shell: pwsh
+      run: |
+        echo "## 🔒 CodeQL Security Analysis - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "### Analysis Configuration" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| --- | --- |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| Repository | \`${{ github.repository }}\` |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| Branch | \`${{ github.ref_name }}\` |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| Language | \`${{ matrix.language }}\` |" >> $env:GITHUB_STEP_SUMMARY
+        echo "| Commit | \`${{ github.sha }}\` |" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
@@ -67,7 +82,28 @@ jobs:
       working-directory: scripts
       run: .\build.ps1 -Compile -verbose
 
+    - name: Summary - Build status
+      if: success()
+      shell: pwsh
+      run: |
+        echo "### ✅ Build Completed" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "Cmder launcher built successfully for CodeQL analysis." >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
+
+    - name: Summary - Analysis completed
+      if: success()
+      shell: pwsh
+      run: |
+        echo "### 🔍 CodeQL Analysis Results" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "✅ CodeQL security analysis completed successfully." >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "**Language analyzed:** \`${{ matrix.language }}\`" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "> Check the Security tab for detailed findings and recommendations." >> $env:GITHUB_STEP_SUMMARY

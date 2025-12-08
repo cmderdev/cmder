@@ -23,6 +23,21 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history for all branches and tags
 
+      - name: Summary - Merge operation started
+        shell: bash
+        run: |
+          echo "## 🔀 Update Branches - Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Merge Operation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Source Branch | \`master\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target Branch | \`development\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | @${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
       # Runs a single command using the runners shell
       - name: Merge master into development
         run: |
@@ -31,3 +46,15 @@ jobs:
           git checkout development
           git merge --no-ff master
           git push origin development
+
+      - name: Summary - Merge completed
+        if: success()
+        shell: bash
+        run: |
+          echo "### ✅ Merge Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The \`master\` branch has been successfully merged into \`development\`." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Merge type:** No fast-forward merge" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> The development branch is now synchronized with the latest changes from master." >> $GITHUB_STEP_SUMMARY
