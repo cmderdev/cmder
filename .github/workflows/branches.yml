@@ -48,6 +48,7 @@ jobs:
           git push origin development
 
       - name: Summary - Merge completed
+        if: success()
         shell: bash
         run: |
           echo "### ✅ Merge Successful" >> $GITHUB_STEP_SUMMARY

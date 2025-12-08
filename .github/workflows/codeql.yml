@@ -83,6 +83,7 @@ jobs:
       run: .\build.ps1 -Compile -verbose
 
     - name: Summary - Build status
+      if: success()
       shell: pwsh
       run: |
         echo "### ✅ Build Completed" >> $env:GITHUB_STEP_SUMMARY
@@ -96,6 +97,7 @@ jobs:
         category: "/language:${{matrix.language}}"
 
     - name: Summary - Analysis completed
+      if: success()
       shell: pwsh
       run: |
         echo "### 🔍 CodeQL Analysis Results" >> $env:GITHUB_STEP_SUMMARY
