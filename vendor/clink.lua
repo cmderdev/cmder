@@ -393,8 +393,13 @@ local function get_git_remote(git_dir, branch)
     local file = io.open(git_dir.."/config", 'r')
     if not file then return nil end
 
-    local git_config = {};
-    local section;
+    local git_config = {}
+
+    local function get_git_config_value(section, param)
+        return git_config[section] and git_config[section][param] or nil
+    end
+
+    local section
     for line in file:lines() do
         if (line:sub(1,1) == "[" and line:sub(-1) == "]") then
             if (line:sub(2,5) == "lfs ") then
@@ -410,11 +415,7 @@ local function get_git_remote(git_dir, branch)
             end
         end
     end
-    file:close();
-
-    local function get_git_config_value(section, param)
-        return git_config[section] and git_config[section][param] or nil
-    end
+    file:close()
 
     local remote_to_push = get_git_config_value('branch "'..branch..'"', 'remote') or ''
     local remote_ref = get_git_config_value('remote "'..remote_to_push..'"', 'push') or
