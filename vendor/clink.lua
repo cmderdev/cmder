@@ -348,17 +348,36 @@ local function get_git_branch(git_dir, fast)
     -- If the branch name is ".invalid" and the fast method wasn't requested,
     -- then invoke git.exe to get accurate current branch info (slow method).
     if branch_name == ".invalid" and not fast then
-        local file = io_popenyield("git --no-optional-locks branch 2>nul")
-        if file then
-            for line in file:lines() do -- luacheck: ignore 512
-                local b = line:match("^%*%s+(.*)")
-                if b then
-                    b = b:match("^%((HEAD detached at .*)%)") or b
-                    branch_name = b
+        local file
+        branch_name = nil
+
+        -- Handle the most common case first.
+        if not branch_name then
+            file = io_popenyield("git --no-optional-locks branch 2>nul")
+            if file then
+                for line in file:lines() do
+                    local b = line:match("^%*%s+(.*)")
+                    if b then
+                        b = b:match("^%((HEAD detached at .*)%)") or b
+                        branch_name = b
+                        break
+                    end
+                end
+                file:close()
+            end
+        end
+
+        -- Handle the cases where "git branch" output is empty, but "git
+        -- branch --show-current" shows the branch name (e.g. a new repo).
+        if not branch_name then
+            file = io_popenyield("git --no-optional-locks branch --show-current 2>nul")
+            if file then
+                for line in file:lines() do -- luacheck: ignore 512
+                    branch_name = line
                     break
                 end
+                file:close()
             end
-            file:close()
         end
     else
         branch_name = branch_name or 'HEAD detached at '..HEAD:sub(1, 7)
