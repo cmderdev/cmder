@@ -46,7 +46,8 @@ jobs:
           Set-GHVariable -Name COUNT_UPDATED -Value $count
           $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           $listUpdated = ""
-          $updateMessage = "| Name | Old Version | New Version | Change Type |`n| :--- | :---: | :---: | :---: |`n"
+          $updateMessage = "| Name | Old Version | New Version |`n| :--- | :---: | :---: |`n"
+          $majorUpdates = @()
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
@@ -55,6 +56,7 @@ jobs:
               # Determine change type and emoji
               $changeType = "unknown"
               $emoji = "🔄"
+              $isMajor = $false
               try {
                 # Handle versions with more than 4 parts
                 $oldVerStr = $oldVersion.Split('-')[0]
@@ -75,6 +77,7 @@ jobs:
                   if ($newVer.Major -gt $oldVer.Major) {
                     $changeType = "major"
                     $emoji = "⚠️"
+                    $isMajor = $true
                   } elseif ($newVer.Minor -gt $oldVer.Minor) {
                     $changeType = "minor"
                     $emoji = "✨"
@@ -88,13 +91,40 @@ jobs:
                 $emoji = "🔄"
               }
 
+              # Track major updates for changelog section
+              if ($isMajor) {
+                $compareUrl = "$repoUrl/compare/v$oldVersion...v$($s.version)"
+                $majorUpdates += @{
+                  name = $s.name
+                  oldVersion = $oldVersion
+                  newVersion = $s.version
+                  compareUrl = $compareUrl
+                  repoUrl = $repoUrl
+                }
+              }
+
               $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | \`$oldVersion\` | \`$($s.version)\` | $changeType |`n"
+              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | \`$oldVersion\` | \`$($s.version)\` |`n"
             }
           }
           if ($count -eq 0) { return }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
           echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+          # Generate major updates changelog section
+          if ($majorUpdates.Count -gt 0) {
+            $changelogSection = "`n<details>`n<summary>⚠️ Major version updates - View changelog</summary>`n`n"
+            foreach ($update in $majorUpdates) {
+              $changelogSection += "### [$($update.name)]($($update.repoUrl))`n"
+              $changelogSection += "**$($update.oldVersion)** → **$($update.newVersion)**`n`n"
+              $changelogSection += "- [View full changelog]($($update.compareUrl))`n"
+              $changelogSection += "- [Release notes]($($update.repoUrl)/tag/v$($update.newVersion))`n`n"
+            }
+            $changelogSection += "</details>`n"
+            echo "CHANGELOG_SECTION<<<EOF`n$changelogSection`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          } else {
+            echo "CHANGELOG_SECTION=" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
 
     - name: Summary - Update check results
       shell: pwsh
@@ -177,6 +207,8 @@ jobs:
           ### ${{ env.COUNT_UPDATED == '1' && '📦 Automatically updated 1 dependency' || format('📦 Automatically updated {0} dependencies', env.COUNT_UPDATED) }}
 
           ${{ env.UPDATE_MESSAGE }}
+
+          ${{ env.CHANGELOG_SECTION }}
 
           ---
 
