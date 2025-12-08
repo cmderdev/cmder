@@ -60,6 +60,7 @@ jobs:
       run: .\build.ps1 -verbose
 
     - name: Summary - Vendor initialization
+      if: success()
       shell: pwsh
       run: |
         echo "### ⚙️ Vendor Initialization" >> $env:GITHUB_STEP_SUMMARY
@@ -75,6 +76,7 @@ jobs:
           cmd /c vendor\init.bat /v /d /t
 
     - name: Summary - Clink Shell test
+      if: success()
       shell: pwsh
       run: |
         echo "| Clink Shell | ✅ Passed |" >> $env:GITHUB_STEP_SUMMARY
@@ -83,6 +85,7 @@ jobs:
           PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "$env:CMDER_DEBUG='1'; . 'vendor\profile.ps1'"
 
     - name: Summary - PowerShell test
+      if: success()
       shell: pwsh
       run: |
         echo "| PowerShell | ✅ Passed |" >> $env:GITHUB_STEP_SUMMARY
@@ -91,6 +94,7 @@ jobs:
           bash vendor/cmder.sh
 
     - name: Summary - Bash test
+      if: success()
       shell: pwsh
       run: |
         echo "| Bash | ✅ Passed |" >> $env:GITHUB_STEP_SUMMARY
