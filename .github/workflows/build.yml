@@ -87,6 +87,7 @@ jobs:
           $path = "build/$artifact"
           if (Test-Path $path) {
             $size = (Get-Item $path).Length / 1MB
+            # Truncate hash to first 16 chars for summary readability (full hash in hashes.txt)
             $hash = (Get-FileHash $path -Algorithm SHA256).Hash.Substring(0, 16)
             echo "| \`$artifact\` | $([math]::Round($size, 2)) MB | \`$hash...\` |" >> $env:GITHUB_STEP_SUMMARY
           }

@@ -68,10 +68,10 @@ jobs:
           echo "" >> $env:GITHUB_STEP_SUMMARY
           echo "All vendor dependencies are up to date." >> $env:GITHUB_STEP_SUMMARY
         } else {
-          $plural = if ($count -eq 1) { 'y' } else { 'ies' }
+          $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
           echo "### 🔄 Updates Found" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "**$count** vendor dependenc$plural updated:" >> $env:GITHUB_STEP_SUMMARY
+          echo "**$count** vendor $word updated:" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
           echo "$env:UPDATE_MESSAGE" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY

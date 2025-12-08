@@ -67,10 +67,16 @@ jobs:
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "✅ Vendor dependencies initialized successfully." >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
+
+    - name: Summary - Test results table header
+      if: success()
+      shell: pwsh
+      run: |
         echo "### 📋 Test Results" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "| Test | Status |" >> $env:GITHUB_STEP_SUMMARY
         echo "| --- | --- |" >> $env:GITHUB_STEP_SUMMARY
+
     - name: Testing Clink Shell
       run: |
           cmd /c vendor\init.bat /v /d /t
