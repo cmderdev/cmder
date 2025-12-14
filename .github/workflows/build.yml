@@ -45,21 +45,38 @@ jobs:
         # Get Cmder version
         . scripts/utils.ps1
         $cmderVersion = Get-VersionStr
+        $buildTime = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
         
         @"
         ## 📦 Build Cmder - Workflow Summary
         
+        <small>Build started: $buildTime</small>
+        
         ### Repository Information
         | Property | Value |
         | --- | --- |
-        | Repository | ``${{ github.repository }}`` |
-        | Branch | ``${{ github.ref_name }}`` |
-        | Commit | ``${{ github.sha }}`` |
-        | Actor | @${{ github.actor }} |
+        | Repository | [${{ github.repository }}](https://github.com/${{ github.repository }}) |
+        | Branch | [${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}) |
+        | Commit | [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
+        | Actor | [@${{ github.actor }}](https://github.com/${{ github.actor }}) |
         | Workflow | ``${{ github.workflow }}`` |
         | Cmder Version | **$cmderVersion** |
         
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        ---
+        
+        ### Vendor Packages
+        | Package | Version |
+        | --- | --- |
+        "@
+        
+        # Read vendor sources.json and add to summary
+        $vendorSources = Get-Content "vendor/sources.json" | ConvertFrom-Json
+        foreach ($vendor in $vendorSources) {
+          $summary += "`n| ``$($vendor.name)`` | $($vendor.version) |"
+        }
+        $summary += "`n"
+        
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -74,9 +91,12 @@ jobs:
       shell: pwsh
       run: |
         @"
-        ### ✅ Build Status
         
-        Cmder launcher successfully compiled.
+        ---
+        
+        ### Build Status
+        
+        ✅ Cmder launcher successfully compiled.
         
         "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
@@ -84,31 +104,6 @@ jobs:
       shell: pwsh
       working-directory: scripts
       run: .\pack.ps1 -verbose
-
-    - name: Summary - Package artifacts
-      if: success()
-      shell: pwsh
-      run: |
-        $summary = @"
-        ### 📦 Artifacts Created
-        
-        | Artifact | Size | Hash (SHA256) |
-        | --- | --- | --- |
-        "@
-        
-        $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip")
-        foreach ($artifact in $artifacts) {
-          $path = "build/$artifact"
-          if (Test-Path $path) {
-            $size = (Get-Item $path).Length / 1MB
-            # Truncate hash to first 16 chars for summary readability (full hash in hashes.txt)
-            $hash = (Get-FileHash $path -Algorithm SHA256).Hash.Substring(0, 16)
-            $summary += "`n| ``$artifact`` | $([math]::Round($size, 2)) MB | ``$hash...`` |"
-          }
-        }
-        $summary += "`n"
-        
-        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Upload artifact (cmder.zip)
       uses: actions/upload-artifact@v5
@@ -140,15 +135,28 @@ jobs:
       shell: pwsh
       run: |
         @"
-        ### ☁️ Upload Status
         
-        All artifacts successfully uploaded to GitHub Actions:
-        - ✅ ``cmder.zip``
-        - ✅ ``cmder.7z``
-        - ✅ ``cmder_mini.zip``
-        - ✅ ``hashes.txt``
+        ---
         
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        ### Artifacts
+        
+        | Artifact | Size | Hash (SHA256) | Download |
+        | --- | --- | --- | --- |
+        "@
+        
+        $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip", "hashes.txt")
+        foreach ($artifact in $artifacts) {
+          $path = "build/$artifact"
+          if (Test-Path $path) {
+            $size = (Get-Item $path).Length / 1MB
+            $hash = (Get-FileHash $path -Algorithm SHA256).Hash
+            $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            $summary += "`n| ``$artifact`` | $([math]::Round($size, 2)) MB | ``$hash`` | [Download]($downloadUrl) |"
+          }
+        }
+        $summary += "`n"
+        
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
@@ -167,9 +175,12 @@ jobs:
       shell: pwsh
       run: |
         @"
-        ### 🚀 Release Information
         
-        Draft release created for tag: **``${{ github.ref_name }}``**
+        ---
+        
+        ### Release Information
+        
+        🚀 Draft release created for tag: **``${{ github.ref_name }}``**
         
         Release includes:
         - Full version (``cmder.zip``, ``cmder.7z``)
