@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 
 # Based on: https://github.com/mcgitty/pacman-for-git
-# My Fork: https://github.com/daxgames/pacman-for-git
+# Dax T. Games Fork: https://github.com/daxgames/pacman-for-git
+
+# Disclaimer: Use at your own risk.
+#
+# This script modifies system files and installs the pacman package manager into your Git for Windows environment.
+#
+# While it has been tested in various Git for Windows versions, there is always a risk of data loss or system instability when running scripts that alter executable files and shared libraries.
+#
+# Make sure to back up any important data before proceeding.
+#
+# Always review and understand scripts from external sources prior to execution.
 
 export bin_source=${1:-https://github.com/daxgames/pacman-for-git/raw/refs/heads/main}
 
