@@ -42,17 +42,24 @@ jobs:
     - name: Summary - Repository checkout
       shell: pwsh
       run: |
-        echo "## 📦 Build Cmder - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "### Repository Information" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| --- | --- |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Repository | \`${{ github.repository }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Branch | \`${{ github.ref_name }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Commit | \`${{ github.sha }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Actor | @${{ github.actor }} |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Workflow | \`${{ github.workflow }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        # Get Cmder version
+        . scripts/utils.ps1
+        $cmderVersion = Get-VersionStr
+        
+        @"
+        ## 📦 Build Cmder - Workflow Summary
+        
+        ### Repository Information
+        | Property | Value |
+        | --- | --- |
+        | Repository | ``${{ github.repository }}`` |
+        | Branch | ``${{ github.ref_name }}`` |
+        | Commit | ``${{ github.sha }}`` |
+        | Actor | @${{ github.actor }} |
+        | Workflow | ``${{ github.workflow }}`` |
+        | Cmder Version | **$cmderVersion** |
+        
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -66,10 +73,12 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "### ✅ Build Status" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Cmder launcher successfully compiled." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        @"
+        ### ✅ Build Status
+        
+        Cmder launcher successfully compiled.
+        
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Pack the built files
       shell: pwsh
@@ -80,10 +89,13 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "### 📦 Artifacts Created" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Artifact | Size | Hash (SHA256) |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| --- | --- | --- |" >> $env:GITHUB_STEP_SUMMARY
+        $summary = @"
+        ### 📦 Artifacts Created
+        
+        | Artifact | Size | Hash (SHA256) |
+        | --- | --- | --- |
+        "@
+        
         $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip")
         foreach ($artifact in $artifacts) {
           $path = "build/$artifact"
@@ -91,10 +103,12 @@ jobs:
             $size = (Get-Item $path).Length / 1MB
             # Truncate hash to first 16 chars for summary readability (full hash in hashes.txt)
             $hash = (Get-FileHash $path -Algorithm SHA256).Hash.Substring(0, 16)
-            echo "| \`$artifact\` | $([math]::Round($size, 2)) MB | \`$hash...\` |" >> $env:GITHUB_STEP_SUMMARY
+            $summary += "`n| ``$artifact`` | $([math]::Round($size, 2)) MB | ``$hash...`` |"
           }
         }
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        $summary += "`n"
+        
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Upload artifact (cmder.zip)
       uses: actions/upload-artifact@v5
@@ -125,14 +139,16 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "### ☁️ Upload Status" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "All artifacts successfully uploaded to GitHub Actions:" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder.zip\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder.7z\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder_mini.zip\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`hashes.txt\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        @"
+        ### ☁️ Upload Status
+        
+        All artifacts successfully uploaded to GitHub Actions:
+        - ✅ ``cmder.zip``
+        - ✅ ``cmder.7z``
+        - ✅ ``cmder_mini.zip``
+        - ✅ ``hashes.txt``
+        
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
@@ -150,13 +166,15 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       shell: pwsh
       run: |
-        echo "### 🚀 Release Information" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Draft release created for tag: **\`${{ github.ref_name }}\`**" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Release includes:" >> $env:GITHUB_STEP_SUMMARY
-        echo "- Full version (\`cmder.zip\`, \`cmder.7z\`)" >> $env:GITHUB_STEP_SUMMARY
-        echo "- Mini version (\`cmder_mini.zip\`)" >> $env:GITHUB_STEP_SUMMARY
-        echo "- File hashes (\`hashes.txt\`)" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "> ⚠️ Release is in **draft** mode. Please review and publish manually." >> $env:GITHUB_STEP_SUMMARY
+        @"
+        ### 🚀 Release Information
+        
+        Draft release created for tag: **``${{ github.ref_name }}``**
+        
+        Release includes:
+        - Full version (``cmder.zip``, ``cmder.7z``)
+        - Mini version (``cmder_mini.zip``)
+        - File hashes (``hashes.txt``)
+        
+        > ⚠️ Release is in **draft** mode. Please review and publish manually.
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
