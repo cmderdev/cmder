@@ -27,7 +27,7 @@
 .EXAMPLE
     .\build.ps1 -SourcesPath '~/custom/vendors.json'
 
-    Build cmder with your own packages. See vendor/sources.json for the syntax you need to copy.
+    Build Cmder with your own packages. See vendor/sources.json for the syntax you need to copy.
 .NOTES
     AUTHORS
     Samuel Vasko, Jack Bennett
@@ -55,7 +55,7 @@ Param(
 
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
-    
+
     # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
     [string]$terminal = 'all',
 
@@ -129,8 +129,9 @@ if (-not $noVendor) {
     else { $WinTermSettingsJson = "" }
 
     # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
+    $cmder_folder = $cmder_root.toString()
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-        if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\', '\\')) {
+        if ([string]$($ssh_agent.path) -Match $cmder_folder.Replace('\', '\\')) {
             Write-Verbose $("Stopping " + $ssh_agent.path + "!")
             Stop-Process $ssh_agent.id
         }
@@ -138,13 +139,13 @@ if (-not $noVendor) {
 
     foreach ($s in $sources) {
         if ($terminal -eq "none") {
-          return
+            continue
         } elseif ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
-          return
+            continue
         } elseif ($s.name -eq "windows-terminal" -and $terminal -eq  "conemu-maximus5") {
-          return
+            continue
         }
- 
+
         Write-Verbose "Getting vendored $($s.name) $($s.version)..."
 
         # We do not care about the extensions/type of archive
@@ -157,12 +158,12 @@ if (-not $noVendor) {
 
         # Make Embedded Windows Terminal Portable
         if ($s.name -eq "windows-terminal") {
-          $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
-          move-item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
-          remove-item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
-          write-verbose "Making Windows Terminal Portable..."
-          New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
-          New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
+            $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
+            Move-Item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
+            Remove-Item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
+            Write-Verbose "Making Windows Terminal Portable..."
+            New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
+            New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
         }
 
         if ((Get-ChildItem $s.name).Count -eq 1) {

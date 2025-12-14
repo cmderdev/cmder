@@ -238,6 +238,9 @@ goto :SKIP_CLINK
 
     :: Revert back to plain cmd.exe prompt without clink
     prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
+    
+    :: Add Windows Terminal shell integration support (OSC 133 sequences)
+    if defined WT_SESSION (prompt $e]133;D$e\$e]133;A$e\$e]9;9;$P$e\%PROMPT%$e]133;B$e\)
 
     chcp %cp%>nul
 
@@ -390,7 +393,7 @@ setlocal enabledelayedexpansion
 if defined git_locale (
     REM %print_debug% init.bat "Env Var - git_locale=!git_locale!"
     if not defined LANG (
-        for /F "delims=" %%F in ('!git_locale! -uU 2') do (
+        for /F "delims=" %%F in ('"!git_locale!" -uU 2') do (
             set "LANG=%%F"
         )
     )
@@ -540,7 +543,7 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 set initialConfig=
 
 if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
-  powershell -f "%cmder_root%\vendor\bin\create-cmdercfg.ps1" -shell cmd -outfile "%CMDER_CONFIG_DIR%\user_init.cmd"
+  powershell -executionpolicy bypass -f "%cmder_root%\vendor\bin\create-cmdercfg.ps1" -shell cmd -outfile "%CMDER_CONFIG_DIR%\user_init.cmd"
 
   if not exist "%CMDER_ROOT%\config\user_init.cmd" (
     %print_error% "Failed to generate Cmder config"
