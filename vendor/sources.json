@@ -1,27 +1,27 @@
 [
-  {
-    "name": "git-for-windows",
-    "version": "2.51.2.windows.1",
-    "url": "https://github.com/git-for-windows/git/releases/download/v2.51.2.windows.1/PortableGit-2.51.2-64-bit.7z.exe"
-  },
-  {
-    "name": "clink",
-    "version": "1.9.3",
-    "url": "https://github.com/chrisant996/clink/releases/download/v1.9.3/clink.1.9.3.0ef759.zip"
-  },
-  {
-    "name": "conemu-maximus5",
-    "version": "23.07.24",
-    "url": "https://github.com/ConEmu/ConEmu/releases/download/v23.07.24/ConEmuPack.230724.7z"
-  },
-  {
-    "name": "windows-terminal",
-    "version": "1.23.12811.0",
-    "url": "https://github.com/microsoft/terminal/releases/download/v1.23.12811.0/Microsoft.WindowsTerminal_1.23.12811.0_x64.zip"
-  },
-  {
-    "name": "clink-completions",
-    "version": "0.6.6",
-    "url": "https://github.com/vladimir-kotikov/clink-completions/archive/v0.6.6.zip"
-  }
+    {
+        "name":  "git-for-windows",
+        "version":  "2.52.0.windows.1",
+        "url":  "https://github.com/git-for-windows/git/releases/download/v2.52.0.windows.1/PortableGit-2.52.0-64-bit.7z.exe"
+    },
+    {
+        "name":  "clink",
+        "version":  "1.9.5",
+        "url":  "https://github.com/chrisant996/clink/releases/download/v1.9.5/clink.1.9.5.ee6b4f.zip"
+    },
+    {
+        "name":  "conemu-maximus5",
+        "version":  "23.07.24",
+        "url":  "https://github.com/ConEmu/ConEmu/releases/download/v23.07.24/ConEmuPack.230724.7z"
+    },
+    {
+        "name":  "windows-terminal",
+        "version":  "1.23.12811.0",
+        "url":  "https://github.com/microsoft/terminal/releases/download/v1.23.12811.0/Microsoft.WindowsTerminal_1.23.12811.0_x64.zip"
+    },
+    {
+        "name":  "clink-completions",
+        "version":  "0.6.7",
+        "url":  "https://github.com/vladimir-kotikov/clink-completions/archive/v0.6.7.zip"
+    }
 ]
