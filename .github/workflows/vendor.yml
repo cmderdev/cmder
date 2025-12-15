@@ -234,7 +234,7 @@ jobs:
       with:
         title: ${{ env.COUNT_UPDATED == '1' && format('⬆️ Update {0}', env.LIST_UPDATED) || format('⬆️ Update {0} vendored dependencies', env.COUNT_UPDATED) }}
         body: |
-          ### ${{ env.COUNT_UPDATED == '1' && format('📦 Updated {0} from `{1}` to `{2}`', env.SINGLE_DEP_NAME, env.SINGLE_DEP_OLD_VERSION, env.SINGLE_DEP_NEW_VERSION) || format('📦 Automatically updated {0} dependencies', env.COUNT_UPDATED) }}
+          ### ${{ env.COUNT_UPDATED == 1 && format('📦 Updated {0} from `{1}` to `{2}`', env.SINGLE_DEP_NAME, env.SINGLE_DEP_OLD_VERSION, env.SINGLE_DEP_NEW_VERSION) || format('📦 Automatically updated {0} dependencies', env.COUNT_UPDATED) }}
 
           ${{ env.UPDATE_MESSAGE }}
 
