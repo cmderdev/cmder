@@ -47,6 +47,21 @@ jobs:
         $cmderVersion = Get-VersionStr
         $buildTime = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
         
+        # Determine branch link (handle PR merge refs)
+        $branchName = "${{ github.ref_name }}"
+        $branchLink = ""
+        if ($branchName -match '^(\d+)/(merge|head)$') {
+          # This is a PR merge/head ref, link to the PR
+          $prNumber = $Matches[1]
+          $branchLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        } elseif ("${{ github.event_name }}" -eq "pull_request") {
+          # This is a pull request event, link to the PR
+          $branchLink = "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+        } else {
+          # Regular branch, link to the branch tree
+          $branchLink = "https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}"
+        }
+        
         $summary = @"
         ## 📦 Build Cmder - Workflow Summary
         
@@ -56,7 +71,7 @@ jobs:
         | Property | Value |
         | --- | --- |
         | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
-        | Branch | [``${{ github.ref_name }}``](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}) |
+        | Branch | [``$branchName``]($branchLink) |
         | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
         | Actor | [@${{ github.actor }}](https://github.com/${{ github.actor }}) |
         | Workflow | ``${{ github.workflow }}`` |
