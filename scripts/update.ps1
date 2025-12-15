@@ -259,6 +259,8 @@ function Fetch-DownloadUrl {
 }
 
 $count = 0
+$hasBreakingChanges = $false
+$updateDetails = @()
 
 # Read the current sources content
 $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
@@ -301,6 +303,52 @@ foreach ($s in $sources) {
         # }
 
         $count++
+
+        # Analyze version change type
+        $changeType = "unknown"
+        try {
+            # Try parsing as semantic version
+            # Handle versions with more than 4 parts by taking only the first 3-4 parts
+            $oldVerStr = $s.version.Split('-')[0]
+            $newVerStr = $version.Split('-')[0]
+
+            # Split by dots and take only numeric parts, first 4 max
+            $oldParts = $oldVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+            $newParts = $newVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+
+            # Ensure we have at least 2 parts (major.minor)
+            if ($oldParts.Count -ge 2 -and $newParts.Count -ge 2) {
+                $oldVerParseable = $oldParts -join '.'
+                $newVerParseable = $newParts -join '.'
+
+                $oldVer = [System.Version]::Parse($oldVerParseable)
+                $newVer = [System.Version]::Parse($newVerParseable)
+
+                if ($newVer.Major -gt $oldVer.Major) {
+                    $changeType = "major"
+                    $hasBreakingChanges = $true
+                } elseif ($newVer.Minor -gt $oldVer.Minor) {
+                    $changeType = "minor"
+                } else {
+                    $changeType = "patch"
+                }
+            } else {
+                # Not enough numeric parts for semantic versioning
+                throw "Not enough numeric version parts"
+            }
+        } catch {
+            # If semantic versioning fails, treat as unknown (potentially breaking)
+            $changeType = "unknown"
+            $hasBreakingChanges = $true
+            Write-Verbose "Could not parse version as semantic version, treating as potentially breaking"
+        }
+
+        $updateDetails += @{
+            name = $s.name
+            oldVersion = $s.version
+            newVersion = $version
+            changeType = $changeType
+        }
     }
 
     $s.url = $downloadUrl
@@ -314,12 +362,16 @@ if ($count -eq 0) {
     return
 }
 
-if ($Env:APPVEYOR -eq 'True') {
-    Add-AppveyorMessage -Message "Successfully updated $count dependencies." -Category Information
+# Export update details for GitHub Actions
+if ($Env:GITHUB_ACTIONS -eq 'true') {
+    $updateDetailsJson = $updateDetails | ConvertTo-Json -Compress
+    Write-Output "UPDATE_DETAILS=$updateDetailsJson" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+    Write-Output "HAS_BREAKING_CHANGES=$hasBreakingChanges" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+    Write-Output "::notice title=Task Complete::Successfully updated $count dependencies."
 }
 
-if ($Env:GITHUB_ACTIONS -eq 'true') {
-    Write-Output "::notice title=Task Complete::Successfully updated $count dependencies."
+if ($Env:APPVEYOR -eq 'True') {
+    Add-AppveyorMessage -Message "Successfully updated $count dependencies." -Category Information
 }
 
 Write-Host -ForegroundColor green "Successfully updated $count dependencies."
