@@ -215,7 +215,7 @@ jobs:
           echo "AUTO_MERGED=false" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
         }
 
-    - uses: peter-evans/create-pull-request@v7
+    - uses: peter-evans/create-pull-request@v8
       if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       with:
         title: ${{ env.COUNT_UPDATED == '1' && format('⬆️ Update {0}', env.LIST_UPDATED) || format('⬆️ Update {0} vendored dependencies', env.COUNT_UPDATED) }}
