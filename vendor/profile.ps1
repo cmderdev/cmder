@@ -104,7 +104,7 @@ if ($null -ne $ENV:GIT_INSTALL_ROOT) {
 
 # Create 'vi' alias for 'vim' if vim is available
 if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
-    New-Alias -name "vi" -value vim
+    New-Alias -name "vi" -value vim -errorAction SilentlyContinue
 }
 
 # PSReadline configuration
