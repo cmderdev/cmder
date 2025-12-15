@@ -219,8 +219,7 @@ jobs:
 
           Write-Warning "Failed to auto-merge: $($_.Exception.Message)"
 
-          # Reset only if a commit was made (check if HEAD moved)
-          $headBeforeReset = git rev-parse HEAD
+          # Reset the commit if one was made
           if ($commitResult) {
             git reset --hard HEAD~1
           }
