@@ -96,7 +96,7 @@ jobs:
         
         ### Build Status
         
-        ✅ Cmder launcher successfully compiled.
+        ✅ Cmder built successfully.
         
         "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
@@ -140,7 +140,7 @@ jobs:
         
         ### 🗃️ Artifacts
         
-        | Artifact | Size | Hash (SHA256) | Download |
+        | Artifact | Size | Download | Hash (SHA256) |
         | --- | --- | --- | --- |
         "@
         
@@ -151,7 +151,17 @@ jobs:
             $size = (Get-Item $path).Length / 1MB
             $hash = (Get-FileHash $path -Algorithm SHA256).Hash
             $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            $summary += "`n| ``$artifact`` | $([math]::Round($size, 2)) MB | ``$hash`` | [Download]($downloadUrl) |"
+            
+            # Determine emoji based on file type
+            if ($artifact -match '\.txt$') {
+              $emoji = "📄"
+            } elseif ($artifact -match '\.(zip|7z)$') {
+              $emoji = "🗄️"
+            } else {
+              $emoji = "📦"
+            }
+            
+            $summary += "`n| $emoji ``$artifact`` | $([math]::Round($size, 2)) MB | [📥 Download]($downloadUrl) | ``$hash`` |"
           }
         }
         $summary += "`n"
