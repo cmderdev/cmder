@@ -86,8 +86,12 @@ jobs:
         
         # Read vendor sources.json and add to summary
         $vendorSources = Get-Content "vendor/sources.json" | ConvertFrom-Json
-        foreach ($vendor in $vendorSources) {
-          $summary += "`n| ``$($vendor.name)`` | $($vendor.version) |"
+        if ($vendorSources.Count -eq 0) {
+          $summary += "`n| _No vendor packages found_ | |"
+        } else {
+          foreach ($vendor in $vendorSources) {
+            $summary += "`n| ``$($vendor.name)`` | $($vendor.version) |"
+          }
         }
         $summary += "`n"
         
