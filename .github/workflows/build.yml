@@ -64,7 +64,7 @@ jobs:
         
         ---
         
-        ### 🗃️ Vendor Packages
+        ### 📁 Vendor Packages
         | Package | Version |
         | --- | --- |
         "@
