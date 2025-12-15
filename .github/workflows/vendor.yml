@@ -51,12 +51,15 @@ jobs:
           $singleDepName = ""
           $singleDepOldVersion = ""
           $singleDepNewVersion = ""
+          $updatedCount = 0
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
               $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
 
-              # Store single dependency info for messages
+              $updatedCount++
+
+              # Store single dependency info for messages (only if this is the only update)
               if ($count -eq 1) {
                 $singleDepName = $s.name
                 $singleDepOldVersion = $oldVersion
@@ -119,6 +122,12 @@ jobs:
           }
           if ($count -eq 0) { return }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
+          # Ensure single dependency variables are set (use placeholder if empty)
+          if ([string]::IsNullOrEmpty($singleDepName)) {
+            $singleDepName = "dependency"
+            $singleDepOldVersion = "unknown"
+            $singleDepNewVersion = "unknown"
+          }
           Set-GHVariable -Name SINGLE_DEP_NAME -Value $singleDepName
           Set-GHVariable -Name SINGLE_DEP_OLD_VERSION -Value $singleDepOldVersion
           Set-GHVariable -Name SINGLE_DEP_NEW_VERSION -Value $singleDepNewVersion
