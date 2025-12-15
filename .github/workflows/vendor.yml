@@ -86,14 +86,14 @@ jobs:
 
                   if ($newVer.Major -gt $oldVer.Major) {
                     $changeType = "major"
-                    $emoji = "⚠️"
+                    $emoji = "🔥"
                     $isMajor = $true
                   } elseif ($newVer.Minor -gt $oldVer.Minor) {
                     $changeType = "minor"
-                    $emoji = "✨"
+                    $emoji = "🚀"
                   } else {
                     $changeType = "patch"
-                    $emoji = "🐛"
+                    $emoji = "⬆️"
                   }
                 }
               } catch {
@@ -140,7 +140,7 @@ jobs:
 
           # Generate major updates changelog section
           if ($majorUpdates.Count -gt 0) {
-            $changelogSection = "`n<details>`n<summary>⚠️ Major version updates - View changelog</summary>`n`n"
+            $changelogSection = "`n<details>`n<summary>🔥 Major version updates - View changelog</summary>`n`n"
             foreach ($update in $majorUpdates) {
               $changelogSection += "### [$($update.name)]($($update.repoUrl))`n"
               $changelogSection += "**$($update.oldVersion)** → **$($update.newVersion)**`n`n"
