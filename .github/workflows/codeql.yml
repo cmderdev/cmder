@@ -106,4 +106,4 @@ jobs:
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "**Language analyzed:** \`${{ matrix.language }}\`" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "> Check the Security tab for detailed findings and recommendations." | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+        Write-Output "> Check the Security tab for detailed findings and recommendations." | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
