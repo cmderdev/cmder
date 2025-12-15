@@ -90,7 +90,13 @@ jobs:
         ✅ Vendor dependencies initialized successfully.
         
         **Vendor Versions:**
-        $($vendorInfo -join "`n")
+        $(
+          if ($vendorInfo.Count -eq 0) {
+            "_No vendor version information available._"
+          } else {
+            $vendorInfo -join "`n"
+          }
+        )
         
         "@
         
