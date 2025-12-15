@@ -51,13 +51,10 @@ jobs:
           $singleDepName = ""
           $singleDepOldVersion = ""
           $singleDepNewVersion = ""
-          $updatedCount = 0
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
               $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
-
-              $updatedCount++
 
               # Store single dependency info for messages (only if this is the only update)
               if ($count -eq 1) {
@@ -122,11 +119,19 @@ jobs:
           }
           if ($count -eq 0) { return }
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
-          # Ensure single dependency variables are set (use placeholder if empty)
-          if ([string]::IsNullOrEmpty($singleDepName)) {
-            $singleDepName = "dependency"
+          # Set single dependency variables (they will only be used if COUNT_UPDATED is 1)
+          # Use safe fallback values in case variables weren't set (shouldn't happen but prevents errors)
+          if ([string]::IsNullOrEmpty($singleDepName) -and $count -eq 1) {
+            # This shouldn't happen, but if it does, log a warning
+            Write-Warning "Single dependency name not set despite count being 1"
+            $singleDepName = "unknown-package"
             $singleDepOldVersion = "unknown"
             $singleDepNewVersion = "unknown"
+          } elseif ([string]::IsNullOrEmpty($singleDepName)) {
+            # For multiple dependencies, set placeholder values (won't be used)
+            $singleDepName = ""
+            $singleDepOldVersion = ""
+            $singleDepNewVersion = ""
           }
           Set-GHVariable -Name SINGLE_DEP_NAME -Value $singleDepName
           Set-GHVariable -Name SINGLE_DEP_OLD_VERSION -Value $singleDepOldVersion
