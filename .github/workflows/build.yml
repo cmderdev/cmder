@@ -47,7 +47,7 @@ jobs:
         $cmderVersion = Get-VersionStr
         $buildTime = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
         
-        @"
+        $summary = @"
         ## 📦 Build Cmder - Workflow Summary
         
         <small>Build started: $buildTime</small>
@@ -134,7 +134,7 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         
         ---
         
