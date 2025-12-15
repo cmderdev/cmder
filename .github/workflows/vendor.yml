@@ -114,7 +114,7 @@ jobs:
               }
 
               $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | \`$oldVersion\` | \`$($s.version)\` |`n"
+              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | \`$oldVersion\` | **\`$($s.version)\`** |`n"
             }
           }
           if ($count -eq 0) { return }
