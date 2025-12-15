@@ -72,9 +72,10 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        # Get vendor versions
+        # Get vendor versions from sources.json
         $vendorInfo = @()
-        $vendorDirs = @("conemu-maximus5", "clink", "git-for-windows")
+        $sources = Get-Content "sources.json" -Raw | ConvertFrom-Json
+        $vendorDirs = $sources.PSObject.Properties | ForEach-Object { $_.Name }
         foreach ($dir in $vendorDirs) {
           $versionFile = "vendor/$dir/.cmderver"
           if (Test-Path $versionFile) {
