@@ -64,7 +64,7 @@ jobs:
         
         ---
         
-        ### Vendor Packages
+        ### 🗃️ Vendor Packages
         | Package | Version |
         | --- | --- |
         "@
@@ -138,7 +138,7 @@ jobs:
         
         ---
         
-        ### Artifacts
+        ### 🗃️ Artifacts
         
         | Artifact | Size | Hash (SHA256) | Download |
         | --- | --- | --- | --- |
