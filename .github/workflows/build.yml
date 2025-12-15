@@ -55,9 +55,9 @@ jobs:
         ### Repository Information
         | Property | Value |
         | --- | --- |
-        | Repository | [${{ github.repository }}](https://github.com/${{ github.repository }}) |
-        | Branch | [${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}) |
-        | Commit | [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
+        | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
+        | Branch | [``${{ github.ref_name }}``](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}) |
+        | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
         | Actor | [@${{ github.actor }}](https://github.com/${{ github.actor }}) |
         | Workflow | ``${{ github.workflow }}`` |
         | Cmder Version | **$cmderVersion** |
