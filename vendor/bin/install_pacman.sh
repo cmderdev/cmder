@@ -14,6 +14,9 @@
 # Always review and understand scripts from external sources prior to execution.
 
 export bin_source=${1:-https://github.com/daxgames/pacman-for-git/raw/refs/heads/main}
+export HOME=$(cygpath -u "$USERPROFILE")
+echo "Using binary source: $bin_source"
+echo "Using HOME directory: $HOME"
 
 if [[ "$HOSTTYPE" == "i686" ]]; then
   pacman=(
@@ -87,7 +90,7 @@ mkdir -p /var/lib/pacman
 ln -sf "$(which gettext)" /usr/bin/
 pacman-key --init
 pacman-key --populate msys2
-pacman -Syu --noconfirm
+pacman -Syu --noconfirm --disable-download-timeout
 echo -e "\n=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"
 
 echo =-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
