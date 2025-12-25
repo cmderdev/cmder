@@ -152,6 +152,8 @@ jobs:
     - name: Summary - Artifacts uploaded
       if: success()
       shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         $summary = @"
         
@@ -163,13 +165,53 @@ jobs:
         | --- | --- | --- | --- |
         "@
         
+        # Function to get artifact download URL with retry logic
+        function Get-ArtifactDownloadUrl {
+          param(
+            [string]$ArtifactName,
+            [int]$MaxRetries = 3,
+            [int]$DelaySeconds = 2
+          )
+          
+          for ($i = 0; $i -lt $MaxRetries; $i++) {
+            try {
+              # Use GitHub CLI to get artifact information
+              $artifactsJson = gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" --jq ".artifacts[] | select(.name == `"$ArtifactName`")"
+              
+              if ($artifactsJson) {
+                $artifact = $artifactsJson | ConvertFrom-Json
+                if ($artifact.archive_download_url) {
+                  return $artifact.archive_download_url
+                }
+              }
+            } catch {
+              Write-Host "Attempt $($i + 1) failed to get artifact URL for $ArtifactName : $_"
+            }
+            
+            if ($i -lt ($MaxRetries - 1)) {
+              Start-Sleep -Seconds $DelaySeconds
+            }
+          }
+          
+          return $null
+        }
+        
         $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip", "hashes.txt")
         foreach ($artifact in $artifacts) {
           $path = "build/$artifact"
           if (Test-Path $path) {
             $size = (Get-Item $path).Length / 1MB
             $hash = (Get-FileHash $path -Algorithm SHA256).Hash
-            $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            
+            # Try to get the actual artifact download URL
+            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifact
+            $warning = ""
+            
+            if (-not $downloadUrl) {
+              # Fallback to workflow run page if artifact URL fetch fails
+              $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              $warning = " ⚠️"
+            }
             
             # Determine emoji based on file type
             if ($artifact -match '\.txt$') {
@@ -180,7 +222,7 @@ jobs:
               $emoji = "📦"
             }
             
-            $summary += "`n| $emoji ``$artifact`` | $([math]::Round($size, 2)) MB | [📥 Download]($downloadUrl) | ``$hash`` |"
+            $summary += "`n| $emoji ``$artifact`` | $([math]::Round($size, 2)) MB | [📥 Download$warning]($downloadUrl) | ``$hash`` |"
           }
         }
         $summary += "`n"
