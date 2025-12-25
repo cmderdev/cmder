@@ -43,16 +43,25 @@ jobs:
     - name: Summary - Test execution started
       shell: pwsh
       run: |
-        echo "## 🧪 Run Tests - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "### Test Environment" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| --- | --- |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Repository | \`${{ github.repository }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Branch | \`${{ github.ref_name }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Commit | \`${{ github.sha }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Runner OS | \`${{ runner.os }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        # Get Cmder version
+        . scripts/utils.ps1
+        $cmderVersion = Get-VersionStr
+        
+        @"
+        ## ✅ Run Tests - Workflow Summary
+        
+        ### Test Environment
+        | Property | Value |
+        | --- | --- |
+        | Repository | ``${{ github.repository }}`` |
+        | Branch | ``${{ github.ref_name }}`` |
+        | Commit | ``${{ github.sha }}`` |
+        | Runner OS | ``${{ runner.os }}`` |
+        | Cmder Version | **$cmderVersion** |
+        | PowerShell Version | **$($PSVersionTable.PSVersion)** |
+        | Event | ``${{ github.event_name }}`` |
+        
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Initialize vendors
       shell: pwsh
@@ -63,21 +72,49 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "### ⚙️ Vendor Initialization" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "✅ Vendor dependencies initialized successfully." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        # Get vendor versions from sources.json
+        $vendorInfo = @()
+        $sources = Get-Content "sources.json" -Raw | ConvertFrom-Json
+        $vendorDirs = $sources.PSObject.Properties | ForEach-Object { $_.Name }
+        foreach ($dir in $vendorDirs) {
+          $versionFile = "vendor/$dir/.cmderver"
+          if (Test-Path $versionFile) {
+            $version = Get-Content $versionFile -Raw
+            $vendorInfo += "- **$dir**: $($version.Trim())"
+          }
+        }
+        
+        $summary = @"
+        ### ⚙️ Vendor Initialization
+        
+        ✅ Vendor dependencies initialized successfully.
+        
+        **Vendor Versions:**
+        $(
+          if ($vendorInfo.Count -eq 0) {
+            "_No vendor version information available._"
+          } else {
+            $vendorInfo -join "`n"
+          }
+        )
+        
+        "@
+        
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Summary - Test results table header
       if: success()
       shell: pwsh
       run: |
-        echo "### 📋 Test Results" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Test | Status |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| --- | --- |" >> $env:GITHUB_STEP_SUMMARY
+        @"
+        ### 📋 Test Results
+        
+        | Test | Status | Duration |
+        | --- | --- | --- |
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Testing Clink Shell
+      id: test-clink
       run: |
           cmd /c vendor\init.bat /v /d /t
 
@@ -85,8 +122,9 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "| Clink Shell | ✅ Passed |" >> $env:GITHUB_STEP_SUMMARY
+        "| Clink Shell | ✅ Passed | Cmd shell initialization |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing PowerShell
+      id: test-powershell
       run: |
           PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "$env:CMDER_DEBUG='1'; . 'vendor\profile.ps1'"
 
@@ -94,8 +132,9 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "| PowerShell | ✅ Passed |" >> $env:GITHUB_STEP_SUMMARY
+        "| PowerShell | ✅ Passed | Profile script execution |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing Bash
+      id: test-bash
       run: |
           bash vendor/cmder.sh
 
@@ -103,13 +142,20 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "| Bash | ✅ Passed |" >> $env:GITHUB_STEP_SUMMARY
+        "| Bash | ✅ Passed | Bash environment initialization |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Summary - All tests completed
       if: success()
       shell: pwsh
       run: |
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "### ✅ All Tests Completed" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "All shell environments tested successfully!" >> $env:GITHUB_STEP_SUMMARY
+        @"
+        
+        ### ✅ All Tests Completed
+        
+        All shell environments tested successfully!
+        
+        **Test Coverage:**
+        - ✅ Clink shell environment (Windows cmd.exe with Clink)
+        - ✅ PowerShell environment (with Cmder profile)
+        - ✅ Bash environment (Git Bash integration)
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8

@@ -42,17 +42,60 @@ jobs:
     - name: Summary - Repository checkout
       shell: pwsh
       run: |
-        echo "## 📦 Build Cmder - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "### Repository Information" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| --- | --- |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Repository | \`${{ github.repository }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Branch | \`${{ github.ref_name }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Commit | \`${{ github.sha }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Actor | @${{ github.actor }} |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Workflow | \`${{ github.workflow }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        # Get Cmder version
+        . scripts/utils.ps1
+        $cmderVersion = Get-VersionStr
+        $buildTime = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+        
+        # Determine branch link (handle PR merge refs)
+        $branchName = "${{ github.ref_name }}"
+        $branchLink = ""
+        if ($branchName -match '^(\d+)/(merge|head)$') {
+          # This is a PR merge/head ref, link to the PR
+          $prNumber = $Matches[1]
+          $branchLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        } elseif ("${{ github.event_name }}" -eq "pull_request") {
+          # This is a pull request event, link to the PR
+          $branchLink = "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+        } else {
+          # Regular branch, link to the branch tree
+          $branchLink = "https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}"
+        }
+        
+        $summary = @"
+        ## 📦 Build Cmder - Workflow Summary
+        
+        <small>Build started: $buildTime</small>
+        
+        ### Repository Information
+        | Property | Value |
+        | --- | --- |
+        | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
+        | Branch | [``$branchName``]($branchLink) |
+        | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
+        | Actor | [@${{ github.actor }}](https://github.com/${{ github.actor }}) |
+        | Workflow | ``${{ github.workflow }}`` |
+        | Cmder Version | **$cmderVersion** |
+        
+        ---
+        
+        ### 📁 Vendor Packages
+        | Package | Version |
+        | --- | --- |
+        "@
+        
+        # Read vendor sources.json and add to summary
+        $vendorSources = Get-Content "vendor/sources.json" | ConvertFrom-Json
+        if ($vendorSources.Count -eq 0) {
+          $summary += "`n| _No vendor packages found_ | |"
+        } else {
+          foreach ($vendor in $vendorSources) {
+            $summary += "`n| ``$($vendor.name)`` | $($vendor.version) |"
+          }
+        }
+        $summary += "`n"
+        
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -66,35 +109,20 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "### ✅ Build Status" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Cmder launcher successfully compiled." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        @"
+        
+        ---
+        
+        ### Build Status
+        
+        ✅ Cmder built successfully.
+        
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Pack the built files
       shell: pwsh
       working-directory: scripts
       run: .\pack.ps1 -verbose
-
-    - name: Summary - Package artifacts
-      if: success()
-      shell: pwsh
-      run: |
-        echo "### 📦 Artifacts Created" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Artifact | Size | Hash (SHA256) |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| --- | --- | --- |" >> $env:GITHUB_STEP_SUMMARY
-        $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip")
-        foreach ($artifact in $artifacts) {
-          $path = "build/$artifact"
-          if (Test-Path $path) {
-            $size = (Get-Item $path).Length / 1MB
-            # Truncate hash to first 16 chars for summary readability (full hash in hashes.txt)
-            $hash = (Get-FileHash $path -Algorithm SHA256).Hash.Substring(0, 16)
-            echo "| \`$artifact\` | $([math]::Round($size, 2)) MB | \`$hash...\` |" >> $env:GITHUB_STEP_SUMMARY
-          }
-        }
-        echo "" >> $env:GITHUB_STEP_SUMMARY
 
     - name: Upload artifact (cmder.zip)
       uses: actions/upload-artifact@v6
@@ -124,15 +152,82 @@ jobs:
     - name: Summary - Artifacts uploaded
       if: success()
       shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        echo "### ☁️ Upload Status" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "All artifacts successfully uploaded to GitHub Actions:" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder.zip\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder.7z\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder_mini.zip\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`hashes.txt\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        $summary = @"
+        
+        ---
+        
+        ### 🗃️ Artifacts
+        
+        | Artifact | Size | Download | Hash (SHA256) |
+        | --- | --- | --- | --- |
+        "@
+        
+        # Function to get artifact download URL with retry logic
+        function Get-ArtifactDownloadUrl {
+          param(
+            [string]$ArtifactName,
+            [int]$MaxRetries = 3,
+            [int]$DelaySeconds = 2
+          )
+          
+          for ($i = 0; $i -lt $MaxRetries; $i++) {
+            try {
+              # Use GitHub CLI to get artifact information
+              $artifactsJson = gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" --jq ".artifacts[] | select(.name == `"$ArtifactName`")"
+              
+              if ($artifactsJson) {
+                $artifact = $artifactsJson | ConvertFrom-Json
+                if ($artifact.archive_download_url) {
+                  return $artifact.archive_download_url
+                }
+              }
+            } catch {
+              Write-Host "Attempt $($i + 1) failed to get artifact URL for $ArtifactName : $_"
+            }
+            
+            if ($i -lt ($MaxRetries - 1)) {
+              Start-Sleep -Seconds $DelaySeconds
+            }
+          }
+          
+          return $null
+        }
+        
+        $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip", "hashes.txt")
+        foreach ($artifact in $artifacts) {
+          $path = "build/$artifact"
+          if (Test-Path $path) {
+            $size = (Get-Item $path).Length / 1MB
+            $hash = (Get-FileHash $path -Algorithm SHA256).Hash
+            
+            # Try to get the actual artifact download URL
+            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifact
+            $warning = ""
+            
+            if (-not $downloadUrl) {
+              # Fallback to workflow run page if artifact URL fetch fails
+              $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              $warning = " ⚠️"
+            }
+            
+            # Determine emoji based on file type
+            if ($artifact -match '\.txt$') {
+              $emoji = "📄"
+            } elseif ($artifact -match '\.(zip|7z)$') {
+              $emoji = "🗄️"
+            } else {
+              $emoji = "📦"
+            }
+            
+            $summary += "`n| $emoji ``$artifact`` | $([math]::Round($size, 2)) MB | [📥 Download$warning]($downloadUrl) | ``$hash`` |"
+          }
+        }
+        $summary += "`n"
+        
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
@@ -150,13 +245,18 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       shell: pwsh
       run: |
-        echo "### 🚀 Release Information" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Draft release created for tag: **\`${{ github.ref_name }}\`**" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Release includes:" >> $env:GITHUB_STEP_SUMMARY
-        echo "- Full version (\`cmder.zip\`, \`cmder.7z\`)" >> $env:GITHUB_STEP_SUMMARY
-        echo "- Mini version (\`cmder_mini.zip\`)" >> $env:GITHUB_STEP_SUMMARY
-        echo "- File hashes (\`hashes.txt\`)" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "> ⚠️ Release is in **draft** mode. Please review and publish manually." >> $env:GITHUB_STEP_SUMMARY
+        @"
+        
+        ---
+        
+        ### Release Information
+        
+        🚀 Draft release created for tag: **``${{ github.ref_name }}``**
+        
+        Release includes:
+        - Full version (``cmder.zip``, ``cmder.7z``)
+        - Mini version (``cmder_mini.zip``)
+        - File hashes (``hashes.txt``)
+        
+        > ⚠️ Release is in **draft** mode. Please review and publish manually.
+        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
