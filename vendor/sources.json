@@ -6,8 +6,8 @@
   },
   {
     "name": "clink",
-    "version": "1.9.5",
-    "url": "https://github.com/chrisant996/clink/releases/download/v1.9.5/clink.1.9.5.ee6b4f.zip"
+    "version": "1.9.7",
+    "url": "https://github.com/chrisant996/clink/releases/download/v1.9.7/clink.1.9.7.b33c45.zip"
   },
   {
     "name": "conemu-maximus5",
@@ -16,8 +16,8 @@
   },
   {
     "name": "windows-terminal",
-    "version": "1.23.12811.0",
-    "url": "https://github.com/microsoft/terminal/releases/download/v1.23.12811.0/Microsoft.WindowsTerminal_1.23.12811.0_x64.zip"
+    "version": "1.23.13503.0",
+    "url": "https://github.com/microsoft/terminal/releases/download/v1.23.13503.0/Microsoft.WindowsTerminal_1.23.13503.0_x64.zip"
   },
   {
     "name": "clink-completions",
