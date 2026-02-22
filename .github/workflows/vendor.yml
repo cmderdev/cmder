@@ -31,14 +31,14 @@ jobs:
     - name: Summary - Workflow started
       shell: pwsh
       run: |
-        $summary = @"
-          ## 📦 Update Vendor - Workflow Summary
+        $summary = @(
+          '## 📦 Update Vendor - Workflow Summary'
+          ''
+          '🔍 Checking for vendor dependency updates...'
+          ''
+        )
 
-          🔍 Checking for vendor dependency updates...
-
-        "@
-
-        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - id: make-changes
       name: Checking for updates
@@ -163,21 +163,21 @@ jobs:
         $count = [int]$env:COUNT_UPDATED
 
         if ($count -eq 0) {
-          $summary = @"
-          ### ✅ No Updates Available
-
-          All vendor dependencies are up to date! 🎉
-          "@
+          $summary = @(
+            '### ✅ No Updates Available'
+            ''
+            'All vendor dependencies are up to date! 🎉'
+          )
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
-          $summary = @"
-          ### 🔄 Updates Found
-
-          📦 **$env:SINGLE_DEP_NAME** updated from ``$env:SINGLE_DEP_OLD_VERSION`` to ``$env:SINGLE_DEP_NEW_VERSION``
-
-          📦 **$count** vendor $word updated:
-
-          "@
+          $summary = @(
+            '### 🔄 Updates Found'
+            ''
+            "📦 **$env:SINGLE_DEP_NAME** updated from ``$env:SINGLE_DEP_OLD_VERSION`` to ``$env:SINGLE_DEP_NEW_VERSION``"
+            ''
+            '📦 **$count** vendor $word updated:'
+            ''
+          )
         }
 
         $summary += "$env:UPDATE_MESSAGE"
@@ -261,16 +261,16 @@ jobs:
       if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       shell: pwsh
       run: |
-        $summary = @"
-          ### 🎉 Pull Request Created
-
-          A pull request has been created to update the vendor dependencies.
-
-          **Branch:** `update-vendor`
-
-          $env:LIST_UPDATED -and "**Updated dependencies:** $env:LIST_UPDATED" -or "**Updated dependencies:**
-
-        "@
+        $summary = @(
+          '### 🎉 Pull Request Created'
+          ''
+          'A pull request has been created to update the vendor dependencies.'
+          ''
+          '**Branch:** `update-vendor`'
+          ''
+          "$env:LIST_UPDATED -and "**Updated dependencies:** $env:LIST_UPDATED" -or "**Updated dependencies:**"
+          ''
+        )
 
         if ($env:HAS_BREAKING_CHANGES -eq 'True') {
           $summary += "> ⚠️ **Manual review required:** This update contains major version changes."
@@ -283,4 +283,4 @@ jobs:
 
         "@
 
-        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
