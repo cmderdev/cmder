@@ -33,35 +33,36 @@ jobs:
       run: |
         $summary = @"
         ## 📦 Update Vendor - Workflow Summary
-        
+
         Checking for vendor dependency updates...
-        
+
         "@
-	
-	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - id: make-changes
       name: Checking for updates
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
-          . .\scripts\update.ps1 -verbose
-          Set-GHVariable -Name COUNT_UPDATED -Value $count
-          $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
-          $listUpdated = ""
-          $updateMessage = "| Name | Old Version | New Version |`n| :--- | ---- | ---- |`n"
-          foreach ($s in $newVersion) {
-            $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
-            if ($s.version -ne $oldVersion) {
-              $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
-              $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| **[$($s.name)]($repoUrl)** | $oldVersion | **$($s.version)** |`n"
-            }
+        $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+        . .\scripts\update.ps1 -verbose
+        Set-GHVariable -Name COUNT_UPDATED -Value $count
+        $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+        $listUpdated = ""
+        $updateMessage = "| Name | Old Version | New Version |`n| :--- | ---- | ---- |`n"
+        foreach ($s in $newVersion) {
+          $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
+          if ($s.version -ne $oldVersion) {
+            $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
+            $listUpdated += "$($s.name) v$($s.version), "
+            $updateMessage += "| **[$($s.name)]($repoUrl)** | $oldVersion | **$($s.version)** |`n"
           }
-          if ($count -eq 0) { return }
-          Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
-          echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        }
+        if ($count -eq 0) { return }
+        Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
+
+        echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
     - name: Summary - Update check results
       shell: pwsh
@@ -70,22 +71,22 @@ jobs:
         if ($count -eq 0) {
           $summary = @"
           ### ✅ No Updates Available
-          
+
           All vendor dependencies are up to date.
           "@
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
           $summary = @"
           ### 🔄 Updates Found
-          
+
           **$count** vendor $word updated:
-          
+
           $env:UPDATE_MESSAGE
-          
+
           "@
         }
-	
-	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - uses: peter-evans/create-pull-request@v7
       if: env.COUNT_UPDATED > 0
@@ -106,14 +107,14 @@ jobs:
       run: |
         $Summary = @"
         ### 🎉 Pull Request Created
-          
+
         A pull request has been created to update the vendor dependencies.
-        
+
         **Branch:** ``update-vendor``
-        
+
         **Updated dependencies:** $env:LIST_UPDATED
-        
+
         > Please review and merge the pull request to apply the updates.
         "@
-	
-	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
