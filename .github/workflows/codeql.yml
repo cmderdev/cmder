@@ -52,17 +52,18 @@ jobs:
       run: |
         $summary = @"
           ## 🔒 CodeQL Security Analysis - Workflow Summary
-          
+
           ### Analysis Configuration
-          
+
           | Property | Value |
           | --- | --- |
           | Repository | `${{ github.repository }}` |
           | Branch | `${{ github.ref_name }}` |
           | Language | `${{ matrix.language }}` |
           | Commit | `${{ github.sha }}` |
-          
+
         "@
+
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     # Initializes the CodeQL tools for scanning.
@@ -91,11 +92,11 @@ jobs:
       run: |
         $summary = @"
           ### ✅ Build Completed
-          
+
           Cmder launcher built successfully for CodeQL analysis.
-          
+
         "@
-	
+
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     - name: Perform CodeQL Analysis
@@ -107,14 +108,14 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        $summary = @(
+        $summary = @"
           ### 🔍 CodeQL Analysis Results
-          
+
           ✅ CodeQL security analysis completed successfully.
-          
+
           **Language analyzed:** `${{ matrix.language }}`
-          
+
           > Check the Security tab for detailed findings and recommendations.
         "@
-	
+
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY

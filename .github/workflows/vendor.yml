@@ -37,7 +37,7 @@ jobs:
           🔍 Checking for vendor dependency updates...
 
         "@
-	
+
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     - id: make-changes
@@ -269,7 +269,7 @@ jobs:
           **Branch:** `update-vendor`
 
           $env:LIST_UPDATED -and "**Updated dependencies:** $env:LIST_UPDATED" -or "**Updated dependencies:**
-        
+
         "@
 
         if ($env:HAS_BREAKING_CHANGES -eq 'True') {
