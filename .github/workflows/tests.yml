@@ -39,6 +39,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
 
     - name: Summary - Test execution started
       shell: pwsh
