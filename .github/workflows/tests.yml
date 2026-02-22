@@ -78,7 +78,7 @@ jobs:
       run: |
         # Get vendor versions from sources.json
         $vendorInfo = @()
-        $sources = Get-Content "sources.json" -Raw | ConvertFrom-Json
+        $sources = Get-Content "vendor\sources.json" -Raw | ConvertFrom-Json
         $vendorDirs = $sources.PSObject.Properties | ForEach-Object { $_.Name }
         foreach ($dir in $vendorDirs) {
           $versionFile = "vendor/$dir/.cmderver"
