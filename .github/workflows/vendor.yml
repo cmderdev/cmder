@@ -31,10 +31,13 @@ jobs:
     - name: Summary - Workflow started
       shell: pwsh
       run: |
-        echo "## 📦 Update Vendor - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Checking for vendor dependency updates..." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        $summary = @(
+          '## 📦 Update Vendor - Workflow Summary'
+          ''
+          'Checking for vendor dependency updates...'
+          ''
+        )
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     - id: make-changes
       name: Checking for updates
@@ -62,19 +65,25 @@ jobs:
     - name: Summary - Update check results
       shell: pwsh
       run: |
-        $count = $env:COUNT_UPDATED
+        $count = [int]$env:COUNT_UPDATED
         if ($count -eq 0) {
-          echo "### ✅ No Updates Available" >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "All vendor dependencies are up to date." >> $env:GITHUB_STEP_SUMMARY
+          $summary = @(
+            '### ✅ No Updates Available'
+            ''
+            'All vendor dependencies are up to date.'
+          )
+          $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
-          echo "### 🔄 Updates Found" >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "**$count** vendor $word updated:" >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "$env:UPDATE_MESSAGE" >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
+          $summary = @(
+            '### 🔄 Updates Found'
+            ''
+            "**$count** vendor $word updated:"
+            ''
+            $env:UPDATE_MESSAGE
+            ''
+          )
+          $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
         }
 
     - uses: peter-evans/create-pull-request@v8
@@ -94,12 +103,15 @@ jobs:
       if: env.COUNT_UPDATED > 0
       shell: pwsh
       run: |
-        echo "### 🎉 Pull Request Created" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "A pull request has been created to update the vendor dependencies." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Branch:** \`update-vendor\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Updated dependencies:** $env:LIST_UPDATED" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "> Please review and merge the pull request to apply the updates." >> $env:GITHUB_STEP_SUMMARY
+        $summary = @(
+          '### 🎉 Pull Request Created'
+          ''
+          'A pull request has been created to update the vendor dependencies.'
+          ''
+          '**Branch:** `update-vendor`'
+          ''
+          $env:LIST_UPDATED -and "**Updated dependencies:** $env:LIST_UPDATED" -or "**Updated dependencies:** "
+          ''
+          '> Please review and merge the pull request to apply the updates.'
+        )
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
