@@ -128,10 +128,10 @@ jobs:
         echo "### ☁️ Upload Status" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "All artifacts successfully uploaded to GitHub Actions:" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder.zip\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder.7z\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`cmder_mini.zip\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "- ✅ \`hashes.txt\`" >> $env:GITHUB_STEP_SUMMARY
+        echo '- ✅ `cmder.zip`' >> $env:GITHUB_STEP_SUMMARY
+        echo '- ✅ `cmder.7z`' >> $env:GITHUB_STEP_SUMMARY
+        echo '- ✅ `cmder_mini.zip`' >> $env:GITHUB_STEP_SUMMARY
+        echo '- ✅ `hashes.txt`' >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
 
     - name: Create Release

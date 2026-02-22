@@ -50,17 +50,20 @@ jobs:
     - name: Summary - CodeQL analysis started
       shell: pwsh
       run: |
-        echo "## 🔒 CodeQL Security Analysis - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "### Analysis Configuration" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Property | Value |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| --- | --- |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Repository | \`${{ github.repository }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Branch | \`${{ github.ref_name }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Language | \`${{ matrix.language }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "| Commit | \`${{ github.sha }}\` |" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        $summary = @"
+          ## 🔒 CodeQL Security Analysis - Workflow Summary
+          
+          ### Analysis Configuration
+          
+          | Property | Value |
+          | --- | --- |
+          | Repository | `${{ github.repository }}` |
+          | Branch | `${{ github.ref_name }}` |
+          | Language | `${{ matrix.language }}` |
+          | Commit | `${{ github.sha }}` |
+          
+        "@
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -86,10 +89,14 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        echo "### ✅ Build Completed" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Cmder launcher built successfully for CodeQL analysis." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        $summary = @"
+          ### ✅ Build Completed
+          
+          Cmder launcher built successfully for CodeQL analysis.
+          
+        "@
+	
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
@@ -100,12 +107,14 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        @"
-        ### 🔍 CodeQL Analysis Results
-
-        ✅ CodeQL security analysis completed successfully.
-
-        **Language analyzed:** ``${{ matrix.language }}``
-
-        > Check the Security tab for detailed findings and recommendations.
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        $summary = @(
+          ### 🔍 CodeQL Analysis Results
+          
+          ✅ CodeQL security analysis completed successfully.
+          
+          **Language analyzed:** `${{ matrix.language }}`
+          
+          > Check the Security tab for detailed findings and recommendations.
+        "@
+	
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY

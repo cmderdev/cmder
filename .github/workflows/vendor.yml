@@ -31,10 +31,14 @@ jobs:
     - name: Summary - Workflow started
       shell: pwsh
       run: |
-        echo "## 📦 Vendor Update - Workflow Summary" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "🔍 Checking for vendor dependency updates..." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        $summary = @"
+          ## 📦 Update Vendor - Workflow Summary
+
+          🔍 Checking for vendor dependency updates...
+
+        "@
+	
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     - id: make-changes
       name: Checking for updates
@@ -156,32 +160,37 @@ jobs:
     - name: Summary - Update check results
       shell: pwsh
       run: |
-        $count = $env:COUNT_UPDATED
+        $count = [int]$env:COUNT_UPDATED
+
         if ($count -eq 0) {
-          echo "### ✅ No Updates Available" >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "All vendor dependencies are up to date! 🎉" >> $env:GITHUB_STEP_SUMMARY
+          $summary = @"
+          ### ✅ No Updates Available
+
+          All vendor dependencies are up to date! 🎉
+          "@
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
-          echo "### 🔄 Updates Found" >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          if ($count -eq 1) {
-            echo "📦 **$env:SINGLE_DEP_NAME** updated from \`$env:SINGLE_DEP_OLD_VERSION\` to \`$env:SINGLE_DEP_NEW_VERSION\`" >> $env:GITHUB_STEP_SUMMARY
-          } else {
-            echo "📦 **$count** vendor $word updated:" >> $env:GITHUB_STEP_SUMMARY
-          }
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "$env:UPDATE_MESSAGE" >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
+          $summary = @"
+          ### 🔄 Updates Found
 
-          # Check if we can auto-merge (only minor/patch changes)
-          $hasBreaking = $env:HAS_BREAKING_CHANGES -eq 'True'
-          if ($hasBreaking) {
-            echo "> ⚠️ **Note:** This update contains major version changes that may include breaking changes." >> $env:GITHUB_STEP_SUMMARY
-          } else {
-            echo "> ℹ️ **Note:** This update only contains minor or patch changes." >> $env:GITHUB_STEP_SUMMARY
-          }
+          📦 **$env:SINGLE_DEP_NAME** updated from ``$env:SINGLE_DEP_OLD_VERSION`` to ``$env:SINGLE_DEP_NEW_VERSION``
+
+          📦 **$count** vendor $word updated:
+
+          "@
         }
+
+        $summary += "$env:UPDATE_MESSAGE"
+
+        # Check if we can auto-merge (only minor/patch changes)
+        $hasBreaking = $env:HAS_BREAKING_CHANGES -eq 'True'
+        if ($hasBreaking) {
+          $summary += "> ⚠️ **Note:** This update contains major version changes that may include breaking changes."
+        } else {
+          $summary += "> ℹ️ **Note:** This update only contains minor or patch changes."
+        }
+
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 
     - name: Auto-merge minor updates
       if: env.COUNT_UPDATED > 0 && env.HAS_BREAKING_CHANGES != 'True'
@@ -252,18 +261,26 @@ jobs:
       if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       shell: pwsh
       run: |
-        echo "### 🎉 Pull Request Created" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "A pull request has been created to update the vendor dependencies." >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Branch:** \`update-vendor\`" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "**Updated dependencies:** $env:LIST_UPDATED" >> $env:GITHUB_STEP_SUMMARY
-        echo "" >> $env:GITHUB_STEP_SUMMARY
+        $summary = @"
+          ### 🎉 Pull Request Created
+
+          A pull request has been created to update the vendor dependencies.
+
+          **Branch:** `update-vendor`
+
+          $env:LIST_UPDATED -and "**Updated dependencies:** $env:LIST_UPDATED" -or "**Updated dependencies:**
+        
+        "@
+
         if ($env:HAS_BREAKING_CHANGES -eq 'True') {
-          echo "> ⚠️ **Manual review required:** This update contains major version changes." >> $env:GITHUB_STEP_SUMMARY
+          $summary += "> ⚠️ **Manual review required:** This update contains major version changes."
         } else {
-          echo "> ℹ️ **Note:** Auto-merge failed, manual review required." >> $env:GITHUB_STEP_SUMMARY
+          $summary += "> ℹ️ **Note:** Auto-merge failed, manual review required."
         }
-        echo "" >> $env:GITHUB_STEP_SUMMARY
-        echo "Please review and merge the pull request to apply the updates." >> $env:GITHUB_STEP_SUMMARY
+
+        $summary += @"
+        > Please review and merge the pull request to apply the updates.
+
+        "@
+
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY

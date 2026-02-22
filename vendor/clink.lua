@@ -324,7 +324,7 @@ end
 -- Find out current branch
 -- @return {nil|git branch name}
 ---
-local function get_git_branch(git_dir)
+local function get_git_branch(git_dir, fast)
     git_dir = git_dir or get_git_dir()
 
     -- If git directory not found then we're probably outside of repo
@@ -341,8 +341,90 @@ local function get_git_branch(git_dir)
     -- if HEAD matches branch expression, then we're on named branch
     -- otherwise it is a detached commit
     local branch_name = HEAD:match('ref: refs/heads/(.+)')
+    if os.getenv("CLINK_DEBUG_GIT_REFTABLE") then
+        branch_name = '.invalid'
+    end
 
-    return branch_name or 'HEAD detached at '..HEAD:sub(1, 7)
+    -- If the branch name is ".invalid" and the fast method wasn't requested,
+    -- then invoke git.exe to get accurate current branch info (slow method).
+    if branch_name == ".invalid" and not fast then
+        local file
+        branch_name = nil
+
+        -- Handle the most common case first.
+        if not branch_name then
+            file = io_popenyield("git --no-optional-locks branch 2>nul")
+            if file then
+                for line in file:lines() do
+                    local b = line:match("^%*%s+(.*)")
+                    if b then
+                        b = b:match("^%((HEAD detached at .*)%)") or b
+                        branch_name = b
+                        break
+                    end
+                end
+                file:close()
+            end
+        end
+
+        -- Handle the cases where "git branch" output is empty, but "git
+        -- branch --show-current" shows the branch name (e.g. a new repo).
+        if not branch_name then
+            file = io_popenyield("git --no-optional-locks branch --show-current 2>nul")
+            if file then
+                for line in file:lines() do -- luacheck: ignore 512
+                    branch_name = line
+                    break
+                end
+                file:close()
+            end
+        end
+    else
+        branch_name = branch_name or 'HEAD detached at '..HEAD:sub(1, 7)
+    end
+
+    return branch_name
+end
+
+local function get_git_remote(git_dir, branch)
+    if not git_dir then return nil end
+    if not branch then return nil end
+
+    local file = io.open(git_dir.."/config", 'r')
+    if not file then return nil end
+
+    local git_config = {}
+
+    local function get_git_config_value(section, param)
+        return git_config[section] and git_config[section][param] or nil
+    end
+
+    local section
+    for line in file:lines() do
+        if (line:sub(1,1) == "[" and line:sub(-1) == "]") then
+            if (line:sub(2,5) == "lfs ") then
+                section = nil -- skip LFS entries as there can be many and we never use them
+            else
+                section = line:sub(2,-2)
+                git_config[section] = git_config[section] or {}
+            end
+        elseif section then
+            local param, value = line:match('^%s-([%w|_]+)%s-=%s+(.+)$')
+            if (param and value ~= nil) then
+                git_config[section][param] = value
+            end
+        end
+    end
+    file:close()
+
+    local remote_to_push = get_git_config_value('branch "'..branch..'"', 'remote') or ''
+    local remote_ref = get_git_config_value('remote "'..remote_to_push..'"', 'push') or
+            get_git_config_value('push', 'default')
+
+    local text = remote_to_push
+    if remote_ref then text = text..'/'..remote_ref end
+
+    return text ~= '' and text or nil
 end
 
 ---
@@ -394,7 +476,7 @@ end
 -- Get the status and conflict status of working dir
 -- @return {bool <status>, bool <is_conflict>}
 ---
-local function get_git_status()
+local function get_git_status(git_dir)
     local file = io_popenyield("git --no-optional-locks status --porcelain 2>nul")
     if not file then
         return {}
@@ -416,7 +498,10 @@ local function get_git_status()
     end
     file:close()
 
-    return { status = is_status, conflict = conflict_found }
+    local branch = get_git_branch(git_dir, false--[[fast]])
+    local remote = get_git_remote(git_dir, branch)
+
+    return { status = is_status, branch = branch, remote = remote, conflict = conflict_found }
 end
 
 ---
@@ -515,11 +600,11 @@ end
 -- Use a prompt coroutine to get git status in the background.
 -- Cache the info so we can reuse it next time to reduce flicker.
 ---
-local function get_git_info_table()
+local function get_git_info_table(git_dir)
     local info = clink_promptcoroutine(function ()
         -- Use git status if allowed.
         local cmderGitStatusOptIn = get_git_status_setting()
-        return cmderGitStatusOptIn and get_git_status() or {}
+        return cmderGitStatusOptIn and get_git_status(git_dir) or {}
     end)
     if not info then
         info = cached_info.git_info or {}
@@ -539,10 +624,11 @@ local function git_prompt_filter()
     local git_dir = get_git_dir()
     local color
     if git_dir then
-        local branch = get_git_branch(git_dir)
+        local branch = get_git_branch(git_dir, true--[[fast]])
         if branch then
             -- If in a different repo or branch than last time, discard cached info.
-            if cached_info.git_dir ~= git_dir or cached_info.git_branch ~= branch then
+            if cached_info.git_dir ~= git_dir or
+                    (branch ~= ".invalid" and cached_info.git_branch ~= branch) then
                 cached_info.git_info = nil
                 cached_info.git_dir = git_dir
                 cached_info.git_branch = branch
@@ -550,9 +636,21 @@ local function git_prompt_filter()
 
             -- If we're inside of git repo then try to detect current branch
             -- Has branch => therefore it is a git folder, now figure out status
-            local gitInfo = get_git_info_table()
+            local gitInfo = get_git_info_table(git_dir)
             local gitStatus = gitInfo.status
             local gitConflict = gitInfo.conflict
+
+            -- Compensate for git reftables.
+            branch = gitInfo.branch or branch
+            if branch == ".invalid" then
+                branch = "Loading..."
+            elseif gitInfo.remote then
+                branch = branch.." -> "..gitInfo.remote
+            end
+
+            -- Prevent an older clink-completions git_prompt.lua scripts from
+            -- modifying the prompt.
+            branch = "\x1b[10m"..branch
 
             if gitStatus == nil then
                 color = get_unknown_color()
