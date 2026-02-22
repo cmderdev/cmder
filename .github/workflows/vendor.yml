@@ -67,7 +67,7 @@ jobs:
     - name: Summary - Update check results
       shell: pwsh
       run: |
-        $count = $env:COUNT_UPDATED
+        $count = [int]$env:COUNT_UPDATED
         if ($count -eq 0) {
           $summary = @"
           ### ✅ No Updates Available
