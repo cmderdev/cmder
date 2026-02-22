@@ -47,7 +47,7 @@ jobs:
         . scripts/utils.ps1
         $cmderVersion = Get-VersionStr
         
-        @"
+        $summary = @"
         ## ✅ Run Tests - Workflow Summary
         
         ### Test Environment
@@ -61,7 +61,9 @@ jobs:
         | PowerShell Version | **$($PSVersionTable.PSVersion)** |
         | Event | ``${{ github.event_name }}`` |
         
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Initialize vendors
       shell: pwsh
@@ -106,12 +108,14 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         ### 📋 Test Results
         
         | Test | Status | Duration |
         | --- | --- | --- |
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Testing Clink Shell
       id: test-clink
@@ -148,7 +152,7 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         
         ### ✅ All Tests Completed
         
@@ -158,4 +162,6 @@ jobs:
         - ✅ Clink shell environment (Windows cmd.exe with Clink)
         - ✅ PowerShell environment (with Cmder profile)
         - ✅ Bash environment (Git Bash integration)
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8

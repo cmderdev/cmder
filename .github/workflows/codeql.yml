@@ -50,7 +50,7 @@ jobs:
     - name: Summary - CodeQL analysis started
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         ## 🔒 CodeQL Security Analysis - Workflow Summary
         
         ### Analysis Configuration
@@ -62,7 +62,9 @@ jobs:
         | Language | ``${{ matrix.language }}`` |
         | Commit | ``${{ github.sha }}`` |
         
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+	"@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -88,12 +90,14 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         ### ✅ Build Completed
         
         Cmder launcher built successfully for CodeQL analysis.
         
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
@@ -104,7 +108,7 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         ### 🔍 CodeQL Analysis Results
         
         ✅ CodeQL security analysis completed successfully.
@@ -112,4 +116,6 @@ jobs:
         **Language analyzed:** ``${{ matrix.language }}``
         
         > Check the Security tab for detailed findings and recommendations.
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8

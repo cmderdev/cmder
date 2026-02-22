@@ -93,6 +93,7 @@ jobs:
             $summary += "`n| ``$($vendor.name)`` | $($vendor.version) |"
           }
         }
+      
         $summary += "`n"
         
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
@@ -109,7 +110,7 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         
         ---
         
@@ -117,7 +118,9 @@ jobs:
         
         ✅ Cmder built successfully.
         
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Pack the built files
       shell: pwsh
@@ -125,26 +128,26 @@ jobs:
       run: .\pack.ps1 -verbose
 
     - name: Upload artifact (cmder.zip)
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: build/cmder.zip
         name: cmder.zip
         if-no-files-found: error
 
     - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: build/cmder.7z
         name: cmder.7z
 
     - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: build/cmder_mini.zip
         name: cmder_mini.zip
 
     - name: Upload artifact (hashes.txt)
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: build/hashes.txt
         name: hashes.txt
@@ -245,7 +248,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         
         ---
         
@@ -259,4 +262,6 @@ jobs:
         - File hashes (``hashes.txt``)
         
         > ⚠️ Release is in **draft** mode. Please review and publish manually.
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8

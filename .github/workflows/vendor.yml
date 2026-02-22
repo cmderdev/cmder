@@ -31,12 +31,14 @@ jobs:
     - name: Summary - Workflow started
       shell: pwsh
       run: |
-        @"
+        $summary = @"
         ## 📦 Update Vendor - Workflow Summary
         
         Checking for vendor dependency updates...
         
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - id: make-changes
       name: Checking for updates
@@ -66,22 +68,24 @@ jobs:
       run: |
         $count = $env:COUNT_UPDATED
         if ($count -eq 0) {
-          @"
+          $summary = @"
           ### ✅ No Updates Available
           
           All vendor dependencies are up to date.
-          "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+          "@
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
-          @"
+          $summary = @"
           ### 🔄 Updates Found
           
           **$count** vendor $word updated:
           
           $env:UPDATE_MESSAGE
           
-          "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+          "@
         }
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - uses: peter-evans/create-pull-request@v7
       if: env.COUNT_UPDATED > 0
@@ -100,9 +104,9 @@ jobs:
       if: env.COUNT_UPDATED > 0
       shell: pwsh
       run: |
-        @"
+        $Summary = @"
         ### 🎉 Pull Request Created
-        
+          
         A pull request has been created to update the vendor dependencies.
         
         **Branch:** ``update-vendor``
@@ -110,4 +114,6 @@ jobs:
         **Updated dependencies:** $env:LIST_UPDATED
         
         > Please review and merge the pull request to apply the updates.
-        "@ | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        "@
+	
+	$summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
