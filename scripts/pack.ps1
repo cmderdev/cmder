@@ -31,6 +31,9 @@ Param(
     # Path to the vendor configuration source file
     [string]$cmderRoot = "$PSScriptRoot\..",
 
+    # Using this option will pack artifacts for a specific included terminal emulator [none, all, conemu-maximus5, or windows-terminal]
+    [string]$terminal = 'all',
+
     # Vendor folder locaton
     [string]$saveTo = "$PSScriptRoot\..\build"
 )
@@ -41,10 +44,36 @@ $cmderRoot = Resolve-Path $cmderRoot
 $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
-$targets = @{
-    "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
-    "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
-    "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
+if ($terminal -eq "none") {
+    $targets = @{
+      "cmder_win.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+    }
+} elseif ($terminal -eq "windows-terminal") {
+    $targets = @{
+      "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
+      "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
+      "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";
+    }
+} elseif ($terminal -eq "windows-terminal") {
+    $targets = @{
+      "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\windows-terminal`"";
+      "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\windows-terminal`"";
+      "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\windows-terminal`"";
+    }
+} else {
+    $targets = @{
+      "cmder_win.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_win_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+      "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
+      "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
+      "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";
+      "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\windows-terminal`"";
+      "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\windows-terminal`"";
+      "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\windows-terminal`"";
+    }
 }
 
 Push-Location -Path $cmderRoot
