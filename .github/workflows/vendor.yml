@@ -47,7 +47,11 @@ jobs:
       run: |
           $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           . .\scripts\update.ps1 -verbose
+
+          # Export count of updated packages (update.ps1 is expected to set $count)
+          if (-not ($count)) { $count = 0 }
           Set-GHVariable -Name COUNT_UPDATED -Value $count
+
           $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
           $listUpdated = ""
           $updateMessage = "| Name | Old Version | New Version |`n| :--- | :---: | :---: |`n"
@@ -121,7 +125,9 @@ jobs:
               $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | \`$oldVersion\` | **\`$($s.version)\`** |`n"
             }
           }
+
           if ($count -eq 0) { return }
+
           Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
           # Set single dependency variables (they will only be used if COUNT_UPDATED is 1)
           # Use safe fallback values in case variables weren't set (shouldn't happen but prevents errors)
@@ -137,12 +143,17 @@ jobs:
             $singleDepOldVersion = ""
             $singleDepNewVersion = ""
           }
+
           Set-GHVariable -Name SINGLE_DEP_NAME -Value $singleDepName
           Set-GHVariable -Name SINGLE_DEP_OLD_VERSION -Value $singleDepOldVersion
           Set-GHVariable -Name SINGLE_DEP_NEW_VERSION -Value $singleDepNewVersion
-          echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-          # Generate major updates changelog section
+          # Write multiline UPDATE_MESSAGE to GITHUB_ENV
+          Add-Content -Path $env:GITHUB_ENV -Value "UPDATE_MESSAGE<<EOF"
+          Add-Content -Path $env:GITHUB_ENV -Value $updateMessage
+          Add-Content -Path $env:GITHUB_ENV -Value "EOF"
+
+          # Generate major updates changelog section and export
           if ($majorUpdates.Count -gt 0) {
             $changelogSection = "`n<details>`n<summary>🔥 Major version updates - View changelog</summary>`n`n"
             foreach ($update in $majorUpdates) {
@@ -152,9 +163,14 @@ jobs:
               $changelogSection += "- [Release notes]($($update.repoUrl)/tag/v$($update.newVersion))`n`n"
             }
             $changelogSection += "</details>`n"
-            echo "CHANGELOG_SECTION<<<EOF`n$changelogSection`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+            Add-Content -Path $env:GITHUB_ENV -Value "CHANGELOG_SECTION<<EOF"
+            Add-Content -Path $env:GITHUB_ENV -Value $changelogSection
+            Add-Content -Path $env:GITHUB_ENV -Value "EOF"
+            Add-Content -Path $env:GITHUB_ENV -Value "HAS_BREAKING_CHANGES=True"
           } else {
-            echo "CHANGELOG_SECTION=" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            Add-Content -Path $env:GITHUB_ENV -Value "CHANGELOG_SECTION="
+            Add-Content -Path $env:GITHUB_ENV -Value "HAS_BREAKING_CHANGES=False"
           }
 
     - name: Summary - Update check results
@@ -164,33 +180,32 @@ jobs:
 
         if ($count -eq 0) {
           $summary = @(
-            '### ✅ No Updates Available'
-            ''
-            'All vendor dependencies are up to date! 🎉'
+          '### ✅ No Updates Available'
+          ''
+          'All vendor dependencies are up to date! 🎉'
+          ''
           )
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
           $summary = @(
-            '### 🔄 Updates Found'
-            ''
-            "📦 **$env:SINGLE_DEP_NAME** updated from ``$env:SINGLE_DEP_OLD_VERSION`` to ``$env:SINGLE_DEP_NEW_VERSION``"
-            ''
-            '📦 **$count** vendor $word updated:'
-            ''
+          '### 🔄 Updates Found'
+          ''
           )
+          $summary += '📦 **' + $env:SINGLE_DEP_NAME + '** updated from `' + $env:SINGLE_DEP_OLD_VERSION + '` to `' + $env:SINGLE_DEP_NEW_VERSION + '`' + [Environment]::NewLine + [Environment]::NewLine
+          $summary += '📦 **' + $count + '** vendor ' + $word + ' updated:' + [Environment]::NewLine + [Environment]::NewLine
         }
 
-        $summary += "$env:UPDATE_MESSAGE"
+        $summary += $env:UPDATE_MESSAGE + [Environment]::NewLine
 
         # Check if we can auto-merge (only minor/patch changes)
         $hasBreaking = $env:HAS_BREAKING_CHANGES -eq 'True'
         if ($hasBreaking) {
-          $summary += "> ⚠️ **Note:** This update contains major version changes that may include breaking changes."
+          $summary += '> ⚠️ **Note:** This update contains major version changes that may include breaking changes.'
         } else {
-          $summary += "> ℹ️ **Note:** This update only contains minor or patch changes."
+          $summary += '> ℹ️ **Note:** This update only contains minor or patch changes.'
         }
 
-        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Auto-merge minor updates
       if: env.COUNT_UPDATED > 0 && env.HAS_BREAKING_CHANGES != 'True'
@@ -261,16 +276,17 @@ jobs:
       if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       shell: pwsh
       run: |
-        $summary = @(
-          '### 🎉 Pull Request Created'
-          ''
-          'A pull request has been created to update the vendor dependencies.'
-          ''
-          '**Branch:** `update-vendor`'
-          ''
-          "$env:LIST_UPDATED -and "**Updated dependencies:** $env:LIST_UPDATED" -or "**Updated dependencies:**"
-          ''
-        )
+        $updatedLine = if (-not [string]::IsNullOrEmpty($env:LIST_UPDATED)) { "**Updated dependencies:** $env:LIST_UPDATED" } else { "**Updated dependencies:** " }
+        $summary = @"
+        ### 🎉 Pull Request Created
+
+        A pull request has been created to update the vendor dependencies.
+
+        **Branch:** `update-vendor`
+
+        $updatedLine
+
+        "@
 
         if ($env:HAS_BREAKING_CHANGES -eq 'True') {
           $summary += "> ⚠️ **Manual review required:** This update contains major version changes."
