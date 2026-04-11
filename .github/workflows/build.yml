@@ -12,6 +12,7 @@ on:
       - "v*"
   pull_request:
     branches: [ "master", "development" ]
+  workflow_dispatch:
 
 #---------------------------------#
 #    environment configuration    #
