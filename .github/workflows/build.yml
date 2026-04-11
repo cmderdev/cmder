@@ -174,9 +174,24 @@ jobs:
 
         ### 🗃️ Artifacts
 
-        | Artifact | Size | Download | Hash (SHA256) |
-        | --- | --- | --- | --- |
+        | Artifact | Size | Hash (SHA256) |
+        | --- | --- | --- |
         "@
+
+        # Function to format file size in human-readable format
+        function Format-FileSize {
+          param([double]$Bytes)
+          
+          if ($Bytes -ge 1GB) {
+            return "{0:N2} GiB" -f ($Bytes / 1GB)
+          } elseif ($Bytes -ge 1MB) {
+            return "{0:N2} MiB" -f ($Bytes / 1MB)
+          } elseif ($Bytes -ge 1KB) {
+            return "{0:N2} KiB" -f ($Bytes / 1KB)
+          } else {
+            return "{0:N0} B" -f $Bytes
+          }
+        }
 
         # Function to get artifact download URL with retry logic
         function Get-ArtifactDownloadUrl {
@@ -216,7 +231,7 @@ jobs:
           foreach ($file in $buildFiles) {
             $artifact = $file.Name
             $path = $file.FullName
-            $size = $file.Length / 1MB
+            $sizeFormatted = Format-FileSize -Bytes $file.Length
             $hash = (Get-FileHash $path -Algorithm SHA256).Hash
 
             # Try to get the actual artifact download URL
@@ -232,13 +247,13 @@ jobs:
             # Determine emoji based on file type
             if ($artifact -match '\.txt$') {
               $emoji = "📄"
-            } elseif ($artifact -match '\.(zip|7z)$') {
+            } elseif ($artifact -match '\.(zip|rar|7z)$') {
               $emoji = "🗄️"
             } else {
               $emoji = "📦"
             }
 
-            $summary += "`n| $emoji ``$artifact`` | $([math]::Round($size, 2)) MB | [📥 Download$warning]($downloadUrl) | ``$hash`` |"
+            $summary += "`n| $emoji [``$artifact``$warning]($downloadUrl) | $sizeFormatted | ``$hash`` |"
           }
         }
         $summary += "`n"
