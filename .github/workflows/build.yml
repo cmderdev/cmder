@@ -178,52 +178,6 @@ jobs:
         | --- | --- | --- |
         "@
 
-        # Function to format file size in human-readable format
-        function Format-FileSize {
-          param([double]$Bytes)
-          
-          if ($Bytes -ge 1GB) {
-            return "{0:N2} GiB" -f ($Bytes / 1GB)
-          } elseif ($Bytes -ge 1MB) {
-            return "{0:N2} MiB" -f ($Bytes / 1MB)
-          } elseif ($Bytes -ge 1KB) {
-            return "{0:N2} KiB" -f ($Bytes / 1KB)
-          } else {
-            return "{0:N0} B" -f $Bytes
-          }
-        }
-
-        # Function to get artifact download URL with retry logic
-        function Get-ArtifactDownloadUrl {
-          param(
-            [string]$ArtifactName,
-            [int]$MaxRetries = 3,
-            [int]$DelaySeconds = 2
-          )
-
-          for ($i = 0; $i -lt $MaxRetries; $i++) {
-            try {
-              # Use GitHub CLI to get artifact information
-              $artifactsJson = gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" --jq ".artifacts[] | select(.name == `"$ArtifactName`")"
-
-              if ($artifactsJson) {
-                $artifact = $artifactsJson | ConvertFrom-Json
-                if ($artifact.archive_download_url) {
-                  return $artifact.archive_download_url
-                }
-              }
-            } catch {
-              Write-Host "Attempt $($i + 1) failed to get artifact URL for $ArtifactName : $_"
-            }
-
-            if ($i -lt ($MaxRetries - 1)) {
-              Start-Sleep -Seconds $DelaySeconds
-            }
-          }
-
-          return $null
-        }
-
         # Get all files from the build directory (excluding directories and hidden files)
         if (Test-Path "build") {
           $buildFiles = Get-ChildItem -Path "build" -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
@@ -235,7 +189,7 @@ jobs:
             $hash = (Get-FileHash $path -Algorithm SHA256).Hash
 
             # Try to get the actual artifact download URL
-            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifact
+            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifact -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
             $warning = ""
 
             if (-not $downloadUrl) {
