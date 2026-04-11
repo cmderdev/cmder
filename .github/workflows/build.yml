@@ -209,11 +209,14 @@ jobs:
           return $null
         }
 
-        $artifacts = @("cmder.zip", "cmder.7z", "cmder_mini.zip", "hashes.txt")
-        foreach ($artifact in $artifacts) {
-          $path = "build/$artifact"
-          if (Test-Path $path) {
-            $size = (Get-Item $path).Length / 1MB
+        # Get all files from the build directory (excluding directories and hidden files)
+        if (Test-Path "build") {
+          $buildFiles = Get-ChildItem -Path "build" -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
+          
+          foreach ($file in $buildFiles) {
+            $artifact = $file.Name
+            $path = $file.FullName
+            $size = $file.Length / 1MB
             $hash = (Get-FileHash $path -Algorithm SHA256).Hash
 
             # Try to get the actual artifact download URL
