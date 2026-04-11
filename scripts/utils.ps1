@@ -336,8 +336,10 @@ function Get-ArtifactDownloadUrl {
             
             if ($artifactsJson) {
                 $artifact = $artifactsJson | ConvertFrom-Json
-                if ($artifact.archive_download_url) {
-                    return $artifact.archive_download_url
+                if ($artifact.id) {
+                    # Construct browser-accessible GitHub Actions artifact download URL
+                    # Format: https://github.com/owner/repo/actions/runs/{run_id}/artifacts/{artifact_id}
+                    return "https://github.com/$Repository/actions/runs/$RunId/artifacts/$($artifact.id)"
                 }
             }
         } catch {

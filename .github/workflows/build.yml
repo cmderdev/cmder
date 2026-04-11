@@ -93,11 +93,13 @@ jobs:
             # Create release link based on vendor package
             $versionLink = "$($vendor.version)"
             if ($vendor.url) {
-              # Extract owner/repo from the URL and create release link
-              if ($vendor.url -match 'github\.com/([^/]+)/([^/]+)') {
+              # Extract owner/repo/tag from the URL and create release link
+              # Handle both /releases/download/ and /archive/ URLs
+              if ($vendor.url -match 'github\.com/([^/]+)/([^/]+)/(releases/download|archive)/([^/]+)') {
                 $owner = $Matches[1]
-                $repo = $Matches[2] -replace '\.git$', ''
-                $versionLink = "[$($vendor.version)](https://github.com/$owner/$repo/releases/tag/$($vendor.version))"
+                $repo = $Matches[2]
+                $tag = $Matches[4]
+                $versionLink = "[$($vendor.version)](https://github.com/$owner/$repo/releases/tag/$tag)"
               }
             }
             $summary += "`n| ``$($vendor.name)`` | $versionLink |"
