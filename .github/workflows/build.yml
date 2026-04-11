@@ -65,7 +65,7 @@ jobs:
         $summary = @"
         ## 📦 Build Cmder - Workflow Summary
 
-        <small>Build started: $buildTime</small>
+        <small>Build started: ``$buildTime``</small>
 
         ### Repository Information
         | Property | Value |
