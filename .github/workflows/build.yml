@@ -173,6 +173,9 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        # Source utility functions
+        . scripts/utils.ps1
+        
         $summary = @"
 
         ### 🗃️ Artifacts
