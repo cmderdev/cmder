@@ -79,7 +79,7 @@ jobs:
 
         ---
 
-        ### 📁 Vendor Packages
+        ### 🗃️ Vendor Packages ([sources.json](vendor/sources.json))
         | Package | Version |
         | --- | --- |
         "@
@@ -90,7 +90,17 @@ jobs:
           $summary += "`n| _No vendor packages found_ | |"
         } else {
           foreach ($vendor in $vendorSources) {
-            $summary += "`n| ``$($vendor.name)`` | $($vendor.version) |"
+            # Create release link based on vendor package
+            $versionLink = "$($vendor.version)"
+            if ($vendor.url) {
+              # Extract owner/repo from the URL and create release link
+              if ($vendor.url -match 'github\.com/([^/]+)/([^/]+)') {
+                $owner = $Matches[1]
+                $repo = $Matches[2] -replace '\.git$', ''
+                $versionLink = "[$($vendor.version)](https://github.com/$owner/$repo/releases/tag/$($vendor.version))"
+              }
+            }
+            $summary += "`n| ``$($vendor.name)`` | $versionLink |"
           }
         }
 
@@ -113,8 +123,6 @@ jobs:
         $summary = @"
 
         ---
-
-        ### Build Status
 
         ✅ Cmder built successfully.
 
@@ -163,8 +171,6 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         $summary = @"
-
-        ---
 
         ### 🗃️ Artifacts
 
