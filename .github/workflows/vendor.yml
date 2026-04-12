@@ -103,9 +103,12 @@ jobs:
                   } elseif ($newVer.Minor -gt $oldVer.Minor) {
                     $changeType = "minor"
                     $emoji = "🚀"
-                  } else {
+                  } elseif ($newVer -gt $oldVer) {
                     $changeType = "patch"
                     $emoji = "⬆️"
+                  } else {
+                    $changeType = "unknown"
+                    $emoji = "🔄"
                   }
                 }
               } catch {
