@@ -45,10 +45,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+        $currentVersion = (Get-Content -Raw .\vendor\sources.json | ConvertFrom-Json)
         . .\scripts\update.ps1 -verbose
         Set-GHVariable -Name COUNT_UPDATED -Value $count
-        $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+        $newVersion = (Get-Content -Raw .\vendor\sources.json | ConvertFrom-Json)
         $listUpdated = ""
         $updateMessage = "| Name | Old Version | New Version |`n| :--- | ---- | ---- |`n"
         foreach ($s in $newVersion) {
