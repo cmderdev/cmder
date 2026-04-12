@@ -88,7 +88,7 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
-    - uses: peter-evans/create-pull-request@v7
+    - uses: peter-evans/create-pull-request@v8
       if: env.COUNT_UPDATED > 0
       with:
         title: 'Updates to `${{ env.COUNT_UPDATED }}` vendored dependencies'
