@@ -324,13 +324,19 @@ foreach ($s in $sources) {
                 $oldVer = [System.Version]::Parse($oldVerParseable)
                 $newVer = [System.Version]::Parse($newVerParseable)
 
-                if ($newVer.Major -gt $oldVer.Major) {
+                if ($newVer -lt $oldVer) {
+                    $changeType = "downgrade"
+                    $hasBreakingChanges = $true
+                } elseif ($newVer.Major -gt $oldVer.Major) {
                     $changeType = "major"
                     $hasBreakingChanges = $true
                 } elseif ($newVer.Minor -gt $oldVer.Minor) {
                     $changeType = "minor"
-                } else {
+                } elseif ($newVer.Build -gt $oldVer.Build) {
                     $changeType = "patch"
+                } else {
+                    # No version increase detected (could be equal or non-incremental change)
+                    $changeType = "unknown"
                 }
             } else {
                 # Not enough numeric parts for semantic versioning
