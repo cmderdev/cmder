@@ -51,16 +51,16 @@ jobs:
       shell: pwsh
       run: |
         $summary = @"
-          ## 🔒 CodeQL Security Analysis - Workflow Summary
+        ## 🔒 CodeQL Security Analysis - Workflow Summary
 
-          ### Analysis Configuration
+        ### Analysis Configuration
 
-          | Property | Value |
-          | --- | --- |
-          | Repository | ``${{ github.repository }}`` |
-          | Branch | ``${{ github.ref_name }}`` |
-          | Language | ``${{ matrix.language }}`` |
-          | Commit | ``${{ github.sha }}`` |
+        | Property | Value |
+        | --- | --- |
+        | Repository | ``${{ github.repository }}`` |
+        | Branch | ``${{ github.ref_name }}`` |
+        | Language | ``${{ matrix.language }}`` |
+        | Commit | ``${{ github.sha }}`` |
 
         "@
 
@@ -91,9 +91,9 @@ jobs:
       shell: pwsh
       run: |
         $summary = @"
-          ### ✅ Build Completed
+        ### ✅ Build Completed
 
-          Cmder launcher built successfully for CodeQL analysis.
+        Cmder launcher built successfully for CodeQL analysis.
 
         "@
 
@@ -109,13 +109,13 @@ jobs:
       shell: pwsh
       run: |
         $summary = @"
-          ### 🔍 CodeQL Analysis Results
+        ### 🔍 CodeQL Analysis Results
 
-          ✅ CodeQL security analysis completed successfully.
+        ✅ CodeQL security analysis completed successfully.
 
-          **Language analyzed:** ``${{ matrix.language }}``
+        **Language analyzed:** ``${{ matrix.language }}``
 
-          > Check the Security tab for detailed findings and recommendations.
+        > Check the Security tab for detailed findings and recommendations.
         "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8

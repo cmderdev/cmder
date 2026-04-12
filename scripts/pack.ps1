@@ -70,7 +70,7 @@ if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
 foreach ($t in $targets.GetEnumerator()) {
     Create-Archive "$cmderRoot" "$saveTo\$($t.Name)" $t.Value
     $hash = (Digest-Hash "$saveTo\$($t.Name)")
-    Add-Content -path "$saveTo\hashes.txt" -value ($t.Name + ' ' + $hash)
+    Add-Content -path "$saveTo\hashes.txt" -value ($t.Name + "`t" + $hash)
 }
 
 Pop-Location

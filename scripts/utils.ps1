@@ -249,3 +249,107 @@ function Download-File {
     $wc.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials;
     $wc.DownloadFile($Url, $File)
 }
+
+function Format-FileSize {
+    <#
+    .SYNOPSIS
+    Formats a file size in bytes to a human-readable string using binary units.
+    
+    .DESCRIPTION
+    Converts file sizes to appropriate binary units (B, KiB, MiB, GiB) for better readability.
+    
+    .PARAMETER Bytes
+    The file size in bytes to format.
+    
+    .EXAMPLE
+    Format-FileSize -Bytes 1024
+    Returns "1.00 KiB"
+    
+    .EXAMPLE
+    Format-FileSize -Bytes 15728640
+    Returns "15.00 MiB"
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [double]$Bytes
+    )
+    
+    if ($Bytes -ge 1GB) {
+        return "{0:N2} GiB" -f ($Bytes / 1GB)
+    } elseif ($Bytes -ge 1MB) {
+        return "{0:N2} MiB" -f ($Bytes / 1MB)
+    } elseif ($Bytes -ge 1KB) {
+        return "{0:N2} KiB" -f ($Bytes / 1KB)
+    } else {
+        return "{0:N0} B" -f $Bytes
+    }
+}
+
+function Get-ArtifactDownloadUrl {
+    <#
+    .SYNOPSIS
+    Retrieves the download URL for a GitHub Actions artifact with retry logic.
+    
+    .DESCRIPTION
+    Uses the GitHub CLI to fetch artifact information from the GitHub API with automatic retries.
+    Falls back to returning $null if all attempts fail.
+    
+    .PARAMETER ArtifactName
+    The name of the artifact to retrieve the download URL for.
+    
+    .PARAMETER Repository
+    The GitHub repository in the format "owner/repo".
+    
+    .PARAMETER RunId
+    The GitHub Actions workflow run ID.
+    
+    .PARAMETER MaxRetries
+    Maximum number of retry attempts. Default is 3.
+    
+    .PARAMETER DelaySeconds
+    Delay in seconds between retry attempts. Default is 2.
+    
+    .EXAMPLE
+    Get-ArtifactDownloadUrl -ArtifactName "cmder.zip" -Repository "cmderdev/cmder" -RunId "123456789"
+    
+    .EXAMPLE
+    Get-ArtifactDownloadUrl -ArtifactName "build-output" -Repository "owner/repo" -RunId "987654321" -MaxRetries 5 -DelaySeconds 3
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ArtifactName,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$Repository,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$RunId,
+        
+        [int]$MaxRetries = 3,
+        [int]$DelaySeconds = 2
+    )
+    
+    for ($i = 0; $i -lt $MaxRetries; $i++) {
+        try {
+            # Use GitHub CLI to get artifact information
+            $artifactsJson = gh api "repos/$Repository/actions/runs/$RunId/artifacts" --jq ".artifacts[] | select(.name == `"$ArtifactName`")"
+            
+            if ($artifactsJson) {
+                $artifact = $artifactsJson | ConvertFrom-Json
+                if ($artifact.id) {
+                    # Construct browser-accessible GitHub Actions artifact download URL
+                    # Format: https://github.com/owner/repo/actions/runs/{run_id}/artifacts/{artifact_id}
+                    return "https://github.com/$Repository/actions/runs/$RunId/artifacts/$($artifact.id)"
+                }
+            }
+        } catch {
+            Write-Host "Attempt $($i + 1) failed to get artifact URL for $ArtifactName : $_"
+        }
+        
+        if ($i -lt ($MaxRetries - 1)) {
+            Start-Sleep -Seconds $DelaySeconds
+        }
+    }
+    
+    return $null
+}

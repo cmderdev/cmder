@@ -31,12 +31,12 @@ jobs:
     - name: Summary - Workflow started
       shell: pwsh
       run: |
-        $summary = @(
-          '## 📦 Update Vendor - Workflow Summary'
-          ''
-          '🔍 Checking for vendor dependency updates...'
-          ''
-        )
+        $summary = @"
+        ## 📦 Update Vendor - Workflow Summary
+
+        Checking for vendor dependency updates...
+
+        "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
@@ -45,14 +45,14 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          $currentVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+          $currentVersion = (Get-Content -Raw .\vendor\sources.json | ConvertFrom-Json)
           . .\scripts\update.ps1 -verbose
 
           # Export count of updated packages (update.ps1 is expected to set $count)
           if (-not ($count)) { $count = 0 }
           Set-GHVariable -Name COUNT_UPDATED -Value $count
 
-          $newVersion = (Get-Content .\vendor\sources.json | ConvertFrom-Json)
+          $newVersion = (Get-Content -Raw .\vendor\sources.json | ConvertFrom-Json)
           $listUpdated = ""
           $updateMessage = "| Name | Old Version | New Version |`n| :--- | :---: | :---: |`n"
           $majorUpdates = @()
@@ -149,6 +149,7 @@ jobs:
           Set-GHVariable -Name SINGLE_DEP_NEW_VERSION -Value $singleDepNewVersion
 
           # Write multiline UPDATE_MESSAGE to GITHUB_ENV
+          ## echo "UPDATE_MESSAGE<<EOF`n$updateMessage`nEOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Add-Content -Path $env:GITHUB_ENV -Value "UPDATE_MESSAGE<<EOF"
           Add-Content -Path $env:GITHUB_ENV -Value $updateMessage
           Add-Content -Path $env:GITHUB_ENV -Value "EOF"
@@ -179,23 +180,22 @@ jobs:
         $count = [int]$env:COUNT_UPDATED
 
         if ($count -eq 0) {
-          $summary = @(
-          '### ✅ No Updates Available'
-          ''
-          'All vendor dependencies are up to date! 🎉'
-          ''
-          )
+          $summary = @"
+          ### ✅ No Updates Available
+
+          All vendor dependencies are up to date! 🎉
+          "@
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
-          $summary = @(
-          '### 🔄 Updates Found'
-          ''
-          )
-          $summary += '📦 **' + $env:SINGLE_DEP_NAME + '** updated from `' + $env:SINGLE_DEP_OLD_VERSION + '` to `' + $env:SINGLE_DEP_NEW_VERSION + '`' + [Environment]::NewLine + [Environment]::NewLine
-          $summary += '📦 **' + $count + '** vendor ' + $word + ' updated:' + [Environment]::NewLine + [Environment]::NewLine
+          $summary = @"
+          ### 🔄 Updates Found
+
+          "@
+          $summary += '📦 **' + $env:SINGLE_DEP_NAME + '** updated from `' + $env:SINGLE_DEP_OLD_VERSION + '` to `' + $env:SINGLE_DEP_NEW_VERSION + '`' + "`n" + "`n"
+          $summary += '📦 **' + $count + '** vendor ' + $word + ' updated:' + "`n" + "`n"
         }
 
-        $summary += $env:UPDATE_MESSAGE + [Environment]::NewLine
+        $summary += $env:UPDATE_MESSAGE + "`n"
 
         # Check if we can auto-merge (only minor/patch changes)
         $hasBreaking = $env:HAS_BREAKING_CHANGES -eq 'True'
@@ -276,15 +276,14 @@ jobs:
       if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       shell: pwsh
       run: |
-        $updatedLine = if (-not [string]::IsNullOrEmpty($env:LIST_UPDATED)) { "**Updated dependencies:** $env:LIST_UPDATED" } else { "**Updated dependencies:** " }
         $summary = @"
         ### 🎉 Pull Request Created
 
         A pull request has been created to update the vendor dependencies.
 
-        **Branch:** `update-vendor`
+        **Branch:** ``update-vendor``
 
-        $updatedLine
+        $(if (-not [string]::IsNullOrEmpty($env:LIST_UPDATED)) { "**Updated dependencies:** $env:LIST_UPDATED" } else { "**Updated dependencies:** " })
 
         "@
 
