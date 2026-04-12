@@ -105,7 +105,7 @@ jobs:
       if: env.COUNT_UPDATED > 0
       shell: pwsh
       run: |
-        $Summary = @"
+        $summary = @"
         ### 🎉 Pull Request Created
 
         A pull request has been created to update the vendor dependencies.
