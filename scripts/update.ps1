@@ -340,7 +340,7 @@ foreach ($s in $sources) {
             # If semantic versioning fails, treat as unknown (potentially breaking)
             $changeType = "unknown"
             $hasBreakingChanges = $true
-            Write-Verbose "Could not parse version as semantic version, treating as potentially breaking"
+            Write-Verbose "Could not parse version as semantic version for dependency '$($s.name)' (old: '$($s.version)', new: '$version'), treating as potentially breaking"
         }
 
         $updateDetails += @{
