@@ -304,47 +304,15 @@ foreach ($s in $sources) {
 
         $count++
 
-        # Analyze version change type
-        $changeType = "unknown"
-        try {
-            # Try parsing as semantic version
-            # Handle versions with more than 4 parts by taking only the first 3-4 parts
-            $oldVerStr = $s.version.Split('-')[0]
-            $newVerStr = $version.Split('-')[0]
-
-            # Split by dots and take only numeric parts, first 4 max
-            $oldParts = $oldVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
-            $newParts = $newVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
-
-            # Ensure we have at least 2 parts (major.minor)
-            if ($oldParts.Count -ge 2 -and $newParts.Count -ge 2) {
-                $oldVerParseable = $oldParts -join '.'
-                $newVerParseable = $newParts -join '.'
-
-                $oldVer = [System.Version]::Parse($oldVerParseable)
-                $newVer = [System.Version]::Parse($newVerParseable)
-
-                if ($newVer -lt $oldVer) {
-                    $changeType = "downgrade"
-                    $hasBreakingChanges = $true
-                } elseif ($newVer.Major -gt $oldVer.Major) {
-                    $changeType = "major"
-                    $hasBreakingChanges = $true
-                } elseif ($newVer.Minor -gt $oldVer.Minor) {
-                    $changeType = "minor"
-                } elseif ($newVer.Build -gt $oldVer.Build) {
-                    $changeType = "patch"
-                } else {
-                    # No version increase detected (could be equal or non-incremental change)
-                    $changeType = "unknown"
-                }
-            } else {
-                # Not enough numeric parts for semantic versioning
-                throw "Not enough numeric version parts"
-            }
-        } catch {
-            # If semantic versioning fails, treat as unknown (potentially breaking)
-            $changeType = "unknown"
+        # Analyze version change type using shared function
+        $result = Get-VersionChangeType -OldVersion $s.version -NewVersion $version
+        $changeType = $result.ChangeType
+        
+        # Determine if this is a breaking change
+        if ($changeType -eq "downgrade" -or $changeType -eq "major") {
+            $hasBreakingChanges = $true
+        } elseif ($changeType -eq "unknown") {
+            # If version parsing failed, treat as potentially breaking
             $hasBreakingChanges = $true
             Write-Verbose "Could not parse version as semantic version for dependency '$($s.name)' (old: '$($s.version)', new: '$version'), treating as potentially breaking"
         }

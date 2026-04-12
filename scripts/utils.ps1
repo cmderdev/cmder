@@ -285,6 +285,100 @@ function Format-FileSize {
     }
 }
 
+function Get-VersionChangeType {
+    <#
+    .SYNOPSIS
+    Analyzes version changes using semantic versioning to determine the type of update and appropriate emoji.
+    
+    .DESCRIPTION
+    Parses old and new version strings, compares them using semantic versioning rules,
+    and returns information about the change type, emoji indicator, and whether it's a major update.
+    
+    .PARAMETER OldVersion
+    The previous version string (e.g., "1.2.3" or "2.52.0.windows.1").
+    
+    .PARAMETER NewVersion
+    The new version string (e.g., "1.3.0" or "3.0.0.windows.1").
+    
+    .OUTPUTS
+    Returns a hashtable with the following keys:
+    - ChangeType: "major", "minor", "patch", "downgrade", or "unknown"
+    - Emoji: The corresponding emoji indicator (🔥, 🚀, ⬆️, or 🔄)
+    - IsMajor: Boolean indicating if this is a major version update
+    
+    .EXAMPLE
+    $result = Get-VersionChangeType -OldVersion "1.2.3" -NewVersion "2.0.0"
+    # Returns: @{ ChangeType = "major"; Emoji = "🔥"; IsMajor = $true }
+    
+    .EXAMPLE
+    $result = Get-VersionChangeType -OldVersion "1.2.3" -NewVersion "1.3.0"
+    # Returns: @{ ChangeType = "minor"; Emoji = "🚀"; IsMajor = $false }
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$OldVersion,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$NewVersion
+    )
+    
+    $changeType = "unknown"
+    $emoji = "🔄"
+    $isMajor = $false
+    
+    try {
+        # Handle versions with more than 4 parts and strip pre-release identifiers
+        $oldVerStr = $OldVersion.Split('-')[0]
+        $newVerStr = $NewVersion.Split('-')[0]
+        
+        # Split by dots and take only numeric parts, first 4 max
+        $oldParts = $oldVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+        $newParts = $newVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
+        
+        # Ensure we have at least 2 parts (major.minor) for semantic versioning
+        if ($oldParts.Count -ge 2 -and $newParts.Count -ge 2) {
+            $oldVerParseable = $oldParts -join '.'
+            $newVerParseable = $newParts -join '.'
+            
+            $oldVer = [System.Version]::Parse($oldVerParseable)
+            $newVer = [System.Version]::Parse($newVerParseable)
+            
+            if ($newVer -lt $oldVer) {
+                $changeType = "downgrade"
+                # Don't set emoji for downgrades in this function - caller handles it
+            } elseif ($newVer.Major -gt $oldVer.Major) {
+                $changeType = "major"
+                $emoji = "🔥"
+                $isMajor = $true
+            } elseif ($newVer.Minor -gt $oldVer.Minor) {
+                $changeType = "minor"
+                $emoji = "🚀"
+            } elseif ($newVer -gt $oldVer) {
+                $changeType = "patch"
+                $emoji = "⬆️"
+            } else {
+                # No version increase detected (versions are equal)
+                $changeType = "unknown"
+                $emoji = "🔄"
+            }
+        } else {
+            # Not enough numeric parts for semantic versioning
+            throw "Not enough numeric version parts"
+        }
+    } catch {
+        # If semantic versioning fails, return unknown
+        $changeType = "unknown"
+        $emoji = "🔄"
+        $isMajor = $false
+    }
+    
+    return @{
+        ChangeType = $changeType
+        Emoji = $emoji
+        IsMajor = $isMajor
+    }
+}
+
 function Get-ArtifactDownloadUrl {
     <#
     .SYNOPSIS
