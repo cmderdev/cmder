@@ -99,7 +99,11 @@ jobs:
               if ($vendor.url -match 'github\.com/([^/]+)/([^/]+)/(releases/download|archive)/([^/]+)') {
                 $owner = $Matches[1]
                 $repo = $Matches[2]
+                $pathType = $Matches[3]
                 $tag = $Matches[4]
+                if ($pathType -eq 'archive') {
+                  $tag = $tag -replace '\.(?:tar\.gz|tgz|zip)$', ''
+                }
                 $versionLink = "[$($vendor.version)](https://github.com/$owner/$repo/releases/tag/$tag)"
               }
             }
