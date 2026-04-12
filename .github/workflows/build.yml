@@ -86,7 +86,7 @@ jobs:
         "@
 
         # Read vendor sources.json and add to summary
-        $vendorSources = Get-Content "vendor/sources.json" | ConvertFrom-Json
+        $vendorSources = Get-Content -Raw "vendor/sources.json" | ConvertFrom-Json
         if ($vendorSources.Count -eq 0) {
           $summary += "`n| _No vendor packages found_ | |"
         } else {
