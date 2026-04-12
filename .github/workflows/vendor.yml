@@ -223,16 +223,18 @@ jobs:
           git add vendor/sources.json
           $commitResult = git commit -m "⬆️ Update dependencies ($env:LIST_UPDATED)"
 
-          # Push directly to master
-          git push origin HEAD:master
+          if ($commitResult) {
+            # Push directly to master
+            git push origin HEAD:master
 
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "✅ **Success!** Updates have been automatically merged to master." >> $env:GITHUB_STEP_SUMMARY
-          echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "**Updated dependencies:** $env:LIST_UPDATED" >> $env:GITHUB_STEP_SUMMARY
+            echo "" >> $env:GITHUB_STEP_SUMMARY
+            echo "✅ **Success!** Updates have been automatically merged to master." >> $env:GITHUB_STEP_SUMMARY
+            echo "" >> $env:GITHUB_STEP_SUMMARY
+            echo "**Updated dependencies:** $env:LIST_UPDATED" >> $env:GITHUB_STEP_SUMMARY
 
-          # Set a flag to skip PR creation
-          echo "AUTO_MERGED=true" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            # Set a flag to skip PR creation
+            echo "AUTO_MERGED=true" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
         } catch {
           echo "" >> $env:GITHUB_STEP_SUMMARY
           echo "⚠️ **Warning:** Unable to automatically merge updates." >> $env:GITHUB_STEP_SUMMARY
