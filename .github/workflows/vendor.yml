@@ -62,7 +62,7 @@ jobs:
         if ($count -eq 0) { return }
         Set-GHVariable -Name LIST_UPDATED -Value $listUpdated.Trim(', ')
 
-        echo "UPDATE_MESSAGE<<<EOF`n$updateMessage`n<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        echo "UPDATE_MESSAGE<<EOF`n$updateMessage`nEOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
     - name: Summary - Update check results
       shell: pwsh
