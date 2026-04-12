@@ -103,7 +103,7 @@ jobs:
           if ($vendorInfo.Count -eq 0) {
             $summary += "_No vendor version information available._"
           } else {
-            $summary += $vendorInfo -join '`n'
+            $summary += $vendorInfo -join "`n"
           }
         )
 
