@@ -6,6 +6,10 @@ on:
   # At 13:37 UTC every day.
   - cron: '37 13 * * *'
 
+concurrency:
+  group: vendor-update
+  cancel-in-progress: false
+
 defaults:
   run:
     shell: pwsh
