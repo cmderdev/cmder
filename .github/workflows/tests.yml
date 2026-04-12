@@ -124,34 +124,64 @@ jobs:
 
     - name: Testing Clink Shell
       id: test-clink
+      shell: pwsh
       run: |
+          $startTime = Get-Date
           cmd /c vendor\init.bat /v /d /t
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
     - name: Summary - Clink Shell test
       if: success()
       shell: pwsh
       run: |
-        "| Clink Shell | ✅ Passed | Cmd shell initialization |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        $duration = "${{ steps.test-clink.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| Clink Shell | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing PowerShell
       id: test-powershell
+      shell: pwsh
       run: |
+          $startTime = Get-Date
           PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "$env:CMDER_DEBUG='1'; . 'vendor\profile.ps1'"
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
     - name: Summary - PowerShell test
       if: success()
       shell: pwsh
       run: |
-        "| PowerShell | ✅ Passed | Profile script execution |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        $duration = "${{ steps.test-powershell.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| PowerShell | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing Bash
       id: test-bash
+      shell: pwsh
       run: |
+          $startTime = Get-Date
           bash vendor/cmder.sh
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
     - name: Summary - Bash test
       if: success()
       shell: pwsh
       run: |
-        "| Bash | ✅ Passed | Bash environment initialization |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        $duration = "${{ steps.test-bash.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| Bash | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Summary - All tests completed
       if: success()
