@@ -259,6 +259,8 @@ function Fetch-DownloadUrl {
 }
 
 $count = 0
+$hasBreakingChanges = $false
+$updateDetails = @()
 
 # Read the current sources content
 $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
@@ -301,6 +303,26 @@ foreach ($s in $sources) {
         # }
 
         $count++
+
+        # Analyze version change type using shared function
+        $result = Get-VersionChangeType -OldVersion $s.version -NewVersion $version
+        $changeType = $result.ChangeType
+        
+        # Determine if this is a breaking change
+        if ($changeType -eq "downgrade" -or $changeType -eq "major") {
+            $hasBreakingChanges = $true
+        } elseif ($changeType -eq "unknown") {
+            # If version parsing failed, treat as potentially breaking
+            $hasBreakingChanges = $true
+            Write-Verbose "Could not parse version as semantic version for dependency '$($s.name)' (old: '$($s.version)', new: '$version'), treating as potentially breaking"
+        }
+
+        $updateDetails += @{
+            name = $s.name
+            oldVersion = $s.version
+            newVersion = $version
+            changeType = $changeType
+        }
     }
 
     $s.url = $downloadUrl
@@ -314,12 +336,16 @@ if ($count -eq 0) {
     return
 }
 
-if ($Env:APPVEYOR -eq 'True') {
-    Add-AppveyorMessage -Message "Successfully updated $count dependencies." -Category Information
+# Export update details for GitHub Actions
+if ($Env:GITHUB_ACTIONS -eq 'true') {
+    $updateDetailsJson = $updateDetails | ConvertTo-Json -Compress
+    Write-Output "UPDATE_DETAILS=$updateDetailsJson" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+    Write-Output "HAS_BREAKING_CHANGES=$hasBreakingChanges" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+    Write-Output "::notice title=Task Complete::Successfully updated $count dependencies."
 }
 
-if ($Env:GITHUB_ACTIONS -eq 'true') {
-    Write-Output "::notice title=Task Complete::Successfully updated $count dependencies."
+if ($Env:APPVEYOR -eq 'True') {
+    Add-AppveyorMessage -Message "Successfully updated $count dependencies." -Category Information
 }
 
 Write-Host -ForegroundColor green "Successfully updated $count dependencies."
