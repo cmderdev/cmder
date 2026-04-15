@@ -1,5 +1,29 @@
 # Change Log
 
+
+## Unreleased
+
+### Changes
+
+- Refresh vendored sources and defaults via `sources.json` updates.
+- Update build/pack scripts and GitHub Actions workflows.
+
+### Fixes
+
+- Improve `lib_path.cmd` path enhancement handling.
+- Fix launcher overwrite/backup behavior for emulator settings.
+- Fixes #2940
+
+### Adds
+
+- Add Windows Terminal integration (defaults, packaging, and launch helpers).
+- Cmder for Windows
+    - Uses Windows and Git for Windows Native Terminals.
+    - Does not contain a terminal emulator like ConEmu or Windows Terminal.
+- Add Git Bash/Mintty launch helpers and user init template.
+- Add `create-cmdercfg.ps1` and `timer.cmd` helpers.
+- Add `.git-blame-ignore-revs` entries for whitespace-only changes.
+
 ## [1.3.25](https://github.com/cmderdev/cmder/tree/v1.3.25) (2024-05-31)
 
 ### Changes
