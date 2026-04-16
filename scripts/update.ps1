@@ -5,17 +5,17 @@
     This script updates dependencies to the latest version in vendor/sources.json file.
 
     You will need to make this script executable by setting your Powershell Execution Policy to Remote signed
-    Then unblock the script for execution with UnblockFile .\build.ps1
+    Then unblock the script for execution with UnblockFile .\update.ps1
 .EXAMPLE
-    .\build.ps1
+    .\update.ps1
 
     Updates the dependency sources in the default location, the vendor/sources.json file.
 .EXAMPLE
-    .\build -verbose
+    .\update.ps1 -verbose
 
     Updates the dependency sources and see what's going on.
 .EXAMPLE
-    .\build.ps1 -SourcesPath '~/custom/vendors.json'
+    .\update.ps1 -SourcesPath '~/custom/vendors.json'
 
     Specify the path to update dependency sources file at.
 .NOTES
@@ -23,7 +23,7 @@
     David Refoua <David@Refoua.me>
     Part of the Cmder project.
 .LINK
-    http://cmder.app/ - Project Home
+    https://github.com/cmderdev/cmder - Project Home
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
