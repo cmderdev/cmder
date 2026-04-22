@@ -203,3 +203,4 @@ jobs:
         echo "- File hashes (\`hashes.txt\`)" >> $env:GITHUB_STEP_SUMMARY
         echo "" >> $env:GITHUB_STEP_SUMMARY
         echo "> ⚠️ Release is in **draft** mode. Please review and publish manually." >> $env:GITHUB_STEP_SUMMARY
+
