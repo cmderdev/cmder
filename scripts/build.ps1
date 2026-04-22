@@ -60,7 +60,10 @@ Param(
     [string]$terminal = 'all',
 
     # Build launcher if you have MSBuild tools installed
-    [switch]$Compile
+    [switch]$Compile,
+
+    # Install pacman if not present
+    [switch]$InstallPacman
 )
 
 # Get the scripts and cmder root dirs we are building in.
@@ -199,6 +202,10 @@ if (-not $noVendor) {
         Copy-Item $($saveTo + "git-prompt.sh") $($saveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
     }
 
+    if ( $InstallPacman -and !(Test-Path $($saveTo + "git-for-windows/usr/bin/pacman.exe") ) ) {
+        Write-Verbose "Installing pacman..."
+        & $($saveTo + "git-for-windows/bin/bash.exe") $($saveTo + "../scripts/install_pacman.sh")
+    }
     Pop-Location
 }
 
