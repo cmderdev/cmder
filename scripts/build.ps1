@@ -8,6 +8,47 @@
 
     You will need to make this script executable by setting your Powershell Execution Policy to Remote signed
     Then unblock the script for execution with UnblockFile .\build.ps1
+.PARAMETER sourcesPath
+    Path to the vendor sources JSON file. Defaults to vendor/sources.json.
+
+    Use this to point to a custom package manifest.
+.PARAMETER saveTo
+    Destination directory for downloaded and extracted vendor dependencies.
+
+    Defaults to the repository vendor directory.
+.PARAMETER launcher
+    Path to the launcher project directory used when -Compile is set.
+
+    Defaults to the repository launcher directory.
+.PARAMETER config
+    Path to the configuration directory used to back up and restore user-modified
+    terminal settings during vendor refresh.
+
+    Defaults to the repository config directory.
+.PARAMETER noVendor
+    Skip downloading and extracting all vendors.
+
+    Useful with -Compile when only rebuilding the launcher.
+.PARAMETER terminal
+    Select which terminal packages to include from sources:
+    - all: include all supported terminal packages (default)
+    - none: skip terminal vendor downloads
+    - conemu-maximus5: include only ConEmu package
+    - windows-terminal: include only Windows Terminal package
+.PARAMETER Compile
+    Build the launcher executable using MSBuild.
+
+    Requires Visual C++ build tools and msbuild in PATH.
+.PARAMETER InstallPacman
+    Install pacman in the bundled Git for Windows environment if it is not present.
+.PARAMETER Verbose
+    Built-in common parameter from CmdletBinding.
+
+    Prints detailed progress output for troubleshooting.
+.PARAMETER WhatIf
+    Built-in common parameter from CmdletBinding (SupportsShouldProcess).
+
+    Does a dry-run of the build process, showing what actions would be taken without making changes.
 .EXAMPLE
     .\build.ps1
 
@@ -21,20 +62,41 @@
 
     Skip all downloads and only build launcher.
 .EXAMPLE
-    .\build -verbose
+    .\build.ps1 -Verbose
 
     Execute the build and see what's going on.
 .EXAMPLE
-    .\build.ps1 -SourcesPath '~/custom/vendors.json'
+    .\build.ps1 -SourcesPath 'C:\custom\sources.json'
 
     Build Cmder with your own packages. See vendor/sources.json for the syntax you need to copy.
+.EXAMPLE
+    .\build.ps1 -Terminal conemu-maximus5
+
+    Build Cmder including only ConEmu (skips Windows Terminal).
+.EXAMPLE
+    .\build.ps1 -Terminal windows-terminal
+
+    Build Cmder including only Windows Terminal (skips ConEmu).
+.EXAMPLE
+    .\build.ps1 -Terminal none -Compile
+
+    Build launcher only and skip all terminal vendor downloads.
+.EXAMPLE
+    .\build.ps1 -InstallPacman
+
+    Build vendors and install pacman into the bundled Git for Windows environment if missing.
+.EXAMPLE
+    .\build.ps1 -WhatIf
+
+    Shows what actions would be taken without applying changes.
 .NOTES
     AUTHORS
-    Samuel Vasko, Jack Bennett
+    Samuel Vasko, Jack Bennett, Dax Games
     Part of the Cmder project.
 .LINK
     http://cmder.app/ - Project Home
 #>
+
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
@@ -202,10 +264,19 @@ if (-not $noVendor) {
         Copy-Item $($saveTo + "git-prompt.sh") $($saveTo + "git-for-windows/etc/profile.d/git-prompt.sh")
     }
 
-    if ( $InstallPacman -and !(Test-Path $($saveTo + "git-for-windows/usr/bin/pacman.exe") ) ) {
+    $gitForWindowsPath = $saveTo + "git-for-windows"
+    $pacmanPath = $saveTo + "git-for-windows/usr/bin/pacman.exe"
+
+    $shouldInstallPacman =
+        $InstallPacman -and
+        (Test-Path $gitForWindowsPath) -and
+        -not (Test-Path $pacmanPath)
+
+    if ($shouldInstallPacman) {
         Write-Verbose "Installing pacman..."
         & $($saveTo + "git-for-windows/bin/bash.exe") $($saveTo + "../scripts/install_pacman.sh")
     }
+    
     Pop-Location
 }
 
