@@ -30,3 +30,7 @@ cmd.auto_answer = answer_yes
 # name: Doskey completions
 # type: color
 color.doskey = yellow
+
+# name: Show a suggestion in a muted color
+# type: boolean
+autosuggest.inline
