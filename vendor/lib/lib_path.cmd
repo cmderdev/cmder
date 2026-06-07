@@ -149,9 +149,44 @@ exit /b
 
     exit /b
 
+:add_path_with_position
+:::===============================================================================
+:::add_path_with_position - Add a directory to PATH at the start or end.
+:::
+:::include:
+:::
+:::  call "lib_path.cmd"
+:::
+:::usage:
+:::
+:::  %lib_path% add_path_with_position "[dir_path]" [append]
+:::
+:::required:
+:::
+:::  [dir_path] <in> Fully qualified directory path. Ex: "c:\bin"
+:::
+:::options:
+:::
+:::  append     <in> Append to the path env variable rather than pre-pend.
+:::
+:::output:
+:::
+:::  path       <out> Updates the path env variable when the directory exists.
+:::-------------------------------------------------------------------------------
+    if "%~1" == "" exit /b
+    if not exist "%~1" exit /b
+
+    if /i "%~2" == "append" (
+       set "path=%path%;%~1"
+    ) else (
+       set "path=%~1;%path%"
+    )
+
+    exit /b
+
 :set_found
     if "%ERRORLEVEL%" == "0" (
-        set found=1
+       set found=1
     )
 
     exit /b

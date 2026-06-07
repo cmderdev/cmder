@@ -118,7 +118,7 @@ goto :SKIP_CLINK
     if %max_depth% gtr 1 (
       %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
     ) else (
-      set "path=%CMDER_USER_ROOT%\bin;%path%"
+      set "path=%CMDER_USER_BIN%;%path%"
     )
   )
   endlocal && set "path=%path%"
@@ -139,7 +139,7 @@ goto :SKIP_CLINK
     )
   )
   
-  set "path=%path:;;=;%
+  set "path=%path:;;=;%"
 
 :CMDER_CONFIGURED
   if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
@@ -170,5 +170,4 @@ goto :SKIP_CLINK
   set user_aliases=
 
 exit /b
-
 
