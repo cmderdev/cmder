@@ -166,7 +166,6 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set CMDER_CLINK=0
 )
 
-:: Use the generated user init snapshot when present. Shared config keeps precedence.
 set "cmder_root_user_init=%CMDER_ROOT%\config\user_init.cmd"
 if defined CMDER_USER_CONFIG set "cmder_user_init=%CMDER_USER_CONFIG%\user_init.cmd"
 
@@ -239,7 +238,7 @@ goto :SKIP_CLINK
 
     :: Revert back to plain cmd.exe prompt without clink
     prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
-    
+
     :: Add Windows Terminal shell integration support (OSC 133 sequences)
     if defined WT_SESSION (prompt $e]133;D$e\$e]133;A$e\$e]9;9;$P$e\%PROMPT%$e]133;B$e\)
 
