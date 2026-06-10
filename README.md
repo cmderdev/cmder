@@ -1,6 +1,6 @@
 # Cmder
 
-[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?branch=master&svg=true)](https://ci.appveyor.com/project/cmderdev/cmder) [![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg)](https://github.com/cmderdev/cmder/actions/workflows/build.yml)
+[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster)
 
 Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul, comes with a Monokai color scheme, amazing [clink](https://chrisant996.github.io/clink/) (further enhanced by [clink-completions](https://github.com/vladimir-kotikov/clink-completions)) and a custom prompt layout.
 
@@ -388,13 +388,10 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
 
 ## Current development builds
 
-You can download builds of the current development branch by going to AppVeyor via the following link:
+Download the latest successful GitHub Actions build, then open the run and download the artifacts from the **Artifacts** section:
 
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/cmderdev/cmder?svg=True)](https://ci.appveyor.com/project/cmderdev/cmder/branch/master/artifacts)
-
-The latest download builds by GitHub Actions can be downloaded from the link below:
-
-[![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg)](https://github.com/cmderdev/cmder/actions/workflows/build.yml)
+* **Master branch builds**: https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess
+* **Development branch builds**: https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess
 
 ## License
 
