@@ -276,14 +276,11 @@ jobs:
         "@
 
         if ($env:HAS_BREAKING_CHANGES -eq 'True') {
-          $summary += "> ⚠️ **Manual review required:** This update contains major version changes."
+          $summary += "> ⚠️ **Manual review required:** This update contains major version changes.`n`n"
         } else {
-          $summary += "> ℹ️ **Note:** Auto-merge failed, manual review required."
+          $summary += "> ℹ️ **Note:** Auto-merge failed, manual review required.`n`n"
         }
 
-        $summary += @"
-        > Please review and merge the pull request to apply the updates.
-
-        "@
+        $summary += "> Please review and merge the pull request to apply the updates.`n"
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
