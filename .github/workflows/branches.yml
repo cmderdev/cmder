@@ -26,16 +26,22 @@ jobs:
       - name: Summary - Merge operation started
         shell: bash
         run: |
+          repo_url="${{ github.server_url }}/${{ github.repository }}"
+          source_branch_url="$repo_url/tree/master"
+          target_branch_url="$repo_url/tree/development"
+          actor_url="${{ github.server_url }}/${{ github.actor }}"
+          commit_url="$repo_url/commit/${{ github.sha }}"
+
           echo "## 🔀 Update Branches - Workflow Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Merge Operation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
-          echo "| Source Branch | \`master\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target Branch | \`development\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Triggered by | @${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Source Branch | [\`master\`]($source_branch_url) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target Branch | [\`development\`]($target_branch_url) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | [@${{ github.actor }}]($actor_url) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | [\`${{ github.sha }}\`]($commit_url) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
       # Runs a single command using the runners shell
@@ -51,10 +57,14 @@ jobs:
         if: success()
         shell: bash
         run: |
+          repo_url="${{ github.server_url }}/${{ github.repository }}"
+          source_branch_url="$repo_url/tree/master"
+          target_branch_url="$repo_url/tree/development"
+
           echo "### ✅ Merge Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The \`master\` branch has been successfully merged into \`development\`." >> $GITHUB_STEP_SUMMARY
+          echo "The [\`master\`]($source_branch_url) branch has been successfully merged into [\`development\`]($target_branch_url)." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Merge type:** No fast-forward merge" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> The development branch is now synchronized with the latest changes from master." >> $GITHUB_STEP_SUMMARY
+          echo "> The [\`development\`]($target_branch_url) branch is now synchronized with the latest changes from [\`master\`]($source_branch_url)." >> $GITHUB_STEP_SUMMARY
