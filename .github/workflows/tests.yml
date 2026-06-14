@@ -62,7 +62,6 @@ jobs:
         | Cmder Version | **$cmderVersion** |
         | PowerShell Version | **$($PSVersionTable.PSVersion)** |
         | Event | ``${{ github.event_name }}`` |
-
         "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
