@@ -297,11 +297,11 @@ jobs:
         PR_OPERATION: ${{ steps.create-pr.outputs.pull-request-operation }}
         AUTO_MERGE_FAILURE_REASON: ${{ env.AUTO_MERGE_FAILURE_REASON }}
       run: |
-        $updateVendorBranchUrl = "https://github.com/${{ github.repository }}/tree/update-vendor"
+        $updateVendorBranchUrl = "$($env:GITHUB_SERVER_URL)/$($env:GITHUB_REPOSITORY)/tree/update-vendor"
         $summary = @"
         ### 🎉 Pull Request Result
 
-        **Branch:** [update-vendor]($updateVendorBranchUrl)
+        **Branch:** [``update-vendor``]($updateVendorBranchUrl)
 
         $(if (-not [string]::IsNullOrEmpty($env:LIST_UPDATED)) { "**Updated dependencies:** $env:LIST_UPDATED" } else { "**Updated dependencies:** " })
 
