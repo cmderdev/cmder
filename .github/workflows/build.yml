@@ -169,13 +169,22 @@ jobs:
     - name: Summary - Package artifacts
       if: success()
       shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         # Source utility functions
         . scripts/utils.ps1
         $profiles = Get-CmderPackageProfiles -Terminal all
+        $artifactName = "cmder-builds"
+        $artifactUrl = Get-ArtifactDownloadUrl -ArtifactName $artifactName -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+        if (-not $artifactUrl) {
+          $artifactUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        }
         $summary = @"
 
         ### 🗃️ Packages
+
+        Download the combined build artifact: [$artifactName]($artifactUrl)
         "@
 
         foreach ($profile in $profiles) {

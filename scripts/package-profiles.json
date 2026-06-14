@@ -2,8 +2,8 @@
   "profiles": [
     {
       "terminal": "none",
-      "displayName": "No Emulator",
-      "outputFolder": "cmder_win",
+      "displayName": "Cmder slim",
+      "outputFolder": "cmder_slim",
       "excludedVendors": [
         "conemu-maximus5",
         "windows-terminal"
