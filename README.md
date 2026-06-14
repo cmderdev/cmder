@@ -386,12 +386,14 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
 3.  Delete the `[cmder_root]/vendor` folder.
 4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
 
-## Current development builds
+## Latest Builds
 
-Download the latest successful GitHub Actions build, then open the run and download the artifacts from the **Artifacts** section:
+You can download the latest successful builds of the current [`master`](https://github.com/cmderdev/cmder/tree/master) and [`development`](https://github.com/cmderdev/cmder/tree/development) branches from the **GitHub Actions > Artifacts** section following the links below:
 
-* **Master branch builds**: https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess
-* **Development branch builds**: https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess
+| Branch | Build Status | Download Artifacts |
+|--------|-------------|-------------------|
+| 🔒 [`master`](https://github.com/cmderdev/cmder/tree/master) | [![master build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess) |
+| 🔧 [`development`](https://github.com/cmderdev/cmder/tree/development) | [![development build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) |
 
 ## License
 
