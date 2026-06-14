@@ -41,5 +41,3 @@ The scripts dot-source `utils.ps1` at runtime to reuse the above functions and c
 ```powershell
 .\build.ps1 -verbose -Compile -NoVendor
 ```
-
-If you want, I can open the new README or run a quick spell-check/change. The file was created at: [scripts/README.md](scripts/README.md)
