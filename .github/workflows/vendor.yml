@@ -264,12 +264,13 @@ jobs:
       if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
       shell: pwsh
       run: |
+        $updateVendorBranchUrl = "$($env:GITHUB_SERVER_URL)/$($env:GITHUB_REPOSITORY)/tree/update-vendor"
         $summary = @"
         ### 🎉 Pull Request Created
 
         A pull request has been created to update the vendor dependencies.
 
-        **Branch:** ``update-vendor``
+        **Branch:** [``update-vendor``]($updateVendorBranchUrl)
 
         $(if (-not [string]::IsNullOrEmpty($env:LIST_UPDATED)) { "**Updated dependencies:** $env:LIST_UPDATED" } else { "**Updated dependencies:** " })
 
