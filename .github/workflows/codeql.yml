@@ -61,7 +61,6 @@ jobs:
         | Branch | ``${{ github.ref_name }}`` |
         | Language | ``${{ matrix.language }}`` |
         | Commit | ``${{ github.sha }}`` |
-
         "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
