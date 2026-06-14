@@ -101,8 +101,6 @@ foreach ($profile in $profiles) {
     }
     $packages = @($profile.packages)
 
-    Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $profilePath "hashes.txt")
-
     # Package variations live in scripts/package-profiles.json so names and vendor mixes stay configurable.
     foreach ($package in $packages) {
         if ([string]::IsNullOrWhiteSpace($package.name)) {
@@ -122,7 +120,7 @@ foreach ($profile in $profiles) {
         $flags = Get-ArchiveFlags -Kind $package.kind -IncludedVendors $includedVendors -AllVendors $allVendors
         Create-Archive "$cmderRoot" $outputPath $flags
         $hash = Digest-Hash $outputPath
-        Add-Content -Path (Join-Path $profilePath "hashes.txt") -Value ($package.name + "`t" + $hash)
+        Add-Content -Path (Join-Path $saveTo "hashes.txt") -Value ($profile.outputFolder + "/" + $package.name + "`t" + $hash)
     }
 }
 

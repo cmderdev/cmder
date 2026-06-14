@@ -180,13 +180,6 @@ jobs:
         name: cmder_slim_mini.zip
         if-no-files-found: error
 
-    - name: Upload artifact (cmder_slim_hashes.txt)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder_slim/hashes.txt
-        name: cmder_slim_hashes.txt
-        if-no-files-found: error
-
     - name: Upload artifact (cmder.7z)
       uses: actions/upload-artifact@v7
       with:
@@ -206,13 +199,6 @@ jobs:
       with:
         path: build/cmder/cmder_mini.zip
         name: cmder_mini.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_hashes.txt)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder/hashes.txt
-        name: cmder_hashes.txt
         if-no-files-found: error
 
     - name: Upload artifact (cmder_conemu.7z)
@@ -236,11 +222,11 @@ jobs:
         name: cmder_conemu_mini.zip
         if-no-files-found: error
 
-    - name: Upload artifact (cmder_conemu_hashes.txt)
+    - name: Upload artifact (hashes.txt)
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_conemu/hashes.txt
-        name: cmder_conemu_hashes.txt
+        path: build/hashes.txt
+        name: hashes.txt
         if-no-files-found: error
 
     - name: Summary - Package artifacts
@@ -263,14 +249,6 @@ jobs:
             continue
           }
 
-          $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $profile.outputFolder -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
-          $warning = ""
-
-          if (-not $downloadUrl) {
-            $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            $warning = " ⚠️"
-          }
-
           $summary += "`n`n#### 📁 $($profile.displayName) ``$($profile.outputFolder)``"
           $summary += "`n`n| Artifact | Size | Hash (SHA256) |"
           $summary += "`n| --- | --- | --- |"
@@ -278,11 +256,37 @@ jobs:
           $buildFiles = Get-ChildItem -Path $profilePath -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
           foreach ($file in $buildFiles) {
             $artifact = $file.Name
+            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifact -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+            $warning = ""
+
+            if (-not $downloadUrl) {
+              $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              $warning = " ⚠️"
+            }
+
             $emoji = Get-ArtifactTypeEmoji -Name $artifact
             $sizeFormatted = Format-FileSize -Bytes $file.Length
             $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash
             $summary += "`n| $emoji [``$artifact``$warning]($downloadUrl) | $sizeFormatted | ``$hash`` |"
           }
+        }
+
+        $hashesPath = "build/hashes.txt"
+        if (Test-Path $hashesPath) {
+          $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName "hashes.txt" -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+          $warning = ""
+
+          if (-not $downloadUrl) {
+            $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            $warning = " ⚠️"
+          }
+
+          $hashesSize = Format-FileSize -Bytes (Get-Item $hashesPath).Length
+          $hashesHash = (Get-FileHash $hashesPath -Algorithm SHA256).Hash
+          $summary += "`n`n#### 🧾 Hash Manifest"
+          $summary += "`n`n| Artifact | Size | Hash (SHA256) |"
+          $summary += "`n| --- | --- | --- |"
+          $summary += "`n| 📄 [``hashes.txt``$warning]($downloadUrl) | $hashesSize | ``$hashesHash`` |"
         }
 
         $summary += "`n"

@@ -29,6 +29,7 @@ The scripts dot-source `utils.ps1` at runtime to reuse the above functions and c
 - Each profile defines a default `includedVendors` list for the full variants, and each package entry can override that list when a variation needs a different vendor set.
 - If a package entry omits `includedVendors`, it inherits the profile default.
 - `outputFolder` controls the `build/<profile>/` directory, while each package entry's `name` controls the archive filename written inside that folder.
+- `pack.ps1` also writes a single root `build/hashes.txt` manifest containing all package hashes for the run.
 
 **Quick examples**
 - Run a default build (downloads vendors and prepares distribution):
