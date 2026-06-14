@@ -44,49 +44,38 @@ $cmderRoot = Resolve-Path $cmderRoot
 $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
-if ($terminal -eq "none") {
-    $targets = @{
-      "cmder_win.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_win.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_win.mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
+function Get-ArchiveFlags {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Kind,
+
+        [string[]]$ExcludedVendors = @()
+    )
+
+    if ($Kind -eq "7z") {
+        $flags = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on"
+    } else {
+        $flags = "-mm=Deflate -mfb=128 -mpass=3"
     }
-} elseif ($terminal -eq "windows-terminal") {
-    $targets = @{
-      "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
-      "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
-      "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";
+
+    foreach ($vendor in $ExcludedVendors) {
+        $flags += " -xr!`"vendor\$vendor`""
     }
-} elseif ($terminal -eq "windows-terminal") {
-    $targets = @{
-      "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\windows-terminal`"";
-      "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\windows-terminal`"";
-      "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\windows-terminal`"";
-    }
-} else {
-    $targets = @{
-      "cmder_win.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_win.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_win_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`" -xr!`"vendor\windows-terminal`"";
-      "cmder_wt.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\conemu-maximus5`"";
-      "cmder_wt.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\conemu-maximus5`"";
-      "cmder_wt_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\conemu-maximus5`"";
-      "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on -xr!`"vendor\windows-terminal`"";
-      "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3 -xr!`"vendor\windows-terminal`"";
-      "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`" -xr!`"vendor\windows-terminal`"";
-    }
+
+    return $flags
 }
 
 Push-Location -Path $cmderRoot
 
 Delete-Existing "$cmderRoot\Version*"
-Delete-Existing "$cmderRoot\build\*"
+Delete-Existing "$saveTo\*"
 
 if (-not (Test-Path -PathType container $saveTo)) {
     (New-Item -ItemType Directory -Path $saveTo) | Out-Null
 }
 
 $saveTo = Resolve-Path $saveTo
-
+$profiles = Get-CmderPackageProfiles -Terminal $terminal
 $version = Get-VersionStr
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
 
@@ -96,10 +85,32 @@ if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
     Get-ChildItem $cmderRoot -Force -Exclude $excluded
 }
 
-foreach ($t in $targets.GetEnumerator()) {
-    Create-Archive "$cmderRoot" "$saveTo\$($t.Name)" $t.Value
-    $hash = (Digest-Hash "$saveTo\$($t.Name)")
-    Add-Content -path "$saveTo\hashes.txt" -value ($t.Name + "`t" + $hash)
+foreach ($profile in $profiles) {
+    $profilePath = Join-Path $saveTo $profile.outputFolder
+    if (-not (Test-Path -PathType container $profilePath)) {
+        (New-Item -ItemType Directory -Path $profilePath) | Out-Null
+    }
+
+    $archives = @(
+        @{ Name = "$($profile.outputFolder).7z"; Kind = "7z"; Mini = $false },
+        @{ Name = "$($profile.outputFolder).zip"; Kind = "zip"; Mini = $false },
+        @{ Name = "$($profile.outputFolder)_mini.zip"; Kind = "zip"; Mini = $true }
+    )
+
+    Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $profilePath "hashes.txt")
+
+    foreach ($archive in $archives) {
+        $outputPath = Join-Path $profilePath $archive.Name
+        $excludedVendors = @($profile.excludedVendors)
+        if ($archive.Mini) {
+            $excludedVendors += "git-for-windows"
+        }
+
+        $flags = Get-ArchiveFlags -Kind $archive.Kind -ExcludedVendors $excludedVendors
+        Create-Archive "$cmderRoot" $outputPath $flags
+        $hash = Digest-Hash $outputPath
+        Add-Content -Path (Join-Path $profilePath "hashes.txt") -Value ($archive.Name + "`t" + $hash)
+    }
 }
 
 Pop-Location
