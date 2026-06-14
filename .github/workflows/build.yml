@@ -86,7 +86,13 @@ jobs:
         | --- | --- |
         | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
         | Branch | [``$actualBranchName``]($branchLink) |
-        $(if ($prNumber) { "| Pull Request | [#$prNumber]($prLink) |" })
+        "@
+
+        if ($prNumber) {
+          $summary += "| Pull Request | [#$prNumber]($prLink) |`n"
+        }
+
+        $summary += @"
         | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
         | Actor | [@${{ github.actor }}](https://github.com/${{ github.actor }}) |
         | Workflow | ``${{ github.workflow }}`` |
