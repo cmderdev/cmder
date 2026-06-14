@@ -408,6 +408,7 @@ if %max_depth% gtr 1 (
 )
 %print_debug% init.bat "END - bin(prepend): Env Var - PATH=%path%"
 
+:: The CMDER_USER_BIN variable is set in the launcher.
 if defined CMDER_USER_BIN (
   %print_debug% init.bat "START - user_bin(prepend): Env Var - PATH=%path%"
   if %max_depth% gtr 1 (
