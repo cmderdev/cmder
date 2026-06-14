@@ -1,0 +1,29 @@
+{
+  "profiles": [
+    {
+      "terminal": "none",
+      "displayName": "No Emulator",
+      "outputFolder": "cmder_win",
+      "excludedVendors": [
+        "conemu-maximus5",
+        "windows-terminal"
+      ]
+    },
+    {
+      "terminal": "windows-terminal",
+      "displayName": "Windows Terminal",
+      "outputFolder": "cmder",
+      "excludedVendors": [
+        "conemu-maximus5"
+      ]
+    },
+    {
+      "terminal": "conemu-maximus5",
+      "displayName": "ConEmu",
+      "outputFolder": "cmder_conemu",
+      "excludedVendors": [
+        "windows-terminal"
+      ]
+    }
+  ]
+}

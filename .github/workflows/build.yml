@@ -60,14 +60,12 @@ jobs:
         # Check if this is a PR merge ref (e.g., "3061/merge")
         if ($refName -match '^(\d+)/(merge|head)$') {
           $prNumber = $Matches[1]
-          # Use head_ref for the actual branch name if available
           if ($headRef) {
             $actualBranchName = $headRef
           }
           $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
           $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
         } elseif ($eventName -eq "pull_request") {
-          # This is a pull request event
           $prNumber = "${{ github.event.pull_request.number }}"
           if ($headRef) {
             $actualBranchName = $headRef
@@ -75,7 +73,6 @@ jobs:
           $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
           $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
         } else {
-          # Regular branch, link to the branch tree
           $branchLink = "https://github.com/${{ github.repository }}/tree/$refName"
         }
 
@@ -102,17 +99,13 @@ jobs:
         | --- | --- |
         "@
 
-        # Read vendor sources.json and add to summary
         $vendorSources = Get-Content -Raw "vendor/sources.json" | ConvertFrom-Json
         if ($vendorSources.Count -eq 0) {
           $summary += "`n| _No vendor packages found_ | |"
         } else {
           foreach ($vendor in $vendorSources) {
-            # Create release link based on vendor package
             $versionLink = "$($vendor.version)"
             if ($vendor.url) {
-              # Extract owner/repo/tag from the URL and create release link
-              # Handle both /releases/download/ and /archive/ URLs
               if ($vendor.url -match 'github\.com/([^/]+)/([^/]+)/(releases/download|archive)/([^/]+)') {
                 $owner = $Matches[1]
                 $repo = $Matches[2]
@@ -129,7 +122,6 @@ jobs:
         }
 
         $summary += "`n"
-
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Add MSBuild to PATH
@@ -144,154 +136,61 @@ jobs:
       if: success()
       shell: pwsh
       run: |
-        $summary = @"
-
-        ---
-
-        ✅ Cmder built successfully.
-
-        "@
-
-        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+        echo "### ✅ Build Status" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "Cmder launcher successfully compiled." >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
 
     - name: Pack the built files
       shell: pwsh
       working-directory: scripts
       run: .\pack.ps1 -verbose -terminal all
 
-    - name: Upload artifact (cmder_win_mini.zip)
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        path: build/cmder_win_mini.zip
-        name: cmder_win_mini.zip
+        path: build
+        name: cmder-builds
         if-no-files-found: error
 
-    - name: Upload artifact (cmder_win.7z)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_win.7z
-        name: cmder_win.7z
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_win.zip)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_win.zip
-        name: cmder_win.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_wt.zip)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_wt.zip
-        name: cmder_wt.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_wt.7z)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_wt.7z
-        name: cmder_wt.7z
-
-    - name: Upload artifact (cmder_wt_mini.zip)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_wt_mini.zip
-        name: cmder_wt_mini.zip
-
-    - name: Upload artifact (cmder.zip)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder.zip
-        name: cmder.zip
-        archive: false
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder.7z
-        name: cmder.7z
-        archive: false
-
-    - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder_mini.zip
-        name: cmder_mini.zip
-        archive: false
-
-    - name: Upload artifact (hashes.txt)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/hashes.txt
-        name: hashes.txt
-        archive: false
-
-    - name: Summary - Artifacts uploaded
+    - name: Summary - Package artifacts
       if: success()
       shell: pwsh
-      env:
-        GH_TOKEN: ${{ github.token }}
       run: |
         # Source utility functions
         . scripts/utils.ps1
-
+        $profiles = Get-CmderPackageProfiles -Terminal all
         $summary = @"
 
-        ### 🗃️ Artifacts
-
-        | Artifact | Size | Hash (SHA256) |
-        | --- | --- | --- |
+        ### 🗃️ Packages
         "@
 
-        # Get all files from the build directory (excluding directories and hidden files)
-        if (Test-Path "build") {
-          $buildFiles = Get-ChildItem -Path "build" -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
+        foreach ($profile in $profiles) {
+          $profilePath = Join-Path "build" $profile.outputFolder
+          if (-not (Test-Path $profilePath)) {
+            continue
+          }
 
+          $summary += "`n`n#### $($profile.displayName) ($($profile.outputFolder))"
+          $summary += "`n`n| Artifact | Size | Hash (SHA256) |"
+          $summary += "`n| --- | --- | --- |"
+
+          $buildFiles = Get-ChildItem -Path $profilePath -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
           foreach ($file in $buildFiles) {
-            $artifact = $file.Name
-            $path = $file.FullName
+            $artifact = "$($profile.outputFolder)/$($file.Name)"
             $sizeFormatted = Format-FileSize -Bytes $file.Length
-            $hash = (Get-FileHash $path -Algorithm SHA256).Hash
-
-            # Try to get the actual artifact download URL
-            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifact -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
-            $warning = ""
-
-            if (-not $downloadUrl) {
-              # Fallback to workflow run page if artifact URL fetch fails
-              $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-              $warning = " ⚠️"
-            }
-
-            # Determine emoji based on file type
-            if ($artifact -match '\.txt$') {
-              $emoji = "📄"
-            } elseif ($artifact -match '\.(zip|rar|7z)$') {
-              $emoji = "🗄️"
-            } else {
-              $emoji = "📦"
-            }
-
-            $summary += "`n| $emoji [``$artifact``$warning]($downloadUrl) | $sizeFormatted | ``$hash`` |"
+            $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash
+            $summary += "`n| ``$artifact`` | $sizeFormatted | ``$hash`` |"
           }
         }
-        $summary += "`n"
 
+        $summary += "`n"
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Create Release
       uses: softprops/action-gh-release@v3
       with:
-        files: |
-          build/cmder.zip
-          build/cmder_wt.zip
-          build/cmder.7z
-          build/cmder_wt.7z
-          build/cmder_mini.zip
-          build/cmder_wt_mini.zip
-          build/hashes.txt
+        files: build/**/*.*
         draft: true
         generate_release_notes: true
       if: startsWith(github.ref, 'refs/tags/')
@@ -300,6 +199,8 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       shell: pwsh
       run: |
+        . scripts/utils.ps1
+        $profiles = Get-CmderPackageProfiles -Terminal all
         $summary = @"
 
         ---
@@ -308,12 +209,12 @@ jobs:
 
         🚀 Draft release created for tag: **``${{ github.ref_name }}``**
 
-        Release includes:
-        - Full version (``cmder.zip``, ``cmder.7z``)
-        - Mini version (``cmder_mini.zip``)
-        - File hashes (``hashes.txt``)
-
-        > ⚠️ Release is in **draft** mode. Please review and publish manually.
+        Release includes these package groups:
         "@
 
+        foreach ($profile in $profiles) {
+          $summary += "`n- **$($profile.displayName)** (`$($profile.outputFolder)`)"
+        }
+
+        $summary += "`n`n> ⚠️ Release is in **draft** mode. Please review and publish manually.`n"
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
