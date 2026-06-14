@@ -29,7 +29,12 @@ jobs:
           repo_url="${{ github.server_url }}/${{ github.repository }}"
           source_branch_url="$repo_url/tree/master"
           target_branch_url="$repo_url/tree/development"
+          actor_handle="${{ github.actor }}"
+          actor_label="@${actor_handle}"
+          actor_label="${actor_label//[/\\[}"
+          actor_label="${actor_label//]/\\]}"
           actor_url="${{ github.server_url }}/${{ github.actor }}"
+          actor_avatar_url="${{ github.server_url }}/${{ github.actor }}.png?size=32"
           commit_url="$repo_url/commit/${{ github.sha }}"
 
           echo "## 🔀 Update Branches - Workflow Summary" >> $GITHUB_STEP_SUMMARY
@@ -40,7 +45,7 @@ jobs:
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
           echo "| Source Branch | [\`master\`]($source_branch_url) |" >> $GITHUB_STEP_SUMMARY
           echo "| Target Branch | [\`development\`]($target_branch_url) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Triggered by | [@${{ github.actor }}]($actor_url) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | [![avatar]($actor_avatar_url) $actor_label]($actor_url) |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | [\`${{ github.sha }}\`]($commit_url) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
