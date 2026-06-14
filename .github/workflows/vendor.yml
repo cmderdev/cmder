@@ -166,8 +166,11 @@ jobs:
           ### 🔄 Updates Found
 
           "@
-          $summary += '📦 **' + $env:SINGLE_DEP_NAME + '** updated from `' + $env:SINGLE_DEP_OLD_VERSION + '` to `' + $env:SINGLE_DEP_NEW_VERSION + '`' + "`n" + "`n"
-          $summary += '📦 **' + $count + '** vendor ' + $word + ' updated:' + "`n" + "`n"
+          if ($count -eq 1) {
+            $summary += '📦 **' + $env:SINGLE_DEP_NAME + '** updated from `' + $env:SINGLE_DEP_OLD_VERSION + '` to `' + $env:SINGLE_DEP_NEW_VERSION + '`' + "`n" + "`n"
+          } else {
+            $summary += '📦 **' + $count + '** vendor ' + $word + ' updated:' + "`n" + "`n"
+          }
         }
 
         $summary += $env:UPDATE_MESSAGE + "`n"
