@@ -56,7 +56,7 @@ jobs:
         $actualBranchName = $refName
         $branchLink = ""
         $prLink = ""
-        
+
         # Check if this is a PR merge ref (e.g., "3061/merge")
         if ($refName -match '^(\d+)/(merge|head)$') {
           $prNumber = $Matches[1]
@@ -196,7 +196,7 @@ jobs:
       run: |
         # Source utility functions
         . scripts/utils.ps1
-        
+
         $summary = @"
 
         ### 🗃️ Artifacts
@@ -208,7 +208,7 @@ jobs:
         # Get all files from the build directory (excluding directories and hidden files)
         if (Test-Path "build") {
           $buildFiles = Get-ChildItem -Path "build" -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
-          
+
           foreach ($file in $buildFiles) {
             $artifact = $file.Name
             $path = $file.FullName
