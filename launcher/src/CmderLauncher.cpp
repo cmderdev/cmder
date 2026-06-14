@@ -105,6 +105,18 @@ bool FileExists(const wchar_t * filePath)
 	return false;
 }
 
+std::wstring NormalizeTaskName(std::wstring taskName)
+{
+	// ConEmu task labels are commonly passed as "{task}" on the command line.
+	// Strip the outer braces so we do not add a second pair later when building /run.
+	if (taskName.length() > 1 && taskName.front() == L'{' && taskName.back() == L'}')
+	{
+		return taskName.substr(1, taskName.length() - 2);
+	}
+
+	return taskName;
+}
+
 void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstring taskName = L"", std::wstring title = L"", std::wstring iconPath = L"", std::wstring cfgRoot = L"", bool use_user_cfg = true, std::wstring conemu_args = L"")
 {
 	#if USE_TASKBAR_API
@@ -145,6 +157,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	std::wstring cmderStart = path;
 	std::wstring cmderTask = taskName;
+	cmderTask = NormalizeTaskName(cmderTask);
 	std::wstring cmderTitle = title;
 	std::wstring cmderTerminalArgs = conemu_args;
 
