@@ -45,7 +45,7 @@ jobs:
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
           echo "| Source Branch | [\`master\`]($source_branch_url) |" >> $GITHUB_STEP_SUMMARY
           echo "| Target Branch | [\`development\`]($target_branch_url) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Triggered by | [![avatar]($actor_avatar_url) $actor_label]($actor_url) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | [<img src='$actor_avatar_url' width=16 height=16 alt=avatar/> $actor_label]($actor_url) |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | [\`${{ github.sha }}\`]($commit_url) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
