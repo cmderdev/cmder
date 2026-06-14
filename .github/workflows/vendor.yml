@@ -263,6 +263,8 @@ jobs:
 
           # Set flag to create PR instead
           echo "AUTO_MERGED=false" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $global:LASTEXITCODE = 0
+          exit 0
         }
 
     - id: create-pr
