@@ -49,6 +49,16 @@ if [[ ! "$PATH" =~ "${GIT_INSTALL_ROOT}/bin:" ]] ; then
   PATH="${GIT_INSTALL_ROOT}/bin:$PATH"
 fi
 
+if [ "$PROCESSOR_ARCHITECTURE" == "x86" ] &&  [ "$GIT_INSTALL_ROOT/mingw32" ] ; then
+  git_mingw_bin="$GIT_INSTALL_ROOT/mingw32/bin"
+elif [ "$PROCESSOR_ARCHITECTURE" == "AMD64" ] && [ -d "$GIT_INSTALL_ROOT/mingw64" ] ; then
+  git_mingw_bin="$GIT_INSTALL_ROOT/mingw64/bin"
+fi
+
+if [[ ! "$PATH" =~ "${git_mingw_bin}:" ]] ; then
+  PATH="${git_mingw_bin}:$PATH"
+fi
+
 PATH="${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}"
 
 export PATH

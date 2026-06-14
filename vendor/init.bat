@@ -137,14 +137,14 @@ if %verbose_output% gtr 0 (
 %print_debug% init.bat "Env Var - debug_output=%debug_output%"
 
 :: Set the Cmder directory paths
-set CMDER_CONFIG_DIR=%CMDER_ROOT%\config
+set "CMDER_CONFIG_DIR=%CMDER_ROOT%\config"
 
 :: Check if we're using Cmder individual user profile
 if defined CMDER_USER_CONFIG (
     %print_debug% init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 
     if not exist "%CMDER_USER_CONFIG%\..\opt" md "%CMDER_USER_CONFIG%\..\opt"
-    set CMDER_CONFIG_DIR=%CMDER_USER_CONFIG%
+    set "CMDER_CONFIG_DIR=%CMDER_USER_CONFIG%"
 )
 
 if not "%CMDER_SHELL%" == "cmd" (
@@ -166,16 +166,16 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set CMDER_CLINK=0
 )
 
-if defined CMDER_USER_CONFIG (
-  if exist "%CMDER_ROOT%\config\user_init.cmd" (
-    call "%CMDER_ROOT%\config\user_init.cmd"
-    exit /b
-  ) else if exist "%CMDER_USER_CONFIG%\config\user_init.cmd" (
-    call "%CMDER_USER_CONFIG%\config\user_init.cmd"
-    exit /b
-  )
-) else if exist "%CMDER_ROOT%\config\user_init.cmd" (
-  call "%CMDER_ROOT%\config\user_init.cmd"
+set "cmder_root_user_init=%CMDER_ROOT%\config\user_init.cmd"
+if defined CMDER_USER_CONFIG set "cmder_user_init=%CMDER_USER_CONFIG%\user_init.cmd"
+
+if exist "%cmder_root_user_init%" (
+  call "%cmder_root_user_init%"
+  exit /b
+)
+
+if defined CMDER_USER_CONFIG if exist "%cmder_user_init%" (
+  call "%cmder_user_init%"
   exit /b
 )
 
@@ -238,7 +238,7 @@ goto :SKIP_CLINK
 
     :: Revert back to plain cmd.exe prompt without clink
     prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
-    
+
     :: Add Windows Terminal shell integration support (OSC 133 sequences)
     if defined WT_SESSION (prompt $e]133;D$e\$e]133;A$e\$e]9;9;$P$e\%PROMPT%$e]133;B$e\)
 
@@ -345,28 +345,15 @@ if %nix_tools% equ 1 (
 )
 
 %print_debug% init.bat "START - nix_tools(%path_position%): Env Var - PATH=%path%"
-if %nix_tools% geq 1 (
-    if exist "%GIT_INSTALL_ROOT%\mingw32" (
-        if "%path_position%" == "append" (
-          set "path=%path%;%GIT_INSTALL_ROOT%\mingw32\bin"
-        ) else (
-          set "path=%GIT_INSTALL_ROOT%\mingw32\bin;%path%"
-        )
-    ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-        if "%path_position%" == "append" (
-          set "path=%path%;%GIT_INSTALL_ROOT%\mingw64\bin"
-        ) else (
-          set "path=%GIT_INSTALL_ROOT%\mingw64\bin;%path%"
-        )
-    )
-    if exist "%GIT_INSTALL_ROOT%\usr\bin" (
-        if "%path_position%" == "append" (
-          set "path=%path%;%GIT_INSTALL_ROOT%\usr\bin"
-        ) else (
-          set "path=%GIT_INSTALL_ROOT%\usr\bin;%path%"
-        )
-    )
+set "git_mingw_bin="
+if exist "%GIT_INSTALL_ROOT%\mingw32" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
+) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw64\bin"
 )
+
+%lib_path% add_path_with_position "%git_mingw_bin%" "%path_position%"
+%lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position%"
 %print_debug% init.bat "END - nix_tools(%path_position%): Env Var - PATH=%path%"
 
 :SET_ENV
@@ -421,12 +408,13 @@ if %max_depth% gtr 1 (
 )
 %print_debug% init.bat "END - bin(prepend): Env Var - PATH=%path%"
 
-if defined CMDER_USER_BIN if defined CMDER_USER_ROOT (
+:: The CMDER_USER_BIN variable is set in the launcher.
+if defined CMDER_USER_BIN (
   %print_debug% init.bat "START - user_bin(prepend): Env Var - PATH=%path%"
   if %max_depth% gtr 1 (
     %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
   ) else (
-    set "path=%CMDER_USER_ROOT%\bin;%path%"
+    set "path=%CMDER_USER_BIN%;%path%"
   )
   %print_debug% init.bat "END - user_bin(prepend): Env Var - PATH=!path!"
 )
@@ -560,6 +548,8 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
 
 :CLEANUP
   set architecture_bits=
+  set cmder_root_user_init=
+  set cmder_user_init=
   set CMDER_ALIASES=
   set CMDER_INIT_END=
   set CMDER_INIT_START=
@@ -567,6 +557,7 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   set CMDER_CLINK=
   set debug_output=
   set fast_init=
+  set git_mingw_bin=
   set max_depth=
   set nix_tools=
   set path_position=

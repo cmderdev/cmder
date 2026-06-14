@@ -292,4 +292,6 @@ $CMDER_INIT_END = Get-Date
 
 $ElapsedTime = New-TimeSpan -Start $CMDER_INIT_START -End $CMDER_INIT_END
 
+$env:Path = $env:Path -replace ';;', ';'
+
 Write-Verbose "Elapsed Time: $($ElapsedTime.TotalSeconds) seconds total"
