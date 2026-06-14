@@ -155,17 +155,10 @@ jobs:
         $count = [int]$env:COUNT_UPDATED
 
         if ($count -eq 0) {
-          $summary = @"
-          ### ✅ No Updates Available
-
-          All vendor dependencies are up to date! 🎉
-          "@
+          $summary = "### ✅ No Updates Available`n`nAll vendor dependencies are up to date! 🎉`n"
         } else {
           $word = if ($count -eq 1) { 'dependency' } else { 'dependencies' }
-          $summary = @"
-          ### 🔄 Updates Found
-
-          "@
+          $summary = "### 🔄 Updates Found`n`n"
           if ($count -eq 1) {
             $summary += '📦 **' + $env:SINGLE_DEP_NAME + '** updated from `' + $env:SINGLE_DEP_OLD_VERSION + '` to `' + $env:SINGLE_DEP_NEW_VERSION + '`' + "`n" + "`n"
           } else {
