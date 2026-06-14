@@ -1,6 +1,12 @@
 # Scripts
 
-This folder contains helper scripts used to build, package, and update the Cmder distribution. The scripts share a small library of helper functions located in `utils.ps1`.
+This folder contains helper scripts used to:
+
+- Update sources.
+- Build the launcheer and download sources.
+- Package release archives.
+
+The scripts share a small library of helper functions located in `utils.ps1`.
 
 **Overview**
 - **build.ps1**: Builds the Cmder distribution. It downloads and unpacks vendor components, preserves user configuration (ConEmu / Windows Terminal), prepares portable components, and can optionally compile the launcher when run with the `-Compile` switch. It supports skipping vendor downloads (`-NoVendor`), selecting which terminal to include (`-terminal`), and customizing paths (`-sourcesPath`, `-saveTo`, `-launcher`, `-config`). The script uses `msbuild` when compiling the launcher and utilities like `7z` for extraction.
