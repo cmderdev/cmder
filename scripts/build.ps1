@@ -98,6 +98,7 @@ if (-not $noVendor) {
 
     # Get the vendor sources
     $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
+    $excludedVendors = Get-CmderTerminalExclusions -Terminal $terminal
 
     Push-Location -Path $saveTo
     New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
@@ -138,11 +139,7 @@ if (-not $noVendor) {
     }
 
     foreach ($s in $sources) {
-        if ($terminal -eq "none") {
-            continue
-        } elseif ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
-            continue
-        } elseif ($s.name -eq "windows-terminal" -and $terminal -eq  "conemu-maximus5") {
+        if ($excludedVendors -contains $s.name) {
             continue
         }
 

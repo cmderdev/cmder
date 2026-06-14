@@ -448,3 +448,45 @@ function Get-ArtifactDownloadUrl {
     
     return $null
 }
+
+function Get-CmderPackageConfig {
+    $configPath = Join-Path $PSScriptRoot "package-profiles.json"
+    if (-not (Test-Path $configPath)) {
+        throw "Missing package configuration file: $configPath"
+    }
+
+    return Get-Content -Raw $configPath | ConvertFrom-Json
+}
+
+function Get-CmderPackageProfiles {
+    param(
+        [string]$Terminal = "all"
+    )
+
+    $config = Get-CmderPackageConfig
+    $profiles = @($config.profiles)
+
+    if ($Terminal -eq "all") {
+        return $profiles
+    }
+
+    $profile = $profiles | Where-Object { $_.terminal -eq $Terminal } | Select-Object -First 1
+    if (-not $profile) {
+        throw "Unknown Cmder terminal profile '$Terminal'"
+    }
+
+    return @($profile)
+}
+
+function Get-CmderTerminalExclusions {
+    param(
+        [string]$Terminal = "all"
+    )
+
+    if ($Terminal -eq "all") {
+        return @()
+    }
+
+    $profile = Get-CmderPackageProfiles -Terminal $Terminal | Select-Object -First 1
+    return @($profile.excludedVendors)
+}
