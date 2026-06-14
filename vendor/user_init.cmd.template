@@ -93,14 +93,6 @@ goto :SKIP_CLINK
   %lib_path% add_path_with_position "%git_mingw_bin%" "%path_position%"
   %lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position%"
 
-  if exist "%GIT_INSTALL_ROOT%\usr\bin" (
-      if "%path_position%" == "append" (
-        set "path=%path%;%GIT_INSTALL_ROOT%\usr\bin"
-      ) else (
-        set "path=%GIT_INSTALL_ROOT%\usr\bin;%path%"
-      )
-  )
-
   set "path=%CMDER_ROOT%\vendor\bin;%path%"
 
 :USER_CONFIG_START
