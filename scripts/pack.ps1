@@ -32,7 +32,7 @@ Param(
     [string]$cmderRoot = "$PSScriptRoot\..",
 
     # Using this option will pack artifacts for a specific included terminal emulator [none, all, conemu-maximus5, or windows-terminal]
-    [string]$terminal = 'all',
+    [string]$Terminal = 'all',
 
     # Vendor folder locaton
     [string]$saveTo = "$PSScriptRoot\..\build"
@@ -75,7 +75,7 @@ if (-not (Test-Path -PathType container $saveTo)) {
 }
 
 $saveTo = Resolve-Path $saveTo
-$profiles = Get-CmderPackageProfiles -Terminal $terminal
+$profiles = Get-CmderPackageProfiles -Terminal $Terminal
 $version = Get-VersionStr
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
 

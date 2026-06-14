@@ -9,7 +9,7 @@ This folder contains helper scripts used to:
 The scripts share a small library of helper functions located in `utils.ps1`.
 
 **Overview**
-- **build.ps1**: Builds the Cmder distribution. It downloads and unpacks vendor components, preserves user configuration (ConEmu / Windows Terminal), prepares portable components, and can optionally compile the launcher when run with the `-Compile` switch. It supports skipping vendor downloads (`-NoVendor`), selecting which terminal to include (`-terminal`), and customizing paths (`-sourcesPath`, `-saveTo`, `-launcher`, `-config`). The script uses `msbuild` when compiling the launcher and utilities like `7z` for extraction.
+- **build.ps1**: Builds the Cmder distribution. It downloads and unpacks vendor components, preserves user configuration (ConEmu / Windows Terminal), prepares portable components, and can optionally compile the launcher when run with the `-Compile` switch. It supports skipping vendor downloads (`-NoVendor`), selecting which terminal to include (`-Terminal`), and customizing paths (`-sourcesPath`, `-saveTo`, `-launcher`, `-config`). The script uses `msbuild` when compiling the launcher and utilities like `7z` for extraction.
 - **pack.ps1**: Packages the built distribution into several distributable archives. Use this to assemble release artifacts (zip/tar, checksums, etc.). Output is grouped by terminal profile under `build/<profile>/`.
 - **package-profiles.json**: Central configuration for the terminal profiles, output folders, and excluded vendors used by `build.ps1`, `pack.ps1`, and the CI workflow.
 - **update.ps1**: Updates what will be bundled by `build.ps1`.

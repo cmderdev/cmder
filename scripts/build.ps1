@@ -57,7 +57,7 @@ Param(
     [switch]$noVendor,
 
     # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
-    [string]$terminal = 'all',
+    [string]$Terminal = 'all',
 
     # Build launcher if you have MSBuild tools installed
     [switch]$Compile
@@ -98,7 +98,7 @@ if (-not $noVendor) {
 
     # Get the vendor sources
     $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
-    $excludedVendors = Get-CmderTerminalExclusions -Terminal $terminal
+    $excludedVendors = Get-CmderTerminalExclusions -Terminal $Terminal
 
     Push-Location -Path $saveTo
     New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
