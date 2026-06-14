@@ -70,6 +70,7 @@ jobs:
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
+        build-mode: manual
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -78,12 +79,12 @@ jobs:
         # queries: security-extended,security-and-quality
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
 
     - name: Build Cmder Launcher
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -Compile -verbose
+      run: .\build.ps1 -Compile -NoVendor -verbose
 
     - name: Summary - Build status
       if: success()
