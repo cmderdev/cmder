@@ -160,7 +160,7 @@ jobs:
       run: .\pack.ps1 -verbose -Terminal all
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: build
         name: cmder-builds
