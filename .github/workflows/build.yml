@@ -143,7 +143,7 @@ jobs:
     - name: Build Cmder Launcher
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -Compile -Terminal all -verbose
+      run: .\build.ps1 -Compile -Terminal all -Verbose
 
     - name: Summary - Build completed
       if: success()
@@ -157,7 +157,7 @@ jobs:
     - name: Pack the built files
       shell: pwsh
       working-directory: scripts
-      run: .\pack.ps1 -verbose -Terminal all
+      run: .\pack.ps1 -Terminal all -Verbose
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v7

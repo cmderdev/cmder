@@ -28,17 +28,17 @@ The scripts dot-source `utils.ps1` at runtime to reuse the above functions and c
 - Run a default build (downloads vendors and prepares distribution):
 
 ```powershell
-.\build.ps1 -verbose
+.\build.ps1 -Verbose
 ```
 
 - Build and compile the launcher (requires `msbuild`/VS build tools):
 
 ```powershell
-.\build.ps1 -verbose -Compile
+.\build.ps1 -Compile -Verbose
 ```
 
 - Compile but skip vendor downloads (quick launcher build):
 
 ```powershell
-.\build.ps1 -verbose -Compile -NoVendor
+.\build.ps1 -Compile -NoVendor -Verbose
 ```

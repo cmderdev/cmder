@@ -50,7 +50,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           $currentVersion = (Get-Content -Raw .\vendor\sources.json | ConvertFrom-Json)
-          . .\scripts\update.ps1 -verbose
+          . .\scripts\update.ps1 -Verbose
 
           # Export count of updated packages (update.ps1 is expected to set $count)
           if (-not ($count)) { $count = 0 }

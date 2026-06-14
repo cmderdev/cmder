@@ -84,7 +84,7 @@ jobs:
     - name: Build Cmder Launcher
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -Compile -NoVendor -verbose
+      run: .\build.ps1 -Compile -NoVendor -Verbose
 
     - name: Summary - Build status
       if: success()

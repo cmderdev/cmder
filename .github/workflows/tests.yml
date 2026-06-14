@@ -69,7 +69,7 @@ jobs:
     - name: Initialize vendors
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -verbose
+      run: .\build.ps1 -Verbose
 
     - name: Summary - Vendor initialization
       if: success()
