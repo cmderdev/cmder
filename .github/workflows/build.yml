@@ -60,12 +60,14 @@ jobs:
         # Check if this is a PR merge ref (e.g., "3061/merge")
         if ($refName -match '^(\d+)/(merge|head)$') {
           $prNumber = $Matches[1]
+          # Use head_ref for the actual branch name if available
           if ($headRef) {
             $actualBranchName = $headRef
           }
           $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
           $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
         } elseif ($eventName -eq "pull_request") {
+          # This is a pull request event
           $prNumber = "${{ github.event.pull_request.number }}"
           if ($headRef) {
             $actualBranchName = $headRef
@@ -73,6 +75,7 @@ jobs:
           $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
           $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
         } else {
+          # Regular branch, link to the branch tree
           $branchLink = "https://github.com/${{ github.repository }}/tree/$refName"
         }
 
@@ -105,13 +108,17 @@ jobs:
         | --- | --- |
         "@
 
+        # Read vendor sources.json and add to summary
         $vendorSources = Get-Content -Raw "vendor/sources.json" | ConvertFrom-Json
         if ($vendorSources.Count -eq 0) {
           $summary += "`n| _No vendor packages found_ | |"
         } else {
           foreach ($vendor in $vendorSources) {
+            # Create release link based on vendor package
             $versionLink = "$($vendor.version)"
             if ($vendor.url) {
+              # Extract owner/repo/tag from the URL and create release link
+              # Handle both /releases/download/ and /archive/ URLs
               if ($vendor.url -match 'github\.com/([^/]+)/([^/]+)/(releases/download|archive)/([^/]+)') {
                 $owner = $Matches[1]
                 $repo = $Matches[2]
