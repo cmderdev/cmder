@@ -193,16 +193,17 @@ jobs:
             continue
           }
 
-          $summary += "`n`n#### $($profile.displayName) ($($profile.outputFolder))"
+          $summary += "`n`n#### 📁 $($profile.displayName) ``$($profile.outputFolder)``"
           $summary += "`n`n| Artifact | Size | Hash (SHA256) |"
           $summary += "`n| --- | --- | --- |"
 
           $buildFiles = Get-ChildItem -Path $profilePath -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
           foreach ($file in $buildFiles) {
-            $artifact = "$($profile.outputFolder)/$($file.Name)"
+            $artifact = $file.Name
+            $emoji = Get-ArtifactTypeEmoji -Name $artifact
             $sizeFormatted = Format-FileSize -Bytes $file.Length
             $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash
-            $summary += "`n| ``$artifact`` | $sizeFormatted | ``$hash`` |"
+            $summary += "`n| $emoji ``$artifact`` | $sizeFormatted | ``$hash`` |"
           }
         }
 
@@ -235,7 +236,7 @@ jobs:
         "@
 
         foreach ($profile in $profiles) {
-          $summary += "`n- **$($profile.displayName)** (`$($profile.outputFolder)`)"
+          $summary += "`n- **$($profile.displayName)** ``$($profile.outputFolder)``"
         }
 
         $summary += "`n`n> ⚠️ Release is in **draft** mode. Please review and publish manually.`n"

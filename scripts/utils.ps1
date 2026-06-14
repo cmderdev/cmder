@@ -286,6 +286,21 @@ function Format-FileSize {
     }
 }
 
+function Get-ArtifactTypeEmoji {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    if ($Name -match '\.txt$') {
+        return "📄"
+    } elseif ($Name -match '\.(zip|rar|7z)$') {
+        return "🗄️"
+    }
+
+    return "📦"
+}
+
 function Get-VersionChangeType {
     <#
     .SYNOPSIS
