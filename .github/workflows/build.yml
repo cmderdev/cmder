@@ -159,28 +159,88 @@ jobs:
       working-directory: scripts
       run: .\pack.ps1 -Terminal all -Verbose
 
-    - name: Upload artifact (cmder_slim)
+    - name: Upload artifact (cmder_slim.7z)
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_slim/
-        name: cmder_slim
-        compression-level: 0
+        path: build/cmder_slim/cmder_slim.7z
+        name: cmder_slim.7z
         if-no-files-found: error
 
-    - name: Upload artifact (cmder)
+    - name: Upload artifact (cmder_slim.zip)
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder/
-        name: cmder
-        compression-level: 0
+        path: build/cmder_slim/cmder_slim.zip
+        name: cmder_slim.zip
         if-no-files-found: error
 
-    - name: Upload artifact (cmder_conemu)
+    - name: Upload artifact (cmder_slim_mini.zip)
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_conemu/
-        name: cmder_conemu
-        compression-level: 0
+        path: build/cmder_slim/cmder_slim_mini.zip
+        name: cmder_slim_mini.zip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_slim_hashes.txt)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_slim/hashes.txt
+        name: cmder_slim_hashes.txt
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder.7z)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder/cmder.7z
+        name: cmder.7z
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder.zip)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder/cmder.zip
+        name: cmder.zip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_mini.zip)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder/cmder_mini.zip
+        name: cmder_mini.zip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_hashes.txt)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder/hashes.txt
+        name: cmder_hashes.txt
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_conemu.7z)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_conemu/cmder_conemu.7z
+        name: cmder_conemu.7z
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_conemu.zip)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_conemu/cmder_conemu.zip
+        name: cmder_conemu.zip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_conemu_mini.zip)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_conemu/cmder_conemu_mini.zip
+        name: cmder_conemu_mini.zip
+        if-no-files-found: error
+
+    - name: Upload artifact (cmder_conemu_hashes.txt)
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_conemu/hashes.txt
+        name: cmder_conemu_hashes.txt
         if-no-files-found: error
 
     - name: Summary - Package artifacts
