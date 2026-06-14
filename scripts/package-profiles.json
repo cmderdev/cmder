@@ -1,28 +1,35 @@
 {
   "profiles": [
     {
-      "terminal": "none",
       "displayName": "Cmder slim",
+      "terminal": "none",
       "outputFolder": "cmder_slim",
-      "excludedVendors": [
-        "conemu-maximus5",
-        "windows-terminal"
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "clink-completions"
       ]
     },
     {
-      "terminal": "windows-terminal",
       "displayName": "Windows Terminal",
+      "terminal": "windows-terminal",
       "outputFolder": "cmder",
-      "excludedVendors": [
-        "conemu-maximus5"
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "windows-terminal",
+        "clink-completions"
       ]
     },
     {
-      "terminal": "conemu-maximus5",
       "displayName": "ConEmu",
+      "terminal": "conemu-maximus5",
       "outputFolder": "cmder_conemu",
-      "excludedVendors": [
-        "windows-terminal"
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "conemu-maximus5",
+        "clink-completions"
       ]
     }
   ]

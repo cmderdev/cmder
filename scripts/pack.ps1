@@ -49,7 +49,9 @@ function Get-ArchiveFlags {
         [Parameter(Mandatory = $true)]
         [string]$Kind,
 
-        [string[]]$ExcludedVendors = @()
+        [string[]]$IncludedVendors = @(),
+
+        [string[]]$AllVendors = @()
     )
 
     if ($Kind -eq "7z") {
@@ -58,7 +60,9 @@ function Get-ArchiveFlags {
         $flags = "-mm=Deflate -mfb=128 -mpass=3"
     }
 
-    foreach ($vendor in $ExcludedVendors) {
+    $archiveExcludedVendors = @($AllVendors | Where-Object { $IncludedVendors -notcontains $_ })
+
+    foreach ($vendor in $archiveExcludedVendors) {
         $flags += " -xr!`"vendor\$vendor`""
     }
 
@@ -76,6 +80,7 @@ if (-not (Test-Path -PathType container $saveTo)) {
 
 $saveTo = Resolve-Path $saveTo
 $profiles = Get-CmderPackageProfiles -Terminal $Terminal
+$allVendors = @(Get-CmderVendorNames)
 $version = Get-VersionStr
 (New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
 
@@ -101,12 +106,12 @@ foreach ($profile in $profiles) {
 
     foreach ($archive in $archives) {
         $outputPath = Join-Path $profilePath $archive.Name
-        $excludedVendors = @($profile.excludedVendors)
+        $includedVendors = @($profile.includedVendors)
         if ($archive.Mini) {
-            $excludedVendors += "git-for-windows"
+            $includedVendors = @($includedVendors | Where-Object { $_ -ne "git-for-windows" })
         }
 
-        $flags = Get-ArchiveFlags -Kind $archive.Kind -ExcludedVendors $excludedVendors
+        $flags = Get-ArchiveFlags -Kind $archive.Kind -IncludedVendors $includedVendors -AllVendors $allVendors
         Create-Archive "$cmderRoot" $outputPath $flags
         $hash = Digest-Hash $outputPath
         Add-Content -Path (Join-Path $profilePath "hashes.txt") -Value ($archive.Name + "`t" + $hash)

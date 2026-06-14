@@ -473,6 +473,15 @@ function Get-CmderPackageConfig {
     return Get-Content -Raw $configPath | ConvertFrom-Json
 }
 
+function Get-CmderVendorNames {
+    $sourcesPath = Join-Path $PSScriptRoot "..\vendor\sources.json"
+    if (-not (Test-Path $sourcesPath)) {
+        throw "Missing vendor sources file: $sourcesPath"
+    }
+
+    return @(Get-Content -Raw $sourcesPath | ConvertFrom-Json | Select-Object -ExpandProperty name)
+}
+
 function Get-CmderPackageProfiles {
     param(
         [string]$Terminal = "all"
@@ -493,15 +502,15 @@ function Get-CmderPackageProfiles {
     return @($profile)
 }
 
-function Get-CmderTerminalExclusions {
+function Get-CmderTerminalIncludedVendors {
     param(
         [string]$Terminal = "all"
     )
 
     if ($Terminal -eq "all") {
-        return @()
+        return @(Get-CmderVendorNames)
     }
 
     $profile = Get-CmderPackageProfiles -Terminal $Terminal | Select-Object -First 1
-    return @($profile.excludedVendors)
+    return @($profile.includedVendors)
 }

@@ -98,7 +98,7 @@ if (-not $noVendor) {
 
     # Get the vendor sources
     $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
-    $excludedVendors = Get-CmderTerminalExclusions -Terminal $Terminal
+    $includedVendors = Get-CmderTerminalIncludedVendors -Terminal $Terminal
 
     Push-Location -Path $saveTo
     New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
@@ -139,7 +139,7 @@ if (-not $noVendor) {
     }
 
     foreach ($s in $sources) {
-        if ($excludedVendors -contains $s.name) {
+        if ($includedVendors -notcontains $s.name) {
             continue
         }
 
