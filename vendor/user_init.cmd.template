@@ -10,6 +10,13 @@
 :: powershell -f %cmder_root%\vendor\bin\create-cmdercfg.ps1 -shell cmd [-outfile "[filename]"]
 ::
 
+:: TODO: Support for ARM
+if "%PROCESSOR_ARCHITECTURE%"=="x86" (
+    set architecture_bits=32
+) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    set architecture_bits=64
+)
+
 if "%CMDER_CLINK%" == "1" (
   goto :INJECT_CLINK
 ) else if "%CMDER_CLINK%" == "2" if defined WT_PROFILE_ID (
@@ -81,26 +88,20 @@ goto :SKIP_CLINK
       set "path_position="
   )
   
-  if %nix_tools% geq 1 (
-      if exist "%GIT_INSTALL_ROOT%\mingw32" (
-          if "%path_position%" == "append" (
-            set "path=%path%;%GIT_INSTALL_ROOT%\mingw32\bin"
-          ) else (
-            set "path=%GIT_INSTALL_ROOT%\mingw32\bin;%path%"
-          )
-      ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-          if "%path_position%" == "append" (
-            set "path=%path%;%GIT_INSTALL_ROOT%\mingw64\bin"
-          ) else (
-            set "path=%GIT_INSTALL_ROOT%\mingw64\bin;%path%"
-          )
-      )
-      if exist "%GIT_INSTALL_ROOT%\usr\bin" (
-          if "%path_position%" == "append" (
-            set "path=%path%;%GIT_INSTALL_ROOT%\usr\bin"
-          ) else (
-            set "path=%GIT_INSTALL_ROOT%\usr\bin;%path%"
-          )
+  if "%architecture_bits%" == "32" if exist "%GIT_INSTALL_ROOT%\mingw32" (
+      set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin
+  ) else if "%architecture_bits%" == "64" if exist "%GIT_INSTALL_ROOT%\mingw64" (
+      set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw64\bin
+  )
+
+  %lib_path% add_path_with_position "%git_mingw_bin%" "%path_position%"
+  %lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position%"
+
+  if exist "%GIT_INSTALL_ROOT%\usr\bin" (
+      if "%path_position%" == "append" (
+        set "path=%path%;%GIT_INSTALL_ROOT%\usr\bin"
+      ) else (
+        set "path=%GIT_INSTALL_ROOT%\usr\bin;%path%"
       )
   )
   
@@ -168,6 +169,7 @@ goto :SKIP_CLINK
   set time_init=
   set verbose_output=
   set user_aliases=
+  set "PATH=%PATH:;;=;%"
 
 exit /b
 

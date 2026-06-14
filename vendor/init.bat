@@ -345,17 +345,15 @@ if %nix_tools% equ 1 (
 )
 
 %print_debug% init.bat "START - nix_tools(%path_position%): Env Var - PATH=%path%"
-if %nix_tools% geq 1 (
-    set "git_mingw_bin="
-    if exist "%GIT_INSTALL_ROOT%\mingw32" (
-        set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
-    ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-        set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw64\bin"
-    )
-
-    %lib_path% add_path_with_position "%git_mingw_bin%" "%path_position%"
-    %lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position%"
+set "git_mingw_bin="
+if exist "%GIT_INSTALL_ROOT%\mingw32" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
+) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw64\bin"
 )
+
+%lib_path% add_path_with_position "%git_mingw_bin%" "%path_position%"
+%lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position%"
 %print_debug% init.bat "END - nix_tools(%path_position%): Env Var - PATH=%path%"
 
 :SET_ENV
