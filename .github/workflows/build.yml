@@ -159,88 +159,28 @@ jobs:
       working-directory: scripts
       run: .\pack.ps1 -Terminal all -Verbose
 
-    - name: Upload artifact (cmder_slim.7z)
+    - name: Upload artifact (cmder_slim)
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_slim/cmder_slim.7z
-        name: cmder_slim.7z
+        path: build/cmder_slim/
+        name: cmder_slim
+        compression-level: 0
         if-no-files-found: error
 
-    - name: Upload artifact (cmder_slim.zip)
+    - name: Upload artifact (cmder)
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_slim/cmder_slim.zip
-        name: cmder_slim.zip
+        path: build/cmder/
+        name: cmder
+        compression-level: 0
         if-no-files-found: error
 
-    - name: Upload artifact (cmder_slim_mini.zip)
+    - name: Upload artifact (cmder_conemu)
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_slim/cmder_slim_mini.zip
-        name: cmder_slim_mini.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_slim_hashes.txt)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder_slim/hashes.txt
-        name: cmder_slim_hashes.txt
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder/cmder.7z
-        name: cmder.7z
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder.zip)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder/cmder.zip
-        name: cmder.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder/cmder_mini.zip
-        name: cmder_mini.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_hashes.txt)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder/hashes.txt
-        name: cmder_hashes.txt
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_conemu.7z)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder_conemu/cmder_conemu.7z
-        name: cmder_conemu.7z
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_conemu.zip)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder_conemu/cmder_conemu.zip
-        name: cmder_conemu.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_conemu_mini.zip)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder_conemu/cmder_conemu_mini.zip
-        name: cmder_conemu_mini.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_conemu_hashes.txt)
-      uses: actions/upload-artifact@v7
-      with:
-        path: build/cmder_conemu/hashes.txt
-        name: cmder_conemu_hashes.txt
+        path: build/cmder_conemu/
+        name: cmder_conemu
+        compression-level: 0
         if-no-files-found: error
 
     - name: Summary - Package artifacts
@@ -263,6 +203,14 @@ jobs:
             continue
           }
 
+          $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $profile.outputFolder -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+          $warning = ""
+
+          if (-not $downloadUrl) {
+            $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            $warning = " ⚠️"
+          }
+
           $summary += "`n`n#### 📁 $($profile.displayName) ``$($profile.outputFolder)``"
           $summary += "`n`n| Artifact | Size | Hash (SHA256) |"
           $summary += "`n| --- | --- | --- |"
@@ -270,18 +218,6 @@ jobs:
           $buildFiles = Get-ChildItem -Path $profilePath -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
           foreach ($file in $buildFiles) {
             $artifact = $file.Name
-            $artifactName = $artifact
-            if ($artifact -eq "hashes.txt") {
-              $artifactName = "$($profile.outputFolder)_$artifact"
-            }
-            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifactName -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
-            $warning = ""
-
-            if (-not $downloadUrl) {
-              $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-              $warning = " ⚠️"
-            }
-
             $emoji = Get-ArtifactTypeEmoji -Name $artifact
             $sizeFormatted = Format-FileSize -Bytes $file.Length
             $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash

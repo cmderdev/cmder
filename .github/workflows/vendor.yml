@@ -297,25 +297,37 @@ jobs:
         PR_OPERATION: ${{ steps.create-pr.outputs.pull-request-operation }}
         AUTO_MERGE_FAILURE_REASON: ${{ env.AUTO_MERGE_FAILURE_REASON }}
       run: |
+        $updateVendorBranchUrl = "https://github.com/${{ github.repository }}/tree/update-vendor"
         $summary = @"
         ### 🎉 Pull Request Result
 
-        **Branch:** ``update-vendor``
+        **Branch:** [update-vendor]($updateVendorBranchUrl)
 
         $(if (-not [string]::IsNullOrEmpty($env:LIST_UPDATED)) { "**Updated dependencies:** $env:LIST_UPDATED" } else { "**Updated dependencies:** " })
 
         "@
 
-        if (-not [string]::IsNullOrWhiteSpace($env:PR_URL)) {
-          $summary += "A pull request has been created or updated: [#$($env:PR_NUMBER)]($($env:PR_URL))`n`n"
-        } elseif ($env:PR_OPERATION -eq 'none') {
-          $summary += "No pull request was created because ``update-vendor`` no longer differs from ``master``.`n`n"
-        } else {
-          $summary += "A pull request was requested, but no PR link was returned.`n`n"
+        switch ($env:PR_OPERATION) {
+          'created' {
+            $summary += "A new pull request has been created: [#$($env:PR_NUMBER)]($($env:PR_URL))`n`n"
+          }
+          'updated' {
+            $summary += "An existing pull request has been updated: [#$($env:PR_NUMBER)]($($env:PR_URL))`n`n"
+          }
+          'none' {
+            $summary += "No pull request was created because [update-vendor]($updateVendorBranchUrl) no longer differs from `master`.`n`n"
+          }
+          default {
+            if (-not [string]::IsNullOrWhiteSpace($env:PR_URL)) {
+              $summary += "A pull request was reported, but the operation type was not recognized: [#$($env:PR_NUMBER)]($($env:PR_URL))`n`n"
+            } else {
+              $summary += "A pull request was requested, but no PR link was returned.`n`n"
+            }
+          }
         }
 
         if (-not [string]::IsNullOrWhiteSpace($env:AUTO_MERGE_FAILURE_REASON)) {
-          $summary += "> ⚠️ **Auto-merge diagnostic:** $env:AUTO_MERGE_FAILURE_REASON`n`n"
+          $summary += "> ⚠️ **Auto-merge failure:** $env:AUTO_MERGE_FAILURE_REASON`n`n"
         }
 
         if ($env:HAS_BREAKING_CHANGES -eq 'True') {
@@ -326,9 +338,6 @@ jobs:
           $summary += "> ℹ️ **Note:** Auto-merge failed, manual review required."
         }
 
-        $summary += @"
-        > Please review and merge the pull request to apply the updates.
-
-        "@
+        $summary += "`n> Please review and merge the pull request to apply the updates.`n`n"
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8

@@ -512,5 +512,15 @@ function Get-CmderTerminalIncludedVendors {
     }
 
     $profile = Get-CmderPackageProfiles -Terminal $Terminal | Select-Object -First 1
-    return @($profile.includedVendors)
+    $includedVendors = @($profile.includedVendors)
+
+    if ($profile.packages) {
+        foreach ($package in @($profile.packages)) {
+            if ($package -and $package.PSObject.Properties.Name -contains "includedVendors" -and $package.includedVendors) {
+                $includedVendors += @($package.includedVendors)
+            }
+        }
+    }
+
+    return @($includedVendors | Select-Object -Unique)
 }

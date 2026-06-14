@@ -96,25 +96,33 @@ foreach ($profile in $profiles) {
         (New-Item -ItemType Directory -Path $profilePath) | Out-Null
     }
 
-    $archives = @(
-        @{ Name = "$($profile.outputFolder).7z"; Kind = "7z"; Mini = $false },
-        @{ Name = "$($profile.outputFolder).zip"; Kind = "zip"; Mini = $false },
-        @{ Name = "$($profile.outputFolder)_mini.zip"; Kind = "zip"; Mini = $true }
-    )
+    if (-not $profile.packages) {
+        throw "Missing package variants for profile '$($profile.displayName)'. Edit scripts/package-profiles.json to add package entries."
+    }
+    $packages = @($profile.packages)
 
     Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $profilePath "hashes.txt")
 
-    foreach ($archive in $archives) {
-        $outputPath = Join-Path $profilePath $archive.Name
-        $includedVendors = @($profile.includedVendors)
-        if ($archive.Mini) {
-            $includedVendors = @($includedVendors | Where-Object { $_ -ne "git-for-windows" })
+    # Package variations live in scripts/package-profiles.json so names and vendor mixes stay configurable.
+    foreach ($package in $packages) {
+        if ([string]::IsNullOrWhiteSpace($package.name)) {
+            throw "A package entry for profile '$($profile.displayName)' is missing a name in scripts/package-profiles.json."
         }
 
-        $flags = Get-ArchiveFlags -Kind $archive.Kind -IncludedVendors $includedVendors -AllVendors $allVendors
+        if ([string]::IsNullOrWhiteSpace($package.kind)) {
+            throw "A package entry for profile '$($profile.displayName)' is missing a kind in scripts/package-profiles.json."
+        }
+
+        $outputPath = Join-Path $profilePath $package.name
+        $includedVendors = @($profile.includedVendors)
+        if ($package.PSObject.Properties.Name -contains "includedVendors" -and $package.includedVendors) {
+            $includedVendors = @($package.includedVendors)
+        }
+
+        $flags = Get-ArchiveFlags -Kind $package.kind -IncludedVendors $includedVendors -AllVendors $allVendors
         Create-Archive "$cmderRoot" $outputPath $flags
         $hash = Digest-Hash $outputPath
-        Add-Content -Path (Join-Path $profilePath "hashes.txt") -Value ($archive.Name + "`t" + $hash)
+        Add-Content -Path (Join-Path $profilePath "hashes.txt") -Value ($package.name + "`t" + $hash)
     }
 }
 
