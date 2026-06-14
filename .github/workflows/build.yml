@@ -98,7 +98,7 @@ jobs:
         $summary += @"
         | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
         | Actor | [@${{ github.actor }}](https://github.com/${{ github.actor }}) |
-        | Workflow | ``${{ github.workflow }}`` |
+        | Workflow | [``${{ github.workflow }}``](https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/build.yml) |
         | Cmder Version | **$cmderVersion** |
 
         ---
