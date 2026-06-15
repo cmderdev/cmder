@@ -79,6 +79,11 @@ jobs:
           $branchLink = "https://github.com/${{ github.repository }}/tree/$refName"
         }
 
+        Write-Host "::notice title=Build info::Cmder $cmderVersion was built from branch '$actualBranchName' via '$eventName'."
+        if ($prNumber) {
+          Write-Host "::notice title=Pull request::Associated with PR #$prNumber."
+        }
+
         $summary = @"
         ## 📦 Build Cmder - Workflow Summary
 
