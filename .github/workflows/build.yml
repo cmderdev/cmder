@@ -88,7 +88,8 @@ jobs:
         | Property | Value |
         | --- | --- |
         | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
-        | Branch | [``$actualBranchName``]($branchLink) |
+        | Source Branch | [``$actualBranchName``]($branchLink) |
+        | Event | ``$eventName`` |
         "@
 
         if ($prNumber) {
