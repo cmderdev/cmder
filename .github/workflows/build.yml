@@ -160,83 +160,118 @@ jobs:
       run: .\pack.ps1 -Terminal all -Verbose
 
     - name: Upload artifact (cmder_slim.7z)
+      id: upload_cmder_slim_7z
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder_slim/cmder_slim.7z
-        name: cmder_slim.7z
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder_slim.zip)
+      id: upload_cmder_slim_zip
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder_slim/cmder_slim.zip
-        name: cmder_slim.zip
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder_slim_mini.zip)
+      id: upload_cmder_slim_mini_zip
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder_slim/cmder_slim_mini.zip
-        name: cmder_slim_mini.zip
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder.7z)
+      id: upload_cmder_7z
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder/cmder.7z
-        name: cmder.7z
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder.zip)
+      id: upload_cmder_zip
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder/cmder.zip
-        name: cmder.zip
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder_mini.zip)
+      id: upload_cmder_mini_zip
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder/cmder_mini.zip
-        name: cmder_mini.zip
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder_conemu.7z)
+      id: upload_cmder_conemu_7z
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder_conemu/cmder_conemu.7z
-        name: cmder_conemu.7z
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder_conemu.zip)
+      id: upload_cmder_conemu_zip
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder_conemu/cmder_conemu.zip
-        name: cmder_conemu.zip
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder_conemu_mini.zip)
+      id: upload_cmder_conemu_mini_zip
       uses: actions/upload-artifact@v7
       with:
         path: build/cmder_conemu/cmder_conemu_mini.zip
-        name: cmder_conemu_mini.zip
         if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (hashes.txt)
+      id: upload_hashes_txt
       uses: actions/upload-artifact@v7
       with:
         path: build/hashes.txt
-        name: hashes.txt
         if-no-files-found: error
+        archive: false
 
     - name: Summary - Package artifacts
       if: success()
       shell: pwsh
       env:
         GH_TOKEN: ${{ github.token }}
+        ARTIFACT_URL_CMDER_SLIM_7Z: ${{ steps.upload_cmder_slim_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_SLIM_ZIP: ${{ steps.upload_cmder_slim_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_SLIM_MINI_ZIP: ${{ steps.upload_cmder_slim_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_7Z: ${{ steps.upload_cmder_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_ZIP: ${{ steps.upload_cmder_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_MINI_ZIP: ${{ steps.upload_cmder_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_7Z: ${{ steps.upload_cmder_conemu_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_ZIP: ${{ steps.upload_cmder_conemu_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_MINI_ZIP: ${{ steps.upload_cmder_conemu_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_HASHES_TXT: ${{ steps.upload_hashes_txt.outputs.artifact-url }}
       run: |
         # Source utility functions
         . scripts/utils.ps1
+        function Get-ArtifactUrl {
+          param(
+            [Parameter(Mandatory = $true)]
+            [string]$ArtifactName
+          )
+
+          $envName = "ARTIFACT_URL_" + (($ArtifactName -replace '[^A-Za-z0-9]+', '_').Trim('_')).ToUpperInvariant()
+          $downloadUrl = [Environment]::GetEnvironmentVariable($envName)
+          if ($downloadUrl) {
+            return $downloadUrl
+          }
+
+          return Get-ArtifactDownloadUrl -ArtifactName $ArtifactName -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+        }
+
         $profiles = Get-CmderPackageProfiles -Terminal all
         $summary = @"
 
@@ -256,7 +291,7 @@ jobs:
           $buildFiles = Get-ChildItem -Path $profilePath -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
           foreach ($file in $buildFiles) {
             $artifact = $file.Name
-            $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName $artifact -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+            $downloadUrl = Get-ArtifactUrl -ArtifactName $artifact
             $warning = ""
 
             if (-not $downloadUrl) {
@@ -273,7 +308,7 @@ jobs:
 
         $hashesPath = "build/hashes.txt"
         if (Test-Path $hashesPath) {
-          $downloadUrl = Get-ArtifactDownloadUrl -ArtifactName "hashes.txt" -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+          $downloadUrl = Get-ArtifactUrl -ArtifactName "hashes.txt"
           $warning = ""
 
           if (-not $downloadUrl) {
