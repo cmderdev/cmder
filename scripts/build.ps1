@@ -63,7 +63,7 @@ Param(
     [switch]$Compile
 )
 
-# Get the scripts and cmder root dirs we are building in.
+# Get the scripts and Cmder root dirs we are building in.
 $cmder_root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 
 if ([string]::IsNullOrWhiteSpace($sourcesPath)) {
@@ -149,10 +149,9 @@ if (-not $noVendor) {
     }
     else { $WinTermSettingsJson = "" }
 
-    # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
-    $cmder_folder = $cmder_root.toString()
+    # Kill ssh-agent.exe if it is running from the Cmder root we are building
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-        if ([string]$($ssh_agent.path) -Match $cmder_folder.Replace('\', '\\')) {
+        if ([string]$($ssh_agent.path) -Match $cmder_root.Replace('\', '\\')) {
             Write-Verbose $("Stopping " + $ssh_agent.path + "!")
             Stop-Process $ssh_agent.id
         }
