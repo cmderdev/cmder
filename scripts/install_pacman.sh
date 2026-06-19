@@ -12,11 +12,10 @@
 # Make sure to back up any important data before proceeding.
 #
 # Always review and understand scripts from external sources prior to execution.
-
 export bin_source=${1:-https://github.com/daxgames/pacman-for-git/raw/refs/heads/main}
-export HOME=$(cygpath -u "$USERPROFILE")
 echo "Using binary source: $bin_source"
 echo "Using HOME directory: $HOME"
+read -rp "Press [Enter] to continue..."
 
 if [[ "$HOSTTYPE" == "i686" ]]; then
   pacman=(
@@ -25,8 +24,8 @@ if [[ "$HOSTTYPE" == "i686" ]]; then
     msys2-keyring-1~20210213-2-any.pkg.tar.zst
   )
 
- zstd=zstd-1.5.0-1-i686.pkg.tar.xz
- zstd_win=https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-v1.5.5-win32.zip
+  zstd=zstd-1.5.0-1-i686.pkg.tar.xz
+  zstd_win=https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-v1.5.5-win32.zip
 else
   pacman=(
     pacman-6.0.1-18-x86_64.pkg.tar.zst
@@ -42,6 +41,7 @@ echo =-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo Downloading pacman files...
 echo =-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 for f in "${pacman[@]}"; do
+  [[ -f "$HOME/Downloads/$f" ]] && continue
   echo "Running: curl -sLkf -o \"$HOME/Downloads/$f\" \"${bin_source}/$f\""
   curl -sLkf -o "$HOME/Downloads/$f" "${bin_source}/$f" || exit 1
 done
@@ -50,10 +50,15 @@ echo -e "\n=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo =-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo Downloading zstd binaries...
 echo =-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-echo "Running: curl -sLkf -o \"$HOME/Downloads/$zstd\" \"${bin_source}/$zstd\""
-curl -sLkf -o "$HOME/Downloads/$zstd" "${bin_source}/$zstd" || exit 1
-echo "Running: curl -sLkf -o \"$HOME/Downloads/$(basename \"${zstd_win}\")\" \"$zstd_win\""
-curl -sLkf -o "$HOME/Downloads/$(basename "${zstd_win}")" "$zstd_win" || exit 1
+if [[ ! -f "$HOME/Downloads/$zstd" ]] ; then
+  echo "Running: curl -sLkf -o \"$HOME/Downloads/$zstd\" \"${bin_source}/$zstd\""
+  curl -sLkf -o "$HOME/Downloads/$zstd" "${bin_source}/$zstd" || exit 1
+fi
+
+if [[ ! -f "$HOME/Downloads/$(basename${zstd_win})" ]] ; then
+  echo "Running: curl -sLkf -o \"$HOME/Downloads/$(basename \"${zstd_win}\")\" \"$zstd_win\""
+  curl -sLkf -o "$HOME/Downloads/$(basename "${zstd_win}")" "$zstd_win" || exit 1
+fi
 echo -e "\n=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n"
 
 echo =-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
