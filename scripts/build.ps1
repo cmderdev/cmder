@@ -21,7 +21,7 @@
 
     Skip all downloads and only build launcher.
 .EXAMPLE
-    .\build -verbose
+    .\build -Verbose
 
     Execute the build and see what's going on.
 .EXAMPLE
@@ -38,7 +38,7 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
-    # -verbose switch to turn on logging and
+    # -Verbose switch to turn on logging and
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
@@ -57,7 +57,7 @@ Param(
     [switch]$noVendor,
 
     # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
-    [string]$terminal = 'all',
+    [string]$Terminal = 'all',
 
     # Build launcher if you have MSBuild tools installed
     [switch]$Compile,
@@ -101,6 +101,7 @@ if (-not $noVendor) {
 
     # Get the vendor sources
     $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
+    $includedVendors = Get-CmderTerminalIncludedVendors -Terminal $Terminal
 
     Push-Location -Path $saveTo
     New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
@@ -141,11 +142,7 @@ if (-not $noVendor) {
     }
 
     foreach ($s in $sources) {
-        if ($terminal -eq "none") {
-            continue
-        } elseif ($s.name -eq "conemu-maximus5" -and $terminal -eq "windows-terminal") {
-            continue
-        } elseif ($s.name -eq "windows-terminal" -and $terminal -eq  "conemu-maximus5") {
+        if ($includedVendors -notcontains $s.name) {
             continue
         }
 

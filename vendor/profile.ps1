@@ -104,7 +104,7 @@ if ($null -ne $ENV:GIT_INSTALL_ROOT) {
 
 # Create 'vi' alias for 'vim' if vim is available
 if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
-    New-Alias -name "vi" -value vim -errorAction SilentlyContinue
+    New-Alias -name "vi" -value vim -ErrorAction SilentlyContinue
 }
 
 # PSReadline configuration
@@ -291,5 +291,7 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
 $CMDER_INIT_END = Get-Date
 
 $ElapsedTime = New-TimeSpan -Start $CMDER_INIT_START -End $CMDER_INIT_END
+
+$env:Path = $env:Path -replace ';;', ';'
 
 Write-Verbose "Elapsed Time: $($ElapsedTime.TotalSeconds) seconds total"

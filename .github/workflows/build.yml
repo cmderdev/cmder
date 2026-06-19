@@ -12,6 +12,7 @@ on:
       - "v*"
   pull_request:
     branches: [ "master", "development" ]
+  workflow_dispatch:
 
 #---------------------------------#
 #    environment configuration    #
@@ -35,99 +36,331 @@ jobs:
       discussions: write
     steps:
     - name: Check out repository code (Action from GitHub)
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
+    - name: Summary - Repository checkout
+      shell: pwsh
+      run: |
+        # Get Cmder version
+        . scripts/utils.ps1
+        $cmderVersion = Get-VersionStr
+        $buildTime = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+
+        # Determine branch and PR information
+        $refName = "${{ github.ref_name }}"
+        $headRef = "${{ github.head_ref }}"
+        $eventName = "${{ github.event_name }}"
+        $prNumber = $null
+        $actualBranchName = $refName
+        $branchLink = ""
+        $prLink = ""
+
+        # Check if this is a PR merge ref (e.g., "3061/merge")
+        if ($refName -match '^(\d+)/(merge|head)$') {
+          $prNumber = $Matches[1]
+          # Use head_ref for the actual branch name if available
+          if ($headRef) {
+            $actualBranchName = $headRef
+          }
+          $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
+          $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        } elseif ($eventName -eq "pull_request") {
+          # This is a pull request event
+          $prNumber = "${{ github.event.pull_request.number }}"
+          if ($headRef) {
+            $actualBranchName = $headRef
+          }
+          $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
+          $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        } else {
+          # Regular branch, link to the branch tree
+          $branchLink = "https://github.com/${{ github.repository }}/tree/$refName"
+        }
+
+        Write-Host "::notice title=Build info::Cmder $cmderVersion was built from branch '$actualBranchName' via '$eventName'."
+        if ($prNumber) {
+          Write-Host "::notice title=Pull request::Associated with PR #$prNumber."
+        }
+
+        $summary = @"
+        ## 📦 Build Cmder - Workflow Summary
+
+        <small>Build started: ``$buildTime``</small>
+
+        ### Repository Information
+        | Property | Value |
+        | --- | --- |
+        | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
+        | Source Branch | [``$actualBranchName``]($branchLink) |
+        | Event | ``$eventName`` |
+        "@
+
+        if ($prNumber) {
+          $summary += "| Pull Request | [#$prNumber]($prLink) |`n"
+        }
+
+        $summary += @"
+        | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
+        | Actor | [@${{ github.actor }}](https://github.com/${{ github.actor }}) |
+        | Workflow | [``${{ github.workflow }}``](https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/build.yml) |
+        | Cmder Version | **$cmderVersion** |
+
+        ---
+
+        ### 🗃️ Vendor Packages ([sources.json](vendor/sources.json))
+        | Package | Version |
+        | --- | --- |
+        "@
+
+        # Read vendor sources.json and add to summary
+        $vendorSources = Get-Content -Raw "vendor/sources.json" | ConvertFrom-Json
+        if ($vendorSources.Count -eq 0) {
+          $summary += "`n| _No vendor packages found_ | |"
+        } else {
+          foreach ($vendor in $vendorSources) {
+            # Create release link based on vendor package
+            $versionLink = "$($vendor.version)"
+            if ($vendor.url) {
+              # Extract owner/repo/tag from the URL and create release link
+              # Handle both /releases/download/ and /archive/ URLs
+              if ($vendor.url -match 'github\.com/([^/]+)/([^/]+)/(releases/download|archive)/([^/]+)') {
+                $owner = $Matches[1]
+                $repo = $Matches[2]
+                $pathType = $Matches[3]
+                $tag = $Matches[4]
+                if ($pathType -eq 'archive') {
+                  $tag = $tag -replace '\.(?:tar\.gz|tgz|zip)$', ''
+                }
+                $versionLink = "[$($vendor.version)](https://github.com/$owner/$repo/releases/tag/$tag)"
+              }
+            }
+            $summary += "`n| ``$($vendor.name)`` | $versionLink |"
+          }
+        }
+
+        $summary += "`n"
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
 
     - name: Build Cmder Launcher
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -Compile -verbose -terminal all
+      run: .\build.ps1 -Compile -Terminal all -Verbose
+
+    - name: Summary - Build completed
+      if: success()
+      shell: pwsh
+      run: |
+        echo "### ✅ Build Status" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "Cmder launcher successfully compiled." >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
 
     - name: Pack the built files
       shell: pwsh
       working-directory: scripts
-      run: .\pack.ps1 -verbose -terminal all
+      run: .\pack.ps1 -Terminal all -Verbose
 
-    - name: Upload artifact (cmder_win_mini.zip)
-      uses: actions/upload-artifact@v4
+    - name: Upload artifact (cmder_slim.7z)
+      id: upload_cmder_slim_7z
+      uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_win_mini.zip
-        name: cmder_win_mini.zip
+        path: build/cmder_slim/cmder_slim.7z
         if-no-files-found: error
+        archive: false
 
-    - name: Upload artifact (cmder_win.7z)
-      uses: actions/upload-artifact@v4
+    - name: Upload artifact (cmder_slim.zip)
+      id: upload_cmder_slim_zip
+      uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_win.7z
-        name: cmder_win.7z
+        path: build/cmder_slim/cmder_slim.zip
         if-no-files-found: error
+        archive: false
 
-    - name: Upload artifact (cmder_win.zip)
-      uses: actions/upload-artifact@v4
+    - name: Upload artifact (cmder_slim_mini.zip)
+      id: upload_cmder_slim_mini_zip
+      uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_win.zip
-        name: cmder_win.zip
+        path: build/cmder_slim/cmder_slim_mini.zip
         if-no-files-found: error
-
-    - name: Upload artifact (cmder_wt.zip)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_wt.zip
-        name: cmder_wt.zip
-        if-no-files-found: error
-
-    - name: Upload artifact (cmder_wt.7z)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_wt.7z
-        name: cmder_wt.7z
-
-    - name: Upload artifact (cmder_wt_mini.zip)
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/cmder_wt_mini.zip
-        name: cmder_wt_mini.zip
-
-    - name: Upload artifact (cmder.zip)
-      uses: actions/upload-artifact@v5
-      with:
-        path: build/cmder.zip
-        name: cmder.zip
-        if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder.7z)
-      uses: actions/upload-artifact@v5
+      id: upload_cmder_7z
+      uses: actions/upload-artifact@v7
       with:
-        path: build/cmder.7z
-        name: cmder.7z
+        path: build/cmder/cmder.7z
+        if-no-files-found: error
+        archive: false
+
+    - name: Upload artifact (cmder.zip)
+      id: upload_cmder_zip
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder/cmder.zip
+        if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (cmder_mini.zip)
-      uses: actions/upload-artifact@v5
+      id: upload_cmder_mini_zip
+      uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_mini.zip
-        name: cmder_mini.zip
+        path: build/cmder/cmder_mini.zip
+        if-no-files-found: error
+        archive: false
+
+    - name: Upload artifact (cmder_conemu.7z)
+      id: upload_cmder_conemu_7z
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_conemu/cmder_conemu.7z
+        if-no-files-found: error
+        archive: false
+
+    - name: Upload artifact (cmder_conemu.zip)
+      id: upload_cmder_conemu_zip
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_conemu/cmder_conemu.zip
+        if-no-files-found: error
+        archive: false
+
+    - name: Upload artifact (cmder_conemu_mini.zip)
+      id: upload_cmder_conemu_mini_zip
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmder_conemu/cmder_conemu_mini.zip
+        if-no-files-found: error
+        archive: false
 
     - name: Upload artifact (hashes.txt)
-      uses: actions/upload-artifact@v5
+      id: upload_hashes_txt
+      uses: actions/upload-artifact@v7
       with:
         path: build/hashes.txt
-        name: hashes.txt
+        if-no-files-found: error
+        archive: false
+
+    - name: Summary - Package artifacts
+      if: success()
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        ARTIFACT_URL_CMDER_SLIM_7Z: ${{ steps.upload_cmder_slim_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_SLIM_ZIP: ${{ steps.upload_cmder_slim_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_SLIM_MINI_ZIP: ${{ steps.upload_cmder_slim_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_7Z: ${{ steps.upload_cmder_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_ZIP: ${{ steps.upload_cmder_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_MINI_ZIP: ${{ steps.upload_cmder_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_7Z: ${{ steps.upload_cmder_conemu_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_ZIP: ${{ steps.upload_cmder_conemu_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_MINI_ZIP: ${{ steps.upload_cmder_conemu_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_HASHES_TXT: ${{ steps.upload_hashes_txt.outputs.artifact-url }}
+      run: |
+        # Source utility functions
+        . scripts/utils.ps1
+        function Get-ArtifactUrl {
+          param(
+            [Parameter(Mandatory = $true)]
+            [string]$ArtifactName
+          )
+
+          $envName = "ARTIFACT_URL_" + (($ArtifactName -replace '[^A-Za-z0-9]+', '_').Trim('_')).ToUpperInvariant()
+          $downloadUrl = [Environment]::GetEnvironmentVariable($envName)
+          if ($downloadUrl) {
+            return $downloadUrl
+          }
+
+          return Get-ArtifactDownloadUrl -ArtifactName $ArtifactName -Repository "${{ github.repository }}" -RunId "${{ github.run_id }}"
+        }
+
+        $profiles = Get-CmderPackageProfiles -Terminal all
+        $summary = @"
+
+        ### 🗃️ Packages
+        "@
+
+        foreach ($profile in $profiles) {
+          $profilePath = Join-Path "build" $profile.outputFolder
+          if (-not (Test-Path $profilePath)) {
+            continue
+          }
+
+          $summary += "`n`n#### 📁 $($profile.displayName) ``$($profile.outputFolder)``"
+          $summary += "`n`n| Artifact | Size | Hash (SHA256) |"
+          $summary += "`n| --- | --- | --- |"
+
+          $buildFiles = Get-ChildItem -Path $profilePath -File | Where-Object { -not $_.Name.StartsWith('.') } | Sort-Object Name
+          foreach ($file in $buildFiles) {
+            $artifact = $file.Name
+            $downloadUrl = Get-ArtifactUrl -ArtifactName $artifact
+            $warning = ""
+
+            if (-not $downloadUrl) {
+              $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              $warning = " ⚠️"
+            }
+
+            $emoji = Get-ArtifactTypeEmoji -Name $artifact
+            $sizeFormatted = Format-FileSize -Bytes $file.Length
+            $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash
+            $summary += "`n| $emoji [``$artifact``$warning]($downloadUrl) | $sizeFormatted | ``$hash`` |"
+          }
+        }
+
+        $hashesPath = "build/hashes.txt"
+        if (Test-Path $hashesPath) {
+          $downloadUrl = Get-ArtifactUrl -ArtifactName "hashes.txt"
+          $warning = ""
+
+          if (-not $downloadUrl) {
+            $downloadUrl = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            $warning = " ⚠️"
+          }
+
+          $hashesSize = Format-FileSize -Bytes (Get-Item $hashesPath).Length
+          $hashesHash = (Get-FileHash $hashesPath -Algorithm SHA256).Hash
+          $summary += "`n`n#### 🧾 Hash Manifest"
+          $summary += "`n`n| Artifact | Size | Hash (SHA256) |"
+          $summary += "`n| --- | --- | --- |"
+          $summary += "`n| 📄 [``hashes.txt``$warning]($downloadUrl) | $hashesSize | ``$hashesHash`` |"
+        }
+
+        $summary += "`n"
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Create Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
-        files: |
-          build/cmder.zip
-          build/cmder_wt.zip
-          build/cmder.7z
-          build/cmder_wt.7z
-          build/cmder_mini.zip
-          build/cmder_wt_mini.zip
-          build/hashes.txt
+        files: build/**/*.*
         draft: true
         generate_release_notes: true
       if: startsWith(github.ref, 'refs/tags/')
+
+    - name: Summary - Release created
+      if: startsWith(github.ref, 'refs/tags/')
+      shell: pwsh
+      run: |
+        . scripts/utils.ps1
+        $profiles = Get-CmderPackageProfiles -Terminal all
+        $summary = @"
+
+        ---
+
+        ### Release Information
+
+        🚀 Draft release created for tag: **``${{ github.ref_name }}``**
+
+        Release includes these package groups:
+        "@
+
+        foreach ($profile in $profiles) {
+          $summary += "`n- **$($profile.displayName)** ``$($profile.outputFolder)``"
+        }
+
+        $summary += "`n`n> ⚠️ Release is in **draft** mode. Please review and publish manually.`n"
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8

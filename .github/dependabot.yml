@@ -5,7 +5,11 @@
 
 version: 2
 updates:
+  # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    labels:
+      - "👆 Dependencies"
+      - "🔄️ GitHub Actions"
