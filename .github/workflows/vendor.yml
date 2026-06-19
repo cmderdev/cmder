@@ -10,6 +10,10 @@ concurrency:
   group: vendor-update
   cancel-in-progress: false
 
+env:
+  # Fork owners can opt in by setting this Actions repository variable to true.
+  AUTO_MERGE_MINOR_VENDOR_UPDATES: ${{ vars.AUTO_MERGE_MINOR_VENDOR_UPDATES || 'false' }}
+
 defaults:
   run:
     shell: pwsh
@@ -31,6 +35,19 @@ jobs:
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
+
+    - name: Configure auto-merge policy
+      shell: pwsh
+      run: |
+        $rawValue = [string]$env:AUTO_MERGE_MINOR_VENDOR_UPDATES
+        $normalizedValue = $rawValue.Trim().ToLowerInvariant()
+        $enabled = $normalizedValue -in @('true', '1', 'yes', 'on')
+
+        if ($enabled) {
+          Add-Content -Path $env:GITHUB_ENV -Value "AUTO_MERGE_MINOR_VENDOR_UPDATES_ENABLED=True"
+        } else {
+          Add-Content -Path $env:GITHUB_ENV -Value "AUTO_MERGE_MINOR_VENDOR_UPDATES_ENABLED=False"
+        }
 
     - name: Summary - Workflow started
       shell: pwsh
@@ -168,18 +185,21 @@ jobs:
 
         $summary += $env:UPDATE_MESSAGE + "`n"
 
-        # Check if we can auto-merge (only minor/patch changes)
+        # Check if we can auto-merge (only minor/patch changes, opt-in only).
         $hasBreaking = $env:HAS_BREAKING_CHANGES -eq 'True'
+        $autoMergeEnabled = $env:AUTO_MERGE_MINOR_VENDOR_UPDATES_ENABLED -eq 'True'
         if ($hasBreaking) {
           $summary += '> ⚠️ **Note:** This update contains major version changes that may include breaking changes.'
+        } elseif ($autoMergeEnabled) {
+          $summary += '> ℹ️ **Note:** This update only contains minor or patch changes, and auto-merge is enabled.'
         } else {
-          $summary += '> ℹ️ **Note:** This update only contains minor or patch changes.'
+          $summary += '> ℹ️ **Note:** This update only contains minor or patch changes. Auto-merge is disabled by default; set the `AUTO_MERGE_MINOR_VENDOR_UPDATES` Actions repository variable to `true` to opt in.'
         }
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Auto-merge minor updates
-      if: env.COUNT_UPDATED > 0 && env.HAS_BREAKING_CHANGES != 'True'
+      if: env.COUNT_UPDATED > 0 && env.HAS_BREAKING_CHANGES != 'True' && env.AUTO_MERGE_MINOR_VENDOR_UPDATES_ENABLED == 'True'
       shell: pwsh
       run: |
         function Get-PushFailureReason {
@@ -269,7 +289,7 @@ jobs:
 
     - id: create-pr
       uses: peter-evans/create-pull-request@v8
-      if: fromJSON(env.COUNT_UPDATED) > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
+      if: fromJSON(env.COUNT_UPDATED) > 0 && env.AUTO_MERGED != 'true'
       with:
         title: ${{ env.COUNT_UPDATED == 1 && format('⬆️ Update {0}', env.LIST_UPDATED) || format('⬆️ Update {0} vendored dependencies', env.COUNT_UPDATED) }}
         body: |
@@ -289,13 +309,14 @@ jobs:
         base: master
 
     - name: Summary - Pull request result
-      if: env.COUNT_UPDATED > 0 && (env.HAS_BREAKING_CHANGES == 'True' || env.AUTO_MERGED == 'false')
+      if: env.COUNT_UPDATED > 0 && env.AUTO_MERGED != 'true'
       shell: pwsh
       env:
         PR_URL: ${{ steps.create-pr.outputs.pull-request-url }}
         PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
         PR_OPERATION: ${{ steps.create-pr.outputs.pull-request-operation }}
         AUTO_MERGE_FAILURE_REASON: ${{ env.AUTO_MERGE_FAILURE_REASON }}
+        AUTO_MERGE_MINOR_VENDOR_UPDATES_ENABLED: ${{ env.AUTO_MERGE_MINOR_VENDOR_UPDATES_ENABLED }}
       run: |
         $updateVendorBranchUrl = "$($env:GITHUB_SERVER_URL)/$($env:GITHUB_REPOSITORY)/tree/update-vendor"
         $summary = @"
@@ -334,6 +355,8 @@ jobs:
           $summary += "> ⚠️ **Manual review required:** This update contains major version changes."
         } elseif ($env:PR_OPERATION -eq 'none') {
           $summary += "> ℹ️ **Note:** No pull request was created because there were no differences left to propose."
+        } elseif ($env:AUTO_MERGE_MINOR_VENDOR_UPDATES_ENABLED -ne 'True') {
+          $summary += "> ℹ️ **Note:** Auto-merge is disabled by configuration. Set the ``AUTO_MERGE_MINOR_VENDOR_UPDATES`` Actions repository variable to ``true`` to opt in."
         } else {
           $summary += "> ℹ️ **Note:** Auto-merge failed, manual review required."
         }
