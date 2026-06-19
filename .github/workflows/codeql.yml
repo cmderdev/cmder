@@ -50,6 +50,34 @@ jobs:
     - name: Summary - CodeQL analysis started
       shell: pwsh
       run: |
+        $refName = "${{ github.ref_name }}"
+        $headRef = "${{ github.head_ref }}"
+        $eventName = "${{ github.event_name }}"
+        $prNumber = $null
+        $actualBranchName = $refName
+        $branchLink = "https://github.com/${{ github.repository }}/tree/$refName"
+        $prLink = ""
+        $workflowLink = "https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/codeql.yml"
+        $runLink = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+        if ($refName -match '^(\d+)/(merge|head)$') {
+          $prNumber = $Matches[1]
+          # Use head_ref for the actual branch name if available
+          if ($headRef) {
+            $actualBranchName = $headRef
+          }
+          $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
+          $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        } elseif ($eventName -eq "pull_request") {
+          # This is a pull request event
+          $prNumber = "${{ github.event.pull_request.number }}"
+          if ($headRef) {
+            $actualBranchName = $headRef
+          }
+          $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
+          $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        }
+
         $summary = @"
         ## 🔒 CodeQL Security Analysis - Workflow Summary
 
@@ -57,10 +85,20 @@ jobs:
 
         | Property | Value |
         | --- | --- |
-        | Repository | ``${{ github.repository }}`` |
-        | Branch | ``${{ github.ref_name }}`` |
-        | Language | ``${{ matrix.language }}`` |
-        | Commit | ``${{ github.sha }}`` |
+        | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
+        | Source Branch | [``$actualBranchName``]($branchLink) |
+        "@
+
+        if ($prNumber) {
+          $summary += "| Pull Request | [#$prNumber]($prLink) |`n"
+        }
+
+        $summary += @"
+        | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
+        | Workflow | [``${{ github.workflow }}``]($workflowLink) |
+        | Run | [``${{ github.run_id }}``]($runLink) |
+        | Language | [``${{ matrix.language }}``](https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/#languages-and-compilers) |
+        | Event | ``$eventName`` |
         "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
