@@ -42,16 +42,16 @@ Param(
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json",
+    [string]$sourcesPath,
 
     # Vendor folder location
-    [string]$saveTo = "$PSScriptRoot\..\vendor\",
+    [string]$saveTo,
 
     # Launcher folder location
-    [string]$launcher = "$PSScriptRoot\..\launcher",
+    [string]$launcher,
 
     # Config folder location
-    [string]$config = "$PSScriptRoot\..\config",
+    [string]$config,
 
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
@@ -64,7 +64,27 @@ Param(
 )
 
 # Get the scripts and cmder root dirs we are building in.
-$cmder_root = Resolve-Path "$PSScriptRoot\.."
+$cmder_root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+
+if ([string]::IsNullOrWhiteSpace($sourcesPath)) {
+    $sourcesPath = Join-Path $cmder_root 'vendor\sources.json'
+}
+
+if ([string]::IsNullOrWhiteSpace($saveTo)) {
+    $saveTo = Join-Path $cmder_root 'vendor'
+}
+
+if ([string]::IsNullOrWhiteSpace($launcher)) {
+    $launcher = Join-Path $cmder_root 'launcher'
+}
+
+if ([string]::IsNullOrWhiteSpace($config)) {
+    $config = Join-Path $cmder_root 'config'
+}
+
+if (-not $saveTo.EndsWith([System.IO.Path]::DirectorySeparatorChar) -and -not $saveTo.EndsWith([System.IO.Path]::AltDirectorySeparatorChar)) {
+    $saveTo += [System.IO.Path]::DirectorySeparatorChar
+}
 
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"

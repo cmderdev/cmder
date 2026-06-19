@@ -1,3 +1,4 @@
+﻿# Keep this file as UTF-8 with BOM so Windows PowerShell 5.1 can parse literal emoji strings.
 function Ensure-Exists($path) {
     if (-not (Test-Path $path)) {
         Write-Error "Missing required $path! Ensure it is installed"
