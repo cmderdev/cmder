@@ -315,7 +315,7 @@ jobs:
             $summary += "An existing pull request has been updated: [#$($env:PR_NUMBER)]($($env:PR_URL))`n`n"
           }
           'none' {
-            $summary += "No pull request was created because [update-vendor]($updateVendorBranchUrl) no longer differs from `master`.`n`n"
+            $summary += "No pull request was created because [update-vendor]($updateVendorBranchUrl) no longer differs from ``master``.`n`n"
           }
           default {
             if (-not [string]::IsNullOrWhiteSpace($env:PR_URL)) {
