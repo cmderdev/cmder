@@ -38,7 +38,7 @@ Param(
     [string]$saveTo = "$PSScriptRoot\..\build"
 )
 
-$cmderRoot = Resolve-Path $cmderRoot
+$cmder_root = Resolve-Path $cmderRoot
 
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
@@ -69,9 +69,9 @@ function Get-ArchiveFlags {
     return $flags
 }
 
-Push-Location -Path $cmderRoot
+Push-Location -Path $cmder_root
 
-Delete-Existing "$cmderRoot\Version*"
+Delete-Existing "$cmder_root\Version*"
 Delete-Existing "$saveTo\*"
 
 if (-not (Test-Path -PathType container $saveTo)) {
@@ -82,12 +82,12 @@ $saveTo = Resolve-Path $saveTo
 $profiles = Get-CmderPackageProfiles -Terminal $Terminal
 $allVendors = @(Get-CmderVendorNames)
 $version = Get-VersionStr
-(New-Item -ItemType file "$cmderRoot\Version $version") | Out-Null
+(New-Item -ItemType file "$cmder_root\Version $version") | Out-Null
 
 if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
     Write-Verbose "Packing Cmder $version in $saveTo..."
-    $excluded = (Get-Content -Path "$cmderRoot\packignore") -Split [System.Environment]::NewLine | Where-Object { $_ }
-    Get-ChildItem $cmderRoot -Force -Exclude $excluded
+    $excluded = (Get-Content -Path "$cmder_root\packignore") -Split [System.Environment]::NewLine | Where-Object { $_ }
+    Get-ChildItem $cmder_root -Force -Exclude $excluded
 }
 
 foreach ($profile in $profiles) {
@@ -118,7 +118,7 @@ foreach ($profile in $profiles) {
         }
 
         $flags = Get-ArchiveFlags -Kind $package.kind -IncludedVendors $includedVendors -AllVendors $allVendors
-        Create-Archive "$cmderRoot" $outputPath $flags
+        Create-Archive "$cmder_root" $outputPath $flags
         $hash = Digest-Hash $outputPath
         Add-Content -Path (Join-Path $saveTo "hashes.txt") -Value ($profile.outputFolder + "/" + $package.name + "`t" + $hash)
     }
