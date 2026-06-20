@@ -202,6 +202,7 @@ jobs:
           $repoRoot = $PWD.Path
           $legacyInit = Join-Path $PWD "vendor\init.bat"
           $createdBackup = $null
+          $shimRoot = Join-Path $env:RUNNER_TEMP "cmder-init-shim"
           $tempRoot = Join-Path $env:RUNNER_TEMP "cmder-init-migration"
 
           if (Test-Path $legacyInit) {
@@ -211,7 +212,9 @@ jobs:
           $existingBackups = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
 
           try {
+            Remove-Item -Path $shimRoot -Recurse -Force -ErrorAction SilentlyContinue
             Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Path $shimRoot | Out-Null
             New-Item -ItemType Directory -Path $tempRoot | Out-Null
             Set-Content -Path $legacyInit -Value "@echo off`r`necho legacy init placeholder" -Encoding ASCII
 
@@ -222,8 +225,8 @@ jobs:
               throw "init.cmd exited with code $LASTEXITCODE during legacy migration test.`n$outputText"
             }
 
-            if (Test-Path $legacyInit) {
-              throw "Legacy init.bat still exists after init.cmd migration."
+            if (-not (Test-Path $legacyInit)) {
+              throw "Legacy init.bat shim was not created after migration."
             }
 
             $newBackups = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File | Where-Object { $existingBackups -notcontains $_.FullName })
@@ -237,14 +240,41 @@ jobs:
               throw "The init.bat backup did not contain the expected legacy script content."
             }
 
+            $shimContent = Get-Content -Path $legacyInit -Raw
+            if ($shimContent -notmatch "Please update your Cmder task or shell configuration" -or $shimContent -notmatch "call .*init\.cmd") {
+              throw "The generated init.bat shim did not contain the expected notice and init.cmd call."
+            }
+
             if ($outputText -notmatch "init\.cmd" -or $outputText -notmatch "Backing up legacy") {
-              throw "Migration output did not explain that init.bat was backed up in favor of init.cmd."
+              throw "Migration output did not explain that init.bat was backed up and init.cmd should be used."
+            }
+
+            $shimOutput = cmd /d /c "set `"CMDER_ROOT=$repoRoot`"&& set `"cmder_root=$repoRoot`"&& set CMDER_USER_CONFIG=&& set CMDER_CONFIGURED=&& call vendor\init.bat /f /c `"$shimRoot`"" 2>&1
+            $shimOutputText = $shimOutput -join "`n"
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Generated init.bat shim exited with code $LASTEXITCODE.`n$shimOutputText"
+            }
+
+            if ($shimOutputText -notmatch "Please update your Cmder task or shell configuration" -or $shimOutputText -notmatch "init\.cmd") {
+              throw "Generated init.bat shim did not display the expected migration notice."
+            }
+
+            if (-not (Test-Path (Join-Path $shimRoot "config\user_init.cmd"))) {
+              throw "Generated init.bat shim did not load init.cmd and create user_init.cmd."
+            }
+
+            $backupsAfterShim = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File | Where-Object { $existingBackups -notcontains $_.FullName })
+            if ($backupsAfterShim.Count -ne 1 -or $backupsAfterShim[0].FullName -ne $createdBackup) {
+              throw "Calling the generated init.bat shim created additional backup files."
             }
           } finally {
             Remove-Item -Path $legacyInit -Force -ErrorAction SilentlyContinue
-            if ($createdBackup) {
-              Remove-Item -Path $createdBackup -Force -ErrorAction SilentlyContinue
+            $newBackupsToRemove = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File -ErrorAction SilentlyContinue | Where-Object { $existingBackups -notcontains $_.FullName })
+            foreach ($backup in $newBackupsToRemove) {
+              Remove-Item -Path $backup.FullName -Force -ErrorAction SilentlyContinue
             }
+            Remove-Item -Path $shimRoot -Recurse -Force -ErrorAction SilentlyContinue
             Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
           }
 

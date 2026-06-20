@@ -554,6 +554,7 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   set cmder_user_init=
   set cmder_legacy_init=
   set cmder_legacy_init_backup=
+  set cmder_legacy_init_shim=
   set CMDER_ALIASES=
   set CMDER_INIT_END=
   set CMDER_INIT_START=
@@ -579,6 +580,9 @@ exit /b
   set "cmder_legacy_init=%CMDER_ROOT%\vendor\init.bat"
   if not exist "%cmder_legacy_init%" exit /b
 
+  %WINDIR%\System32\findstr /c:"Cmder init.cmd compatibility shim" "%cmder_legacy_init%" >nul 2>nul
+  if not errorlevel 1 exit /b
+
   set "cmder_legacy_init_backup=%cmder_legacy_init%.old"
   if not exist "%cmder_legacy_init_backup%" goto :migrate_legacy_init_bat_found
 
@@ -603,5 +607,17 @@ exit /b
   for %%F in ("%cmder_legacy_init_backup%") do ren "%cmder_legacy_init%" "%%~nxF"
   if errorlevel 1 (
     echo Failed to back up "%cmder_legacy_init%"; please rename it manually.
+    exit /b
+  )
+
+  set "cmder_legacy_init_shim=%cmder_legacy_init%"
+  > "%cmder_legacy_init_shim%" echo @echo off
+  >> "%cmder_legacy_init_shim%" echo rem Cmder init.cmd compatibility shim
+  >> "%cmder_legacy_init_shim%" echo echo Cmder's cmd startup script has moved from "%%~f0" to "%%~dp0init.cmd".
+  >> "%cmder_legacy_init_shim%" echo echo Please update your Cmder task or shell configuration to call "%%~dp0init.cmd" directly.
+  >> "%cmder_legacy_init_shim%" echo echo Delete "%%~f0" after updating your configuration.
+  >> "%cmder_legacy_init_shim%" echo call "%%~dp0init.cmd" %%*
+  if errorlevel 1 (
+    echo Failed to create compatibility shim "%cmder_legacy_init_shim%"; please update your configuration manually.
   )
   exit /b
