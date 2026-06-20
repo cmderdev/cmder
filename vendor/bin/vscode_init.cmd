@@ -23,7 +23,7 @@ if not exist "%CMDER_VSCODE_INIT_ARGS%" (
 
 IF [%1] == [] (
     REM -- manually opened console (Ctrl + Shift + `) --
-    CALL "%~dp0..\init.bat"
+    CALL "%~dp0..\init.cmd"
 ) ELSE (
     REM -- task --
     CALL cmd %*

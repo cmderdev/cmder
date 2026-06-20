@@ -133,15 +133,15 @@ if %verbose_output% gtr 0 (
 
 :: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES variables
 %lib_base% cmder_shell
-%print_debug% init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
-%print_debug% init.bat "Env Var - debug_output=%debug_output%"
+%print_debug% init.cmd "Env Var - CMDER_ROOT=%CMDER_ROOT%"
+%print_debug% init.cmd "Env Var - debug_output=%debug_output%"
 
 :: Set the Cmder directory paths
 set "CMDER_CONFIG_DIR=%CMDER_ROOT%\config"
 
 :: Check if we're using Cmder individual user profile
 if defined CMDER_USER_CONFIG (
-    %print_debug% init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
+    %print_debug% init.cmd "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 
     if not exist "%CMDER_USER_CONFIG%\..\opt" md "%CMDER_USER_CONFIG%\..\opt"
     set "CMDER_CONFIG_DIR=%CMDER_USER_CONFIG%"
@@ -268,19 +268,19 @@ if defined GIT_INSTALL_ROOT (
     set GIT_INSTALL_ROOT=
 ) else if "%fast_init%" == "1" (
     if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
-        %print_debug% init.bat "Skipping Git Auto-Detect!"
+        %print_debug% init.cmd "Skipping Git Auto-Detect!"
         goto :VENDORED_GIT
     )
 
-    %print_debug% init.bat "Fast init is enabled, vendored Git does not exist"
+    %print_debug% init.cmd "Fast init is enabled, vendored Git does not exist"
     for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 	set "EXT_GIT_EXE=%%~fF"
-        %print_debug% init.bat "Found User installed Git at '%%~fF'. Skipping Git Auto-Detect!"
+        %print_debug% init.cmd "Found User installed Git at '%%~fF'. Skipping Git Auto-Detect!"
         goto :SET_ENV
     )
 )
 
-%print_debug% init.bat "Looking for Git install root..."
+%print_debug% init.cmd "Looking for Git install root..."
 
 :: Get the version information for vendored git binary
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd" 2>nul
@@ -311,29 +311,29 @@ if defined GIT_INSTALL_ROOT (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %print_debug% init.bat "Using vendored Git '%GIT_VERSION_VENDORED%'..."
+    %print_debug% init.cmd "Using vendored Git '%GIT_VERSION_VENDORED%'..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
 )
 
 :SPECIFIED_GIT
-%print_debug% init.bat "Using specified GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%...."
+%print_debug% init.cmd "Using specified GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%...."
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%print_debug% init.bat "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
+%print_debug% init.cmd "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
-%print_debug% init.bat "Using Git from '%GIT_INSTALL_ROOT%..."
+%print_debug% init.cmd "Using Git from '%GIT_INSTALL_ROOT%..."
 
 :: Add git to the path
-%print_debug% init.bat "START - git.exe(prepend): Env Var - PATH=%path%"
+%print_debug% init.cmd "START - git.exe(prepend): Env Var - PATH=%path%"
 if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (
   set "path=%GIT_INSTALL_ROOT%\cmd;%path%"
 )
-%print_debug% init.bat "END - git.exe(prepend): Env Var - PATH=%path%"
+%print_debug% init.cmd "END - git.exe(prepend): Env Var - PATH=%path%"
 
 :: Add the unix commands at the end to not shadow windows commands like `more` and `find`
 if %nix_tools% equ 1 (
@@ -344,7 +344,7 @@ if %nix_tools% equ 1 (
     set "path_position="
 )
 
-%print_debug% init.bat "START - nix_tools(%path_position%): Env Var - PATH=%path%"
+%print_debug% init.cmd "START - nix_tools(%path_position%): Env Var - PATH=%path%"
 set "git_mingw_bin="
 if exist "%GIT_INSTALL_ROOT%\mingw32" (
     set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
@@ -354,7 +354,7 @@ if exist "%GIT_INSTALL_ROOT%\mingw32" (
 
 %lib_path% add_path_with_position "%git_mingw_bin%" "%path_position%"
 %lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position%"
-%print_debug% init.bat "END - nix_tools(%path_position%): Env Var - PATH=%path%"
+%print_debug% init.cmd "END - nix_tools(%path_position%): Env Var - PATH=%path%"
 
 :SET_ENV
 
@@ -378,7 +378,7 @@ if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nu
 
 setlocal enabledelayedexpansion
 if defined git_locale (
-    REM %print_debug% init.bat "Env Var - git_locale=!git_locale!"
+    REM %print_debug% init.cmd "Env Var - git_locale=!git_locale!"
     if not defined LANG (
         for /F "delims=" %%F in ('"!git_locale!" -uU 2') do (
             set "LANG=%%F"
@@ -387,7 +387,7 @@ if defined git_locale (
 )
 endlocal && set LANG=%LANG%
 
-%print_debug% init.bat "Found Git in: 'GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%'"
+%print_debug% init.cmd "Found Git in: 'GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%'"
 goto :PATH_ENHANCE
 
 :NO_GIT
@@ -395,33 +395,33 @@ goto :PATH_ENHANCE
 endlocal
 
 :PATH_ENHANCE
-%print_debug% init.bat "START - vendor/bin(prepend): Env Var - PATH=%path%"
+%print_debug% init.cmd "START - vendor/bin(prepend): Env Var - PATH=%path%"
 set "path=%CMDER_ROOT%\vendor\bin;%path%"
-%print_debug% init.bat "END - vendor/bin(prepend): Env Var - PATH=%path%"
+%print_debug% init.cmd "END - vendor/bin(prepend): Env Var - PATH=%path%"
 
 :USER_CONFIG_START
-%print_debug% init.bat "START - bin(prepend): Env Var - PATH=%path%"
+%print_debug% init.cmd "START - bin(prepend): Env Var - PATH=%path%"
 if %max_depth% gtr 1 (
   %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
 ) else (
   set "path=%CMDER_ROOT%\bin;%path%"
 )
-%print_debug% init.bat "END - bin(prepend): Env Var - PATH=%path%"
+%print_debug% init.cmd "END - bin(prepend): Env Var - PATH=%path%"
 
 :: The CMDER_USER_BIN variable is set in the launcher.
 if defined CMDER_USER_BIN (
-  %print_debug% init.bat "START - user_bin(prepend): Env Var - PATH=%path%"
+  %print_debug% init.cmd "START - user_bin(prepend): Env Var - PATH=%path%"
   if %max_depth% gtr 1 (
     %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
   ) else (
     set "path=%CMDER_USER_BIN%;%path%"
   )
-  %print_debug% init.bat "END - user_bin(prepend): Env Var - PATH=!path!"
+  %print_debug% init.cmd "END - user_bin(prepend): Env Var - PATH=!path!"
 )
 
-%print_debug% init.bat "START - cmder_root(append): Env Var - PATH=%path%"
+%print_debug% init.cmd "START - cmder_root(append): Env Var - PATH=%path%"
 set "path=%path%;%CMDER_ROOT%"
-%print_debug% init.bat "END - cmder_root(append): Env Var - PATH=%path%"
+%print_debug% init.cmd "END - cmder_root(append): Env Var - PATH=%path%"
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
@@ -492,12 +492,12 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-%print_debug% init.bat "Env Var - HOME=%HOME%"
+%print_debug% init.cmd "Env Var - HOME=%HOME%"
 
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
 if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
-    %print_debug% init.bat "Calling - %CMDER_ROOT%\config\user_profile.cmd"
+    %print_debug% init.cmd "Calling - %CMDER_ROOT%\config\user_profile.cmd"
     call "%CMDER_ROOT%\config\user_profile.cmd"
 )
 
@@ -505,7 +505,7 @@ if defined CMDER_USER_CONFIG (
     set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
     if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
         REM Create this file and place your own command in there
-        %print_debug% init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
+        %print_debug% init.cmd "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
         call "%CMDER_USER_CONFIG%\user_profile.cmd"
     )
 )
@@ -533,7 +533,7 @@ set initialConfig=
 if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   powershell -executionpolicy bypass -f "%cmder_root%\vendor\bin\create-cmdercfg.ps1" -shell cmd -outfile "%CMDER_CONFIG_DIR%\user_init.cmd"
 
-  if not exist "%CMDER_ROOT%\config\user_init.cmd" (
+  if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
     %print_error% "Failed to generate Cmder config"
   )
 )

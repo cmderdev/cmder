@@ -51,7 +51,7 @@
     "list": [
       {
         "colorScheme": "One Half Dark",
-        "commandline": "cmd /k \"%WT_SETTINGS_DIR%\\..\\..\\init.bat\"",
+        "commandline": "cmd /k \"%WT_SETTINGS_DIR%\\..\\..\\init.cmd\"",
         "guid": "{48946353-ebe8-4571-a591-7d609f31327a}",
         "hidden": false,
         "icon": "%WT_SETTINGS_DIR%\\..\\..\\..\\icons\\cmder.ico",
@@ -62,7 +62,7 @@
       },
       {
         "colorScheme": "One Half Dark",
-        "commandline": "%SystemRoot%\\System32\\cmd.exe /k \"%WT_SETTINGS_DIR%\\..\\..\\init.bat\"",
+        "commandline": "%SystemRoot%\\System32\\cmd.exe /k \"%WT_SETTINGS_DIR%\\..\\..\\init.cmd\"",
         "elevate": true,
         "guid": "{bdd957d0-c15a-49e6-9816-14b02351a071}",
         "hidden": false,
