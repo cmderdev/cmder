@@ -205,6 +205,8 @@ set "path=%CMDER_ROOT%\vendor\bin;%path%"
 
   call "%user_aliases%"
 
+  if "%CMDER_CONFIGURED%" gtr "1" goto :CMDER_CONFIGURED
+
   set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
   if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
