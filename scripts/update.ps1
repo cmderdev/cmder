@@ -11,7 +11,7 @@
 
     Updates the dependency sources in the default location, the vendor/sources.json file.
 .EXAMPLE
-    .\update.ps1 -verbose
+    .\update.ps1 -Verbose
 
     Updates the dependency sources and see what's going on.
 .EXAMPLE
@@ -28,7 +28,7 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
-    # -verbose switch to turn on logging and
+    # -Verbose switch to turn on logging and
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file

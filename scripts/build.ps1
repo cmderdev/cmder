@@ -21,7 +21,7 @@
 
     Skip all downloads and only build launcher.
 .EXAMPLE
-    .\build.ps1 -verbose
+    .\build.ps1 -Verbose
 
     Execute the build and see what's going on.
 .EXAMPLE
@@ -38,7 +38,7 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
-    # -verbose switch to turn on logging and
+    # -Verbose switch to turn on logging and
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file

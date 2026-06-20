@@ -11,7 +11,7 @@
 
     Creates default archives for cmder
 .EXAMPLE
-    .\pack.ps1 -verbose
+    .\pack.ps1 -Verbose
 
     Creates default archives for cmder with plenty of information
 .NOTES
@@ -25,7 +25,7 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
-    # -verbose switch to turn on logging and
+    # -Verbose switch to turn on logging and
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
