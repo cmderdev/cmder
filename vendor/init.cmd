@@ -44,6 +44,8 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+call :migrate_legacy_init_bat
+
 :: Include Cmder libraries
 call "%cmder_root%\vendor\bin\cexec.cmd" /setpath
 call "%cmder_root%\vendor\lib\lib_console"
@@ -550,6 +552,8 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   set architecture_bits=
   set cmder_root_user_init=
   set cmder_user_init=
+  set cmder_legacy_init=
+  set cmder_legacy_init_backup=
   set CMDER_ALIASES=
   set CMDER_INIT_END=
   set CMDER_INIT_START=
@@ -570,3 +574,34 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   set user_aliases=
 
 exit /b
+
+:migrate_legacy_init_bat
+  set "cmder_legacy_init=%CMDER_ROOT%\vendor\init.bat"
+  if not exist "%cmder_legacy_init%" exit /b
+
+  set "cmder_legacy_init_backup=%cmder_legacy_init%.old"
+  if not exist "%cmder_legacy_init_backup%" goto :migrate_legacy_init_bat_found
+
+  for /L %%i in (1,1,99) do (
+    if not exist "%cmder_legacy_init%.old.%%i" (
+      set "cmder_legacy_init_backup=%cmder_legacy_init%.old.%%i"
+      goto :migrate_legacy_init_bat_found
+    )
+  )
+
+  set "cmder_legacy_init_backup="
+
+:migrate_legacy_init_bat_found
+  if not defined cmder_legacy_init_backup (
+    echo Found legacy Cmder init script "%cmder_legacy_init%", but no free backup name was available.
+    echo Please rename it manually; Cmder now uses "%CMDER_ROOT%\vendor\init.cmd".
+    exit /b
+  )
+
+  echo Cmder's cmd startup script has moved to "%CMDER_ROOT%\vendor\init.cmd".
+  echo Backing up legacy "%cmder_legacy_init%" to "%cmder_legacy_init_backup%".
+  for %%F in ("%cmder_legacy_init_backup%") do ren "%cmder_legacy_init%" "%%~nxF"
+  if errorlevel 1 (
+    echo Failed to back up "%cmder_legacy_init%"; please rename it manually.
+  )
+  exit /b

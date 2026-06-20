@@ -158,6 +158,111 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
+    - name: Testing Command Script Extensions
+      id: test-command-script-extensions
+      shell: pwsh
+      run: |
+          $startTime = Get-Date
+          $allowedBatFiles = @(
+            "Cmder.bat"
+          )
+          $trackedBatFiles = @(git ls-files "*.bat")
+          $unexpectedBatFiles = @($trackedBatFiles | Where-Object { $allowedBatFiles -notcontains $_ })
+
+          if ($unexpectedBatFiles.Count -gt 0) {
+            $message = @(
+              "Unexpected tracked .bat files were found.",
+              "Use .cmd for command scripts unless the file is explicitly allowed.",
+              "",
+              ($unexpectedBatFiles | ForEach-Object { "- $_" }) -join "`n"
+            ) -join "`n"
+            throw $message
+          }
+
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
+
+    - name: Summary - Command script extension test
+      if: success()
+      shell: pwsh
+      run: |
+        $duration = "${{ steps.test-command-script-extensions.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| Command Script Extensions | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+    - name: Testing Legacy init.bat Migration
+      id: test-legacy-init-migration
+      shell: pwsh
+      run: |
+          $startTime = Get-Date
+          $repoRoot = $PWD.Path
+          $legacyInit = Join-Path $PWD "vendor\init.bat"
+          $createdBackup = $null
+          $tempRoot = Join-Path $env:RUNNER_TEMP "cmder-init-migration"
+
+          if (Test-Path $legacyInit) {
+            throw "Cannot test migration because '$legacyInit' already exists before the simulation."
+          }
+
+          $existingBackups = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+
+          try {
+            Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Path $tempRoot | Out-Null
+            Set-Content -Path $legacyInit -Value "@echo off`r`necho legacy init placeholder" -Encoding ASCII
+
+            $output = cmd /d /c "set `"CMDER_ROOT=$repoRoot`"&& set `"cmder_root=$repoRoot`"&& set CMDER_USER_CONFIG=&& set CMDER_CONFIGURED=&& call vendor\init.cmd /f /c `"$tempRoot`"" 2>&1
+            $outputText = $output -join "`n"
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "init.cmd exited with code $LASTEXITCODE during legacy migration test.`n$outputText"
+            }
+
+            if (Test-Path $legacyInit) {
+              throw "Legacy init.bat still exists after init.cmd migration."
+            }
+
+            $newBackups = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File | Where-Object { $existingBackups -notcontains $_.FullName })
+            if ($newBackups.Count -ne 1) {
+              throw "Expected exactly one new init.bat backup, found $($newBackups.Count)."
+            }
+
+            $createdBackup = $newBackups[0].FullName
+            $backupContent = Get-Content -Path $createdBackup -Raw
+            if ($backupContent -notmatch "legacy init placeholder") {
+              throw "The init.bat backup did not contain the expected legacy script content."
+            }
+
+            if ($outputText -notmatch "init\.cmd" -or $outputText -notmatch "Backing up legacy") {
+              throw "Migration output did not explain that init.bat was backed up in favor of init.cmd."
+            }
+          } finally {
+            Remove-Item -Path $legacyInit -Force -ErrorAction SilentlyContinue
+            if ($createdBackup) {
+              Remove-Item -Path $createdBackup -Force -ErrorAction SilentlyContinue
+            }
+            Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
+
+    - name: Summary - Legacy init.bat migration test
+      if: success()
+      shell: pwsh
+      run: |
+        $duration = "${{ steps.test-legacy-init-migration.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| Legacy init.bat Migration | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
     - name: Testing Clink Shell
       id: test-clink
       shell: pwsh
