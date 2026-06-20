@@ -163,7 +163,7 @@ jobs:
       shell: pwsh
       run: |
           $startTime = Get-Date
-          cmd /c vendor\init.bat /v /d /t
+          cmd /c vendor\init.cmd /v /d /t
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
