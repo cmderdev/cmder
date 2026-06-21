@@ -29,21 +29,11 @@ goto :SKIP_CLINK
 
   :: Check if Clink is not present
   if not exist "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" (
+    :: this allows the user to install Clink globally and remove it from Cmder if they wish.
     goto :SKIP_CLINK
   )
 
   :: Run Clink
-  if not exist "%CMDER_CONFIG_DIR%\settings" if not exist "%CMDER_CONFIG_DIR%\clink_settings" (
-    echo Generating Clink initial settings in "%CMDER_CONFIG_DIR%\clink_settings"
-    copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_CONFIG_DIR%\clink_settings"
-    echo Additional *.lua files in "%CMDER_CONFIG_DIR%" are loaded on startup.
-  )
-
-  if not exist "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua" (
-    echo Creating Cmder prompt config file: "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
-    copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
-  )
-
   "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
 
   if errorlevel 2 (
@@ -65,10 +55,10 @@ goto :SKIP_CLINK
 
   chcp %cp%>nul
 
-:CLINK_FINISH
   :: Add Windows Terminal shell integration support (OSC 133 sequences)
   if defined WT_SESSION (prompt `$e]133;D`$e\`$e]133;A`$e\`$e]9;9;`$P`$e\%PROMPT%`$e]133;B`$e\)
 
+:CLINK_FINISH
   if not defined GIT_INSTALL_ROOT set "GIT_INSTALL_ROOT=$env:GIT_INSTALL_ROOT"
   if not defined SVN_SSH          set "SVN_SSH=$env:SVN_SSH"
   if not defined git_locale       set "git_locale=$env:git_locale"
