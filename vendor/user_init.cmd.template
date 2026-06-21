@@ -29,7 +29,8 @@ goto :SKIP_CLINK
 
   :: Check if Clink is not present
   if not exist "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" (
-    :: this allows the user to install Clink globally and remove it from Cmder if they wish.
+    :: This allows the user to install Clink globally and remove it from Cmder if they wish.
+    :: The user may also want to remove parts of the SKIP_CLINK section.
     goto :SKIP_CLINK
   )
 
@@ -53,10 +54,10 @@ goto :SKIP_CLINK
   :: Revert back to plain cmd.exe prompt without clink
   prompt `$E[1;32;49m`$P`$S`$_`$E[1;30;49mλ`$S`$E[0m
 
-  chcp %cp%>nul
-
   :: Add Windows Terminal shell integration support (OSC 133 sequences)
   if defined WT_SESSION (prompt `$e]133;D`$e\`$e]133;A`$e\`$e]9;9;`$P`$e\%PROMPT%`$e]133;B`$e\)
+
+  chcp %cp%>nul
 
 :CLINK_FINISH
   if not defined GIT_INSTALL_ROOT set "GIT_INSTALL_ROOT=$env:GIT_INSTALL_ROOT"
