@@ -67,8 +67,6 @@ goto :SKIP_CLINK
   if not defined aliases          set "aliases=%user_aliases%"
   if not defined HOME             set "HOME=%USERPROFILE%"
 
-
-:CMDER_CONFIG
   set "PLINK_PROTOCOL=$env:PLINK_PROTOCOL"
 
   if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (
