@@ -144,7 +144,7 @@ jobs:
               ReleasesUrl = "$repoUrl/releases"
               ReleaseUrl = "$repoUrl/releases/tag/$tagName"
               CompareUrl = "$repoUrl/compare/$oldTagName...$tagName"
-              BadgeUrl = "https://img.shields.io/github/v/release/${repoPath}?label=latest&display_name=release"
+              ActionsUrl = "$repoUrl/actions"
               OldTagName = $oldTagName
               TagName = $tagName
             }
@@ -182,6 +182,24 @@ jobs:
             }
 
             return Invoke-RestMethod @params
+          }
+
+          function Get-GitHubDefaultBranch {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$RepoPath
+            )
+
+            try {
+              $repo = Invoke-GitHubApi -Uri "https://api.github.com/repos/$RepoPath"
+              if (-not [string]::IsNullOrWhiteSpace($repo.default_branch)) {
+                return $repo.default_branch
+              }
+            } catch {
+              Write-Verbose "Unable to fetch default branch for ${RepoPath}: $($_.Exception.Message)" -Verbose
+            }
+
+            return "main"
           }
 
           function Get-ReleaseNotes {
@@ -266,7 +284,7 @@ jobs:
 
           $notificationBaselineVersion = if ($null -ne $previousPrVersion) { $previousPrVersion } else { $currentVersion }
           $listUpdated = ""
-          $updateMessage = "| Name | Old Version | New Version |`n| :--- | :---: | :---: |`n"
+          $updateMessage = "| Name | Old Version | New Version | Build Status |`n| :--- | :---: | :---: | :---: |`n"
           $changelogSection = ""
           $hasBreakingChanges = $false
           $hasMinorOrMajorSinceLastPrUpdate = $false
@@ -287,11 +305,12 @@ jobs:
               if ($null -ne $releaseInfo) {
                 $repoUrl = $releaseInfo.ReleasesUrl
                 $releaseUrl = $releaseInfo.ReleaseUrl
-                $releaseBadge = "<br>[![GitHub release]($($releaseInfo.BadgeUrl))]($releaseUrl)"
+                $defaultBranch = Get-GitHubDefaultBranch -RepoPath $releaseInfo.RepoPath
+                $statusBadge = "[![Build status](https://img.shields.io/github/check-runs/$($releaseInfo.RepoPath)/$defaultBranch`?label=build)]($($releaseInfo.ActionsUrl))"
               } else {
                 $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
                 $releaseUrl = $repoUrl
-                $releaseBadge = ""
+                $statusBadge = ""
               }
 
               # Store single dependency info for messages (only if this is the only update)
@@ -327,15 +346,13 @@ jobs:
                 $releaseNotes = Get-ReleaseNotes -ReleaseInfo $releaseInfo
                 $changelogSection += "<details>`n"
                 $changelogSection += "<summary>$($s.name) $oldVersion → $($s.version)</summary>`n`n"
-                $changelogSection += "[Release notes]($($releaseInfo.ReleaseUrl))`n`n"
-                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes)
-                $changelogSection += "`n> `n"
-                $changelogSection += "> [View full changes between $oldVersion and $($s.version)]($($releaseInfo.CompareUrl))`n`n"
+                $changelogSection += "[Release notes]($($releaseInfo.ReleaseUrl)) · [Compare changes]($($releaseInfo.CompareUrl))`n`n"
+                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes) + "`n`n"
                 $changelogSection += "</details>`n`n"
               }
 
               $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)**$releaseBadge | ``$oldVersion`` | **[``$($s.version)``]($releaseUrl)** |`n"
+              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | ``$oldVersion`` | **[``$($s.version)``]($releaseUrl)** | $statusBadge |`n"
             }
           }
 
