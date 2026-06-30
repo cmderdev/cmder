@@ -32,7 +32,7 @@ jobs:
       pull-requests: write
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -77,16 +77,241 @@ jobs:
           # Source utility functions
           . scripts/utils.ps1
 
+          function Add-GitHubEnvMultiline {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$Name,
+
+              [AllowEmptyString()]
+              [string]$Value
+            )
+
+            $delimiter = [System.Guid]::NewGuid().ToString('N')
+            Add-Content -Path $env:GITHUB_ENV -Value "$Name<<$delimiter"
+            Add-Content -Path $env:GITHUB_ENV -Value $Value
+            Add-Content -Path $env:GITHUB_ENV -Value $delimiter
+          }
+
+          function Get-GitHubReleaseInfo {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$DownloadUrl,
+
+              [Parameter(Mandatory = $true)]
+              [string]$OldVersion,
+
+              [Parameter(Mandatory = $true)]
+              [string]$NewVersion
+            )
+
+            $uri = [uri]$DownloadUrl
+            $segments = $uri.AbsolutePath.Trim('/').Split('/')
+            if ($uri.Host -ne 'github.com' -or $segments.Count -lt 2) {
+              return $null
+            }
+
+            $owner = $segments[0]
+            $repo = $segments[1]
+            $repoPath = "$owner/$repo"
+            $repoUrl = "https://github.com/$repoPath"
+            $tagName = $null
+
+            for ($i = 0; $i -lt $segments.Count; $i++) {
+              if ($segments[$i] -eq 'download' -and $i + 1 -lt $segments.Count) {
+                $tagName = $segments[$i + 1]
+                break
+              }
+
+              if ($segments[$i] -eq 'archive' -and $i + 1 -lt $segments.Count) {
+                $tagName = $segments[$i + 1] -replace '\.tar\.gz$', '' -replace '\.zip$', ''
+                break
+              }
+            }
+
+            if ([string]::IsNullOrWhiteSpace($tagName)) {
+              $tagName = "v$NewVersion"
+            }
+
+            if ($tagName -match [regex]::Escape($NewVersion)) {
+              $oldTagName = $tagName -replace [regex]::Escape($NewVersion), $OldVersion
+            } else {
+              $oldTagName = "v$OldVersion"
+            }
+
+            return @{
+              RepoPath = $repoPath
+              RepoUrl = $repoUrl
+              ReleasesUrl = "$repoUrl/releases"
+              ReleaseUrl = "$repoUrl/releases/tag/$tagName"
+              CompareUrl = "$repoUrl/compare/$oldTagName...$tagName"
+              ActionsUrl = "$repoUrl/actions"
+              OldTagName = $oldTagName
+              TagName = $tagName
+            }
+          }
+
+          function Invoke-GitHubApi {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$Uri,
+
+              [string]$Method = 'Get',
+
+              [object]$Body
+            )
+
+            $headers = @{
+              Accept = 'application/vnd.github+json'
+              'X-GitHub-Api-Version' = '2022-11-28'
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+              $headers.Authorization = "Bearer $env:GITHUB_TOKEN"
+            }
+
+            $params = @{
+              Uri = $Uri
+              Method = $Method
+              Headers = $headers
+              ErrorAction = 'Stop'
+            }
+
+            if ($null -ne $Body) {
+              $params.Body = ($Body | ConvertTo-Json -Depth 8)
+              $params.ContentType = 'application/json'
+            }
+
+            return Invoke-RestMethod @params
+          }
+
+          function Get-GitHubDefaultBranch {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$RepoPath
+            )
+
+            try {
+              $repo = Invoke-GitHubApi -Uri "https://api.github.com/repos/$RepoPath"
+              if (-not [string]::IsNullOrWhiteSpace($repo.default_branch)) {
+                return $repo.default_branch
+              }
+            } catch {
+              Write-Verbose "Unable to fetch default branch for ${RepoPath}: $($_.Exception.Message)" -Verbose
+            }
+
+            return "main"
+          }
+
+          function Get-ReleaseNotes {
+            param(
+              [Parameter(Mandatory = $true)]
+              [hashtable]$ReleaseInfo
+            )
+
+            try {
+              $release = Invoke-GitHubApi -Uri "https://api.github.com/repos/$($ReleaseInfo.RepoPath)/releases/tags/$($ReleaseInfo.TagName)"
+              if (-not [string]::IsNullOrWhiteSpace($release.body)) {
+                return $release.body.Trim()
+              }
+            } catch {
+              Write-Verbose "Unable to fetch release notes for $($ReleaseInfo.RepoPath) $($ReleaseInfo.TagName): $($_.Exception.Message)" -Verbose
+            }
+
+            try {
+              $comparison = Invoke-GitHubApi -Uri "https://api.github.com/repos/$($ReleaseInfo.RepoPath)/compare/$($ReleaseInfo.OldTagName)...$($ReleaseInfo.TagName)"
+              if ($comparison.commits.Count -gt 0) {
+                $summary = "No release notes were found. Recent commits in the compare range:`n"
+                foreach ($commit in ($comparison.commits | Select-Object -First 12)) {
+                  $subject = ($commit.commit.message -split "`r?`n" | Select-Object -First 1)
+                  $summary += "- [$($commit.sha.Substring(0, 7))]($($commit.html_url)) $subject`n"
+                }
+
+                if ($comparison.commits.Count -gt 12) {
+                  $summary += "- ...and $($comparison.commits.Count - 12) more commits.`n"
+                }
+
+                return $summary.Trim()
+              }
+            } catch {
+              Write-Verbose "Unable to fetch compare details for $($ReleaseInfo.RepoPath) $($ReleaseInfo.OldTagName)...$($ReleaseInfo.TagName): $($_.Exception.Message)" -Verbose
+            }
+
+            return "No release notes were found. See the release and compare links for details."
+          }
+
+          function ConvertTo-BlockQuote {
+            param(
+              [AllowEmptyString()]
+              [string]$Markdown,
+
+              [int]$MaxLength = 2500
+            )
+
+            $text = if ([string]::IsNullOrWhiteSpace($Markdown)) {
+              "No release notes were found."
+            } else {
+              $Markdown.Trim()
+            }
+
+            if ($text.Length -gt $MaxLength) {
+              $text = $text.Substring(0, $MaxLength).TrimEnd() + "`n`n_Release notes truncated; open the release link for the full text._"
+            }
+
+            return (($text -split "`r?`n") | ForEach-Object { "> $_" }) -join "`n"
+          }
+
+          function Get-VersionFromSources {
+            param(
+              [object[]]$Sources,
+
+              [Parameter(Mandatory = $true)]
+              [string]$Name
+            )
+
+            return ($Sources | Where-Object { $_.name -eq $Name } | Select-Object -First 1).version
+          }
+
+          $previousPrVersion = $null
+          $fetchPreviousPrBranchOutput = & git fetch origin update-vendor 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            $previousPrSourcesJson = & git show FETCH_HEAD:vendor/sources.json 2>$null
+            if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($previousPrSourcesJson)) {
+              $previousPrVersion = $previousPrSourcesJson | ConvertFrom-Json
+            }
+          } else {
+            Write-Verbose "No existing update-vendor branch was found to use as notification baseline: $fetchPreviousPrBranchOutput" -Verbose
+          }
+
+          $notificationBaselineVersion = if ($null -ne $previousPrVersion) { $previousPrVersion } else { $currentVersion }
           $listUpdated = ""
-          $updateMessage = "| Name | Old Version | New Version |`n| :--- | :---: | :---: |`n"
-          $majorUpdates = @()
+          $updateMessage = "| Name | Old Version | New Version | Build Status |`n| :--- | :---: | :---: | :---: |`n"
+          $changelogSection = ""
+          $hasBreakingChanges = $false
+          $hasMinorOrMajorSinceLastPrUpdate = $false
+          $usedEmojis = [System.Collections.Generic.List[string]]::new()
+          $emojiDescriptions = [ordered]@{
+            '🔥' = 'Major version update.'
+            '🚀' = 'Minor version update.'
+            '⬆️' = 'Patch version update.'
+            '🔄' = 'Version change could not be classified.'
+          }
           $singleDepName = ""
           $singleDepOldVersion = ""
           $singleDepNewVersion = ""
           foreach ($s in $newVersion) {
             $oldVersion = ($currentVersion | Where-Object {$_.name -eq $s.name}).version
             if ($s.version -ne $oldVersion) {
-              $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
+              $releaseInfo = Get-GitHubReleaseInfo -DownloadUrl $s.url -OldVersion $oldVersion -NewVersion $s.version
+              if ($null -ne $releaseInfo) {
+                $repoUrl = $releaseInfo.ReleasesUrl
+                $releaseUrl = $releaseInfo.ReleaseUrl
+                $defaultBranch = Get-GitHubDefaultBranch -RepoPath $releaseInfo.RepoPath
+                $statusBadge = "[![Build status](https://img.shields.io/github/check-runs/$($releaseInfo.RepoPath)/$defaultBranch`?label=build)]($($releaseInfo.ActionsUrl))"
+              } else {
+                $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
+                $releaseUrl = $repoUrl
+                $statusBadge = ""
+              }
 
               # Store single dependency info for messages (only if this is the only update)
               if ($count -eq 1) {
@@ -101,20 +326,33 @@ jobs:
               $emoji = $result.Emoji
               $isMajor = $result.IsMajor
 
-              # Track major updates for changelog section
-              if ($isMajor) {
-                $compareUrl = "$repoUrl/compare/v$oldVersion...v$($s.version)"
-                $majorUpdates += @{
-                  name = $s.name
-                  oldVersion = $oldVersion
-                  newVersion = $s.version
-                  compareUrl = $compareUrl
-                  repoUrl = $repoUrl
+              if (-not $usedEmojis.Contains($emoji)) {
+                $usedEmojis.Add($emoji)
+              }
+
+              if ($changeType -in @('major', 'downgrade', 'unknown')) {
+                $hasBreakingChanges = $true
+              }
+
+              $previousPrUpdateVersion = Get-VersionFromSources -Sources $notificationBaselineVersion -Name $s.name
+              if (-not [string]::IsNullOrWhiteSpace($previousPrUpdateVersion) -and $previousPrUpdateVersion -ne $s.version) {
+                $notificationChangeType = Get-VersionChangeType -OldVersion $previousPrUpdateVersion -NewVersion $s.version
+                if ($notificationChangeType.ChangeType -in @('major', 'minor')) {
+                  $hasMinorOrMajorSinceLastPrUpdate = $true
                 }
               }
 
+              if ($null -ne $releaseInfo) {
+                $releaseNotes = Get-ReleaseNotes -ReleaseInfo $releaseInfo
+                $changelogSection += "<details>`n"
+                $changelogSection += "<summary>$($s.name) $oldVersion → $($s.version)</summary>`n`n"
+                $changelogSection += "[Release notes]($($releaseInfo.ReleaseUrl)) · [Compare changes]($($releaseInfo.CompareUrl))`n`n"
+                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes) + "`n`n"
+                $changelogSection += "</details>`n`n"
+              }
+
               $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | ``$oldVersion`` | **``$($s.version)``** |`n"
+              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | ``$oldVersion`` | **[``$($s.version)``]($releaseUrl)** | $statusBadge |`n"
             }
           }
 
@@ -140,31 +378,33 @@ jobs:
           Set-GHVariable -Name SINGLE_DEP_OLD_VERSION -Value $singleDepOldVersion
           Set-GHVariable -Name SINGLE_DEP_NEW_VERSION -Value $singleDepNewVersion
 
-          # Write multiline UPDATE_MESSAGE to GITHUB_ENV
-          ## echo "UPDATE_MESSAGE<<EOF`n$updateMessage`nEOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          Add-Content -Path $env:GITHUB_ENV -Value "UPDATE_MESSAGE<<EOF"
-          Add-Content -Path $env:GITHUB_ENV -Value $updateMessage
-          Add-Content -Path $env:GITHUB_ENV -Value "EOF"
+          $emojiLegend = "**Legend**`n`n"
+          foreach ($usedEmoji in $usedEmojis) {
+            $emojiLegend += "$usedEmoji $($emojiDescriptions[$usedEmoji])`n"
+          }
 
-          # Generate major updates changelog section and export
-          if ($majorUpdates.Count -gt 0) {
-            $changelogSection = "`n<details>`n<summary>🔥 Major version updates - View changelog</summary>`n`n"
-            foreach ($update in $majorUpdates) {
-              $changelogSection += "### [$($update.name)]($($update.repoUrl))`n"
-              $changelogSection += "**$($update.oldVersion)** → **$($update.newVersion)**`n`n"
-              $changelogSection += "- [View full changelog]($($update.compareUrl))`n"
-              $changelogSection += "- [Release notes]($($update.repoUrl)/tag/v$($update.newVersion))`n`n"
-            }
-            $changelogSection += "</details>`n"
+          if ([string]::IsNullOrWhiteSpace($changelogSection)) {
+            $changelogSection = ""
+          } else {
+            $changelogSection = "`n$changelogSection"
+          }
 
-            Add-Content -Path $env:GITHUB_ENV -Value "CHANGELOG_SECTION<<EOF"
-            Add-Content -Path $env:GITHUB_ENV -Value $changelogSection
-            Add-Content -Path $env:GITHUB_ENV -Value "EOF"
+          $reviewTeam = ""
+          if ($hasMinorOrMajorSinceLastPrUpdate -and $env:GITHUB_REPOSITORY_OWNER -eq 'cmderdev') {
+            $reviewTeam = "trusted-contributors"
+          }
+
+          Add-GitHubEnvMultiline -Name UPDATE_MESSAGE -Value $updateMessage
+          Add-GitHubEnvMultiline -Name CHANGELOG_SECTION -Value $changelogSection
+          Add-GitHubEnvMultiline -Name EMOJI_LEGEND -Value $emojiLegend
+
+          if ($hasBreakingChanges) {
             Add-Content -Path $env:GITHUB_ENV -Value "HAS_BREAKING_CHANGES=True"
           } else {
-            Add-Content -Path $env:GITHUB_ENV -Value "CHANGELOG_SECTION="
             Add-Content -Path $env:GITHUB_ENV -Value "HAS_BREAKING_CHANGES=False"
           }
+          Add-Content -Path $env:GITHUB_ENV -Value "HAS_MINOR_OR_MAJOR_SINCE_LAST_PR_UPDATE=$hasMinorOrMajorSinceLastPrUpdate"
+          Add-Content -Path $env:GITHUB_ENV -Value "REVIEW_TEAM=$reviewTeam"
 
     - name: Summary - Update check results
       shell: pwsh
@@ -301,12 +541,18 @@ jobs:
 
           ---
 
-          ${{ env.HAS_BREAKING_CHANGES == 'True' && '⚠️ **This update contains major version changes that may include breaking changes.**' || 'ℹ️ This update only contains minor or patch changes.' }}
+          ${{ env.EMOJI_LEGEND }}
+
+          ${{ env.HAS_BREAKING_CHANGES == 'True' && '**Review note:** This update contains version changes that may require manual review.' || '**Review note:** This update only contains minor or patch changes.' }}
 
           Please verify and then **Merge** the pull request to apply the updates.
         commit-message: '⬆️ Update dependencies (${{ env.LIST_UPDATED }})'
         branch: update-vendor
         base: master
+        labels: |
+          👆 Dependencies
+          🗃️ Vendor
+        team-reviewers: ${{ env.REVIEW_TEAM }}
 
     - name: Summary - Pull request result
       if: env.COUNT_UPDATED > 0 && env.AUTO_MERGED != 'true'
