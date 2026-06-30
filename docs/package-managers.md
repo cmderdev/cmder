@@ -1,6 +1,6 @@
 # Package Manager Release Prep
 
-This document describes the Cmder-side preparation for Windows package-manager releases. It does not publish anything by itself; maintainers still need to review and submit generated files to the external registries.
+This document describes the Cmder-side preparation for Windows package-manager releases. Generated files can be reviewed locally, uploaded as workflow artifacts, or published through the package-manager workflow once maintainers configure the required external credentials.
 
 Canonical tracking:
 
@@ -27,6 +27,8 @@ https://github.com/cmderdev/cmder/releases/download/<tag>/hashes.txt
 
 Generated files are written to `build\package-managers`.
 
+The same generation step is available in GitHub Actions through **Package Manager Publishing**. The workflow defaults to a dry run so maintainers can inspect generated files before enabling any external publishing.
+
 ## WinGet
 
 The generated WinGet files are under:
@@ -43,7 +45,7 @@ winget validate --manifest .\build\package-managers\winget\manifests\c\Cmder\Cmd
 winget validate --manifest .\build\package-managers\winget\manifests\c\Cmder\CmderMini\1.3.25
 ```
 
-To submit, copy the generated manifest folders into a fork of [`microsoft/winget-pkgs`](https://github.com/microsoft/winget-pkgs) and open a PR. Proposed package IDs are:
+To submit manually, copy the generated manifest folders into a fork of [`microsoft/winget-pkgs`](https://github.com/microsoft/winget-pkgs) and open a PR. To submit through GitHub Actions, configure `WINGETCREATE_GITHUB_TOKEN` and run the package-manager workflow with WinGet publishing enabled.
 
 - `Cmder.Cmder` for the full archive, using `cmder.zip` and `Architecture: x64`
 - `Cmder.CmderMini` for the mini archive, using `cmder_mini.zip` and `Architecture: neutral`
@@ -73,11 +75,42 @@ Current Chocolatey packages already exist, but they are community-maintained rat
 
 Before publishing official packages, contact the current maintainers and ask them to add Cmder maintainers or coordinate ownership. Chocolatey's vendor guidance asks software vendors/authors to contact current maintainers first, then contact Chocolatey site admins with the contact history if there is no response after 7 days.
 
+To publish through GitHub Actions, configure `CHOCOLATEY_API_KEY` and run the package-manager workflow with Chocolatey publishing enabled. The workflow uses `https://push.chocolatey.org/` by default, or `CHOCOLATEY_PUSH_SOURCE` if the repository variable is set.
+
 ## Scoop
 
-Scoop manifests already exist in `ScoopInstaller/Main`:
+The generated Scoop manifests are under:
+
+```text
+build\package-managers\scoop\bucket\cmder.json
+build\package-managers\scoop\bucket\cmder-full.json
+```
+
+Scoop manifests also exist in `ScoopInstaller/Main`:
 
 - <https://github.com/ScoopInstaller/Main/blob/master/bucket/cmder.json>
 - <https://github.com/ScoopInstaller/Main/blob/master/bucket/cmder-full.json>
 
 They already use official Cmder release assets and `hashes.txt`. If the manifests lag after a release, submit an update PR to `ScoopInstaller/Main` unless the core team decides to create a separate official bucket.
+
+To publish through GitHub Actions, configure `SCOOP_GITHUB_TOKEN` and set the Scoop repository variables described in the private maintainer setup note. The workflow copies the generated manifests into the configured bucket and opens a pull request.
+
+## GitHub Actions Publishing
+
+Workflow: `.github/workflows/package-managers.yml`
+
+The workflow can be triggered manually with release details, or by a published GitHub release. Published releases remain dry-run only unless `PACKAGE_MANAGERS_AUTO_PUBLISH` is enabled through repository variables.
+
+Dry-run behavior:
+
+- generates WinGet, Chocolatey, and Scoop files;
+- validates WinGet manifests when `winget` is available on the runner;
+- packs Chocolatey `.nupkg` files;
+- parses Scoop manifests as JSON;
+- uploads all generated files as the `package-manager-files` artifact.
+
+Publishing behavior:
+
+- WinGet: uses WingetCreate to submit manifest PRs to `microsoft/winget-pkgs`;
+- Chocolatey: pushes generated `.nupkg` files to the configured Chocolatey push source;
+- Scoop: opens or updates a pull request against the configured Scoop bucket repository.

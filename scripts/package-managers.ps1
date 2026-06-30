@@ -84,6 +84,16 @@ function Write-TextFile {
     [System.IO.File]::WriteAllText($Path, $content, (New-Utf8NoBomEncoding))
 }
 
+function Write-JsonFile {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)]$Value
+    )
+
+    $json = $Value | ConvertTo-Json -Depth 10
+    Write-TextFile -Path $Path -Lines ($json -split "`r?`n")
+}
+
 function Read-ReleaseHashes {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
@@ -300,6 +310,52 @@ function New-ChocolateyPackage {
     Copy-Item -Path $licenseSource -Destination (Join-Path $legalPath "LICENSE.txt") -Force
 }
 
+function New-ScoopManifest {
+    param(
+        [Parameter(Mandatory = $true)][string]$PackageId,
+        [Parameter(Mandatory = $true)][string]$Description,
+        [Parameter(Mandatory = $true)][string]$AssetName,
+        [Parameter(Mandatory = $true)][string]$AssetSha256,
+        [Parameter(Mandatory = $true)][string]$PackageVersion,
+        [Parameter(Mandatory = $true)][string]$BaseUrl,
+        [Parameter(Mandatory = $true)][string]$Destination,
+        [string[]]$Persist = @("bin", "config", "vendor\conemu-maximus5\ConEmu.xml")
+    )
+
+    $manifest = [ordered]@{
+        version = $PackageVersion
+        description = $Description
+        homepage = "https://cmder.app"
+        license = "MIT"
+        url = "$BaseUrl/$AssetName"
+        hash = $AssetSha256.ToLowerInvariant()
+        pre_install = @(
+            'if (!(Test-Path "$persist_dir\vendor\conemu-maximus5\ConEmu.xml")) {',
+            '    Copy-Item "$dir\vendor\ConEmu.xml.default" "$dir\vendor\conemu-maximus5\ConEmu.xml"',
+            '}'
+        )
+        bin = "Cmder.exe"
+        shortcuts = @(, @("Cmder.exe", "Cmder", '/start "%USERPROFILE%"'))
+        persist = $Persist
+        env_set = [ordered]@{
+            CMDER_ROOT = '$dir'
+            ConEmuDir = '$dir\vendor\conemu-maximus5'
+        }
+        checkver = [ordered]@{
+            github = "https://github.com/cmderdev/cmder"
+        }
+        autoupdate = [ordered]@{
+            url = "https://github.com/cmderdev/cmder/releases/download/v`$version/$AssetName"
+            hash = [ordered]@{
+                url = '$baseurl/hashes.txt'
+                regex = '$basename\s+$sha256'
+            }
+        }
+    }
+
+    Write-JsonFile -Path (Join-Path $Destination "scoop\bucket\$PackageId.json") -Value $manifest
+}
+
 $packageVersion = Get-CmderVersion
 if (-not $ReleaseTag) {
     $ReleaseTag = "v$packageVersion"
@@ -371,5 +427,24 @@ New-ChocolateyPackage `
     -Tag $ReleaseTag `
     -BaseUrl $AssetBaseUrl `
     -Destination $OutputPath
+
+New-ScoopManifest `
+    -PackageId "cmder-full" `
+    -Description "Portable console emulator for Windows. (Full version)" `
+    -AssetName "cmder.7z" `
+    -AssetSha256 $hashes["cmder.7z"] `
+    -PackageVersion $packageVersion `
+    -BaseUrl $AssetBaseUrl `
+    -Destination $OutputPath
+
+New-ScoopManifest `
+    -PackageId "cmder" `
+    -Description "Portable console emulator for Windows. (Mini version)" `
+    -AssetName "cmder_mini.zip" `
+    -AssetSha256 $hashes["cmder_mini.zip"] `
+    -PackageVersion $packageVersion `
+    -BaseUrl $AssetBaseUrl `
+    -Destination $OutputPath `
+    -Persist @("bin", "config", "opt", "vendor\conemu-maximus5\ConEmu.xml")
 
 Write-Host "Generated package-manager files in $OutputPath"
