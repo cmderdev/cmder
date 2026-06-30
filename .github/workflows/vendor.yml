@@ -138,15 +138,18 @@ jobs:
               $oldTagName = "v$OldVersion"
             }
 
+            $escapedTagName = [System.Uri]::EscapeDataString($tagName)
+
             return @{
               RepoPath = $repoPath
               RepoUrl = $repoUrl
               ReleasesUrl = "$repoUrl/releases"
               ReleaseUrl = "$repoUrl/releases/tag/$tagName"
               CompareUrl = "$repoUrl/compare/$oldTagName...$tagName"
-              ActionsUrl = "$repoUrl/actions"
+              ActionsUrl = "$repoUrl/actions?query=branch%3A$escapedTagName"
               OldTagName = $oldTagName
               TagName = $tagName
+              EscapedTagName = $escapedTagName
             }
           }
 
@@ -184,59 +187,104 @@ jobs:
             return Invoke-RestMethod @params
           }
 
-          function Get-GitHubDefaultBranch {
+          function Get-ReleaseTitle {
             param(
               [Parameter(Mandatory = $true)]
-              [string]$RepoPath
+              [object]$Release
             )
 
-            try {
-              $repo = Invoke-GitHubApi -Uri "https://api.github.com/repos/$RepoPath"
-              if (-not [string]::IsNullOrWhiteSpace($repo.default_branch)) {
-                return $repo.default_branch
-              }
-            } catch {
-              Write-Verbose "Unable to fetch default branch for ${RepoPath}: $($_.Exception.Message)" -Verbose
+            if (-not [string]::IsNullOrWhiteSpace($Release.name)) {
+              return $Release.name
             }
 
-            return "main"
+            return $Release.tag_name
           }
 
-          function Get-ReleaseNotes {
+          function Get-ReleaseNotesForRange {
             param(
               [Parameter(Mandatory = $true)]
-              [hashtable]$ReleaseInfo
+              [hashtable]$ReleaseInfo,
+
+              [Parameter(Mandatory = $true)]
+              [string]$ChangeType
             )
+
+            $typeLabel = switch ($ChangeType) {
+              'major' { 'Major changelog' }
+              'minor' { 'Minor changelog' }
+              'patch' { 'Patch changelog' }
+              default { 'Release changelog' }
+            }
+
+            try {
+              $releases = @(Invoke-GitHubApi -Uri "https://api.github.com/repos/$($ReleaseInfo.RepoPath)/releases?per_page=100")
+              if ($releases.Count -gt 0) {
+                $newIndex = -1
+                $oldIndex = -1
+                for ($i = 0; $i -lt $releases.Count; $i++) {
+                  if ($releases[$i].tag_name -eq $ReleaseInfo.TagName) {
+                    $newIndex = $i
+                  }
+                  if ($releases[$i].tag_name -eq $ReleaseInfo.OldTagName) {
+                    $oldIndex = $i
+                  }
+                }
+
+                if ($newIndex -ge 0) {
+                  if ($oldIndex -gt $newIndex) {
+                    $rangeReleases = @($releases[$newIndex..($oldIndex - 1)])
+                  } else {
+                    $rangeReleases = @($releases[$newIndex])
+                  }
+
+                  $maxReleaseCount = 8
+                  $omittedReleaseCount = [Math]::Max(0, $rangeReleases.Count - $maxReleaseCount)
+                  $rangeReleases = @($rangeReleases | Select-Object -First $maxReleaseCount)
+
+                  $notes = "**$typeLabel**`n"
+                  foreach ($release in $rangeReleases) {
+                    $title = Get-ReleaseTitle -Release $release
+                    $releaseUrl = if (-not [string]::IsNullOrWhiteSpace($release.html_url)) {
+                      $release.html_url
+                    } else {
+                      "$($ReleaseInfo.RepoUrl)/releases/tag/$($release.tag_name)"
+                    }
+
+                    $notes += "`n### [$title]($releaseUrl)`n`n"
+                    if ([string]::IsNullOrWhiteSpace($release.body)) {
+                      $notes += "No release notes were published for this release.`n"
+                    } else {
+                      $releaseBody = $release.body.Trim()
+                      if ($releaseBody.Length -gt 1200) {
+                        $releaseBody = $releaseBody.Substring(0, 1200).TrimEnd() + "...`n`n_Release notes truncated; open the release link for the full text._"
+                      }
+
+                      $notes += $releaseBody + "`n"
+                    }
+                  }
+
+                  if ($omittedReleaseCount -gt 0) {
+                    $notes += "`n...and $omittedReleaseCount more releases. Open the compare link for the full range.`n"
+                  }
+
+                  return $notes.Trim()
+                }
+              }
+            } catch {
+              Write-Verbose "Unable to fetch release range notes for $($ReleaseInfo.RepoPath) $($ReleaseInfo.OldTagName)...$($ReleaseInfo.TagName): $($_.Exception.Message)" -Verbose
+            }
 
             try {
               $release = Invoke-GitHubApi -Uri "https://api.github.com/repos/$($ReleaseInfo.RepoPath)/releases/tags/$($ReleaseInfo.TagName)"
               if (-not [string]::IsNullOrWhiteSpace($release.body)) {
-                return $release.body.Trim()
+                $title = Get-ReleaseTitle -Release $release
+                return "**$typeLabel**`n`n### [$title]($($release.html_url))`n`n$($release.body.Trim())"
               }
             } catch {
               Write-Verbose "Unable to fetch release notes for $($ReleaseInfo.RepoPath) $($ReleaseInfo.TagName): $($_.Exception.Message)" -Verbose
             }
 
-            try {
-              $comparison = Invoke-GitHubApi -Uri "https://api.github.com/repos/$($ReleaseInfo.RepoPath)/compare/$($ReleaseInfo.OldTagName)...$($ReleaseInfo.TagName)"
-              if ($comparison.commits.Count -gt 0) {
-                $summary = "No release notes were found. Recent commits in the compare range:`n"
-                foreach ($commit in ($comparison.commits | Select-Object -First 12)) {
-                  $subject = ($commit.commit.message -split "`r?`n" | Select-Object -First 1)
-                  $summary += "- [$($commit.sha.Substring(0, 7))]($($commit.html_url)) $subject`n"
-                }
-
-                if ($comparison.commits.Count -gt 12) {
-                  $summary += "- ...and $($comparison.commits.Count - 12) more commits.`n"
-                }
-
-                return $summary.Trim()
-              }
-            } catch {
-              Write-Verbose "Unable to fetch compare details for $($ReleaseInfo.RepoPath) $($ReleaseInfo.OldTagName)...$($ReleaseInfo.TagName): $($_.Exception.Message)" -Verbose
-            }
-
-            return "No release notes were found. See the release and compare links for details."
+            return "No release notes were found for the requested release range."
           }
 
           function ConvertTo-BlockQuote {
@@ -254,7 +302,7 @@ jobs:
             }
 
             if ($text.Length -gt $MaxLength) {
-              $text = $text.Substring(0, $MaxLength).TrimEnd() + "`n`n_Release notes truncated; open the release link for the full text._"
+              $text = $text.Substring(0, $MaxLength).TrimEnd() + "...`n`n_Release notes truncated; open the release links for the full text._"
             }
 
             return (($text -split "`r?`n") | ForEach-Object { "> $_" }) -join "`n"
@@ -305,8 +353,7 @@ jobs:
               if ($null -ne $releaseInfo) {
                 $repoUrl = $releaseInfo.ReleasesUrl
                 $releaseUrl = $releaseInfo.ReleaseUrl
-                $defaultBranch = Get-GitHubDefaultBranch -RepoPath $releaseInfo.RepoPath
-                $statusBadge = "[![Build status](https://img.shields.io/github/check-runs/$($releaseInfo.RepoPath)/$defaultBranch`?label=build)]($($releaseInfo.ActionsUrl))"
+                $statusBadge = "[![Build status](https://img.shields.io/github/check-runs/$($releaseInfo.RepoPath)/$($releaseInfo.EscapedTagName)`?label=build)]($($releaseInfo.ActionsUrl))"
               } else {
                 $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
                 $releaseUrl = $repoUrl
@@ -343,11 +390,11 @@ jobs:
               }
 
               if ($null -ne $releaseInfo) {
-                $releaseNotes = Get-ReleaseNotes -ReleaseInfo $releaseInfo
+                $releaseNotes = Get-ReleaseNotesForRange -ReleaseInfo $releaseInfo -ChangeType $changeType
                 $changelogSection += "<details>`n"
-                $changelogSection += "<summary>$($s.name) $oldVersion → $($s.version)</summary>`n`n"
+                $changelogSection += "<summary>$($s.name)</summary>`n`n"
                 $changelogSection += "[Release notes]($($releaseInfo.ReleaseUrl)) · [Compare changes]($($releaseInfo.CompareUrl))`n`n"
-                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes) + "`n`n"
+                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes -MaxLength 6000) + "`n`n"
                 $changelogSection += "</details>`n`n"
               }
 
@@ -386,7 +433,7 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($changelogSection)) {
             $changelogSection = ""
           } else {
-            $changelogSection = "`n$changelogSection"
+            $changelogSection = "`n### Release notes for updated vendors`n`n$changelogSection"
           }
 
           $reviewTeam = ""
