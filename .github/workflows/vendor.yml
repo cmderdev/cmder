@@ -144,6 +144,7 @@ jobs:
               ReleasesUrl = "$repoUrl/releases"
               ReleaseUrl = "$repoUrl/releases/tag/$tagName"
               CompareUrl = "$repoUrl/compare/$oldTagName...$tagName"
+              BadgeUrl = "https://img.shields.io/github/v/release/${repoPath}?label=latest&display_name=release"
               OldTagName = $oldTagName
               TagName = $tagName
             }
@@ -286,9 +287,11 @@ jobs:
               if ($null -ne $releaseInfo) {
                 $repoUrl = $releaseInfo.ReleasesUrl
                 $releaseUrl = $releaseInfo.ReleaseUrl
+                $releaseBadge = "<br>[![GitHub release]($($releaseInfo.BadgeUrl))]($releaseUrl)"
               } else {
                 $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
                 $releaseUrl = $repoUrl
+                $releaseBadge = ""
               }
 
               # Store single dependency info for messages (only if this is the only update)
@@ -322,13 +325,17 @@ jobs:
 
               if ($null -ne $releaseInfo) {
                 $releaseNotes = Get-ReleaseNotes -ReleaseInfo $releaseInfo
-                $changelogSection += "### $($s.name) $oldVersion → $($s.version)`n`n"
-                $changelogSection += "[Release notes]($($releaseInfo.ReleaseUrl)) · [Compare changes]($($releaseInfo.CompareUrl))`n`n"
-                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes) + "`n`n"
+                $changelogSection += "<details>`n"
+                $changelogSection += "<summary>$($s.name) $oldVersion → $($s.version)</summary>`n`n"
+                $changelogSection += "[Release notes]($($releaseInfo.ReleaseUrl))`n`n"
+                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes)
+                $changelogSection += "`n> `n"
+                $changelogSection += "> [View full changes between $oldVersion and $($s.version)]($($releaseInfo.CompareUrl))`n`n"
+                $changelogSection += "</details>`n`n"
               }
 
               $listUpdated += "$($s.name) v$($s.version), "
-              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)** | ``$oldVersion`` | **[``$($s.version)``]($releaseUrl)** |`n"
+              $updateMessage += "| $emoji **[$($s.name)]($repoUrl)**$releaseBadge | ``$oldVersion`` | **[``$($s.version)``]($releaseUrl)** |`n"
             }
           }
 
@@ -362,7 +369,7 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($changelogSection)) {
             $changelogSection = ""
           } else {
-            $changelogSection = "`n<details>`n<summary>Release notes for updated vendors</summary>`n`n$changelogSection</details>`n"
+            $changelogSection = "`n$changelogSection"
           }
 
           $reviewTeam = ""
@@ -525,6 +532,9 @@ jobs:
         commit-message: '⬆️ Update dependencies (${{ env.LIST_UPDATED }})'
         branch: update-vendor
         base: master
+        labels: |
+          👆 Dependencies
+          🗃️ Vendor
         team-reviewers: ${{ env.REVIEW_TEAM }}
 
     - name: Summary - Pull request result
