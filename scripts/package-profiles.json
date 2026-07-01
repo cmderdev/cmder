@@ -1,0 +1,92 @@
+{
+  "profiles": [
+    {
+      "displayName": "Cmder slim",
+      "terminal": "none",
+      "outputFolder": "cmder_slim",
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "clink-completions"
+      ],
+      "packages": [
+        {
+          "name": "cmder_slim.7z",
+          "kind": "7z"
+        },
+        {
+          "name": "cmder_slim.zip",
+          "kind": "zip"
+        },
+        {
+          "name": "cmder_slim_mini.zip",
+          "kind": "zip",
+          "includedVendors": [
+            "clink",
+            "clink-completions"
+          ]
+        }
+      ]
+    },
+    {
+      "displayName": "Windows Terminal",
+      "terminal": "windows-terminal",
+      "outputFolder": "cmder",
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "windows-terminal",
+        "clink-completions"
+      ],
+      "packages": [
+        {
+          "name": "cmder.7z",
+          "kind": "7z"
+        },
+        {
+          "name": "cmder.zip",
+          "kind": "zip"
+        },
+        {
+          "name": "cmder_mini.zip",
+          "kind": "zip",
+          "includedVendors": [
+            "clink",
+            "windows-terminal",
+            "clink-completions"
+          ]
+        }
+      ]
+    },
+    {
+      "displayName": "ConEmu",
+      "terminal": "conemu-maximus5",
+      "outputFolder": "cmder_conemu",
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "conemu-maximus5",
+        "clink-completions"
+      ],
+      "packages": [
+        {
+          "name": "cmder_conemu.7z",
+          "kind": "7z"
+        },
+        {
+          "name": "cmder_conemu.zip",
+          "kind": "zip"
+        },
+        {
+          "name": "cmder_conemu_mini.zip",
+          "kind": "zip",
+          "includedVendors": [
+            "clink",
+            "conemu-maximus5",
+            "clink-completions"
+          ]
+        }
+      ]
+    }
+  ]
+}

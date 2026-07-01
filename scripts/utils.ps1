@@ -1,7 +1,7 @@
+﻿# Keep this file as UTF-8 with BOM so Windows PowerShell 5.1 can parse literal emoji strings.
 function Ensure-Exists($path) {
     if (-not (Test-Path $path)) {
-        Write-Error "Missing required $path! Ensure it is installed"
-        exit 1
+        throw "Missing required $path! Ensure it is installed"
     }
     return $true > $null
 }
@@ -16,8 +16,7 @@ function Ensure-Executable($command) {
             Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
         else {
-            Write-Error "Missing $command! Ensure it is installed and on in the PATH"
-            exit 1
+            throw "Missing $command! Ensure it is installed and on in the PATH"
         }
     }
 }
@@ -286,6 +285,21 @@ function Format-FileSize {
     }
 }
 
+function Get-ArtifactTypeEmoji {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    if ($Name -match '\.txt$') {
+        return "📄"
+    } elseif ($Name -match '\.(zip|rar|7z)$') {
+        return "🗄️"
+    }
+
+    return "📦"
+}
+
 function Get-VersionChangeType {
     <#
     .SYNOPSIS
@@ -447,4 +461,65 @@ function Get-ArtifactDownloadUrl {
     }
     
     return $null
+}
+
+function Get-CmderPackageConfig {
+    $configPath = Join-Path $PSScriptRoot "package-profiles.json"
+    if (-not (Test-Path $configPath)) {
+        throw "Missing package configuration file: $configPath"
+    }
+
+    return Get-Content -Raw $configPath | ConvertFrom-Json
+}
+
+function Get-CmderVendorNames {
+    $sourcesPath = Join-Path $PSScriptRoot "..\vendor\sources.json"
+    if (-not (Test-Path $sourcesPath)) {
+        throw "Missing vendor sources file: $sourcesPath"
+    }
+
+    return @(Get-Content -Raw $sourcesPath | ConvertFrom-Json | Select-Object -ExpandProperty name)
+}
+
+function Get-CmderPackageProfiles {
+    param(
+        [string]$Terminal = "all"
+    )
+
+    $config = Get-CmderPackageConfig
+    $profiles = @($config.profiles)
+
+    if ($Terminal -eq "all") {
+        return $profiles
+    }
+
+    $profile = $profiles | Where-Object { $_.terminal -eq $Terminal } | Select-Object -First 1
+    if (-not $profile) {
+        throw "Unknown Cmder terminal profile '$Terminal'"
+    }
+
+    return @($profile)
+}
+
+function Get-CmderTerminalIncludedVendors {
+    param(
+        [string]$Terminal = "all"
+    )
+
+    if ($Terminal -eq "all") {
+        return @(Get-CmderVendorNames)
+    }
+
+    $profile = Get-CmderPackageProfiles -Terminal $Terminal | Select-Object -First 1
+    $includedVendors = @($profile.includedVendors)
+
+    if ($profile.packages) {
+        foreach ($package in @($profile.packages)) {
+            if ($package -and $package.PSObject.Properties.Name -contains "includedVendors" -and $package.includedVendors) {
+                $includedVendors += @($package.includedVendors)
+            }
+        }
+    }
+
+    return @($includedVendors | Select-Object -Unique)
 }

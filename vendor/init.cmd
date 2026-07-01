@@ -44,6 +44,8 @@ if not defined CMDER_ROOT (
 :: Remove trailing '\' from %CMDER_ROOT%
 if "%CMDER_ROOT:~-1%" == "\" SET "CMDER_ROOT=%CMDER_ROOT:~0,-1%"
 
+call :migrate_legacy_init_bat
+
 :: Include Cmder libraries
 call "%cmder_root%\vendor\bin\cexec.cmd" /setpath
 call "%cmder_root%\vendor\lib\lib_console"
@@ -133,18 +135,18 @@ if %verbose_output% gtr 0 (
 
 :: Sets CMDER_SHELL, CMDER_CLINK, CMDER_ALIASES variables
 %lib_base% cmder_shell
-%print_debug% init.bat "Env Var - CMDER_ROOT=%CMDER_ROOT%"
-%print_debug% init.bat "Env Var - debug_output=%debug_output%"
+%print_debug% init.cmd "Env Var - CMDER_ROOT=%CMDER_ROOT%"
+%print_debug% init.cmd "Env Var - debug_output=%debug_output%"
 
 :: Set the Cmder directory paths
-set CMDER_CONFIG_DIR=%CMDER_ROOT%\config
+set "CMDER_CONFIG_DIR=%CMDER_ROOT%\config"
 
 :: Check if we're using Cmder individual user profile
 if defined CMDER_USER_CONFIG (
-    %print_debug% init.bat "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
+    %print_debug% init.cmd "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '%CMDER_USER_CONFIG%'!"
 
     if not exist "%CMDER_USER_CONFIG%\..\opt" md "%CMDER_USER_CONFIG%\..\opt"
-    set CMDER_CONFIG_DIR=%CMDER_USER_CONFIG%
+    set "CMDER_CONFIG_DIR=%CMDER_USER_CONFIG%"
 )
 
 if not "%CMDER_SHELL%" == "cmd" (
@@ -166,9 +168,24 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set CMDER_CLINK=0
 )
 
+set "cmder_root_user_init=%CMDER_ROOT%\config\user_init.cmd"
+if defined CMDER_USER_CONFIG set "cmder_user_init=%CMDER_USER_CONFIG%\user_init.cmd"
+
+if exist "%cmder_root_user_init%" (
+  call "%cmder_root_user_init%"
+  exit /b
+)
+
+if defined CMDER_USER_CONFIG if exist "%cmder_user_init%" (
+  call "%cmder_user_init%"
+  exit /b
+)
+
 if "%CMDER_CLINK%" == "1" (
     REM TODO: Detect if clink is already injected, if so goto :CLINK_FINISH
     goto :INJECT_CLINK
+) else if "%CMDER_CLINK%" == "2" (
+  goto :CLINK_FINISH
 )
 
 goto :SKIP_CLINK
@@ -205,6 +222,7 @@ goto :SKIP_CLINK
     )
 
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
+    set CMDER_CLINK=2
 
     :: Check if a fatal error occurred when trying to inject Clink
     if errorlevel 2 (
@@ -222,7 +240,7 @@ goto :SKIP_CLINK
 
     :: Revert back to plain cmd.exe prompt without clink
     prompt $E[1;32;49m$P$S$_$E[1;30;49mλ$S$E[0m
-    
+
     :: Add Windows Terminal shell integration support (OSC 133 sequences)
     if defined WT_SESSION (prompt $e]133;D$e\$e]133;A$e\$e]9;9;$P$e\%PROMPT%$e]133;B$e\)
 
@@ -252,19 +270,19 @@ if defined GIT_INSTALL_ROOT (
     set GIT_INSTALL_ROOT=
 ) else if "%fast_init%" == "1" (
     if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
-        %print_debug% init.bat "Skipping Git Auto-Detect!"
+        %print_debug% init.cmd "Skipping Git Auto-Detect!"
         goto :VENDORED_GIT
     )
 
-    %print_debug% init.bat "Fast init is enabled, vendored Git does not exist"
+    %print_debug% init.cmd "Fast init is enabled, vendored Git does not exist"
     for /F "delims=" %%F in ('where git.exe 2^>nul') do (
 	set "EXT_GIT_EXE=%%~fF"
-        %print_debug% init.bat "Found User installed Git at '%%~fF'. Skipping Git Auto-Detect!"
+        %print_debug% init.cmd "Found User installed Git at '%%~fF'. Skipping Git Auto-Detect!"
         goto :SET_ENV
     )
 )
 
-%print_debug% init.bat "Looking for Git install root..."
+%print_debug% init.cmd "Looking for Git install root..."
 
 :: Get the version information for vendored git binary
 %lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd" 2>nul
@@ -295,24 +313,29 @@ if defined GIT_INSTALL_ROOT (
 :VENDORED_GIT
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
     set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %print_debug% init.bat "Using vendored Git '%GIT_VERSION_VENDORED%'..."
+    %print_debug% init.cmd "Using vendored Git '%GIT_VERSION_VENDORED%'..."
     goto :CONFIGURE_GIT
 ) else (
     goto :NO_GIT
 )
 
 :SPECIFIED_GIT
-%print_debug% init.bat "Using /GIT_INSTALL_ROOT..."
+%print_debug% init.cmd "Using specified GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%...."
 goto :CONFIGURE_GIT
 
 :FOUND_GIT
-%print_debug% init.bat "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
+%print_debug% init.cmd "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
-%print_debug% init.bat "Using Git from '%GIT_INSTALL_ROOT%..."
+%print_debug% init.cmd "Using Git from '%GIT_INSTALL_ROOT%..."
+
 :: Add git to the path
-if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" %lib_path% enhance_path "%GIT_INSTALL_ROOT%\cmd" ""
+%print_debug% init.cmd "START - git.exe(prepend): Env Var - PATH=%path%"
+if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" (
+  set "path=%GIT_INSTALL_ROOT%\cmd;%path%"
+)
+%print_debug% init.cmd "END - git.exe(prepend): Env Var - PATH=%path%"
 
 :: Add the unix commands at the end to not shadow windows commands like `more` and `find`
 if %nix_tools% equ 1 (
@@ -323,16 +346,17 @@ if %nix_tools% equ 1 (
     set "path_position="
 )
 
-if %nix_tools% geq 1 (
-    if exist "%GIT_INSTALL_ROOT%\mingw32" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
-    ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
-    )
-    if exist "%GIT_INSTALL_ROOT%\usr\bin" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
-    )
+%print_debug% init.cmd "START - nix_tools(%path_position%): Env Var - PATH=%path%"
+set "git_mingw_bin="
+if exist "%GIT_INSTALL_ROOT%\mingw32" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
+) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw64\bin"
 )
+
+%lib_path% add_path_with_position "%git_mingw_bin%" "%path_position%"
+%lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position%"
+%print_debug% init.cmd "END - nix_tools(%path_position%): Env Var - PATH=%path%"
 
 :SET_ENV
 
@@ -356,7 +380,7 @@ if not defined git_locale for /F "tokens=* delims=" %%F in ('where env.exe 2^>nu
 
 setlocal enabledelayedexpansion
 if defined git_locale (
-    REM %print_debug% init.bat "Env Var - git_locale=!git_locale!"
+    REM %print_debug% init.cmd "Env Var - git_locale=!git_locale!"
     if not defined LANG (
         for /F "delims=" %%F in ('"!git_locale!" -uU 2') do (
             set "LANG=%%F"
@@ -365,8 +389,7 @@ if defined git_locale (
 )
 endlocal && set LANG=%LANG%
 
-%print_debug% init.bat "Env Var - GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%"
-%print_debug% init.bat "Found Git in: '%GIT_INSTALL_ROOT%'"
+%print_debug% init.cmd "Found Git in: 'GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%'"
 goto :PATH_ENHANCE
 
 :NO_GIT
@@ -374,14 +397,33 @@ goto :PATH_ENHANCE
 endlocal
 
 :PATH_ENHANCE
-%lib_path% enhance_path "%CMDER_ROOT%\vendor\bin"
+%print_debug% init.cmd "START - vendor/bin(prepend): Env Var - PATH=%path%"
+set "path=%CMDER_ROOT%\vendor\bin;%path%"
+%print_debug% init.cmd "END - vendor/bin(prepend): Env Var - PATH=%path%"
 
 :USER_CONFIG_START
-%lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
-if defined CMDER_USER_BIN (
-    %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
+%print_debug% init.cmd "START - bin(prepend): Env Var - PATH=%path%"
+if %max_depth% gtr 1 (
+  %lib_path% enhance_path_recursive "%CMDER_ROOT%\bin" 0 %max_depth%
+) else (
+  set "path=%CMDER_ROOT%\bin;%path%"
 )
-%lib_path% enhance_path "%CMDER_ROOT%" append
+%print_debug% init.cmd "END - bin(prepend): Env Var - PATH=%path%"
+
+:: The CMDER_USER_BIN variable is set in the launcher.
+if defined CMDER_USER_BIN (
+  %print_debug% init.cmd "START - user_bin(prepend): Env Var - PATH=%path%"
+  if %max_depth% gtr 1 (
+    %lib_path% enhance_path_recursive "%CMDER_USER_BIN%" 0 %max_depth%
+  ) else (
+    set "path=%CMDER_USER_BIN%;%path%"
+  )
+  %print_debug% init.cmd "END - user_bin(prepend): Env Var - PATH=!path!"
+)
+
+%print_debug% init.cmd "START - cmder_root(append): Env Var - PATH=%path%"
+set "path=%path%;%CMDER_ROOT%"
+%print_debug% init.cmd "END - cmder_root(append): Env Var - PATH=%path%"
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
@@ -452,12 +494,12 @@ if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
 
 :: Set home path
 if not defined HOME set "HOME=%USERPROFILE%"
-%print_debug% init.bat "Env Var - HOME=%HOME%"
+%print_debug% init.cmd "Env Var - HOME=%HOME%"
 
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
 if exist "%CMDER_ROOT%\config\user_profile.cmd" (
     REM Create this file and place your own command in there
-    %print_debug% init.bat "Calling - %CMDER_ROOT%\config\user_profile.cmd"
+    %print_debug% init.cmd "Calling - %CMDER_ROOT%\config\user_profile.cmd"
     call "%CMDER_ROOT%\config\user_profile.cmd"
 )
 
@@ -465,7 +507,7 @@ if defined CMDER_USER_CONFIG (
     set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
     if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
         REM Create this file and place your own command in there
-        %print_debug% init.bat "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
+        %print_debug% init.cmd "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
         call "%CMDER_USER_CONFIG%\user_profile.cmd"
     )
 )
@@ -490,12 +532,92 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 
 set initialConfig=
 
-:CMDER_CONFIGURED
-if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
+if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
+  powershell -executionpolicy bypass -f "%cmder_root%\vendor\bin\create-cmdercfg.ps1" -shell cmd -outfile "%CMDER_CONFIG_DIR%\user_init.cmd"
 
-set CMDER_INIT_END=%time%
-
-if %time_init% gtr 0 (
-    "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
+  if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
+    %print_error% "Failed to generate Cmder config"
+  )
 )
+
+:CMDER_CONFIGURED
+  if not defined CMDER_CONFIGURED set CMDER_CONFIGURED=1
+  set CMDER_INIT_END=%time%
+
+  if "%time_init%" == "1" if "%CMDER_INIT_END%" neq "" if "%CMDER_INIT_START%" neq "" (
+    call "%cmder_root%\vendor\bin\timer.cmd" "%CMDER_INIT_START%" "%CMDER_INIT_END%"
+  )
+
+:CLEANUP
+  set architecture_bits=
+  set cmder_root_user_init=
+  set cmder_user_init=
+  set cmder_legacy_init=
+  set cmder_legacy_init_backup=
+  set cmder_legacy_init_shim=
+  set CMDER_ALIASES=
+  set CMDER_INIT_END=
+  set CMDER_INIT_START=
+  set CMDER_USER_FLAGS=
+  set CMDER_CLINK=
+  set debug_output=
+  set fast_init=
+  set git_mingw_bin=
+  set max_depth=
+  set nix_tools=
+  set path_position=
+  set print_debug=
+  set print_error=
+  set print_verbose=
+  set print_warning=
+  set time_init=
+  set verbose_output=
+  set user_aliases=
+
 exit /b
+
+:migrate_legacy_init_bat
+  set "cmder_legacy_init=%CMDER_ROOT%\vendor\init.bat"
+  if not exist "%cmder_legacy_init%" exit /b
+
+  %WINDIR%\System32\findstr /c:"Cmder init.cmd compatibility shim" "%cmder_legacy_init%" >nul 2>nul
+  if not errorlevel 1 exit /b
+
+  set "cmder_legacy_init_backup=%cmder_legacy_init%.old"
+  if not exist "%cmder_legacy_init_backup%" goto :migrate_legacy_init_bat_found
+
+  for /L %%i in (1,1,99) do (
+    if not exist "%cmder_legacy_init%.old.%%i" (
+      set "cmder_legacy_init_backup=%cmder_legacy_init%.old.%%i"
+      goto :migrate_legacy_init_bat_found
+    )
+  )
+
+  set "cmder_legacy_init_backup="
+
+:migrate_legacy_init_bat_found
+  if not defined cmder_legacy_init_backup (
+    echo Found legacy Cmder init script "%cmder_legacy_init%", but no free backup name was available.
+    echo Please rename it manually; Cmder now uses "%CMDER_ROOT%\vendor\init.cmd".
+    exit /b
+  )
+
+  echo Cmder's cmd startup script has moved to "%CMDER_ROOT%\vendor\init.cmd".
+  echo Backing up legacy "%cmder_legacy_init%" to "%cmder_legacy_init_backup%".
+  for %%F in ("%cmder_legacy_init_backup%") do ren "%cmder_legacy_init%" "%%~nxF"
+  if errorlevel 1 (
+    echo Failed to back up "%cmder_legacy_init%"; please rename it manually.
+    exit /b
+  )
+
+  set "cmder_legacy_init_shim=%cmder_legacy_init%"
+  > "%cmder_legacy_init_shim%" echo @echo off
+  >> "%cmder_legacy_init_shim%" echo rem Cmder init.cmd compatibility shim
+  >> "%cmder_legacy_init_shim%" echo echo Cmder's cmd startup script has moved from "%%~f0" to "%%~dp0init.cmd".
+  >> "%cmder_legacy_init_shim%" echo echo Please update your Cmder task or shell configuration to call "%%~dp0init.cmd" directly.
+  >> "%cmder_legacy_init_shim%" echo echo Delete "%%~f0" after updating your configuration.
+  >> "%cmder_legacy_init_shim%" echo call "%%~dp0init.cmd" %%*
+  if errorlevel 1 (
+    echo Failed to create compatibility shim "%cmder_legacy_init_shim%"; please update your configuration manually.
+  )
+  exit /b

@@ -11,7 +11,7 @@ rem `/c [cmder_user_cfg_root]
 rem set cmder_user_bin=[cmder_user_cfg_root]\bin
 rem set cmder_user_config=[cmder_user_cfg_root]\config
 rem
-rem `init.bat` Arguments
+rem `init.cmd` Arguments
 rem --------------------
 rem
 rem `/d`

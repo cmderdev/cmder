@@ -22,7 +22,11 @@ function runProfiled {
 }
 
 # We do this for bash as admin sessions since $CMDER_ROOT is not being set
-if [ "$CMDER_ROOT" == "" ] ; then
+if [ -z "$CMDER_ROOT" ] && [ -n "$cmder_root" ] ; then
+  export CMDER_ROOT=$(cygpath -u $cmder_root)
+fi
+
+if [ -z "$CMDER_ROOT" ] ; then
     case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
 else
     case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
@@ -43,6 +47,16 @@ fi
 
 if [[ ! "$PATH" =~ "${GIT_INSTALL_ROOT}/bin:" ]] ; then
   PATH="${GIT_INSTALL_ROOT}/bin:$PATH"
+fi
+
+if [ "$PROCESSOR_ARCHITECTURE" == "x86" ] &&  [ "$GIT_INSTALL_ROOT/mingw32" ] ; then
+  git_mingw_bin="$GIT_INSTALL_ROOT/mingw32/bin"
+elif [ "$PROCESSOR_ARCHITECTURE" == "AMD64" ] && [ -d "$GIT_INSTALL_ROOT/mingw64" ] ; then
+  git_mingw_bin="$GIT_INSTALL_ROOT/mingw64/bin"
+fi
+
+if [[ ! "$PATH" =~ "${git_mingw_bin}:" ]] ; then
+  PATH="${git_mingw_bin}:$PATH"
 fi
 
 PATH="${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}"

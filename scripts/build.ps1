@@ -21,7 +21,7 @@
 
     Skip all downloads and only build launcher.
 .EXAMPLE
-    .\build -verbose
+    .\build.ps1 -Verbose
 
     Execute the build and see what's going on.
 .EXAMPLE
@@ -33,35 +33,58 @@
     Samuel Vasko, Jack Bennett
     Part of the Cmder project.
 .LINK
-    http://cmder.app/ - Project Home
+    https://github.com/cmderdev/cmder - Project Home
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
     # CmdletBinding will give us;
-    # -verbose switch to turn on logging and
+    # -Verbose switch to turn on logging and
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json",
+    [string]$sourcesPath,
 
     # Vendor folder location
-    [string]$saveTo = "$PSScriptRoot\..\vendor\",
+    [string]$saveTo,
 
     # Launcher folder location
-    [string]$launcher = "$PSScriptRoot\..\launcher",
+    [string]$launcher,
 
     # Config folder location
-    [string]$config = "$PSScriptRoot\..\config",
+    [string]$config,
 
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
+
+    # Using this option will specify the emulator to use [none, all, conemu-maximus5, or windows-terminal]
+    [string]$Terminal = 'all',
 
     # Build launcher if you have MSBuild tools installed
     [switch]$Compile
 )
 
 # Get the scripts and Cmder root dirs we are building in.
-$cmder_root = Resolve-Path "$PSScriptRoot\.."
+$cmder_root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+
+if ([string]::IsNullOrWhiteSpace($sourcesPath)) {
+    $sourcesPath = Join-Path $cmder_root 'vendor\sources.json'
+}
+
+if ([string]::IsNullOrWhiteSpace($saveTo)) {
+    $saveTo = Join-Path $cmder_root 'vendor'
+}
+
+if ([string]::IsNullOrWhiteSpace($launcher)) {
+    $launcher = Join-Path $cmder_root 'launcher'
+}
+
+if ([string]::IsNullOrWhiteSpace($config)) {
+    $config = Join-Path $cmder_root 'config'
+}
+
+if (-not $saveTo.EndsWith([System.IO.Path]::DirectorySeparatorChar) -and -not $saveTo.EndsWith([System.IO.Path]::AltDirectorySeparatorChar)) {
+    $saveTo += [System.IO.Path]::DirectorySeparatorChar
+}
 
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
@@ -95,6 +118,7 @@ if (-not $noVendor) {
 
     # Get the vendor sources
     $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
+    $includedVendors = Get-CmderTerminalIncludedVendors -Terminal $Terminal
 
     Push-Location -Path $saveTo
     New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null
@@ -113,15 +137,31 @@ if (-not $noVendor) {
     }
     else { $ConEmuXml = "" }
 
-    # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
+    # Preserve modified (by user) Windows Terminal setting file
+    if ($config -ne "") {
+        $WinTermSettingsJson = Join-Path $saveTo "windows-terminal\settings\settings.json"
+        if (Test-Path $WinTermSettingsJson -pathType leaf) {
+            $WinTermSettingsJsonSave = Join-Path $config "windows_terminal_settings.json"
+            Write-Verbose "Backup '$WinTermSettingsJson' to '$WinTermSettingsJsonSave'"
+            Copy-Item $WinTermSettingsJson $WinTermSettingsJsonSave
+        }
+        else { $WinTermSettingsJson = "" }
+    }
+    else { $WinTermSettingsJson = "" }
+
+    # Kill ssh-agent.exe if it is running from the Cmder root we are building
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-        if ([string]$($ssh_agent.path) -Match [string]$cmder_root.replace('\', '\\')) {
+        if ([string]$($ssh_agent.path) -Match $cmder_root.Replace('\', '\\')) {
             Write-Verbose $("Stopping " + $ssh_agent.path + "!")
             Stop-Process $ssh_agent.id
         }
     }
 
     foreach ($s in $sources) {
+        if ($includedVendors -notcontains $s.name) {
+            continue
+        }
+
         Write-Verbose "Getting vendored $($s.name) $($s.version)..."
 
         # We do not care about the extensions/type of archive
@@ -131,6 +171,16 @@ if (-not $noVendor) {
 
         Download-File -Url $s.url -File $vend\$tempArchive -ErrorAction Stop
         Extract-Archive $tempArchive $s.name
+
+        # Make Embedded Windows Terminal Portable
+        if ($s.name -eq "windows-terminal") {
+            $windowTerminalFiles = resolve-path ($saveTo + "\" + $s.name + "\terminal*")
+            Move-Item -ErrorAction SilentlyContinue $windowTerminalFiles\* $s.name >$null
+            Remove-Item -ErrorAction SilentlyContinue $windowTerminalFiles >$null
+            Write-Verbose "Making Windows Terminal Portable..."
+            New-Item -Type Directory -Path (Join-Path $saveTo "/windows-terminal/settings") -ErrorAction SilentlyContinue >$null
+            New-Item -Type File -Path (Join-Path $saveTo "/windows-terminal/.portable") -ErrorAction SilentlyContinue >$null
+        }
 
         if ((Get-ChildItem $s.name).Count -eq 1) {
             Flatten-Directory($s.name)
@@ -144,6 +194,12 @@ if (-not $noVendor) {
     if ($ConEmuXml -ne "") {
         Write-Verbose "Restore '$ConEmuXmlSave' to '$ConEmuXml'"
         Copy-Item $ConEmuXmlSave $ConEmuXml
+    }
+
+    # Restore Windows Terminal user configuration
+    if ($WinTermSettingsJson -ne "") {
+        Write-Verbose "Restore '$WinTermSettingsJsonSave' to '$WinTermSettingsJson'"
+        Copy-Item $WinTermSettingsJsonSave $WinTermSettingsJson
     }
 
     # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty

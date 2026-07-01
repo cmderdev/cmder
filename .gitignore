@@ -31,3 +31,10 @@ launcher/src/version.rc2
 .vs/*
 .vscode
 .idea
+.vagrant/
+scripts/packer/iso/*.iso
+!scripts/packer/floppy/*.exe
+scripts/packer/packer_cache
+scripts/packer/output-*
+*.box
+

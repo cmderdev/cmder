@@ -25,7 +25,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 2. Extract the archive to a shared location.
 3. (optional) Place your own executable files and custom app folders into the `%cmder_root%\bin`. See: [bin/README.md](./bin/Readme.md)
    - This folder to be injected into your PATH by default.
-   - See `/max_depth [1-5]` in 'Command Line Arguments for `init.bat`' table to add subdirectories recursively.
+   - See `/max_depth [1-5]` in 'Command Line Arguments for `init.cmd`' table to add subdirectories recursively.
 4. (optional) Place your own custom app folders into the `%cmder_root%\opt`. See: [opt/README.md](./opt/Readme.md)
    - This folder will NOT be injected into your PATH so you have total control of what gets added.
 5. Run `Cmder.exe` with `/C` command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
@@ -41,7 +41,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
   - (optional) Place your own executable files and custom app folders into `%userprofile%\cmder_config\bin`.
     - This folder to be injected into your PATH by default.
-    - See `/max_depth [1-5]` in 'Command Line Arguments for `init.bat`' table to add subdirectories recursively.
+    - See `/max_depth [1-5]` in 'Command Line Arguments for `init.cmd`' table to add subdirectories recursively.
   - (optional) Place your own custom app folders into the `%user_profile%\cmder_config\opt`.
     - This folder will NOT be injected into your PATH so you have total control of what gets added.
 
@@ -60,7 +60,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/SINGLE`                 | Start Cmder in single mode.                                                              |
 | `/START [start_path]`     | Folder path to start in.                                                                 |
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
-| `/X [ConEmu extras pars]` | Forwards parameters to ConEmu                                                            |
+| `-- [ConEmu extras pars]` | Forwards ALL remaining parameters to ConEmu.                                             |
 
 ## Context Menu Integration
 
@@ -167,10 +167,10 @@ Documentation is in the file for each setting.
   *Note: Pay attention to the quotes!*
 
   ```
-  cmd /s /k ""%ConEmuDir%\..\init.bat" [ADD ARGS HERE]"
+  cmd /s /k ""%ConEmuDir%\..\init.cmd" [ADD ARGS HERE]"
   ```
 
-##### Command Line Arguments for `init.bat`
+##### Command Line Arguments for `init.cmd`
 
 | Argument                        | Description                                                                                                                                        | Default                                |
 | -----------------------------   | ----------------------------------------------------------------------------------------------                                                     | -------------------------------------  |
@@ -230,7 +230,7 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow Cmder to another machine.
+Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.cmd`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow Cmder to another machine.
 
 * `%CMDER_ROOT%\config\profile.d\*.cmd` and `\*.bat`
 * `%CMDER_ROOT%\config\user_aliases.cmd`
@@ -298,12 +298,12 @@ Uncomment and edit the line below in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
-### Customizing user sessions using `init.bat` custom arguments.
+### Customizing user sessions using `init.cmd` custom arguments.
 
-You can pass custom arguments to `init.bat` and use `cexec.cmd` in your `user_profile.cmd` to evaluate these
+You can pass custom arguments to `init.cmd` and use `cexec.cmd` in your `user_profile.cmd` to evaluate these
 arguments then execute commands based on a particular flag being detected or not.
 
-`init.bat` creates two shortcuts for using `cexec.cmd` in your profile scripts.
+`init.cmd` creates two shortcuts for using `cexec.cmd` in your profile scripts.
 
 #### `%ccall%` - Evaluates flags, runs commands if found,  and returns to the calling script and continues.
 
@@ -332,7 +332,7 @@ To conditionally start `notepad.exe` when you start a specific `cmder` task:
 
   ```batch
 
-  cmd.exe /k ""%ConEmuDir%\..\init.bat" /startnotepad"
+  cmd.exe /k ""%ConEmuDir%\..\init.cmd" /startnotepad"
 
   ```
 
