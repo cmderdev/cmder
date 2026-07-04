@@ -222,13 +222,13 @@ goto :SKIP_CLINK
     )
 
     "%CMDER_ROOT%\vendor\clink\clink_%clink_architecture%.exe" inject --quiet --profile "%CMDER_CONFIG_DIR%" --scripts "%CMDER_ROOT%\vendor"
-    set CMDER_CLINK=2
 
     :: Check if a fatal error occurred when trying to inject Clink
     if errorlevel 2 (
         REM %print_error% "Clink injection has failed with error code: %errorlevel%"
         goto :SKIP_CLINK
     )
+    set CMDER_CLINK=2
 
     goto :CLINK_FINISH
 
