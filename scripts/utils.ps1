@@ -478,7 +478,31 @@ function Get-CmderVendorNames {
         throw "Missing vendor sources file: $sourcesPath"
     }
 
-    return @(Get-Content -Raw $sourcesPath | ConvertFrom-Json | Select-Object -ExpandProperty name)
+    $sourceData = Get-Content -Raw $sourcesPath | ConvertFrom-Json
+    $sourceEntries = @($sourceData)
+
+    # Allow either a top-level array or an object wrapper with a "sources" property.
+    if (
+        $sourceEntries.Count -eq 1 -and
+        $sourceEntries[0] -and
+        $sourceEntries[0].PSObject.Properties.Name -contains "sources"
+    ) {
+        $sourceEntries = @($sourceEntries[0].sources)
+    }
+
+    $vendorNames = @(
+        $sourceEntries | ForEach-Object {
+            if ($_ -and $_.PSObject.Properties.Name -contains "name") {
+                $_.name
+            }
+        }
+    )
+
+    if (-not $vendorNames) {
+        throw "No vendor names could be read from $sourcesPath"
+    }
+
+    return $vendorNames
 }
 
 function Get-CmderPackageProfiles {
