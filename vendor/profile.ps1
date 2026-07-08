@@ -1,4 +1,4 @@
-﻿# Init Script for PowerShell
+# Init Script for PowerShell
 # Created as part of Cmder project
 # NOTE: This file must be saved using UTF-8 with BOM encoding for prompt symbol to work correctly.
 
