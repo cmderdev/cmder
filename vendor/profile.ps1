@@ -1,4 +1,4 @@
-# Init Script for PowerShell
+﻿# Init Script for PowerShell
 # Created as part of Cmder project
 # NOTE: This file must be saved using UTF-8 with BOM encoding for prompt symbol to work correctly.
 
@@ -104,7 +104,7 @@ if ($null -ne $ENV:GIT_INSTALL_ROOT) {
 
 # Create 'vi' alias for 'vim' if vim is available
 if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
-    New-Alias -name "vi" -value vim -ErrorAction SilentlyContinue
+    New-Alias -name "vi" -value vim
 }
 
 # PSReadline configuration
@@ -291,7 +291,5 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
 $CMDER_INIT_END = Get-Date
 
 $ElapsedTime = New-TimeSpan -Start $CMDER_INIT_START -End $CMDER_INIT_END
-
-$env:Path = $env:Path -replace ';;', ';'
 
 Write-Verbose "Elapsed Time: $($ElapsedTime.TotalSeconds) seconds total"
