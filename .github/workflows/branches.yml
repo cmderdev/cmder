@@ -9,6 +9,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+concurrency:
+  group: update-development
+  cancel-in-progress: false
+
 permissions:
   actions: write
   contents: write
@@ -25,7 +29,9 @@ jobs:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v7
         with:
+          ref: development
           fetch-depth: 0 # fetch all history for all branches and tags
+          token: ${{ secrets.BRANCH_SYNC_TOKEN || github.token }}
 
       - name: Summary - Merge operation started
         shell: bash
@@ -55,12 +61,28 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Merge master into development
+        shell: bash
+        env:
+          HAS_BRANCH_SYNC_TOKEN: ${{ secrets.BRANCH_SYNC_TOKEN != '' }}
         run: |
+          set -euo pipefail
+
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
-          git checkout development
-          git merge --no-ff master
-          git push origin development
+          git fetch origin master development
+          git checkout -B development origin/development
+          git reset --hard origin/development
+          git clean -fdx
+          git merge --no-ff origin/master
+
+          if git diff --name-only origin/development HEAD | grep -q '^\.github/workflows/'; then
+            echo "This merge updates workflow files. Configure a BRANCH_SYNC_TOKEN secret with workflow scope so GitHub accepts the sync push." >> "$GITHUB_STEP_SUMMARY"
+            if [[ "$HAS_BRANCH_SYNC_TOKEN" != "true" ]]; then
+              echo "::warning::This merge updates workflow files, but BRANCH_SYNC_TOKEN is not configured. GitHub may reject the push because GITHUB_TOKEN cannot update workflow files."
+            fi
+          fi
+
+          git push origin HEAD:development
 
       - name: Summary - Merge completed
         if: success()
