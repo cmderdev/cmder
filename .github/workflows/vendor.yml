@@ -138,18 +138,14 @@ jobs:
               $oldTagName = "v$OldVersion"
             }
 
-            $escapedTagName = [System.Uri]::EscapeDataString($tagName)
-
             return @{
               RepoPath = $repoPath
               RepoUrl = $repoUrl
               ReleasesUrl = "$repoUrl/releases"
               ReleaseUrl = "$repoUrl/releases/tag/$tagName"
               CompareUrl = "$repoUrl/compare/$oldTagName...$tagName"
-              ActionsUrl = "$repoUrl/actions?query=branch%3A$escapedTagName"
               OldTagName = $oldTagName
               TagName = $tagName
-              EscapedTagName = $escapedTagName
             }
           }
 
@@ -185,6 +181,60 @@ jobs:
             }
 
             return Invoke-RestMethod @params
+          }
+
+          function Get-ReadmeBuildStatusBadge {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$RepoPath
+            )
+
+            try {
+              $readme = Invoke-GitHubApi -Uri "https://api.github.com/repos/$RepoPath/readme"
+              if ([string]::IsNullOrWhiteSpace($readme.content)) {
+                return '—'
+              }
+
+              $bytes = [System.Convert]::FromBase64String(($readme.content -replace '\s', ''))
+              $markdown = [System.Text.Encoding]::UTF8.GetString($bytes)
+              $matches = [regex]::Matches($markdown, '\[!\[(?<alt>[^\]]*)\]\((?<image>[^)]*)\)\]\((?<target>[^)]*)\)')
+
+              $bestBadge = $null
+              $bestScore = 0
+              foreach ($match in $matches) {
+                $alt = $match.Groups['alt'].Value
+                $image = $match.Groups['image'].Value
+                $target = $match.Groups['target'].Value
+                $haystack = "$alt $image $target".ToLowerInvariant()
+                $score = 0
+
+                if ($alt -match '(?i)\b(build|status|ci|check)\b') {
+                  $score += 8
+                }
+                if ($image -match '(?i)(actions/workflows|/workflows/|dev\.azure\.com|badge\.svg)') {
+                  $score += 6
+                }
+                if ($target -match '(?i)(/actions|actions/workflows|dev\.azure\.com|/_build/)') {
+                  $score += 4
+                }
+                if ($haystack -match '(?i)(codecov|gitter|discord|covenant|visualstudiocode|open%20in)') {
+                  $score -= 8
+                }
+
+                if ($score -gt $bestScore) {
+                  $bestScore = $score
+                  $bestBadge = $match.Value
+                }
+              }
+
+              if ($bestScore -gt 0 -and -not [string]::IsNullOrWhiteSpace($bestBadge)) {
+                return $bestBadge
+              }
+            } catch {
+              Write-Verbose "Unable to fetch README build badge for ${RepoPath}: $($_.Exception.Message)" -Verbose
+            }
+
+            return '—'
           }
 
           function Get-ReleaseTitle {
@@ -353,11 +403,11 @@ jobs:
               if ($null -ne $releaseInfo) {
                 $repoUrl = $releaseInfo.ReleasesUrl
                 $releaseUrl = $releaseInfo.ReleaseUrl
-                $statusBadge = "[![Build status](https://img.shields.io/github/check-runs/$($releaseInfo.RepoPath)/$($releaseInfo.EscapedTagName)`?label=build)]($($releaseInfo.ActionsUrl))"
+                $statusBadge = Get-ReadmeBuildStatusBadge -RepoPath $releaseInfo.RepoPath
               } else {
                 $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
                 $releaseUrl = $repoUrl
-                $statusBadge = ""
+                $statusBadge = "—"
               }
 
               # Store single dependency info for messages (only if this is the only update)
