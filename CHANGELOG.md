@@ -6,10 +6,10 @@
 ### Adds
 
 - Add Windows Terminal support and make it the default bundled terminal when present, including portable Windows Terminal settings, Cmder/PowerShell/Bash profiles, admin profiles, color schemes, and launcher support for Windows Terminal profile/task selection. See [#2897](https://github.com/cmderdev/cmder/pull/2897), [#2943](https://github.com/cmderdev/cmder/pull/2943), and [#3090](https://github.com/cmderdev/cmder/pull/3090).
-- Add the **Cmder slim** package profile for builds that include Cmder, Clink, and optional Git for Windows integration without bundling a terminal emulator. See [#2942](https://github.com/cmderdev/cmder/pull/2942).
+- Add the **Cmder Launcher** package profile for builds that include Cmder, Clink, and optional Git for Windows integration without bundling a terminal emulator. See [#2942](https://github.com/cmderdev/cmder/pull/2942).
 - Add configurable package profiles in `scripts/package-profiles.json` so package display names, output folders, included vendors, and package variants are driven by JSON rather than hardcoded script branches.
 - Add `-Terminal` support to `scripts/build.ps1` and `scripts/pack.ps1` for building or packing `all`, `none`, `windows-terminal`, or `conemu-maximus5` terminal profiles.
-- Add grouped package outputs for `cmder_slim`, `cmder`, and `cmder_conemu`, each with full and mini variants, plus one root `build/hashes.txt` manifest for all generated archives.
+- Add grouped package outputs for `cmder_launcher`, `cmder`, and `cmder_conemu`, each with full and mini variants, plus one root `build/hashes.txt` manifest for all generated archives.
 - Add Git Bash and Mintty launch helpers in `vendor/start_git_bash.cmd` and `vendor/start_git_mintty.cmd`, including support for vendored Git for Windows or external Git installations.
 - Add `vendor/bin/create-cmdercfg.cmd`, `vendor/bin/create-cmdercfg.ps1`, `vendor/user_init.cmd.template`, and PowerShell template expansion helpers to generate an editable `config/user_init.cmd` from Cmder's discovered configuration. See [#2896](https://github.com/cmderdev/cmder/pull/2896) and [#3082](https://github.com/cmderdev/cmder/pull/3082).
 - Add a `.cmd` script-extension guard and a legacy `init.bat` migration test to the test workflow so accidental tracked `.bat` command scripts are caught early.

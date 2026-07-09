@@ -1,9 +1,9 @@
 {
   "profiles": [
     {
-      "displayName": "Cmder slim",
+      "displayName": "Cmder Launcher",
       "terminal": "none",
-      "outputFolder": "cmder_slim",
+      "outputFolder": "cmder_launcher",
       "includedVendors": [
         "git-for-windows",
         "clink",
@@ -11,15 +11,15 @@
       ],
       "packages": [
         {
-          "name": "cmder_slim.7z",
+          "name": "cmder_launcher.7z",
           "kind": "7z"
         },
         {
-          "name": "cmder_slim.zip",
+          "name": "cmder_launcher.zip",
           "kind": "zip"
         },
         {
-          "name": "cmder_slim_mini.zip",
+          "name": "cmder_launcher_mini.zip",
           "kind": "zip",
           "includedVendors": [
             "clink",
