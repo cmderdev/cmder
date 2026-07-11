@@ -492,3 +492,73 @@ function Get-ArtifactDownloadUrl {
 
     return $null
 }
+
+function ConvertTo-OneLine {
+    param(
+        [AllowEmptyString()]
+        [string]$Text
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return ""
+    }
+
+    return (($Text.Trim() -split "`r?`n") -join " ") -replace '\s+', ' '
+}
+
+function ConvertTo-HtmlText {
+    param(
+        [AllowEmptyString()]
+        [string]$Text
+    )
+
+    return [System.Net.WebUtility]::HtmlEncode($Text)
+}
+
+function Get-RelativeScriptPath {
+    param(
+        [AllowEmptyString()]
+        [string]$ScriptPath,
+
+        [Parameter(Mandatory = $true)]
+        [string]$RootPath,
+
+        [AllowEmptyString()]
+        [string]$FallbackName
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ScriptPath)) {
+        try {
+            return [System.IO.Path]::GetRelativePath($RootPath, $ScriptPath).Replace('\', '/')
+        } catch {
+            return $ScriptPath.Replace('\', '/')
+        }
+    }
+
+    return $FallbackName
+}
+
+function Get-MarkdownLocation {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RelativePath,
+
+        [int]$Line
+    )
+
+    $displayPath = if ($Line -gt 0) { "${RelativePath}:$Line" } else { $RelativePath }
+    $repository = $env:GITHUB_REPOSITORY
+    $sha = $env:GITHUB_SHA
+    $serverUrl = if ($env:GITHUB_SERVER_URL) { $env:GITHUB_SERVER_URL } else { "https://github.com" }
+
+    if (-not [string]::IsNullOrWhiteSpace($repository) -and -not [string]::IsNullOrWhiteSpace($sha)) {
+        $url = "$serverUrl/$repository/blob/$sha/$RelativePath"
+        if ($Line -gt 0) {
+            $url += "#L$Line"
+        }
+
+        return "[``$displayPath``]($url)"
+    }
+
+    return "``$displayPath``"
+}
