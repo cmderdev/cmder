@@ -151,7 +151,7 @@ if (-not $noVendor) {
 
     # Kill ssh-agent.exe if it is running from the Cmder root we are building
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-        if ([string]$($ssh_agent.path) -Match $cmder_root.Replace('\', '\\')) {
+        if ([string]$($ssh_agent.path) -match $cmder_root.Replace('\', '\\')) {
             Write-Verbose $("Stopping " + $ssh_agent.path + "!")
             Stop-Process $ssh_agent.id
         }

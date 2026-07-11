@@ -60,5 +60,5 @@ $CmderDiag = {
 
 Get-Content "$env:TEMP\cmder_diag_ps.log"
 
-Write-Host ""
-Write-Host "Above output was saved in $env:TEMP\cmder_diag_ps.log"
+Write-Host -Object ""
+Write-Host -Object "Above output was saved in $env:TEMP\cmder_diag_ps.log"
