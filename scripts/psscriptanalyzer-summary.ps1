@@ -104,7 +104,8 @@ if ($diagnostics.Count -eq 0) {
     $summary.Add("")
 } else {
     $fileCount = @($diagnostics | Where-Object { $_.ScriptName } | Select-Object -ExpandProperty ScriptName -Unique).Count
-    $summary.Add("PSScriptAnalyzer reported **$($diagnostics.Count)** advisory findings across **$fileCount** PowerShell files.")
+    $ruleCount = @($diagnostics | Select-Object -ExpandProperty RuleName -Unique).Count
+    $summary.Add("PSScriptAnalyzer reported **$($diagnostics.Count)** advisory findings across **$ruleCount** rule types and **$fileCount** PowerShell files.")
     $summary.Add("")
     $summary.Add("| Severity | Count |")
     $summary.Add("| --- | ---: |")
@@ -115,35 +116,71 @@ if ($diagnostics.Count -eq 0) {
     }
 
     $summary.Add("")
-    $summary.Add("> These findings are sorted by severity and are advisory; they do not fail the test job.")
+    $summary.Add("> These findings are grouped by rule type, then file. Rule groups are sorted by highest severity, finding count, and rule name. Findings are advisory; they do not fail the test job.")
     $summary.Add("")
 
-    foreach ($severity in @("Error", "Warning", "Information")) {
-        $severityDiagnostics = @($diagnostics | Where-Object { $_.Severity.ToString() -eq $severity })
-        if ($severityDiagnostics.Count -eq 0) {
-            continue
-        }
+    $ruleGroups = @(
+        $diagnostics |
+            Group-Object RuleName |
+            ForEach-Object {
+                $groupDiagnostics = @($_.Group)
+                $highestSeverityRank = ($groupDiagnostics | ForEach-Object { $severityOrder[$_.Severity.ToString()] } | Measure-Object -Minimum).Minimum
+                $highestSeverity = ($severityOrder.GetEnumerator() | Where-Object { $_.Value -eq $highestSeverityRank } | Select-Object -First 1).Key
+                $groupFiles = @($groupDiagnostics | Where-Object { $_.ScriptName } | Select-Object -ExpandProperty ScriptName -Unique)
 
+                [pscustomobject]@{
+                    RuleName = $_.Name
+                    Severity = $highestSeverity
+                    SeverityRank = $highestSeverityRank
+                    Count = $groupDiagnostics.Count
+                    FileCount = $groupFiles.Count
+                    Diagnostics = $groupDiagnostics
+                }
+            } |
+            Sort-Object `
+                @{ Expression = { $_.SeverityRank } }, `
+                @{ Expression = { -1 * $_.Count } }, `
+                @{ Expression = { $_.RuleName } }
+    )
+
+    $summary.Add("| Rule | Severity | Findings | Files |")
+    $summary.Add("| --- | --- | ---: | ---: |")
+    foreach ($ruleGroup in $ruleGroups) {
+        $summary.Add("| ``$($ruleGroup.RuleName)`` | $($ruleGroup.Severity) | $($ruleGroup.Count) | $($ruleGroup.FileCount) |")
+    }
+    $summary.Add("")
+
+    foreach ($ruleGroup in $ruleGroups) {
         $summary.Add("<details>")
-        $summary.Add("<summary>$severity findings ($($severityDiagnostics.Count))</summary>")
+        $summary.Add("<summary>$($ruleGroup.Severity): $($ruleGroup.RuleName) ($($ruleGroup.Count) findings across $($ruleGroup.FileCount) files)</summary>")
         $summary.Add("")
 
-        $index = 1
-        foreach ($diagnostic in $severityDiagnostics) {
-            $relativePath = Get-RelativeScriptPath -ScriptPath $diagnostic.ScriptPath -RootPath $rootPath -FallbackName $diagnostic.ScriptName
-            $line = if ($null -ne $diagnostic.Line) { [int]$diagnostic.Line } else { 0 }
-            $column = if ($null -ne $diagnostic.Column) { [int]$diagnostic.Column } else { 0 }
-            $location = Get-MarkdownLocation -RelativePath $relativePath -Line $line
-            $ruleName = ConvertTo-HtmlText -Text $diagnostic.RuleName
-            $message = ConvertTo-HtmlText -Text (ConvertTo-OneLine -Text $diagnostic.Message)
+        $fileGroups = @(
+            $ruleGroup.Diagnostics |
+                Group-Object {
+                    Get-RelativeScriptPath -ScriptPath $_.ScriptPath -RootPath $rootPath -FallbackName $_.ScriptName
+                } |
+                Sort-Object Name
+        )
 
-            $summary.Add("$index. **$location** - ``$ruleName``")
-            $summary.Add("   - Message: $message")
-            if ($line -gt 0 -or $column -gt 0) {
-                $summary.Add("   - Position: line $line, column $column")
-            }
+        foreach ($fileGroup in $fileGroups) {
+            $relativePath = $fileGroup.Name
+            $summary.Add("#### ``$relativePath`` ($($fileGroup.Count))")
             $summary.Add("")
-            $index++
+
+            foreach ($diagnostic in @($fileGroup.Group | Sort-Object Line, Column, Message)) {
+                $line = if ($null -ne $diagnostic.Line) { [int]$diagnostic.Line } else { 0 }
+                $column = if ($null -ne $diagnostic.Column) { [int]$diagnostic.Column } else { 0 }
+                $location = Get-MarkdownLocation -RelativePath $relativePath -Line $line
+                $message = ConvertTo-HtmlText -Text (ConvertTo-OneLine -Text $diagnostic.Message)
+
+                $summary.Add("- **$location**")
+                $summary.Add("  - Message: $message")
+                if ($line -gt 0 -or $column -gt 0) {
+                    $summary.Add("  - Position: line $line, column $column")
+                }
+                $summary.Add("")
+            }
         }
 
         $summary.Add("</details>")
