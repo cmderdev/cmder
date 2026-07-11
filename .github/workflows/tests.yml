@@ -165,19 +165,6 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
-    - name: Summary - Test results table header
-      if: success()
-      shell: pwsh
-      run: |
-        $summary = @"
-        ### 📋 Test Results
-
-        | Test | Status | Duration |
-        | --- | --- | --- |
-        "@
-
-        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
-
     - name: Testing Clink Shell
       id: test-clink
       shell: pwsh
@@ -187,17 +174,6 @@ jobs:
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
-    - name: Summary - Clink Shell test
-      if: success()
-      shell: pwsh
-      run: |
-        $duration = "${{ steps.test-clink.outputs.duration }}"
-        if ($duration) {
-          $duration = "$duration s"
-        } else {
-          $duration = "N/A"
-        }
-        "| Clink Shell | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing PowerShell
       id: test-powershell
       shell: pwsh
@@ -207,17 +183,6 @@ jobs:
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
-    - name: Summary - PowerShell test
-      if: success()
-      shell: pwsh
-      run: |
-        $duration = "${{ steps.test-powershell.outputs.duration }}"
-        if ($duration) {
-          $duration = "$duration s"
-        } else {
-          $duration = "N/A"
-        }
-        "| PowerShell | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing Bash
       id: test-bash
       shell: pwsh
@@ -227,23 +192,36 @@ jobs:
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
-    - name: Summary - Bash test
-      if: success()
-      shell: pwsh
-      run: |
-        $duration = "${{ steps.test-bash.outputs.duration }}"
-        if ($duration) {
-          $duration = "$duration s"
-        } else {
-          $duration = "N/A"
-        }
-        "| Bash | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
-
     - name: Summary - All tests completed
       if: success()
       shell: pwsh
       run: |
+        function Format-Duration {
+          param(
+            [AllowEmptyString()]
+            [string]$Duration
+          )
+
+          if ($Duration) {
+            return "$Duration s"
+          }
+
+          return "N/A"
+        }
+
+        $clinkDuration = Format-Duration "${{ steps.test-clink.outputs.duration }}"
+        $powershellDuration = Format-Duration "${{ steps.test-powershell.outputs.duration }}"
+        $bashDuration = Format-Duration "${{ steps.test-bash.outputs.duration }}"
+
         $summary = @"
+
+        ### 📋 Test Results
+
+        | Test | Status | Duration |
+        | --- | --- | --- |
+        | Clink Shell | ✅ Passed | $clinkDuration |
+        | PowerShell | ✅ Passed | $powershellDuration |
+        | Bash | ✅ Passed | $bashDuration |
 
         ### ✅ All Tests Completed
 
