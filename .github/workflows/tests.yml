@@ -107,6 +107,22 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
+    - name: Install PSScriptAnalyzer
+      shell: pwsh
+      run: |
+        $module = Get-Module -ListAvailable PSScriptAnalyzer | Sort-Object Version -Descending | Select-Object -First 1
+        if ($module) {
+          Write-Host "Using PSScriptAnalyzer $($module.Version)."
+          return
+        }
+
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+        Install-Module PSScriptAnalyzer -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense
+
+    - name: Summary - PowerShell analyzer
+      shell: pwsh
+      run: .\scripts\psscriptanalyzer-summary.ps1 -Path . -SummaryPath $env:GITHUB_STEP_SUMMARY
+
     - name: Initialize vendors
       shell: pwsh
       working-directory: scripts
