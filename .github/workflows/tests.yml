@@ -240,6 +240,7 @@ jobs:
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Initialize vendors
+      id: init-vendors
       shell: pwsh
       working-directory: scripts
       run: .\build.ps1 -verbose
@@ -283,33 +284,42 @@ jobs:
 
     - name: Testing Clink Shell
       id: test-clink
+      if: ${{ always() && steps.init-vendors.outcome == 'success' }}
       shell: pwsh
       run: |
           $startTime = Get-Date
           cmd /c vendor\init.bat /v /d /t
+          $exitCode = $LASTEXITCODE
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
+          exit $exitCode
 
     - name: Testing PowerShell
       id: test-powershell
+      if: ${{ always() && steps.init-vendors.outcome == 'success' }}
       shell: pwsh
       run: |
           $startTime = Get-Date
           PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "$env:CMDER_DEBUG='1'; . 'vendor\profile.ps1'"
+          $exitCode = $LASTEXITCODE
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
+          exit $exitCode
 
     - name: Testing Bash
       id: test-bash
+      if: ${{ always() && steps.init-vendors.outcome == 'success' }}
       shell: pwsh
       run: |
           $startTime = Get-Date
           bash vendor/cmder.sh
+          $exitCode = $LASTEXITCODE
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
+          exit $exitCode
 
-    - name: Summary - All tests completed
-      if: success()
+    - name: Summary - Test results
+      if: always()
       shell: pwsh
       run: |
         function Format-Duration {
@@ -325,6 +335,27 @@ jobs:
           return "N/A"
         }
 
+        function Format-Status {
+          param(
+            [AllowEmptyString()]
+            [string]$Outcome
+          )
+
+          switch ($Outcome) {
+            "success" { return "✅ Passed" }
+            "failure" { return "❌ Failed" }
+            "cancelled" { return "⚠️ Cancelled" }
+            "skipped" { return "⏭️ Skipped" }
+            default { return "N/A" }
+          }
+        }
+
+        $initStatus = Format-Status "${{ steps.init-vendors.outcome }}"
+        $clinkStatus = Format-Status "${{ steps.test-clink.outcome }}"
+        $powershellStatus = Format-Status "${{ steps.test-powershell.outcome }}"
+        $bashStatus = Format-Status "${{ steps.test-bash.outcome }}"
+
+        $initDuration = "N/A"
         $clinkDuration = Format-Duration "${{ steps.test-clink.outputs.duration }}"
         $powershellDuration = Format-Duration "${{ steps.test-powershell.outputs.duration }}"
         $bashDuration = Format-Duration "${{ steps.test-bash.outputs.duration }}"
@@ -335,18 +366,19 @@ jobs:
 
         | Test | Status | Duration |
         | --- | --- | --- |
-        | Clink Shell | ✅ Passed | $clinkDuration |
-        | PowerShell | ✅ Passed | $powershellDuration |
-        | Bash | ✅ Passed | $bashDuration |
+        | Vendor Initialization | $initStatus | $initDuration |
+        | Clink Shell | $clinkStatus | $clinkDuration |
+        | PowerShell | $powershellStatus | $powershellDuration |
+        | Bash | $bashStatus | $bashDuration |
 
-        ### ✅ All Tests Completed
+        ### Test Run Complete
 
-        All shell environments tested successfully!
+        Review the status table above for any failed, cancelled, or skipped test steps.
 
         **Test Coverage:**
-        - ✅ Clink shell environment (Windows cmd.exe with Clink)
-        - ✅ PowerShell environment (with Cmder profile)
-        - ✅ Bash environment (Git Bash integration)
+        - Clink shell environment (Windows cmd.exe with Clink)
+        - PowerShell environment (with Cmder profile)
+        - Bash environment (Git Bash integration)
         "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
