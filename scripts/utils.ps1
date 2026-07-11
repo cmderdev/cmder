@@ -21,6 +21,45 @@ function Ensure-Executable($command) {
     }
 }
 
+function Write-ColorOutput {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        'PSAvoidUsingWriteHost',
+        '',
+        Justification = 'This helper intentionally writes user-facing host UI when scripts need colored console status messages.'
+    )]
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [AllowEmptyString()]
+        [string]$Message,
+
+        [System.ConsoleColor]$ForegroundColor,
+
+        [System.ConsoleColor]$BackgroundColor,
+
+        [switch]$NoNewline
+    )
+
+    process {
+        $parameters = @{
+            Object = $Message
+        }
+
+        if ($PSBoundParameters.ContainsKey('ForegroundColor')) {
+            $parameters.ForegroundColor = $ForegroundColor
+        }
+
+        if ($PSBoundParameters.ContainsKey('BackgroundColor')) {
+            $parameters.BackgroundColor = $BackgroundColor
+        }
+
+        if ($NoNewline) {
+            $parameters.NoNewline = $true
+        }
+
+        Microsoft.PowerShell.Utility\Write-Host @parameters
+    }
+}
+
 function Delete-Existing($path) {
     if (Test-Path $path) {
         Write-Verbose "Remove existing $path"

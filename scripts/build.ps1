@@ -234,4 +234,4 @@ if ( $Env:GITHUB_ACTIONS -eq 'true' ) {
     Write-Output "::notice title=Build Complete::Building Cmder v$version was successful."
 }
 
-Write-Output "All good and done!"
+Write-ColorOutput -ForegroundColor Green -Message "All good and done!"

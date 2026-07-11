@@ -333,7 +333,7 @@ foreach ($s in $sources) {
 $sources | ConvertTo-Json | Set-Content $sourcesPath
 
 if ($count -eq 0) {
-    Write-Output "No new releases were found."
+    Write-ColorOutput -ForegroundColor Yellow -Message "No new releases were found."
     return
 }
 
@@ -349,4 +349,4 @@ if ($Env:APPVEYOR -eq 'True') {
     Add-AppveyorMessage -Message "Successfully updated $count dependencies." -Category Information
 }
 
-Write-Output "Successfully updated $count dependencies."
+Write-ColorOutput -ForegroundColor Green -Message "Successfully updated $count dependencies."
