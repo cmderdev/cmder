@@ -165,27 +165,27 @@ jobs:
       working-directory: scripts
       run: .\pack.ps1 -Terminal all -Verbose
 
-    - name: Upload artifact (cmder_slim.7z)
-      id: upload_cmder_slim_7z
+    - name: Upload artifact (cmder_launcher.7z)
+      id: upload_cmder_launcher_7z
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_slim/cmder_slim.7z
+        path: build/cmder_launcher/cmder_launcher.7z
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder_slim.zip)
-      id: upload_cmder_slim_zip
+    - name: Upload artifact (cmder_launcher.zip)
+      id: upload_cmder_launcher_zip
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_slim/cmder_slim.zip
+        path: build/cmder_launcher/cmder_launcher.zip
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder_slim_mini.zip)
-      id: upload_cmder_slim_mini_zip
+    - name: Upload artifact (cmder_launcher_mini.zip)
+      id: upload_cmder_launcher_mini_zip
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_slim/cmder_slim_mini.zip
+        path: build/cmder_launcher/cmder_launcher_mini.zip
         if-no-files-found: error
         archive: false
 
@@ -250,9 +250,9 @@ jobs:
       shell: pwsh
       env:
         GH_TOKEN: ${{ github.token }}
-        ARTIFACT_URL_CMDER_SLIM_7Z: ${{ steps.upload_cmder_slim_7z.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_SLIM_ZIP: ${{ steps.upload_cmder_slim_zip.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_SLIM_MINI_ZIP: ${{ steps.upload_cmder_slim_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_LAUNCHER_7Z: ${{ steps.upload_cmder_launcher_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_LAUNCHER_ZIP: ${{ steps.upload_cmder_launcher_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_LAUNCHER_MINI_ZIP: ${{ steps.upload_cmder_launcher_mini_zip.outputs.artifact-url }}
         ARTIFACT_URL_CMDER_7Z: ${{ steps.upload_cmder_7z.outputs.artifact-url }}
         ARTIFACT_URL_CMDER_ZIP: ${{ steps.upload_cmder_zip.outputs.artifact-url }}
         ARTIFACT_URL_CMDER_MINI_ZIP: ${{ steps.upload_cmder_mini_zip.outputs.artifact-url }}
