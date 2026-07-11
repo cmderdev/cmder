@@ -39,23 +39,24 @@ Param(
     [switch]$IncludePrerelease = $false
 )
 
-# Get the root directory of the cmder project.
-$cmder_root = Resolve-Path "$PSScriptRoot\.."
-
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
 $ErrorActionPreference = "Stop"
 
 # Attempts to match the current link with the new link, returning the count of matching characters.
-function Match-Filenames {
+function Compare-Filename {
     param (
-        $url,
-        $downloadUrl,
-        $fromEnd
+        [Parameter(Mandatory = $true)]
+        [uri]$Url,
+
+        [Parameter(Mandatory = $true)]
+        [string]$DownloadUrl,
+
+        [bool]$FromEnd = $false
     )
 
-    $filename = [System.IO.Path]::GetFileName($url)
-    $filenameDownload = [System.IO.Path]::GetFileName($downloadUrl)
+    $filename = [System.IO.Path]::GetFileName($Url)
+    $filenameDownload = [System.IO.Path]::GetFileName($DownloadUrl)
 
     $position = 0
 
@@ -63,7 +64,7 @@ function Match-Filenames {
         throw "Either one or both filenames are empty!"
     }
 
-    if ($fromEnd) {
+    if ($FromEnd) {
         $arr = $filename -split ""
         [array]::Reverse($arr)
         $filename = $arr -join ''
@@ -229,14 +230,14 @@ function Fetch-DownloadUrl {
         return ''
     }
 
-    $temp = $downloadLinks | Where-Object { (Match-Filenames $url $_) -eq $charCount }
+    $temp = $downloadLinks | Where-Object { (Compare-Filename -Url $url -DownloadUrl $_) -eq $charCount }
 
     $downloadLinks = (New-Object System.Collections.Generic.List[System.Object])
 
     $charCount = 0
 
     foreach ($l in $temp) {
-        $score = Match-Filenames $url $l true
+        $score = Compare-Filename -Url $url -DownloadUrl $l -FromEnd $true
 
         if ( ($score -eq 0) -or ($score -lt $charCount) ) {
             continue
@@ -245,7 +246,7 @@ function Fetch-DownloadUrl {
         $charCount = $score
     }
 
-    $downloadLinks = $temp | Where-Object { (Match-Filenames $url $_ true) -eq $charCount }
+    $downloadLinks = $temp | Where-Object { (Compare-Filename -Url $url -DownloadUrl $_ -FromEnd $true) -eq $charCount }
 
     if (($null -eq $downloadLinks) -or (-not $downloadLinks)) {
         throw "No suitable download links matched for the url!"
@@ -307,7 +308,7 @@ foreach ($s in $sources) {
         # Analyze version change type using shared function
         $result = Get-VersionChangeType -OldVersion $s.version -NewVersion $version
         $changeType = $result.ChangeType
-        
+
         # Determine if this is a breaking change
         if ($changeType -eq "downgrade" -or $changeType -eq "major") {
             $hasBreakingChanges = $true
@@ -332,7 +333,7 @@ foreach ($s in $sources) {
 $sources | ConvertTo-Json | Set-Content $sourcesPath
 
 if ($count -eq 0) {
-    Write-Host -ForegroundColor yellow "No new releases were found."
+    Write-Output "No new releases were found."
     return
 }
 
@@ -348,4 +349,4 @@ if ($Env:APPVEYOR -eq 'True') {
     Add-AppveyorMessage -Message "Successfully updated $count dependencies." -Category Information
 }
 
-Write-Host -ForegroundColor green "Successfully updated $count dependencies."
+Write-Output "Successfully updated $count dependencies."

@@ -100,7 +100,7 @@ echo                    use a pair of double quotation marks to
 echo                    wrap your command to avoid exceed expectation.
 echo.
 echo   parameters       These are the parameters passed to the command/program.
-echo                    It's recommended to use a pair of double quotation marks 
+echo                    It's recommended to use a pair of double quotation marks
 echo                    to wrap your flag name to avoid exceed expectation.
 echo.
 echo Examples:

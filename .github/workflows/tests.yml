@@ -42,6 +42,10 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Check trailing whitespace
+      shell: pwsh
+      run: .\scripts\check-trailing-whitespace.ps1
+
     - name: Summary - Test execution started
       shell: pwsh
       run: |

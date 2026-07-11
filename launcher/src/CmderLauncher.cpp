@@ -312,7 +312,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		// Set path to Cmder user ConEmu config file
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
-	
+
 	if (wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // config/[host specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
@@ -641,7 +641,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	// Try to find m'intty.exe' so ConEmu can launch using %MINTTY_EXE% in external Git for Cmder Mini.
 	// See: https://github.com/Maximus5/ConEmu/issues/2559 for why this is commented.
 
-	/* 
+	/*
 	if (PathFileExists(vendoredGit))
 	{
 		PathCombine(minTTYPath, vendoredGit, L"usr\\bin\\mintty.exe");
