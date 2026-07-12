@@ -1,7 +1,7 @@
+﻿# Keep this file as UTF-8 with BOM so Windows PowerShell 5.1 can parse literal emoji strings.
 function Ensure-Exists($path) {
     if (-not (Test-Path $path)) {
-        Write-Error "Missing required $path! Ensure it is installed"
-        exit 1
+        throw "Missing required $path! Ensure it is installed"
     }
     return $true > $null
 }
@@ -16,8 +16,7 @@ function Ensure-Executable($command) {
             Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
         else {
-            Write-Error "Missing $command! Ensure it is installed and on in the PATH"
-            exit 1
+            throw "Missing $command! Ensure it is installed and on in the PATH"
         }
     }
 }
@@ -479,7 +478,31 @@ function Get-CmderVendorNames {
         throw "Missing vendor sources file: $sourcesPath"
     }
 
-    return @(Get-Content -Raw $sourcesPath | ConvertFrom-Json | Select-Object -ExpandProperty name)
+    $sourceData = Get-Content -Raw $sourcesPath | ConvertFrom-Json
+    $sourceEntries = @($sourceData)
+
+    # Allow either a top-level array or an object wrapper with a "sources" property.
+    if (
+        $sourceEntries.Count -eq 1 -and
+        $sourceEntries[0] -and
+        $sourceEntries[0].PSObject.Properties.Name -contains "sources"
+    ) {
+        $sourceEntries = @($sourceEntries[0].sources)
+    }
+
+    $vendorNames = @(
+        $sourceEntries | ForEach-Object {
+            if ($_ -and $_.PSObject.Properties.Name -contains "name") {
+                $_.name
+            }
+        }
+    )
+
+    if (-not $vendorNames) {
+        throw "No vendor names could be read from $sourcesPath"
+    }
+
+    return $vendorNames
 }
 
 function Get-CmderPackageProfiles {

@@ -38,7 +38,7 @@ jobs:
     continue-on-error: false
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -49,19 +49,56 @@ jobs:
         . scripts/utils.ps1
         $cmderVersion = Get-VersionStr
 
+        $refName = "${{ github.ref_name }}"
+        $headRef = "${{ github.head_ref }}"
+        $eventName = "${{ github.event_name }}"
+        $prNumber = $null
+        $actualBranchName = $refName
+        $branchLink = "https://github.com/${{ github.repository }}/tree/$refName"
+        $prLink = ""
+        $workflowLink = "https://github.com/${{ github.repository }}/blob/${{ github.sha }}/.github/workflows/tests.yml"
+        $runLink = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+        if ($refName -match '^(\d+)/(merge|head)$') {
+          $prNumber = $Matches[1]
+          # Use head_ref for the actual branch name if available
+          if ($headRef) {
+            $actualBranchName = $headRef
+          }
+          $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
+          $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        } elseif ($eventName -eq "pull_request") {
+          # This is a pull request event
+          $prNumber = "${{ github.event.pull_request.number }}"
+          if ($headRef) {
+            $actualBranchName = $headRef
+          }
+          $branchLink = "https://github.com/${{ github.repository }}/tree/$actualBranchName"
+          $prLink = "https://github.com/${{ github.repository }}/pull/$prNumber"
+        }
+
         $summary = @"
         ## ✅ Run Tests - Workflow Summary
 
         ### Test Environment
         | Property | Value |
         | --- | --- |
-        | Repository | ``${{ github.repository }}`` |
-        | Branch | ``${{ github.ref_name }}`` |
-        | Commit | ``${{ github.sha }}`` |
+        | Repository | [``${{ github.repository }}``](https://github.com/${{ github.repository }}) |
+        | Source Branch | [``$actualBranchName``]($branchLink) |
+        "@
+
+        if ($prNumber) {
+          $summary += "| Pull Request | [#$prNumber]($prLink) |`n"
+        }
+
+        $summary += @"
+        | Commit | [``${{ github.sha }}``](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |
+        | Workflow | [``${{ github.workflow }}``]($workflowLink) |
+        | Run | [``${{ github.run_id }}``]($runLink) |
         | Runner OS | ``${{ runner.os }}`` |
         | Cmder Version | **$cmderVersion** |
         | PowerShell Version | **$($PSVersionTable.PSVersion)** |
-        | Event | ``${{ github.event_name }}`` |
+        | Event | ``$eventName`` |
         "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
@@ -121,12 +158,147 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
+    - name: Testing Command Script Extensions
+      id: test-command-script-extensions
+      shell: pwsh
+      run: |
+          $startTime = Get-Date
+          $allowedBatFiles = @(
+            "Cmder.bat"
+          )
+          $trackedBatFiles = @(git ls-files "*.bat")
+          $unexpectedBatFiles = @($trackedBatFiles | Where-Object { $allowedBatFiles -notcontains $_ })
+
+          if ($unexpectedBatFiles.Count -gt 0) {
+            $message = @(
+              "Unexpected tracked .bat files were found.",
+              "Use .cmd for command scripts unless the file is explicitly allowed.",
+              "",
+              ($unexpectedBatFiles | ForEach-Object { "- $_" }) -join "`n"
+            ) -join "`n"
+            throw $message
+          }
+
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
+
+    - name: Summary - Command script extension test
+      if: success()
+      shell: pwsh
+      run: |
+        $duration = "${{ steps.test-command-script-extensions.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| Command Script Extensions | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+    - name: Testing Legacy init.bat Migration
+      id: test-legacy-init-migration
+      shell: pwsh
+      run: |
+          $startTime = Get-Date
+          $repoRoot = $PWD.Path
+          $legacyInit = Join-Path $PWD "vendor\init.bat"
+          $createdBackup = $null
+          $shimRoot = Join-Path $env:RUNNER_TEMP "cmder-init-shim"
+          $tempRoot = Join-Path $env:RUNNER_TEMP "cmder-init-migration"
+
+          if (Test-Path $legacyInit) {
+            throw "Cannot test migration because '$legacyInit' already exists before the simulation."
+          }
+
+          $existingBackups = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+
+          try {
+            Remove-Item -Path $shimRoot -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Path $shimRoot | Out-Null
+            New-Item -ItemType Directory -Path $tempRoot | Out-Null
+            Set-Content -Path $legacyInit -Value "@echo off`r`necho legacy init placeholder" -Encoding ASCII
+
+            $output = cmd /d /c "set `"CMDER_ROOT=$repoRoot`"&& set `"cmder_root=$repoRoot`"&& set CMDER_USER_CONFIG=&& set CMDER_CONFIGURED=&& call vendor\init.cmd /f /c `"$tempRoot`"" 2>&1
+            $outputText = $output -join "`n"
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "init.cmd exited with code $LASTEXITCODE during legacy migration test.`n$outputText"
+            }
+
+            if (-not (Test-Path $legacyInit)) {
+              throw "Legacy init.bat shim was not created after migration."
+            }
+
+            $newBackups = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File | Where-Object { $existingBackups -notcontains $_.FullName })
+            if ($newBackups.Count -ne 1) {
+              throw "Expected exactly one new init.bat backup, found $($newBackups.Count)."
+            }
+
+            $createdBackup = $newBackups[0].FullName
+            $backupContent = Get-Content -Path $createdBackup -Raw
+            if ($backupContent -notmatch "legacy init placeholder") {
+              throw "The init.bat backup did not contain the expected legacy script content."
+            }
+
+            $shimContent = Get-Content -Path $legacyInit -Raw
+            if ($shimContent -notmatch "Please update your Cmder task or shell configuration" -or $shimContent -notmatch "call .*init\.cmd") {
+              throw "The generated init.bat shim did not contain the expected notice and init.cmd call."
+            }
+
+            if ($outputText -notmatch "init\.cmd" -or $outputText -notmatch "Backing up legacy") {
+              throw "Migration output did not explain that init.bat was backed up and init.cmd should be used."
+            }
+
+            $shimOutput = cmd /d /c "set `"CMDER_ROOT=$repoRoot`"&& set `"cmder_root=$repoRoot`"&& set CMDER_USER_CONFIG=&& set CMDER_CONFIGURED=&& call vendor\init.bat /f /c `"$shimRoot`"" 2>&1
+            $shimOutputText = $shimOutput -join "`n"
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Generated init.bat shim exited with code $LASTEXITCODE.`n$shimOutputText"
+            }
+
+            if ($shimOutputText -notmatch "Please update your Cmder task or shell configuration" -or $shimOutputText -notmatch "init\.cmd") {
+              throw "Generated init.bat shim did not display the expected migration notice."
+            }
+
+            if (-not (Test-Path (Join-Path $shimRoot "config\user_init.cmd"))) {
+              throw "Generated init.bat shim did not load init.cmd and create user_init.cmd."
+            }
+
+            $backupsAfterShim = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File | Where-Object { $existingBackups -notcontains $_.FullName })
+            if ($backupsAfterShim.Count -ne 1 -or $backupsAfterShim[0].FullName -ne $createdBackup) {
+              throw "Calling the generated init.bat shim created additional backup files."
+            }
+          } finally {
+            Remove-Item -Path $legacyInit -Force -ErrorAction SilentlyContinue
+            $newBackupsToRemove = @(Get-ChildItem -Path (Join-Path $PWD "vendor") -Filter "init.bat.old*" -File -ErrorAction SilentlyContinue | Where-Object { $existingBackups -notcontains $_.FullName })
+            foreach ($backup in $newBackupsToRemove) {
+              Remove-Item -Path $backup.FullName -Force -ErrorAction SilentlyContinue
+            }
+            Remove-Item -Path $shimRoot -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
+
+    - name: Summary - Legacy init.bat migration test
+      if: success()
+      shell: pwsh
+      run: |
+        $duration = "${{ steps.test-legacy-init-migration.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| Legacy init.bat Migration | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
     - name: Testing Clink Shell
       id: test-clink
       shell: pwsh
       run: |
           $startTime = Get-Date
-          cmd /c vendor\init.bat /v /d /t
+          cmd /c vendor\init.cmd /v /d /t
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
 

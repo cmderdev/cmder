@@ -21,7 +21,7 @@
 
     Skip all downloads and only build launcher.
 .EXAMPLE
-    .\build -Verbose
+    .\build.ps1 -Verbose
 
     Execute the build and see what's going on.
 .EXAMPLE
@@ -33,7 +33,7 @@
     Samuel Vasko, Jack Bennett
     Part of the Cmder project.
 .LINK
-    http://cmder.app/ - Project Home
+    https://github.com/cmderdev/cmder - Project Home
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 Param(
@@ -42,16 +42,16 @@ Param(
     # -whatif switch to not actually make changes
 
     # Path to the vendor configuration source file
-    [string]$sourcesPath = "$PSScriptRoot\..\vendor\sources.json",
+    [string]$sourcesPath,
 
     # Vendor folder location
-    [string]$saveTo = "$PSScriptRoot\..\vendor\",
+    [string]$saveTo,
 
     # Launcher folder location
-    [string]$launcher = "$PSScriptRoot\..\launcher",
+    [string]$launcher,
 
     # Config folder location
-    [string]$config = "$PSScriptRoot\..\config",
+    [string]$config,
 
     # Using this option will skip all downloads, if you only need to build launcher
     [switch]$noVendor,
@@ -66,8 +66,28 @@ Param(
     [switch]$InstallPacman
 )
 
-# Get the scripts and cmder root dirs we are building in.
-$cmder_root = Resolve-Path "$PSScriptRoot\.."
+# Get the scripts and Cmder root dirs we are building in.
+$cmder_root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+
+if ([string]::IsNullOrWhiteSpace($sourcesPath)) {
+    $sourcesPath = Join-Path $cmder_root 'vendor\sources.json'
+}
+
+if ([string]::IsNullOrWhiteSpace($saveTo)) {
+    $saveTo = Join-Path $cmder_root 'vendor'
+}
+
+if ([string]::IsNullOrWhiteSpace($launcher)) {
+    $launcher = Join-Path $cmder_root 'launcher'
+}
+
+if ([string]::IsNullOrWhiteSpace($config)) {
+    $config = Join-Path $cmder_root 'config'
+}
+
+if (-not $saveTo.EndsWith([System.IO.Path]::DirectorySeparatorChar) -and -not $saveTo.EndsWith([System.IO.Path]::AltDirectorySeparatorChar)) {
+    $saveTo += [System.IO.Path]::DirectorySeparatorChar
+}
 
 # Dot source util functions into this scope
 . "$PSScriptRoot\utils.ps1"
@@ -132,10 +152,9 @@ if (-not $noVendor) {
     }
     else { $WinTermSettingsJson = "" }
 
-    # Kill ssh-agent.exe if it is running from the $env:cmder_root we are building
-    $cmder_folder = $cmder_root.toString()
+    # Kill ssh-agent.exe if it is running from the Cmder root we are building
     foreach ($ssh_agent in $(Get-Process ssh-agent -ErrorAction SilentlyContinue)) {
-        if ([string]$($ssh_agent.path) -Match $cmder_folder.Replace('\', '\\')) {
+        if ([string]$($ssh_agent.path) -Match $cmder_root.Replace('\', '\\')) {
             Write-Verbose $("Stopping " + $ssh_agent.path + "!")
             Stop-Process $ssh_agent.id
         }

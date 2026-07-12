@@ -1,4 +1,4 @@
--- default script for clink, called by init.bat when injecting clink
+-- default script for clink, called by init.cmd when injecting clink
 
 -- !!! THIS FILE IS OVERWRITTEN WHEN CMDER IS UPDATED
 -- !!! Use "%CMDER_ROOT%\config\<whatever>.lua" to add your lua startup scripts

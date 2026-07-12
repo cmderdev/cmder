@@ -596,7 +596,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	// The `/run` arg and its value MUST be the last arg of ConEmu
 	// see : https://conemu.github.io/en/ConEmuArgs.html
 	// > This must be the last used switch (excepting -new_console and -cur_console)
-	PathCombine(initCmd, vendorDir, L"init.bat");
+	PathCombine(initCmd, vendorDir, L"init.cmd");
 	PathCombine(initPowerShell, vendorDir, L"profile.ps1");
 	PathCombine(initBash, vendorDir, L"start_git_bash.cmd");
 	PathCombine(initMintty, vendorDir, L"start_git_mintty.cmd");

@@ -260,7 +260,7 @@ function yOrn( $question ) {
 }
 
 function TemplateExpand($template_filename, $outfile) {
-    $template = Get-Content "$template_filename" -Raw
+    $template = Get-Content "$template_filename" -Raw -Encoding UTF8
 
     $expanded = Invoke-Expression "@`"`r`n$template`r`n`"@"
 
@@ -270,7 +270,8 @@ function TemplateExpand($template_filename, $outfile) {
     }
 
     if ($overwrite -match 'y') {
-        $expanded | out-file -ErrorAction silentlycontinue -encoding ascii "$outfile"
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText($outfile, $expanded, $utf8NoBom)
     } else {
         write-host "Skipping Cmder '$shell' config generation  at user request!"
     }
