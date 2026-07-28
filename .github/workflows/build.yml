@@ -42,6 +42,8 @@ jobs:
 
     - name: Summary - Repository checkout
       shell: pwsh
+      env:
+        HEAD_REF: ${{ github.head_ref }}
       run: |
         # Get Cmder version
         . scripts/utils.ps1
@@ -50,7 +52,7 @@ jobs:
 
         # Determine branch and PR information
         $refName = "${{ github.ref_name }}"
-        $headRef = "${{ github.head_ref }}"
+        $headRef = $env:HEAD_REF
         $eventName = "${{ github.event_name }}"
         $prNumber = $null
         $actualBranchName = $refName
