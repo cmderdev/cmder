@@ -1,9 +1,9 @@
 ## Config
 
-All config files must be in this folder. If there is no option to set this folder 
+All config files must be in this folder. If there is no option to set this folder
 directly, it has to be hardlinked.
 
-* `user_aliases.cmd`: aliases in cmd; called from vendor\init.bat; autocreated from
+* `user_aliases.cmd`: aliases in cmd; called from vendor\init.cmd; autocreated from
   `vendor\user_aliases.cmd.default`.
 * `*.lua`: clink completions and prompt filters; autoloaded after all
   prompt filter and clink completions are initialized; add your own.

@@ -23,5 +23,6 @@ appveyor.yml
 vendor\cmder.sh
 vendor\git-prompt.sh
 config\user-*
+config\user_*
 clink_history*
 *.log

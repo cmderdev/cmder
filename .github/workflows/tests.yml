@@ -114,7 +114,7 @@ jobs:
     - name: Initialize vendors
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -verbose
+      run: .\build.ps1 -Verbose
 
     - name: Summary - Vendor initialization
       if: success()
@@ -166,12 +166,104 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
+    - name: Testing Command Script Extensions
+      id: test-command-script-extensions
+      shell: pwsh
+      run: |
+          $startTime = Get-Date
+          $allowedBatFiles = @(
+            "Cmder.bat",
+            "vendor/init.bat"
+          )
+          $trackedBatFiles = @(git ls-files "*.bat")
+          $unexpectedBatFiles = @($trackedBatFiles | Where-Object { $allowedBatFiles -notcontains $_ })
+
+          if ($unexpectedBatFiles.Count -gt 0) {
+            $message = @(
+              "Unexpected tracked .bat files were found.",
+              "Use .cmd for command scripts unless the file is explicitly allowed.",
+              "",
+              ($unexpectedBatFiles | ForEach-Object { "- $_" }) -join "`n"
+            ) -join "`n"
+            throw $message
+          }
+
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
+
+    - name: Summary - Command script extension test
+      if: success()
+      shell: pwsh
+      run: |
+        $duration = "${{ steps.test-command-script-extensions.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| Command Script Extensions | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+    - name: Testing init.bat Compatibility Shim
+      id: test-init-bat-compatibility-shim
+      shell: pwsh
+      run: |
+          $startTime = Get-Date
+          $repoRoot = $PWD.Path
+          $initShim = Join-Path $PWD "vendor\init.bat"
+          $shimRoot = Join-Path $env:RUNNER_TEMP "cmder-init-shim"
+
+          if (-not (Test-Path $initShim)) {
+            throw "Expected tracked init.bat compatibility shim at '$initShim'."
+          }
+
+          try {
+            Remove-Item -Path $shimRoot -Recurse -Force -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Path $shimRoot | Out-Null
+
+            $shimContent = Get-Content -Path $initShim -Raw
+            if ($shimContent -notmatch "Please update your Cmder task or shell configuration" -or $shimContent -notmatch "call .*init\.cmd") {
+              throw "The tracked init.bat shim did not contain the expected notice and init.cmd call."
+            }
+
+            $shimOutput = cmd /d /c "set `"CMDER_ROOT=$repoRoot`"&& set `"cmder_root=$repoRoot`"&& set CMDER_USER_CONFIG=&& set CMDER_CONFIGURED=&& call vendor\init.bat /f /c `"$shimRoot`"" 2>&1
+            $shimOutputText = $shimOutput -join "`n"
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Generated init.bat shim exited with code $LASTEXITCODE.`n$shimOutputText"
+            }
+
+            if ($shimOutputText -notmatch "Please update your Cmder task or shell configuration" -or $shimOutputText -notmatch "init\.cmd") {
+              throw "Generated init.bat shim did not display the expected migration notice."
+            }
+
+            if (-not (Test-Path (Join-Path $shimRoot "config\user_init.cmd"))) {
+              throw "Tracked init.bat shim did not load init.cmd and create user_init.cmd."
+            }
+          } finally {
+            Remove-Item -Path $shimRoot -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+          $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
+          echo "duration=$duration" >> $env:GITHUB_OUTPUT
+
+    - name: Summary - init.bat compatibility shim test
+      if: success()
+      shell: pwsh
+      run: |
+        $duration = "${{ steps.test-init-bat-compatibility-shim.outputs.duration }}"
+        if ($duration) {
+          $duration = "$duration s"
+        } else {
+          $duration = "N/A"
+        }
+        "| init.bat Compatibility Shim | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
     - name: Testing Clink Shell
       id: test-clink
       shell: pwsh
       run: |
           $startTime = Get-Date
-          cmd /c vendor\init.bat /v /d /t
+          cmd /c vendor\init.cmd /v /d /t
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
 
