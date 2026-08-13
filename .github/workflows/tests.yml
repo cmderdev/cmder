@@ -46,6 +46,10 @@ jobs:
       shell: pwsh
       run: .\scripts\check-trailing-whitespace.ps1
 
+    - name: Test vendor update helper
+      shell: pwsh
+      run: .\scripts\test-update.ps1
+
     - name: Summary - Test execution started
       shell: pwsh
       run: |

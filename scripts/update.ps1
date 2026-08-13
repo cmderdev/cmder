@@ -181,7 +181,7 @@ function Fetch-DownloadUrl {
                 continue
             }
 
-            $score = Match-Filenames $url $a.browser_download_url
+            $score = Compare-Filename -Url $url -DownloadUrl $a.browser_download_url
 
             # Skip links that don't match or are less similar
             if ( ($score -eq 0) -or ($score -lt $charCount) ) {
