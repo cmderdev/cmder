@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copy this file to your non integrated *nix-like environment,
 # Cygwin/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
 # folder to integrate the externally installed Unix like environment
@@ -22,92 +23,130 @@
 # # from outside Cmder.
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 
-function runProfiled {
-  unset profile_d_scripts
-  pushd "${1}" >/dev/null
+# Source all .sh or .zsh scripts in a given directory based on shell type
+# Args: $1 - directory path containing shell scripts to source
+run_profile_d() {
+  local profile_d_scripts
+  pushd "${1}" >/dev/null || return
 
-  if [ ! "x${ZSH_VERSION}" = "x"  ]; then
+  if [ -n "${ZSH_VERSION}" ]; then
+    # shellcheck disable=SC2035
     profile_d_scripts=$(ls *.zsh 2>/dev/null)
-  elif [ ! "x${BASH_VERSION}" = "x"  ]; then
+  elif [ -n "${BASH_VERSION}" ]; then
+    # shellcheck disable=SC2035
     profile_d_scripts=$(ls *.sh 2>/dev/null)
   fi
 
-  if [ ! "x${profile_d_scripts}" = "x" ] ; then
-    for x in ${profile_d_scripts} ; do
-      echo Sourcing "${1}/${x}"...
-      . "${1}/${x}"
+  if [ -n "${profile_d_scripts}" ]; then
+    for script in ${profile_d_scripts}; do
+      echo "Sourcing ${1}/${script}..."
+      # shellcheck disable=SC1090
+      . "${1}/${script}"
     done
   fi
-  popd >/dev/null
+  popd >/dev/null || return
 }
 
-# Check that we haven't already been sourced.
+# Check that we haven't already been sourced
 [[ -z ${CMDER_EXINIT} ]] && CMDER_EXINIT="1" || return
 
-# We do this for bash as admin sessions since $CMDER_ROOT is not being set
-if [ "$CMDER_ROOT" = "" -a "$ConEmuDir" != "" ] ; then
-  if [ -d "${ConEmuDir}../../vendor" ] ; then
-    case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
+# Detect and set CMDER_ROOT for bash admin sessions
+# Converts Windows paths to Unix paths if needed
+# ConEmuDir is set by ConEmu/Cmder environment
+if [ -z "$CMDER_ROOT" ] && [ -n "$ConEmuDir" ]; then
+  if [ -d "${ConEmuDir}../../vendor" ]; then
+    case "$ConEmuDir" in 
+      *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." && pwd );;
+    esac
   else
     echo "Running in ConEmu without Cmder, skipping Cmder integration."
   fi
-elif [ "$CMDER_ROOT" != "" ] ; then
-  case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
+elif [ -n "$CMDER_ROOT" ]; then
+  case "$CMDER_ROOT" in 
+    *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";;
+  esac
 fi
 
-if [ ! "$CMDER_ROOT" = "" ] ; then
-  # Remove any trailing '/'
-  CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
+# If CMDER_ROOT is still not set, try to derive from script location
+# Note: This only works if cmder_exinit is in its original location (vendor/)
+if [ -z "$CMDER_ROOT" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+  # Check if we're in the vendor directory
+  script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  if [[ "$script_dir" == */vendor ]] || [[ "$script_dir" == */vendor/* ]]; then
+    # Extract the Cmder root (parent of vendor)
+    CMDER_ROOT="$( cd "$script_dir/.." && pwd )"
+    # Verify this looks like a Cmder installation
+    if [ ! -d "${CMDER_ROOT}/vendor" ]; then
+      unset CMDER_ROOT
+    fi
+  fi
+fi
 
-  echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"."
+if [ -n "$CMDER_ROOT" ]; then
+  # Remove any trailing '/' from CMDER_ROOT
+  CMDER_ROOT="${CMDER_ROOT%/}"
+
+  echo "Using CMDER_ROOT at \"${CMDER_ROOT}\"."
 
   export CMDER_ROOT
 
-  PATH=${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}
+  # Add Cmder directories to PATH
+  PATH="${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}"
 
   export PATH
 
-  # Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
-  # to source them at startup.
-  if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
+  # Create profile.d directory if it doesn't exist
+  if [ ! -d "${CMDER_ROOT}/config/profile.d" ]; then
     mkdir -p "${CMDER_ROOT}/config/profile.d"
   fi
 
-  if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
-    runProfiled  "${CMDER_ROOT}/config/profile.d"
+  # Source all shell scripts in profile.d directories
+  if [ -d "${CMDER_ROOT}/config/profile.d" ]; then
+    run_profile_d "${CMDER_ROOT}/config/profile.d"
   fi
 
-  if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
-    runProfiled  "${CMDER_USER_CONFIG}/profile.d"
+  if [ -d "${CMDER_USER_CONFIG}/profile.d" ]; then
+    run_profile_d "${CMDER_USER_CONFIG}/profile.d"
   fi
 
 
-  # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
-  if [ -f "$CMDER_ROOT/config/user-profile.sh" ] ; then
+  # Rename legacy user-profile.sh to user_profile.sh for consistency
+  if [ -f "$CMDER_ROOT/config/user-profile.sh" ]; then
     mv "$CMDER_ROOT/config/user-profile.sh" "$CMDER_ROOT/config/user_profile.sh"
   fi
 
-  CmderUserProfilePath="${CMDER_ROOT}/config/user_profile.sh"
-  if [ -f "${CMDER_ROOT}/config/user_profile.sh" ] ; then
+  # Source user profile from CMDER_ROOT config
+  if [ -f "${CMDER_ROOT}/config/user_profile.sh" ]; then
+      # shellcheck disable=SC1091
       . "${CMDER_ROOT}/config/user_profile.sh"
   fi
 
-  if [ "${CMDER_USER_CONFIG}" != "" ] ; then
-    # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
-    if [ -f "$CMDER_USER_CONFIG/user-profile.sh" ] ; then
+  # Handle CMDER_USER_CONFIG if set
+  if [ -n "${CMDER_USER_CONFIG}" ]; then
+    # Rename legacy user-profile.sh to user_profile.sh for consistency
+    if [ -f "$CMDER_USER_CONFIG/user-profile.sh" ]; then
       mv "$CMDER_USER_CONFIG/user-profile.sh" "$CMDER_USER_CONFIG/user_profile.sh"
     fi
 
-    export PATH=${CMDER_USER_CONFIG}/bin:$PATH
+    export PATH="${CMDER_USER_CONFIG}/bin:$PATH"
 
-    CmderUserProfilePath="${CMDER_USER_CONFIG}/user_profile.sh"
-    if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ] ; then
+    # Source user profile from CMDER_USER_CONFIG
+    if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ]; then
+      # shellcheck disable=SC1091
       . "${CMDER_USER_CONFIG}/user_profile.sh"
     fi
   fi
 
-  if [ ! -f "${CmderUserProfilePath}" ] ; then
-      echo Creating user startup file: "${CmderUserProfilePath}"
-      cp "${CMDER_ROOT}/vendor/user_profile.sh.default" "${CmderUserProfilePath}"
+  # Determine the user profile path for creation if needed
+  if [ -n "${CMDER_USER_CONFIG}" ]; then
+    cmder_user_profile_path="${CMDER_USER_CONFIG}/user_profile.sh"
+  else
+    cmder_user_profile_path="${CMDER_ROOT}/config/user_profile.sh"
+  fi
+
+  # Create user profile from default template if it doesn't exist
+  if [ ! -f "${cmder_user_profile_path}" ] && [ -f "${CMDER_ROOT}/vendor/user_profile.sh.default" ]; then
+      echo "Creating user startup file: ${cmder_user_profile_path}"
+      cp "${CMDER_ROOT}/vendor/user_profile.sh.default" "${cmder_user_profile_path}"
   fi
 fi
