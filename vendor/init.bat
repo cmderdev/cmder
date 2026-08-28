@@ -154,12 +154,14 @@ if not "%CMDER_SHELL%" == "cmd" (
 )
 
 :: Pick the right version of Clink
-:: TODO: Support for ARM
 if "%PROCESSOR_ARCHITECTURE%"=="x86" (
     set clink_architecture=x86
     set architecture_bits=32
 ) else if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     set clink_architecture=x64
+    set architecture_bits=64
+) else if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+    set clink_architecture=arm64
     set architecture_bits=64
 ) else (
     %print_warning% "Incompatible Processor Detected: %PROCESSOR_ARCHITECTURE%"
