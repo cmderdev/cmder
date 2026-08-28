@@ -4,7 +4,7 @@
 
 Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul, comes with a Monokai color scheme, amazing [clink](https://chrisant996.github.io/clink/) (further enhanced by [clink-completions](https://github.com/vladimir-kotikov/clink-completions)) and a custom prompt layout.
 
-![Cmder Screenshot](http://i.imgur.com/g1nNf0I.png)
+![Cmder — a portable Monokai console emulator for Windows. Bundled git, curl, clink readline; zero install; MIT; since 2013.](./images/hero.gif)
 
 ## Why use it
 
