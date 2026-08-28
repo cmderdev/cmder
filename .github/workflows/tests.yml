@@ -44,7 +44,29 @@ jobs:
 
     - name: Check trailing whitespace
       shell: pwsh
-      run: .\scripts\check-trailing-whitespace.ps1
+      run: |
+        Set-StrictMode -Version Latest
+        $ErrorActionPreference = "Stop"
+        $extensions = '.ps1','.psm1','.psd1','.cmd','.bat','.sh','.lua','.yml','.yaml','.json','.xml','.ini','.rc','.vcxproj','.filters','.props','.sln','.cpp','.c','.h','.hpp'
+        $files = git ls-files | Where-Object { $extensions -contains [System.IO.Path]::GetExtension($_).ToLowerInvariant() }
+        $findings = foreach ($file in $files) {
+          $lineNumber = 0
+          foreach ($line in Get-Content -LiteralPath $file) {
+            $lineNumber++
+            if ($line -match '[ \t]+$') {
+              [pscustomobject]@{
+                File = $file
+                Line = $lineNumber
+              }
+            }
+          }
+        }
+
+        if ($findings) {
+          Write-Error ("Trailing whitespace found:`n" + (($findings | ForEach-Object { "$($_.File):$($_.Line)" }) -join "`n"))
+        }
+
+        Write-Output "No trailing whitespace found in checked files."
 
     - name: Test vendor update helper
       shell: pwsh
@@ -111,7 +133,140 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
+    - name: Install PSScriptAnalyzer
+      shell: pwsh
+      run: |
+        $module = Get-Module -ListAvailable PSScriptAnalyzer | Sort-Object Version -Descending | Select-Object -First 1
+        if ($module) {
+          Write-Host "Using PSScriptAnalyzer $($module.Version)."
+          return
+        }
+
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+        Install-Module PSScriptAnalyzer -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense
+
+    - name: Summary - PowerShell analyzer
+      shell: pwsh
+      run: |
+        . scripts/utils.ps1
+        Import-Module PSScriptAnalyzer -ErrorAction Stop
+
+        $rootPath = (Resolve-Path -Path .).Path
+        $diagnostics = @(Invoke-ScriptAnalyzer -Path $rootPath -Recurse -Severity Error, Warning, Information)
+        $severityOrder = @{
+          Error = 0
+          Warning = 1
+          Information = 2
+        }
+
+        $diagnostics = @(
+          $diagnostics | Sort-Object `
+            @{ Expression = { $severityOrder[$_.Severity.ToString()] } }, `
+            @{ Expression = { $_.ScriptName } }, `
+            @{ Expression = { $_.Line } }, `
+            @{ Expression = { $_.Column } }, `
+            @{ Expression = { $_.RuleName } }
+        )
+
+        $summary = [System.Collections.Generic.List[string]]::new()
+        $summary.Add("### PowerShell ScriptAnalyzer")
+        $summary.Add("")
+
+        if ($diagnostics.Count -eq 0) {
+          $summary.Add("No PowerShell issues were reported by PSScriptAnalyzer.")
+          $summary.Add("")
+        } else {
+          $fileCount = @($diagnostics | Where-Object { $_.ScriptName } | Select-Object -ExpandProperty ScriptName -Unique).Count
+          $ruleCount = @($diagnostics | Select-Object -ExpandProperty RuleName -Unique).Count
+          $summary.Add("PSScriptAnalyzer reported **$($diagnostics.Count)** advisory findings across **$ruleCount** rule types and **$fileCount** PowerShell files.")
+          $summary.Add("")
+          $summary.Add("| Severity | Count |")
+          $summary.Add("| --- | ---: |")
+
+          foreach ($severity in @("Error", "Warning", "Information")) {
+            $count = @($diagnostics | Where-Object { $_.Severity.ToString() -eq $severity }).Count
+            $summary.Add("| $severity | $count |")
+          }
+
+          $summary.Add("")
+          $summary.Add("> These findings are grouped by rule type, then file. Rule groups are sorted by highest severity, finding count, and rule name. Findings are advisory; they do not fail the test job.")
+          $summary.Add("")
+
+          $ruleGroups = @(
+            $diagnostics |
+              Group-Object RuleName |
+              ForEach-Object {
+                $groupDiagnostics = @($_.Group)
+                $highestSeverityRank = ($groupDiagnostics | ForEach-Object { $severityOrder[$_.Severity.ToString()] } | Measure-Object -Minimum).Minimum
+                $highestSeverity = ($severityOrder.GetEnumerator() | Where-Object { $_.Value -eq $highestSeverityRank } | Select-Object -First 1).Key
+                $groupFiles = @($groupDiagnostics | Where-Object { $_.ScriptName } | Select-Object -ExpandProperty ScriptName -Unique)
+
+                [pscustomobject]@{
+                  RuleName = $_.Name
+                  Severity = $highestSeverity
+                  SeverityRank = $highestSeverityRank
+                  Count = $groupDiagnostics.Count
+                  FileCount = $groupFiles.Count
+                  Diagnostics = $groupDiagnostics
+                }
+              } |
+              Sort-Object `
+                @{ Expression = { $_.SeverityRank } }, `
+                @{ Expression = { -1 * $_.Count } }, `
+                @{ Expression = { $_.RuleName } }
+          )
+
+          $summary.Add("| Rule | Severity | Findings | Files |")
+          $summary.Add("| --- | --- | ---: | ---: |")
+          foreach ($ruleGroup in $ruleGroups) {
+            $summary.Add("| ``$($ruleGroup.RuleName)`` | $($ruleGroup.Severity) | $($ruleGroup.Count) | $($ruleGroup.FileCount) |")
+          }
+          $summary.Add("")
+
+          foreach ($ruleGroup in $ruleGroups) {
+            $summary.Add("<details>")
+            $summary.Add("<summary>$($ruleGroup.Severity): $($ruleGroup.RuleName) ($($ruleGroup.Count) findings across $($ruleGroup.FileCount) files)</summary>")
+            $summary.Add("")
+
+            $fileGroups = @(
+              $ruleGroup.Diagnostics |
+                Group-Object {
+                  Get-RelativeScriptPath -ScriptPath $_.ScriptPath -RootPath $rootPath -FallbackName $_.ScriptName
+                } |
+                Sort-Object Name
+            )
+
+            foreach ($fileGroup in $fileGroups) {
+              $relativePath = $fileGroup.Name
+              $summary.Add("#### ``$relativePath`` ($($fileGroup.Count))")
+              $summary.Add("")
+
+              foreach ($diagnostic in @($fileGroup.Group | Sort-Object Line, Column, Message)) {
+                $line = if ($null -ne $diagnostic.Line) { [int]$diagnostic.Line } else { 0 }
+                $column = if ($null -ne $diagnostic.Column) { [int]$diagnostic.Column } else { 0 }
+                $location = Get-MarkdownLocation -RelativePath $relativePath -Line $line
+                $message = ConvertTo-HtmlText -Text (ConvertTo-OneLine -Text $diagnostic.Message)
+
+                $summary.Add("- **$location**")
+                $summary.Add("  - Message: $message")
+                if ($line -gt 0 -or $column -gt 0) {
+                  $summary.Add("  - Position: line $line, column $column")
+                }
+                $summary.Add("")
+              }
+            }
+
+            $summary.Add("</details>")
+            $summary.Add("")
+          }
+
+          Write-Warning "PSScriptAnalyzer reported $($diagnostics.Count) advisory findings."
+        }
+
+        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
     - name: Initialize vendors
+      id: init-vendors
       shell: pwsh
       working-directory: scripts
       run: .\build.ps1 -verbose
@@ -153,94 +308,103 @@ jobs:
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
-    - name: Summary - Test results table header
-      if: success()
-      shell: pwsh
-      run: |
-        $summary = @"
-        ### 📋 Test Results
-
-        | Test | Status | Duration |
-        | --- | --- | --- |
-        "@
-
-        $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
-
     - name: Testing Clink Shell
       id: test-clink
+      if: ${{ always() && steps.init-vendors.outcome == 'success' }}
       shell: pwsh
       run: |
           $startTime = Get-Date
           cmd /c vendor\init.bat /v /d /t
+          $exitCode = $LASTEXITCODE
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
+          exit $exitCode
 
-    - name: Summary - Clink Shell test
-      if: success()
-      shell: pwsh
-      run: |
-        $duration = "${{ steps.test-clink.outputs.duration }}"
-        if ($duration) {
-          $duration = "$duration s"
-        } else {
-          $duration = "N/A"
-        }
-        "| Clink Shell | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing PowerShell
       id: test-powershell
+      if: ${{ always() && steps.init-vendors.outcome == 'success' }}
       shell: pwsh
       run: |
           $startTime = Get-Date
           PowerShell.exe -ExecutionPolicy Bypass -NoLogo -NoProfile -Command "$env:CMDER_DEBUG='1'; . 'vendor\profile.ps1'"
+          $exitCode = $LASTEXITCODE
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
+          exit $exitCode
 
-    - name: Summary - PowerShell test
-      if: success()
-      shell: pwsh
-      run: |
-        $duration = "${{ steps.test-powershell.outputs.duration }}"
-        if ($duration) {
-          $duration = "$duration s"
-        } else {
-          $duration = "N/A"
-        }
-        "| PowerShell | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
     - name: Testing Bash
       id: test-bash
+      if: ${{ always() && steps.init-vendors.outcome == 'success' }}
       shell: pwsh
       run: |
           $startTime = Get-Date
           bash vendor/cmder.sh
+          $exitCode = $LASTEXITCODE
           $duration = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 2)
           echo "duration=$duration" >> $env:GITHUB_OUTPUT
+          exit $exitCode
 
-    - name: Summary - Bash test
-      if: success()
+    - name: Summary - Test results
+      if: always()
       shell: pwsh
       run: |
-        $duration = "${{ steps.test-bash.outputs.duration }}"
-        if ($duration) {
-          $duration = "$duration s"
-        } else {
-          $duration = "N/A"
+        function Format-Duration {
+          param(
+            [AllowEmptyString()]
+            [string]$Duration
+          )
+
+          if ($Duration) {
+            return "$Duration s"
+          }
+
+          return "N/A"
         }
-        "| Bash | ✅ Passed | $duration |" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
-    - name: Summary - All tests completed
-      if: success()
-      shell: pwsh
-      run: |
+        function Format-Status {
+          param(
+            [AllowEmptyString()]
+            [string]$Outcome
+          )
+
+          switch ($Outcome) {
+            "success" { return "✅ Passed" }
+            "failure" { return "❌ Failed" }
+            "cancelled" { return "⚠️ Cancelled" }
+            "skipped" { return "⏭️ Skipped" }
+            default { return "N/A" }
+          }
+        }
+
+        $initStatus = Format-Status "${{ steps.init-vendors.outcome }}"
+        $clinkStatus = Format-Status "${{ steps.test-clink.outcome }}"
+        $powershellStatus = Format-Status "${{ steps.test-powershell.outcome }}"
+        $bashStatus = Format-Status "${{ steps.test-bash.outcome }}"
+
+        $initDuration = "N/A"
+        $clinkDuration = Format-Duration "${{ steps.test-clink.outputs.duration }}"
+        $powershellDuration = Format-Duration "${{ steps.test-powershell.outputs.duration }}"
+        $bashDuration = Format-Duration "${{ steps.test-bash.outputs.duration }}"
+
         $summary = @"
 
-        ### ✅ All Tests Completed
+        ### 📋 Test Results
 
-        All shell environments tested successfully!
+        | Test | Status | Duration |
+        | --- | --- | --- |
+        | Vendor Initialization | $initStatus | $initDuration |
+        | Clink Shell | $clinkStatus | $clinkDuration |
+        | PowerShell | $powershellStatus | $powershellDuration |
+        | Bash | $bashStatus | $bashDuration |
+
+        ### Test Run Complete
+
+        Review the status table above for any failed, cancelled, or skipped test steps.
 
         **Test Coverage:**
-        - ✅ Clink shell environment (Windows cmd.exe with Clink)
-        - ✅ PowerShell environment (with Cmder profile)
-        - ✅ Bash environment (Git Bash integration)
+        - Clink shell environment (Windows cmd.exe with Clink)
+        - PowerShell environment (with Cmder profile)
+        - Bash environment (Git Bash integration)
         "@
 
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
