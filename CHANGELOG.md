@@ -26,6 +26,7 @@
 - Update Build, Run Tests, CodeQL, and vendor update workflow summaries with linked repository/branch/commit/workflow/run values, branch/build annotations, correct PR links, clearer auto-merge failure messaging, and newline-safe markdown output. See [#3091](https://github.com/cmderdev/cmder/pull/3091).
 - Update CodeQL to use manual build mode and build the launcher with `-Compile -NoVendor -Verbose` so analysis does not redownload all vendors. See [#3085](https://github.com/cmderdev/cmder/pull/3085).
 - Update `Cmder.bat` to select Windows Terminal when it is bundled, keep ConEmu as a supported launch path, and initialize/copy the appropriate terminal settings file.
+- Clarify that `/C` selects a user-specific Cmder shell configuration while bundled Windows Terminal settings remain shared by the installation.
 - Update launcher command-line help and launcher internals to use terminal-emulator terminology, normalize ConEmu task names, support `--` as the terminal argument separator, and route supported options to Windows Terminal or ConEmu as appropriate.
 - Update `vendor/ConEmu.xml.default`, `vendor/windows_terminal_default_settings.json`, and related shell/profile files so default tasks and profiles call `init.cmd` and the new Git Bash/Mintty helpers.
 - Update `vendor/profile.ps1`, `vendor/cmder.sh`, `vendor/psmodules/Cmder.ps1`, `vendor/clink.lua`, `vendor/lib/lib_base.cmd`, and `vendor/lib/lib_path.cmd` for more consistent shell startup, path handling, Git path discovery, prompt behavior, and Windows Terminal shell-integration escape sequences. See [#2896](https://github.com/cmderdev/cmder/pull/2896), [#3034](https://github.com/cmderdev/cmder/pull/3034), [#3053](https://github.com/cmderdev/cmder/pull/3053), and [#3082](https://github.com/cmderdev/cmder/pull/3082).
@@ -34,6 +35,9 @@
 
 ### Fixes
 
+- Fix launcher option parsing so bundled terminals do not consume unrelated command-line switches as task names.
+- Fix `Cmder.bat` handling of custom ConEmu configuration-file arguments.
+- Exclude local Windows Terminal settings backups from release archives.
 - Fix launcher backup/overwrite handling for terminal emulator settings so user ConEmu or Windows Terminal settings are preserved instead of being overwritten. Fixes [#2940](https://github.com/cmderdev/cmder/issues/2940); see [#2988](https://github.com/cmderdev/cmder/pull/2988).
 - Fix path enhancement handling in `vendor/lib/lib_path.cmd`, including safer recursive path enhancement and positioning behavior. See [#3034](https://github.com/cmderdev/cmder/pull/3034).
 - Fix `git_locale` quoting and path handling around Git discovery and locale detection. See [#3037](https://github.com/cmderdev/cmder/pull/3037).
