@@ -281,6 +281,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(windowsTerminalDir, vendorDir, L"windows-terminal");
 	PathCombine(conEmuDir, vendorDir, L"conemu-maximus5");
 	GetEnvironmentVariable(L"WINDIR", winDir, MAX_PATH);
+	const bool useSharedWindowsTerminalSettings = PathFileExists(windowsTerminalDir) && cfgRoot.length() != 0;
 
 	if (PathFileExists(windowsTerminalDir))
 	{
@@ -313,7 +314,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
 
-	if (wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // config/[host specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
+	if (!useSharedWindowsTerminalSettings && wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // config/[host specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
@@ -361,7 +362,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			}
 		}
 	}
-	else if (wcscmp(userCfgPath, L"") != 0 && PathFileExists(userCfgPath)) // config/user[terminal emulator config] file exists, use it.
+	else if (!useSharedWindowsTerminalSettings && wcscmp(userCfgPath, L"") != 0 && PathFileExists(userCfgPath)) // config/user[terminal emulator config] file exists, use it.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
@@ -414,7 +415,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 		}
 	}
-	else if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
+	else if (!useSharedWindowsTerminalSettings && cfgRoot.length() == 0) // '/c [path]' was NOT specified
 	{
 		if (PathFileExists(cfgPath)) // [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
 		{
@@ -469,7 +470,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			exit(1);
 		}
 	}
-	else if (wcscmp(cfgPath, L"") != 0 && PathFileExists(cfgPath)) // This is a first time Cmder.exe run and [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
+	else if (!useSharedWindowsTerminalSettings && wcscmp(cfgPath, L"") != 0 && PathFileExists(cfgPath)) // This is a first time Cmder.exe run and [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
 	{
 		if (!CopyFile(cfgPath, userCfgPath, FALSE))
 		{
@@ -493,7 +494,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
-	else if (wcscmp(defaultCfgPath, L"") != 0) // '/c [path]' was specified and 'vendor/[terminal emulator config].default' config exists, copy Cmder 'vendor/[terminal emulator config].default' file to '[user specified path]/config/user_[terminal emulator config]'.
+	else if (!useSharedWindowsTerminalSettings && wcscmp(defaultCfgPath, L"") != 0) // '/c [path]' was specified and 'vendor/[terminal emulator config].default' config exists, copy Cmder 'vendor/[terminal emulator config].default' file to '[user specified path]/config/user_[terminal emulator config]'.
 	{
 		if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
 		{
@@ -866,15 +867,21 @@ cmderOptions GetOption()
 					MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
 				}
 			}
-			else if (_wcsicmp(L"/task", szArgList[i]) == 0 || PathFileExists(windowsTerminalDir) || PathFileExists(conEmuDir))
+			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
 			{
-				cmderOptions.cmderTask = szArgList[i + 1];
-				i++;
+				if (i + 1 < argCount && szArgList[i + 1][0] != '/')
+				{
+					cmderOptions.cmderTask = szArgList[i + 1];
+					i++;
+				}
+				else
+				{
+					cmderOptions.error = true;
+				}
 			}
-			else if ((_wcsicmp(L"bash", szArgList[i]) == 0 || _wcsicmp(L"powershell", szArgList[i]) == 0) || PathFileExists(windowsTerminalDir) || PathFileExists(conEmuDir))
+			else if (_wcsicmp(L"bash", szArgList[i]) == 0 || _wcsicmp(L"powershell", szArgList[i]) == 0)
 			{
 				cmderOptions.cmderTask = szArgList[i];
-				i++;
 			}
 			else if (_wcsicmp(L"/title", szArgList[i]) == 0 && !PathFileExists(windowsTerminalDir) && PathFileExists(conEmuDir))
 			{
