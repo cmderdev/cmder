@@ -281,6 +281,8 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(windowsTerminalDir, vendorDir, L"windows-terminal");
 	PathCombine(conEmuDir, vendorDir, L"conemu-maximus5");
 	GetEnvironmentVariable(L"WINDIR", winDir, MAX_PATH);
+	// Windows Terminal cannot select a settings file per launch, so `/c` roots
+	// must not enter the terminal settings copy or initialization flows below.
 	const bool useSharedWindowsTerminalSettings = PathFileExists(windowsTerminalDir) && cfgRoot.length() != 0;
 
 	if (PathFileExists(windowsTerminalDir))
@@ -314,7 +316,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
 
-	if (!useSharedWindowsTerminalSettings && wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // config/[host specific terminal emulator config] file exists or /m was specified on command line, use machine specific config.
+	if (!useSharedWindowsTerminalSettings && wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // Skip machine-specific terminal settings for `/c` Windows Terminal launches.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
@@ -362,7 +364,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			}
 		}
 	}
-	else if (!useSharedWindowsTerminalSettings && wcscmp(userCfgPath, L"") != 0 && PathFileExists(userCfgPath)) // config/user[terminal emulator config] file exists, use it.
+	else if (!useSharedWindowsTerminalSettings && wcscmp(userCfgPath, L"") != 0 && PathFileExists(userCfgPath)) // Skip user terminal settings for `/c` Windows Terminal launches.
 	{
 		if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
 		{
@@ -415,7 +417,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 		}
 	}
-	else if (!useSharedWindowsTerminalSettings && cfgRoot.length() == 0) // '/c [path]' was NOT specified
+	else if (!useSharedWindowsTerminalSettings && cfgRoot.length() == 0) // Do not initialize user-root terminal settings for `/c` Windows Terminal launches.
 	{
 		if (PathFileExists(cfgPath)) // [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
 		{
@@ -470,7 +472,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 			exit(1);
 		}
 	}
-	else if (!useSharedWindowsTerminalSettings && wcscmp(cfgPath, L"") != 0 && PathFileExists(cfgPath)) // This is a first time Cmder.exe run and [terminal emulator config] file exists, copy [terminal emulator config] file to config/user_[terminal emulator config] file.
+	else if (!useSharedWindowsTerminalSettings && wcscmp(cfgPath, L"") != 0 && PathFileExists(cfgPath)) // Do not create user-root terminal settings for `/c` Windows Terminal launches.
 	{
 		if (!CopyFile(cfgPath, userCfgPath, FALSE))
 		{
@@ -494,7 +496,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		PathCombine(userConEmuCfgPath, userConfigDirPath, L"user-ConEmu.xml");
 	}
-	else if (!useSharedWindowsTerminalSettings && wcscmp(defaultCfgPath, L"") != 0) // '/c [path]' was specified and 'vendor/[terminal emulator config].default' config exists, copy Cmder 'vendor/[terminal emulator config].default' file to '[user specified path]/config/user_[terminal emulator config]'.
+	else if (!useSharedWindowsTerminalSettings && wcscmp(defaultCfgPath, L"") != 0) // Do not copy default terminal settings into `/c` Windows Terminal roots.
 	{
 		if ( ! CopyFile(defaultCfgPath, userCfgPath, FALSE))
 		{
