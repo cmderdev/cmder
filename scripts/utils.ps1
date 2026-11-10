@@ -162,7 +162,8 @@ function Get-VersionStr {
             $ErrorActionPreference = 'Continue'
             $GitPresent = & git.exe rev-parse --is-inside-work-tree 2>$null
             if ($LASTEXITCODE -eq 0 -and $GitPresent -eq 'true') {
-                $candidate = & git.exe describe --abbrev=0 --tags 2>$null
+                # Preservation tags describe history, not the product version.
+                $candidate = & git.exe describe --abbrev=0 --tags --match 'v[0-9]*' 2>$null
                 if ($LASTEXITCODE -eq 0) {
                     $string = $candidate
                 }
