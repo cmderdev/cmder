@@ -77,7 +77,7 @@ exit /b
 echo.
 echo CExec - Conditional Exec
 echo.
-echo Handles with custom arguments for cmder's init.bat.
+echo Handles with custom arguments for cmder's init.cmd.
 echo   written by xiazeyu, inspired DRSDavidSoft.
 echo.
 echo Usage:
@@ -115,9 +115,9 @@ echo   The following command in `user_profile.cmd` would execute "notepad.exe" a
 echo.
 echo     "%ccall%" "/startNotepad" "start" "notepad.exe"
 echo.
-echo   If you pass parameter to init.bat like:
+echo   If you pass parameter to init.cmd like:
 echo.
-echo     init.bat /startNotepad
+echo     init.cmd /startNotepad
 echo.
 echo   Case 2:
 echo.
@@ -125,9 +125,9 @@ echo   The following command in `user_profile.cmd` would execute "notepad.exe" a
 echo.
 echo     "%cexec%" NOT "/dontStartNotepad" "start" "notepad.exe"
 echo.
-echo   UNLESS you pass parameter to init.bat like:
+echo   UNLESS you pass parameter to init.cmd like:
 echo.
-echo     init.bat /dontStartNotepad
+echo     init.cmd /dontStartNotepad
 echo.
 endlocal
 exit /b

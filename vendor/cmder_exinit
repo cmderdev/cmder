@@ -26,15 +26,14 @@ function runProfiled {
   unset profile_d_scripts
   pushd "${1}" >/dev/null
 
-  if [ ! "x${ZSH_VERSION}" = "x"  ]; then
+  if [ -n "${ZSH_VERSION}"  ]; then
     profile_d_scripts=$(ls *.zsh 2>/dev/null)
-  elif [ ! "x${BASH_VERSION}" = "x"  ]; then
+  elif [ -n "${BASH_VERSION}"  ]; then
     profile_d_scripts=$(ls *.sh 2>/dev/null)
   fi
 
-  if [ ! "x${profile_d_scripts}" = "x" ] ; then
+  if [ -n "${profile_d_scripts}" ] ; then
     for x in ${profile_d_scripts} ; do
-      echo Sourcing "${1}/${x}"...
       . "${1}/${x}"
     done
   fi
@@ -44,22 +43,22 @@ function runProfiled {
 # Check that we haven't already been sourced.
 [[ -z ${CMDER_EXINIT} ]] && CMDER_EXINIT="1" || return
 
+if [ -z "$CMDER_ROOT" ] && [ -n "$cmder_root" ] ; then
+  export CMDER_ROOT=$(cygpath -u $cmder_root)
+fi
+
 # We do this for bash as admin sessions since $CMDER_ROOT is not being set
 if [ "$CMDER_ROOT" = "" -a "$ConEmuDir" != "" ] ; then
-  if [ -d "${ConEmuDir}../../vendor" ] ; then
+  if [ -d "${ConEmuDir}/../../vendor" ] ; then
     case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
-  else
-    echo "Running in ConEmu without Cmder, skipping Cmder integration."
   fi
 elif [ "$CMDER_ROOT" != "" ] ; then
   case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
 fi
 
-if [ ! "$CMDER_ROOT" = "" ] ; then
+if [ -n "$CMDER_ROOT" ] ; then
   # Remove any trailing '/'
   CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
-
-  echo "Using \"CMDER_ROOT\" at \"${CMDER_ROOT}\"."
 
   export CMDER_ROOT
 

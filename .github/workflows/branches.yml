@@ -9,6 +9,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+concurrency:
+  group: update-development
+  cancel-in-progress: false
+
 permissions:
   actions: write
   contents: write
@@ -25,7 +29,9 @@ jobs:
       # Checks-out the repository under $GITHUB_WORKSPACE, so the job can access it
       - uses: actions/checkout@v7
         with:
+          ref: development
           fetch-depth: 0 # fetch all history for all branches and tags
+          token: ${{ secrets.BRANCH_SYNC_TOKEN || github.token }}
 
       - name: Summary - Merge operation started
         shell: bash
@@ -55,12 +61,119 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Merge master into development
+        shell: bash
+        env:
+          HAS_BRANCH_SYNC_TOKEN: ${{ secrets.BRANCH_SYNC_TOKEN != '' }}
         run: |
+          set -euo pipefail
+
+          failure_log="$RUNNER_TEMP/branch-sync-failure.log"
+          short_diff_file="$RUNNER_TEMP/branch-sync-short-diff.txt"
+          last_command_file="$RUNNER_TEMP/branch-sync-last-command.txt"
+          command_log="$RUNNER_TEMP/branch-sync-commands.log"
+          : > "$failure_log"
+          : > "$short_diff_file"
+          : > "$last_command_file"
+          : > "$command_log"
+
+          quote_command() {
+            local quoted=""
+            local arg
+            for arg in "$@"; do
+              printf -v quoted_arg "%q" "$arg"
+              quoted+="${quoted_arg} "
+            done
+            printf "%s" "${quoted% }"
+          }
+
+          capture_short_diff() {
+            local diff_file="$1"
+            local max_lines=180
+            local tmp_file
+
+            tmp_file="$(mktemp)"
+
+            {
+              echo "## git status --short"
+              git status --short || true
+              echo ""
+
+              mapfile -t unmerged_files < <(git diff --name-only --diff-filter=U 2>/dev/null || true)
+              if [[ "${#unmerged_files[@]}" -gt 0 ]]; then
+                echo "## conflict diff"
+                git diff --cc -- "${unmerged_files[@]}" || true
+              elif ! git diff --quiet -- . 2>/dev/null; then
+                echo "## worktree diff"
+                git diff -- . || true
+              elif ! git diff --cached --quiet -- . 2>/dev/null; then
+                echo "## staged diff"
+                git diff --cached -- . || true
+              elif git rev-parse --verify origin/development >/dev/null 2>&1 && ! git diff --quiet origin/development HEAD -- . 2>/dev/null; then
+                echo "## branch diff against origin/development"
+                git diff --stat origin/development HEAD -- . || true
+                echo ""
+                git diff --patch --find-renames origin/development HEAD -- . || true
+              else
+                echo "No local or branch diff was available after the failure."
+              fi
+            } > "$tmp_file"
+
+            sed -n "1,${max_lines}p" "$tmp_file" > "$diff_file"
+            if [[ "$(wc -l < "$tmp_file")" -gt "$max_lines" ]]; then
+              echo "" >> "$diff_file"
+              echo "[diff truncated after ${max_lines} lines]" >> "$diff_file"
+            fi
+
+            rm -f "$tmp_file"
+          }
+
+          run_command() {
+            local command_display
+            local output
+            local status
+
+            command_display="$(quote_command "$@")"
+            printf "%s\n" "$command_display" > "$last_command_file"
+            printf "$ %s\n" "$command_display" >> "$command_log"
+
+            set +e
+            output="$("$@" 2>&1)"
+            status=$?
+            set -e
+
+            if [[ -n "$output" ]]; then
+              printf "%s\n" "$output"
+              printf "%s\n" "$output" >> "$command_log"
+            fi
+
+            if [[ "$status" -ne 0 ]]; then
+              {
+                printf "Command: %s\n" "$command_display"
+                printf "Exit code: %s\n" "$status"
+                printf "\n"
+                printf "%s\n" "$output"
+              } > "$failure_log"
+              capture_short_diff "$short_diff_file"
+              return "$status"
+            fi
+          }
+
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
-          git checkout development
-          git merge --no-ff master
-          git push origin development
+          run_command git fetch origin master development
+          run_command git checkout -B development origin/development
+          run_command git reset --hard origin/development
+          run_command git clean -fdx
+          run_command git merge --no-ff origin/master
+
+          if git diff --name-only origin/development HEAD | grep -q '^\.github/workflows/'; then
+            echo "This merge updates workflow files. Configure a BRANCH_SYNC_TOKEN secret with workflow scope so GitHub accepts the sync push." >> "$GITHUB_STEP_SUMMARY"
+            if [[ "$HAS_BRANCH_SYNC_TOKEN" != "true" ]]; then
+              echo "::warning::This merge updates workflow files, but BRANCH_SYNC_TOKEN is not configured. GitHub may reject the push because GITHUB_TOKEN cannot update workflow files."
+            fi
+          fi
+
+          run_command git push origin HEAD:development
 
       - name: Summary - Merge completed
         if: success()
@@ -77,3 +190,147 @@ jobs:
           echo "**Merge type:** No fast-forward merge" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> The [\`development\`]($target_branch_url) branch is now synchronized with the latest changes from [\`master\`]($source_branch_url)." >> $GITHUB_STEP_SUMMARY
+
+      - name: Summary - Merge failed
+        if: failure()
+        shell: bash
+        run: |
+          failure_log="$RUNNER_TEMP/branch-sync-failure.log"
+          short_diff_file="$RUNNER_TEMP/branch-sync-short-diff.txt"
+          command_log="$RUNNER_TEMP/branch-sync-commands.log"
+
+          extract_reason() {
+            local log_file="$1"
+            if [[ ! -s "$log_file" ]]; then
+              printf "No command stderr/stdout was captured. Open the failed step log for the raw runner output."
+              return
+            fi
+
+            awk '
+              /error:|fatal:|CONFLICT|Aborting|refusing to allow|rejected|would be overwritten|Please commit your changes|Merge with strategy|non-fast-forward|fetch first|Permission denied|not authorized|workflow scope/ {
+                print
+              }
+            ' "$log_file"
+          }
+
+          add_suggestions() {
+            local log_text="$1"
+
+            if [[ "$log_text" =~ "would be overwritten by merge" || "$log_text" =~ "Please commit your changes or stash them before you merge" ]]; then
+              cat <<'EOF'
+          ```bash
+          git fetch origin master development
+          git checkout development
+          git status --short
+          git diff
+          git restore --worktree --staged <file-from-error>
+          git merge --no-ff origin/master
+          git push origin development
+          ```
+          EOF
+              return
+            fi
+
+            if [[ "$log_text" =~ "refusing to allow a GitHub App to create or update workflow" ]]; then
+              cat <<'EOF'
+          ```bash
+          # Create a fine-grained PAT that can write Contents and Workflows,
+          # then save it as the repository secret BRANCH_SYNC_TOKEN.
+          gh secret set BRANCH_SYNC_TOKEN --repo cmderdev/cmder
+
+          # After the secret is configured, rerun the failed branch-sync workflow.
+          gh run rerun ${{ github.run_id }} --repo ${{ github.repository }} --failed
+          ```
+          EOF
+              return
+            fi
+
+            if [[ "$log_text" =~ "non-fast-forward" || "$log_text" =~ "fetch first" ]]; then
+              cat <<'EOF'
+          ```bash
+          git fetch origin master development
+          git checkout development
+          git merge --no-ff origin/master
+          git push origin development
+          ```
+          EOF
+              return
+            fi
+
+            if [[ "$log_text" =~ "CONFLICT" ]]; then
+              cat <<'EOF'
+          ```bash
+          git fetch origin master development
+          git checkout development
+          git merge --no-ff origin/master
+          git status
+          # Resolve the conflicted files, then:
+          git add <resolved-files>
+          git commit
+          git push origin development
+          ```
+          EOF
+              return
+            fi
+
+            cat <<'EOF'
+          ```bash
+          git fetch origin master development
+          git checkout development
+          git merge --no-ff origin/master
+          git status
+          ```
+          EOF
+          }
+
+          log_text=""
+          if [[ -s "$failure_log" ]]; then
+            log_text="$(cat "$failure_log")"
+          fi
+
+          reason="$(extract_reason "$failure_log" | sed '/^[[:space:]]*$/d')"
+          if [[ -z "$reason" && -n "$log_text" ]]; then
+            reason="$log_text"
+          fi
+
+          echo "### ❌ Merge Failed" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Failed command:**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```bash' >> "$GITHUB_STEP_SUMMARY"
+          if [[ -s "$failure_log" ]]; then
+            sed -n 's/^Command: //p' "$failure_log" | head -n 1 >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Unknown; failure happened before command capture was initialized." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Extracted reason:**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          printf "%s\n" "$reason" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Suggested fix commands:**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          add_suggestions "$log_text" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ -s "$short_diff_file" ]]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Short relevant diff:**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```diff' >> "$GITHUB_STEP_SUMMARY"
+            cat "$short_diff_file" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [[ -s "$command_log" ]]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "<details><summary>Captured command output</summary>" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```text' >> "$GITHUB_STEP_SUMMARY"
+            cat "$command_log" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "</details>" >> "$GITHUB_STEP_SUMMARY"
+          fi

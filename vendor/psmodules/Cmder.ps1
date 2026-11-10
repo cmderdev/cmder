@@ -249,3 +249,30 @@ function Get-GitStatusSetting {
 
     return $true
 }
+
+function yOrn( $question ) {
+    Do {
+        $Answer = Read-Host -Prompt "`n${question}? (y/n) "
+    }
+    Until ($Answer -eq 'y' -or $Answer -eq 'n' -or $Answer -eq 'yes' -or $Answer -eq 'no')
+
+    return $Answer
+}
+
+function TemplateExpand($template_filename, $outfile) {
+    $template = Get-Content "$template_filename" -Raw -Encoding UTF8
+
+    $expanded = Invoke-Expression "@`"`r`n$template`r`n`"@"
+
+    $overwrite = 'y'
+    if ((test-path "$outfile")) {
+        $overwrite = yOrn "'$outfile' already exists do you want to overwrite it"
+    }
+
+    if ($overwrite -match 'y') {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText($outfile, $expanded, $utf8NoBom)
+    } else {
+        write-host "Skipping Cmder '$shell' config generation  at user request!"
+    }
+}
