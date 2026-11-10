@@ -67,7 +67,9 @@ quoted paths, and other arguments. New profiles already use `init.cmd`.
 
 `config/user_init.cmd` is a generated startup configuration that is also
 editable. Cmder loads an existing file instead of discovering everything again
-on each startup. A separate `/C` configuration can have its own file too.
+on each startup. A separate `/C` configuration can have its own file too, but
+the current startup script checks the installation's `config/user_init.cmd`
+first. If that shared file exists, it takes precedence over the `/C` file.
 
 There is no general automatic invalidation of every user edit after an upgrade,
 a moved installation, or a changed Git location. Do not assume that replacing
@@ -78,13 +80,18 @@ To refresh it safely:
 1. Back up the complete configuration and close its shells.
 2. Rename that configuration's `user_init.cmd` to a uniquely named backup. Keep
    it; do not overwrite or delete your previous version.
+   For a `/C` configuration, also back up and rename the installation's
+   `config/user_init.cmd` if it exists. Renaming only the `/C` file will not
+   trigger regeneration while the shared file takes precedence.
 3. Start the new installation using the same configuration root. Cmder can
    generate a fresh `user_init.cmd` when it is absent.
 4. Compare the new file with your backup and reapply intentional customizations
    one by one. Test the next startup before removing any backup.
 
-The default configuration and a `/C` configuration are different roots. Refresh
-the one you are actually using. Further cache migration testing is tracked in
+The default configuration and a `/C` configuration are different roots. A later
+startup of the default configuration can recreate the shared file and make it
+take precedence again. Keep the backups and account for this current limitation
+when switching roots. Cache precedence and migration work is tracked in
 [#3132](https://github.com/cmderdev/cmder/issues/3132).
 
 ## Separate user roots and terminal settings
