@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
 - Show vendor build badges for the requested release ref, with a verified check-runs fallback when the README badge is unavailable. Fix missing README fallback and Azure build-link matching from [#3103](https://github.com/cmderdev/cmder/pull/3103), and link truncated release notes to their full text.
 
 - Pass build-tool arguments directly instead of evaluating command strings, keep archive paths literal, preserve failed downloads for diagnosis, and reject unsafe vendor directory names before vendor changes. Completes the remaining script hygiene work in [#3118](https://github.com/cmderdev/cmder/issues/3118).

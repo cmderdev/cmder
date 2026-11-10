@@ -66,6 +66,14 @@ jobs:
       shell: pwsh
       run: .\scripts\test-update.ps1
 
+    - name: Test Git directory layouts
+      shell: pwsh
+      run: .\scripts\test-git-layout.ps1
+
+    - name: Test Git directory layouts on Windows PowerShell 5.1
+      shell: powershell
+      run: .\scripts\test-git-layout.ps1
+
     - name: Test vendor release badge helpers
       shell: pwsh
       run: .\scripts\test-vendor-badges.ps1
