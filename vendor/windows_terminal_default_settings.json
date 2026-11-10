@@ -73,7 +73,7 @@
       },
       {
         "colorScheme": "One Half Dark",
-        "commandline": "PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%WT_SETTINGS_DIR%\\..\\..\\profile.ps1'''\"",
+        "commandline": "\"%SystemRoot%\\System32\\cmd.exe\" /d /s /c \"\"%WT_SETTINGS_DIR%\\..\\..\\start_powershell.cmd\"\"",
         "guid": "{eb1f6578-ce9d-47a9-a8c7-9b3fdd22302d}",
         "hidden": false,
         "icon": "%WT_SETTINGS_DIR%\\..\\..\\..\\icons\\cmder_orange.ico",
@@ -84,7 +84,7 @@
       },
       {
         "colorScheme": "One Half Dark",
-        "commandline": "PowerShell -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%WT_SETTINGS_DIR%\\..\\..\\profile.ps1'''\"",
+        "commandline": "\"%SystemRoot%\\System32\\cmd.exe\" /d /s /c \"\"%WT_SETTINGS_DIR%\\..\\..\\start_powershell.cmd\"\"",
         "elevate": true,
         "guid": "{c5225c3e-8619-4145-8182-2800814eeb17}",
         "hidden": false,

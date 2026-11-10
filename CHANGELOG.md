@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- Prefer installed PowerShell 7 for the Cmder PowerShell profiles, the `pwsh` command alias, and the launcher's terminal-free PowerShell task. Fall back to Windows PowerShell when PowerShell 7 is unavailable; keep existing user profiles, aliases, and terminal settings intact.
+
 ### Fixes
 
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).

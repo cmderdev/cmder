@@ -90,6 +90,14 @@ jobs:
       shell: pwsh
       run: .\scripts\test-shell-detection.ps1
 
+    - name: Test PowerShell host selection
+      shell: pwsh
+      run: .\scripts\test-powershell-selection.ps1
+
+    - name: Test PowerShell host selection on Windows PowerShell 5.1
+      shell: powershell
+      run: .\scripts\test-powershell-selection.ps1
+
     - name: Summary - Test execution started
       shell: pwsh
       env:
