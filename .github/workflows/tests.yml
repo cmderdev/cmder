@@ -72,13 +72,15 @@ jobs:
 
     - name: Summary - Test execution started
       shell: pwsh
+      env:
+        HEAD_REF: ${{ github.head_ref }}
       run: |
         # Get Cmder version
         . scripts/utils.ps1
         $cmderVersion = Get-VersionStr
 
         $refName = "${{ github.ref_name }}"
-        $headRef = "${{ github.head_ref }}"
+        $headRef = $env:HEAD_REF
         $eventName = "${{ github.event_name }}"
         $prNumber = $null
         $actualBranchName = $refName
