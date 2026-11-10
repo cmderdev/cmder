@@ -5,6 +5,8 @@
 ### Fixes
 
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
+- Pass build-tool arguments directly instead of evaluating command strings, keep archive paths literal, preserve failed downloads for diagnosis, and reject unsafe vendor directory names before vendor changes. Completes the remaining script hygiene work in [#3118](https://github.com/cmderdev/cmder/issues/3118).
+
 
 ## [2.0.0-rc.1](https://github.com/cmderdev/cmder/releases/tag/v2.0.0-rc.1) (2026-11-10)
 
