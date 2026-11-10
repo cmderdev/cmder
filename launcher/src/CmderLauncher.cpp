@@ -67,19 +67,42 @@ void TaskDialogOpen( PCWSTR mainStr, PCWSTR contentStr )
 
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
-	wchar_t * buffer;
+	wchar_t * buffer = NULL;
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, ec, 0, (LPWSTR)&buffer, 0, NULL) == 0)
 	{
-		buffer = L"Unknown error. FormatMessage failed.";
+		buffer = NULL;
 	}
 
 	wchar_t message[1024];
-	swprintf_s(message, L"%s\nFunction: %s\nLine: %d", buffer, func, line);
-	LocalFree(buffer);
+	swprintf_s(message, L"%s\nFunction: %s\nLine: %d", buffer ? buffer : L"Unknown error. FormatMessage failed.", func, line);
+	if (buffer != NULL)
+	{
+		LocalFree(buffer);
+	}
 
 	MessageBox(NULL, message, MB_TITLE, MB_OK | MB_ICONERROR);
 	exit(1);
+}
+
+template <size_t N>
+void CopyPathOrExit(const std::wstring& source, wchar_t (&destination)[N])
+{
+	if (source.length() >= N)
+	{
+		ShowErrorAndExit(ERROR_FILENAME_EXCED_RANGE, __WFUNCTION__, __LINE__);
+	}
+	wcscpy_s(destination, source.c_str());
+}
+
+template <size_t N>
+void GetExecutablePath(wchar_t (&path)[N])
+{
+	const DWORD length = GetModuleFileName(NULL, path, static_cast<DWORD>(N));
+	if (length == 0 || length >= N)
+	{
+		ShowErrorAndExit(length == 0 ? GetLastError() : ERROR_FILENAME_EXCED_RANGE, __WFUNCTION__, __LINE__);
+	}
 }
 
 typedef struct _option
@@ -161,10 +184,9 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	std::wstring cmderTitle = title;
 	std::wstring cmderTerminalArgs = conemu_args;
 
-	std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
-	userConfigDirPath[cfgRoot.length()] = 0;
+	CopyPathOrExit(cfgRoot, userConfigDirPath);
 
-	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
+	GetExecutablePath(exeDir);
 
 	#if USE_TASKBAR_API
 		wcscpy_s(appId, exeDir);
@@ -174,8 +196,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	if (PathFileExists(iconPath.c_str()))
 	{
-		std::copy(iconPath.begin(), iconPath.end(), icoPath);
-		icoPath[iconPath.length()] = 0;
+		CopyPathOrExit(iconPath, icoPath);
 	}
 	else
 	{
@@ -282,7 +303,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(conEmuDir, vendorDir, L"conemu-maximus5");
 	GetEnvironmentVariable(L"WINDIR", winDir, MAX_PATH);
 	// Windows Terminal cannot select a settings file per launch, so `/c` roots
-	// must not enter the terminal settings copy or initialization flows below.
+	// must not enter the user-root terminal settings flows below.
 	const bool useSharedWindowsTerminalSettings = PathFileExists(windowsTerminalDir) && cfgRoot.length() != 0;
 
 	if (PathFileExists(windowsTerminalDir))
@@ -314,6 +335,16 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		// Set path to Cmder user ConEmu config file
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
+	}
+
+	// A first launch with `/c` still needs the installation's default profiles.
+	// Never overwrite shared settings or import settings from the `/c` user root.
+	if (useSharedWindowsTerminalSettings && !PathFileExists(cfgPath))
+	{
+		if (!CopyFile(defaultCfgPath, cfgPath, TRUE) && GetLastError() != ERROR_FILE_EXISTS)
+		{
+			ShowErrorAndExit(GetLastError(), __WFUNCTION__, __LINE__);
+		}
 	}
 
 	if (!useSharedWindowsTerminalSettings && wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // Skip machine-specific terminal settings for `/c` Windows Terminal launches.
@@ -537,7 +568,10 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	{
 		swprintf_s(args, L"%s /Icon \"%s\"", args, icoPath);
 		swprintf_s(args, L"%s /title \"%s\"", args, cmderTitle.c_str());
-		PathCombine(terminalPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu64.exe");
+		PathCombine(terminalPath, exeDir,
+			sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
+				? L"vendor\\conemu-maximus5\\ConEmu64.exe"
+				: L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
 	else
 	{
@@ -737,7 +771,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 	wchar_t exePath[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 
-	GetModuleFileName(NULL, exePath, sizeof(exePath));
+	GetExecutablePath(exePath);
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	wchar_t baseCommandStr[MAX_PATH + 20] = { 0 };
@@ -753,8 +787,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 		swprintf_s(commandStr, L"%s \"%%V\"", baseCommandStr);
 	}
 	else {
-		std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
-		userConfigDirPath[cfgRoot.length()] = 0;
+		CopyPathOrExit(cfgRoot, userConfigDirPath);
 		swprintf_s(commandStr, L"%s /c \"%s\" \"%%V\"", baseCommandStr, userConfigDirPath);
 	}
 
@@ -822,7 +855,7 @@ cmderOptions GetOption()
 	wchar_t vendorDir[MAX_PATH] = { 0 };
 	wchar_t exeDir[MAX_PATH] = { 0 };
 
-	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
+	GetExecutablePath(exeDir);
 	PathRemoveFileSpec(exeDir);
 
 	PathCombine(vendorDir, exeDir, L"vendor");
@@ -830,30 +863,51 @@ cmderOptions GetOption()
 	PathCombine(conEmuDir, vendorDir, L"ConEmu-Maximus5");
 
 	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
+	if (szArgList == NULL)
+	{
+		cmderOptions.error = true;
+		return cmderOptions;
+	}
 
 	for (int i = 1; i < argCount; i++)
 	{
 		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
 		if (cmderOptions.error == false) {
+			const bool conEmuOptions = !PathFileExists(windowsTerminalDir) && PathFileExists(conEmuDir);
+			const bool needsValue = streqi(szArgList[i], L"/start") || streqi(szArgList[i], L"/task") ||
+				streqi(szArgList[i], L"/x") || (conEmuOptions &&
+				(streqi(szArgList[i], L"/title") || streqi(szArgList[i], L"/icon")));
+			if (szArgList[i][0] == L'\0' ||
+				(needsValue && (i + 1 >= argCount || szArgList[i + 1][0] == L'\0')))
+			{
+				cmderOptions.error = true;
+				break;
+			}
+
 			if (_wcsicmp(L"/c", szArgList[i]) == 0)
 			{
-				TCHAR userProfile[MAX_PATH];
-				const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
-
-				wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
-				PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg");
-
-				cmderOptions.cmderCfgRoot = cmderCfgRoot;
-
-				if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/')
+				if (i + 1 < argCount && szArgList[i + 1][0] != '/' && szArgList[i + 1][0] != L'\0' &&
+					wcscmp(szArgList[i + 1], L"--") != 0)
 				{
 					cmderOptions.cmderCfgRoot = szArgList[i + 1];
 					i++;
 				}
+				else
+				{
+					TCHAR userProfile[MAX_PATH] = { 0 };
+					const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, _countof(userProfile));
+					wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
+					if (ret == 0 || ret >= _countof(userProfile) || PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg") == NULL)
+					{
+						cmderOptions.error = true;
+						break;
+					}
+					cmderOptions.cmderCfgRoot = cmderCfgRoot;
+				}
 			}
 			else if (_wcsicmp(L"/start", szArgList[i]) == 0)
 			{
-				int len = wcslen(szArgList[i + 1]);
+				size_t len = wcslen(szArgList[i + 1]);
 				if (wcscmp(&szArgList[i + 1][len - 1], L"\"") == 0)
 				{
 					szArgList[i + 1][len - 1] = '\0';
@@ -866,12 +920,13 @@ cmderOptions GetOption()
 				}
 				else
 				{
+					cmderOptions.error = true;
 					MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
 				}
 			}
 			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
 			{
-				if (i + 1 < argCount && szArgList[i + 1][0] != '/')
+				if (i + 1 < argCount && szArgList[i + 1][0] != '/' && wcscmp(szArgList[i + 1], L"--") != 0)
 				{
 					cmderOptions.cmderTask = szArgList[i + 1];
 					i++;
@@ -948,7 +1003,7 @@ cmderOptions GetOption()
 			}
 			else if (cmderOptions.cmderStart == L"")
 			{
-				int len = wcslen(szArgList[i]);
+				size_t len = wcslen(szArgList[i]);
 				if (wcscmp(&szArgList[i][len - 1], L"\"") == 0)
 				{
 					szArgList[i][len - 1] = '\0';
@@ -957,7 +1012,6 @@ cmderOptions GetOption()
 				if (PathFileExists(szArgList[i]))
 				{
 					cmderOptions.cmderStart = szArgList[i];
-					i++;
 				}
 				else
 				{
@@ -1001,11 +1055,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(nCmdShow);
 
 	cmderOptions cmderOptions = GetOption();
+	if (cmderOptions.error)
+	{
+		return 1;
+	}
 
 	wchar_t windowsTerminalDir[MAX_PATH] = { 0 };
 	wchar_t exeDir[MAX_PATH] = { 0 };
 
-	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
+	GetExecutablePath(exeDir);
 	PathRemoveFileSpec(exeDir);
 	PathCombine(windowsTerminalDir, exeDir, L"vendor\\windows-terminal");
 
@@ -1032,10 +1090,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND);
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM);
-	}
-	else if (cmderOptions.error == true)
-	{
-		return 1;
 	}
 	else
 	{

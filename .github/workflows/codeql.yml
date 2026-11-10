@@ -8,7 +8,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master", "development" ]
+    branches: [ "main", "master", "legacy/1.x" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -16,7 +16,7 @@ on:
       - '**/.gitignore'
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "master", "development" ]
+    branches: [ "main", "master", "legacy/1.x" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -49,9 +49,11 @@ jobs:
 
     - name: Summary - CodeQL analysis started
       shell: pwsh
+      env:
+        HEAD_REF: ${{ github.head_ref }}
       run: |
         $refName = "${{ github.ref_name }}"
-        $headRef = "${{ github.head_ref }}"
+        $headRef = $env:HEAD_REF
         $eventName = "${{ github.event_name }}"
         $prNumber = $null
         $actualBranchName = $refName

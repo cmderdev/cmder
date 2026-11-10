@@ -34,6 +34,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
       with:
+        ref: main
         fetch-depth: 0
 
     - name: Configure auto-merge policy
@@ -547,11 +548,11 @@ jobs:
           $text = ($PushOutput -join "`n").Trim()
 
           if ([string]::IsNullOrWhiteSpace($text)) {
-            return "Git rejected the push to `master`."
+            return "Git rejected the push to `main`."
           }
 
           if ($text -match 'GH006: Protected branch' -or $text -match 'protected branch hook declined') {
-            return "GitHub rejected the push because `master` is protected and direct pushes are blocked."
+            return "GitHub rejected the push because `main` is protected and direct pushes are blocked."
           }
 
           if ($text -match 'non-fast-forward|fetch first|failed to push some refs') {
@@ -559,7 +560,7 @@ jobs:
           }
 
           if ($text -match 'not authorized|permission denied|write access') {
-            return "The workflow token does not have permission to push to `master`."
+            return "The workflow token does not have permission to push to `main`."
           }
 
           return (($text -split "`r?`n" | Where-Object { $_ -match '^(remote:|! \[remote rejected\]|error:|To )' } | Select-Object -First 4) -join '; ')
@@ -568,7 +569,7 @@ jobs:
         try {
           echo "### 🚀 Auto-merging Updates" >> $env:GITHUB_STEP_SUMMARY
           echo "" >> $env:GITHUB_STEP_SUMMARY
-          echo "Attempting to automatically merge non-breaking changes to master..." >> $env:GITHUB_STEP_SUMMARY
+          echo "Attempting to automatically merge non-breaking changes to main..." >> $env:GITHUB_STEP_SUMMARY
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -579,8 +580,8 @@ jobs:
           $commitSuccess = $LASTEXITCODE -eq 0
 
           if ($commitSuccess) {
-            # Push directly to master
-            $pushOutput = & git push origin HEAD:master 2>&1
+            # Push directly to main
+            $pushOutput = & git push origin HEAD:main 2>&1
             $pushSuccess = $LASTEXITCODE -eq 0
             if (-not $pushSuccess) {
               $pushFailureReason = Get-PushFailureReason -PushOutput @($pushOutput)
@@ -588,15 +589,15 @@ jobs:
                 Add-Content -Path $env:GITHUB_ENV -Value "AUTO_MERGE_FAILURE_REASON=$pushFailureReason"
               }
               $pushErrorMessage = if ([string]::IsNullOrWhiteSpace($pushFailureReason)) {
-                "Failed to push to master (exit code: $LASTEXITCODE)"
+                "Failed to push to main (exit code: $LASTEXITCODE)"
               } else {
-                "Failed to push to master (exit code: $LASTEXITCODE): $pushFailureReason"
+                "Failed to push to main (exit code: $LASTEXITCODE): $pushFailureReason"
               }
             }
 
             if ($pushSuccess) {
               echo "" >> $env:GITHUB_STEP_SUMMARY
-              echo "✅ **Success!** Updates have been automatically merged to master." >> $env:GITHUB_STEP_SUMMARY
+              echo "✅ **Success!** Updates have been automatically merged to main." >> $env:GITHUB_STEP_SUMMARY
               echo "" >> $env:GITHUB_STEP_SUMMARY
               echo "**Updated dependencies:** $env:LIST_UPDATED" >> $env:GITHUB_STEP_SUMMARY
 
@@ -645,7 +646,7 @@ jobs:
           Please verify and then **Merge** the pull request to apply the updates.
         commit-message: '⬆️ Update dependencies (${{ env.LIST_UPDATED }})'
         branch: update-vendor
-        base: master
+        base: main
         labels: |
           👆 Dependencies
           🗃️ Vendor
@@ -679,7 +680,7 @@ jobs:
             $summary += "An existing pull request has been updated: [#$($env:PR_NUMBER)]($($env:PR_URL))`n`n"
           }
           'none' {
-            $summary += "No pull request was created because [update-vendor]($updateVendorBranchUrl) no longer differs from ``master``.`n`n"
+            $summary += "No pull request was created because [update-vendor]($updateVendorBranchUrl) no longer differs from ``main``.`n`n"
           }
           default {
             if (-not [string]::IsNullOrWhiteSpace($env:PR_URL)) {
