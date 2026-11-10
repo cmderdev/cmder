@@ -568,7 +568,10 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	{
 		swprintf_s(args, L"%s /Icon \"%s\"", args, icoPath);
 		swprintf_s(args, L"%s /title \"%s\"", args, cmderTitle.c_str());
-		PathCombine(terminalPath, exeDir, L"vendor\\conemu-maximus5\\ConEmu64.exe");
+		PathCombine(terminalPath, exeDir,
+			sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
+				? L"vendor\\conemu-maximus5\\ConEmu64.exe"
+				: L"vendor\\conemu-maximus5\\ConEmu.exe");
 	}
 	else
 	{

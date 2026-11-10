@@ -17,6 +17,8 @@ static DWORD modulePathCapacity = 0;
 static int helpDialogs = 0;
 static int registryWrites = 0;
 static int terminalLaunches = 0;
+static WORD nativeArchitecture = PROCESSOR_ARCHITECTURE_AMD64;
+static std::wstring lastTerminalPath;
 
 [[noreturn]] static void TestExit(int code) { throw LauncherExit{code}; }
 static LPWSTR WINAPI TestGetCommandLineW() { return &testCommandLine[0]; }
@@ -46,12 +48,18 @@ static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
     ++registryWrites;
     return ERROR_ACCESS_DENIED;
 }
-static BOOL WINAPI TestCreateProcessW(LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES,
+static BOOL WINAPI TestCreateProcessW(LPCWSTR application, LPWSTR, LPSECURITY_ATTRIBUTES,
     LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION)
 {
     ++terminalLaunches;
+    lastTerminalPath = application;
     SetLastError(ERROR_FILE_NOT_FOUND);
     return FALSE;
+}
+static void WINAPI TestGetNativeSystemInfo(LPSYSTEM_INFO info)
+{
+    ZeroMemory(info, sizeof(*info));
+    info->wProcessorArchitecture = nativeArchitecture;
 }
 
 #define exit TestExit
@@ -61,6 +69,7 @@ static BOOL WINAPI TestCreateProcessW(LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES,
 #define TaskDialogIndirect TestTaskDialogIndirect
 #define RegCreateKeyExW TestRegCreateKeyExW
 #define CreateProcessW TestCreateProcessW
+#define GetNativeSystemInfo TestGetNativeSystemInfo
 #include "../src/CmderLauncher.cpp"
 #undef exit
 #undef GetCommandLineW
@@ -69,6 +78,7 @@ static BOOL WINAPI TestCreateProcessW(LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES,
 #undef TaskDialogIndirect
 #undef RegCreateKeyExW
 #undef CreateProcessW
+#undef GetNativeSystemInfo
 
 static void Check(bool condition, const char* message)
 {
@@ -157,12 +167,21 @@ static void TestArgumentParsing()
     const std::wstring vendor = root + L"\\vendor";
     const std::wstring conemu = vendor + L"\\conemu-maximus5";
     const std::wstring windowsTerminal = vendor + L"\\windows-terminal";
+    const std::wstring installationConfig = root + L"\\config";
     Check(CreateDirectoryW(vendor.c_str(), NULL) != 0, "Could not create vendor fixture");
+    Check(CreateDirectoryW(installationConfig.c_str(), NULL) != 0, "Could not create installation config fixture");
     testExecutable = root + L"\\Cmder.exe";
 
     for (int terminal = 0; terminal < 3; ++terminal) {
         if (terminal == 1) {
             Check(CreateDirectoryW(conemu.c_str(), NULL) != 0, "Could not create ConEmu fixture");
+            WriteFixture(vendor + L"\\ConEmu.xml.default", "<settings />");
+            for (WORD architecture : {WORD(PROCESSOR_ARCHITECTURE_INTEL), WORD(PROCESSOR_ARCHITECTURE_AMD64), WORD(PROCESSOR_ARCHITECTURE_ARM64)}) {
+                nativeArchitecture = architecture;
+                StartCmder();
+                Check(lastTerminalPath == conemu + (architecture == PROCESSOR_ARCHITECTURE_AMD64 ? L"\\ConEmu64.exe" : L"\\ConEmu.exe"),
+                    "ConEmu executable did not match native architecture");
+            }
         }
         if (terminal == 2) {
             Check(CreateDirectoryW(windowsTerminal.c_str(), NULL) != 0, "Could not create Windows Terminal fixture");
@@ -219,11 +238,15 @@ static void TestArgumentParsing()
     StartCmder(L"", false, L"", L"", L"", userRoot);
     Check(ReadFixture(settings) == "{\"source\":\"edited shared settings\"}", "Subsequent /c launch overwrote shared settings");
     Check(ReadFixture(userSettings) == "{\"source\":\"user root\"}", "Subsequent /c launch changed user terminal settings");
-    Check(terminalLaunches == 2, "Startup did not reach the terminal launch boundary");
+    Check(terminalLaunches == 5, "Startup did not reach the terminal launch boundary");
 
     Check(DeleteFileW(userSettings.c_str()) != 0, "Could not remove user settings fixture");
     Check(DeleteFileW(settings.c_str()) != 0, "Could not remove shared settings fixture");
     Check(DeleteFileW(defaults.c_str()) != 0, "Could not remove default settings fixture");
+    Check(DeleteFileW((vendor + L"\\ConEmu.xml.default").c_str()) != 0, "Could not remove ConEmu default fixture");
+    Check(DeleteFileW((conemu + L"\\ConEmu.xml").c_str()) != 0, "Could not remove ConEmu settings fixture");
+    Check(DeleteFileW((installationConfig + L"\\user-ConEmu.xml").c_str()) != 0, "Could not remove ConEmu user settings fixture");
+    Check(RemoveDirectoryW(installationConfig.c_str()) != 0, "Could not remove installation config fixture");
     Check(RemoveDirectoryW((userConfig + L"\\profile.d").c_str()) != 0, "Could not remove user profile directory");
     Check(RemoveDirectoryW((userRoot + L"\\bin").c_str()) != 0, "Could not remove user bin directory");
     Check(RemoveDirectoryW(userConfig.c_str()) != 0, "Could not remove user config directory");

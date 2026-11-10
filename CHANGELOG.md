@@ -46,6 +46,7 @@ This is a release candidate for the new current line. The old 1.x source is pres
 - Reject missing or empty launcher option values, keep switches after a positional start folder, and stop invalid registration commands before registry writes. See [#2898](https://github.com/cmderdev/cmder/pull/2898).
 - Restore the TCC/TCCLE defaults that disable Clink and Cmder aliases when they have not been explicitly configured. See [discussion #3068](https://github.com/orgs/cmderdev/discussions/3068#discussioncomment-16529412).
 - Initialize shared Windows Terminal defaults on the first `/C` launch while preserving existing shared settings and user-root settings. See [#3128](https://github.com/cmderdev/cmder/pull/3128).
+- Restore the 32-bit ConEmu executable selection on non-AMD64 Windows hosts. See [#2898](https://github.com/cmderdev/cmder/pull/2898).
 - Fix launcher option parsing so bundled terminals do not consume unrelated command-line switches as task names.
 - Fix `Cmder.bat` handling of custom ConEmu configuration-file arguments.
 - Exclude local Windows Terminal settings backups from release archives.
