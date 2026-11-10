@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.3.26](https://github.com/cmderdev/cmder/compare/v1.3.25...legacy/1.x) (UNRELEASED)
+## [1.3.26](https://github.com/cmderdev/cmder/releases/tag/v1.3.26) (2026-11-10)
 
 ### Maintenance scope
 
@@ -44,8 +44,8 @@
   Embedded components have their own Windows requirements; a 1.x archive does
   not imply Windows 7 support. See the
   [Git for Windows requirements](https://gitforwindows.org/requirements.html).
-- This section records unreleased work. A final release must document the actual
-  selected component versions and archive verification.
+- The release notes record the selected components and the independent checks
+  of the tagged archives, versioned launcher, and shell startup.
 
 ## [1.3.25](https://github.com/cmderdev/cmder/tree/v1.3.25) (2024-05-31)
 

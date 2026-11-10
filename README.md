@@ -4,7 +4,8 @@ This is the `legacy/1.x` maintenance line. Current Cmder development and the 2.x
 releases are on [`main`](https://github.com/cmderdev/cmder/tree/main). This branch
 keeps the ConEmu launcher, `vendor\init.bat`, and the existing Full
 (`cmder.zip`, `cmder.7z`) and Mini (`cmder_mini.zip`) archive names.
-See the [unreleased 1.3.26 notes](CHANGELOG.md) for the maintenance changes.
+See the [1.3.26 maintenance notes](CHANGELOG.md) and
+[backport guide](docs/MAINTENANCE-1.x.md) for this line's changes and checks.
 
 [![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=legacy%2F1.x)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Alegacy%2F1.x)
 
