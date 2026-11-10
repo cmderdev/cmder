@@ -392,7 +392,7 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
 
 ## Latest Builds
 
-New contributions target [`main`](https://github.com/cmderdev/cmder/tree/main). The old 1.x line is preserved on [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x), and `development` is historical. The default-branch setting needs an admin handoff in [#3130](https://github.com/cmderdev/cmder/issues/3130).
+New and unfinished work continues through feature PRs to [`main`](https://github.com/cmderdev/cmder/tree/main). The 1.x maintenance line is [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x); `development` must not collect ongoing work. The default-branch setting needs an admin handoff in [#3130](https://github.com/cmderdev/cmder/issues/3130).
 
 You can download the latest successful builds of `main` from the **GitHub Actions > Artifacts** section following the links below:
 

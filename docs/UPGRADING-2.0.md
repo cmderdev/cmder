@@ -2,7 +2,7 @@
 
 The 2.0 release candidate brings the accumulated Windows Terminal, launcher,
 startup, and packaging work to the current release line. You can try it while
-keeping your existing installation. The old source remains on
+keeping your existing installation. The 1.x source remains on
 [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x).
 
 ## Try the RC beside your current installation
@@ -102,16 +102,17 @@ Windows Terminal settings file. Use separate installations if you need fully
 separate bundled Terminal settings. Back up existing terminal settings before
 changing them.
 
-## Current work, old work, and comparisons
+## Continue work and compare release lines
 
-Send new feature branches and PRs to `main`. `development` is historical after
-the integration. An admin must finish the default-branch/protection handoff in
+Continue new and unfinished work through feature PRs to `main`; `development`
+must not collect ongoing work. An admin must finish the
+default-branch/protection handoff in
 [#3130](https://github.com/cmderdev/cmder/issues/3130).
 
 - [Compare legacy/1.x with main, hiding whitespace](https://github.com/cmderdev/cmder/compare/legacy%2F1.x...main?w=1).
 - [David's recovered execution backlog](https://github.com/cmderdev/cmder/issues/3133).
 - [Independent final 1.x checklist](https://github.com/cmderdev/cmder/issues/3131).
 
-The legacy branch name does not itself guarantee support for Windows 7, old
-Git versions, or every historical machine. Dependency OS requirements and real
+The 1.x branch name does not itself guarantee support for Windows 7, every
+Git version, or every hardware configuration. Dependency OS requirements and real
 host tests must be checked for each legacy release.
