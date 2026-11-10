@@ -19,6 +19,8 @@
   preserving explicit user settings and the existing `init.bat` behavior.
 - Recognize the current Git UCRT64 layout in CMD and PowerShell while retaining
   older MinGW layouts, native 32-bit and WoW64 selection, and external-Git preference.
+  Check the production helpers and `init.bat` selection with layout fixtures on
+  PowerShell 5.1 and 7, keeping the existing Bash initialization policy.
 - Support Git repositories that use reftables in the Clink prompt.
 - Make Mercurial prompt updates asynchronous and fix its branch handling.
 - Quote Git locale paths, avoid temporary-file name collisions, and respect

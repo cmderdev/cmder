@@ -58,6 +58,14 @@ jobs:
       shell: pwsh
       run: .\scripts\test-shell-detection.ps1
 
+    - name: Test legacy Git layouts
+      shell: pwsh
+      run: .\scripts\test-git-layout.ps1
+
+    - name: Test legacy Git layouts on Windows PowerShell 5.1
+      shell: powershell
+      run: .\scripts\test-git-layout.ps1
+
     - name: Test legacy package contents
       shell: pwsh
       run: .\scripts\test-legacy-packaging.ps1
