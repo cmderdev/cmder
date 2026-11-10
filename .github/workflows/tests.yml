@@ -70,6 +70,14 @@ jobs:
       shell: pwsh
       run: .\scripts\test-vendor-badges.ps1
 
+    - name: Test build helper argument and path safety
+      shell: pwsh
+      run: .\scripts\test-build-helpers.ps1
+
+    - name: Test build helpers on Windows PowerShell 5.1
+      shell: powershell
+      run: .\scripts\test-build-helpers.ps1
+
     - name: Test TCC shell compatibility defaults
       shell: pwsh
       run: .\scripts\test-shell-detection.ps1
