@@ -1,7 +1,13 @@
 # Change Log
 
 
-## Unreleased
+## [2.0.0-rc.1](https://github.com/cmderdev/cmder/releases/tag/v2.0.0-rc.1) (2026-11-10)
+
+This is a release candidate for the new current line. The old 1.x source is preserved on `legacy/1.x`. Read [the upgrade guide](docs/UPGRADING-2.0.md) before moving an existing installation.
+
+- Use `main` for new feature branches and PRs; retire the automatic `master` to `development` merge workflow. The admin-only default/protection handoff is tracked in [#3130](https://github.com/cmderdev/cmder/issues/3130).
+- Use clear `full`, `nogit`, `launcher`, and `conemu` archive names at the 2.0 boundary, as discussed in [#3090](https://github.com/cmderdev/cmder/pull/3090#issuecomment-4703569067). Existing 1.x asset names remain unchanged.
+- Reject malformed launcher arguments and oversized configuration paths safely. Fixes [#3119](https://github.com/cmderdev/cmder/issues/3119); adds Win32 and x64 regression checks.
 
 ### Adds
 
@@ -9,7 +15,7 @@
 - Add the **Cmder Launcher** package profile for builds that include Cmder, Clink, and optional Git for Windows integration without bundling a terminal emulator. See [#2942](https://github.com/cmderdev/cmder/pull/2942).
 - Add configurable package profiles in `scripts/package-profiles.json` so package display names, output folders, included vendors, and package variants are driven by JSON rather than hardcoded script branches.
 - Add `-Terminal` support to `scripts/build.ps1` and `scripts/pack.ps1` for building or packing `all`, `none`, `windows-terminal`, or `conemu-maximus5` terminal profiles.
-- Add grouped package outputs for `cmder_launcher`, `cmder`, and `cmder_conemu`, each with full and mini variants, plus one root `build/hashes.txt` manifest for all generated archives.
+- Add grouped package outputs for `cmder_launcher`, `cmder`, and `cmder_conemu`, each with full and no-Git variants, plus one root `build/hashes.txt` manifest for all generated archives.
 - Add Git Bash and Mintty launch helpers in `vendor/start_git_bash.cmd` and `vendor/start_git_mintty.cmd`, including support for vendored Git for Windows or external Git installations.
 - Add `vendor/bin/create-cmdercfg.cmd`, `vendor/bin/create-cmdercfg.ps1`, `vendor/user_init.cmd.template`, and PowerShell template expansion helpers to generate an editable `config/user_init.cmd` from Cmder's discovered configuration. See [#2896](https://github.com/cmderdev/cmder/pull/2896) and [#3082](https://github.com/cmderdev/cmder/pull/3082).
 - Add a `.cmd` script-extension guard and a legacy `init.bat` migration test to the test workflow so accidental tracked `.bat` command scripts are caught early.
@@ -19,7 +25,7 @@
 ### Changes
 
 - Rename `vendor/init.bat` to `vendor/init.cmd` and update Cmder startup paths, generated templates, Windows Terminal defaults, ConEmu defaults, documentation, and tests to use the `.cmd` startup script. See [#3082](https://github.com/cmderdev/cmder/pull/3082).
-- Preserve compatibility for existing `vendor/init.bat` installations by backing up the old file to `init.bat.old` or `init.bat.old.N`, creating a new `init.bat` shim that tells the user to update their configuration, and then calling `init.cmd`.
+- Preserve compatibility for existing `vendor/init.bat` installations by shipping a tracked `init.bat` shim that tells the user to update their configuration and then calls `init.cmd`; initialization retains one-time handling for older installations.
 - Refactor `scripts/build.ps1`, `scripts/pack.ps1`, and `scripts/utils.ps1` around shared package-profile helpers, configurable included vendors, reusable artifact/hash helpers, and consistent `-Verbose` casing/placement.
 - Change package selection from excluded-vendor logic to `includedVendors` so each profile and package variant explicitly declares what it contains.
 - Update GitHub Actions build packaging to upload each generated archive as its own artifact with `actions/upload-artifact@v7`, `archive: false`, `if-no-files-found: error`, per-file artifact links, emoji-rich summaries, profile headings, and one downloadable `hashes.txt` manifest.
@@ -36,10 +42,9 @@
 
 ### Fixes
 
-- Restore the TCC/TCCLE defaults that disable Clink and Cmder aliases when they have not been explicitly configured. See [discussion #3068](https://github.com/orgs/cmderdev/discussions/3068#discussioncomment-16529412).
-
 - Reject oversized launcher configuration paths before startup or registration writes, and check executable-path API errors and truncation. Fixes [#3119](https://github.com/cmderdev/cmder/issues/3119).
 - Reject missing or empty launcher option values, keep switches after a positional start folder, and stop invalid registration commands before registry writes. See [#2898](https://github.com/cmderdev/cmder/pull/2898).
+- Restore the TCC/TCCLE defaults that disable Clink and Cmder aliases when they have not been explicitly configured. See [discussion #3068](https://github.com/orgs/cmderdev/discussions/3068#discussioncomment-16529412).
 - Fix launcher option parsing so bundled terminals do not consume unrelated command-line switches as task names.
 - Fix `Cmder.bat` handling of custom ConEmu configuration-file arguments.
 - Exclude local Windows Terminal settings backups from release archives.

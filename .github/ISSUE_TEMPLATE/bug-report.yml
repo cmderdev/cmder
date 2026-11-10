@@ -38,7 +38,7 @@ body:
       description: What edition of Cmder are you running?
       options:
         - Cmder Full (with Git)
-        - Cmder Mini
+        - Cmder no-Git
         - N/A
     validations:
       required: true

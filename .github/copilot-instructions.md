@@ -102,7 +102,7 @@ repository-specific checks:
   `$PSScriptRoot` initialization timing, encoding, quoting, and error
   propagation; CI running PowerShell 7 is not sufficient coverage by itself.
 - For build and packaging changes, verify every affected terminal profile and
-  full/mini package variant.  Flag hardcoded vendor or package branches that
+  full/no-Git package variant.  Flag hardcoded vendor or package branches that
   should be expressed through `package-profiles.json`.
 - For vendor updates, confirm the version, URL, package inclusion, release
   notes, and generated artifacts stay consistent.

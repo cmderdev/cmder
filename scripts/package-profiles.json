@@ -19,7 +19,7 @@
           "kind": "zip"
         },
         {
-          "name": "cmder_launcher_mini.zip",
+          "name": "cmder_launcher_nogit.zip",
           "kind": "zip",
           "includedVendors": [
             "clink",
@@ -40,15 +40,15 @@
       ],
       "packages": [
         {
-          "name": "cmder.7z",
+          "name": "cmder_full.7z",
           "kind": "7z"
         },
         {
-          "name": "cmder.zip",
+          "name": "cmder_full.zip",
           "kind": "zip"
         },
         {
-          "name": "cmder_mini.zip",
+          "name": "cmder_nogit.zip",
           "kind": "zip",
           "includedVendors": [
             "clink",
@@ -70,15 +70,15 @@
       ],
       "packages": [
         {
-          "name": "cmder_conemu.7z",
+          "name": "cmder_conemu_full.7z",
           "kind": "7z"
         },
         {
-          "name": "cmder_conemu.zip",
+          "name": "cmder_conemu_full.zip",
           "kind": "zip"
         },
         {
-          "name": "cmder_conemu_mini.zip",
+          "name": "cmder_conemu_nogit.zip",
           "kind": "zip",
           "includedVendors": [
             "clink",

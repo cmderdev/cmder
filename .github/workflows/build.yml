@@ -181,59 +181,59 @@ jobs:
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder_launcher_mini.zip)
-      id: upload_cmder_launcher_mini_zip
+    - name: Upload artifact (cmder_launcher_nogit.zip)
+      id: upload_cmder_launcher_nogit_zip
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_launcher/cmder_launcher_mini.zip
+        path: build/cmder_launcher/cmder_launcher_nogit.zip
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder.7z)
-      id: upload_cmder_7z
+    - name: Upload artifact (cmder_full.7z)
+      id: upload_cmder_full_7z
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder/cmder.7z
+        path: build/cmder/cmder_full.7z
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder.zip)
-      id: upload_cmder_zip
+    - name: Upload artifact (cmder_full.zip)
+      id: upload_cmder_full_zip
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder/cmder.zip
+        path: build/cmder/cmder_full.zip
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder_mini.zip)
-      id: upload_cmder_mini_zip
+    - name: Upload artifact (cmder_nogit.zip)
+      id: upload_cmder_nogit_zip
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder/cmder_mini.zip
+        path: build/cmder/cmder_nogit.zip
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder_conemu.7z)
-      id: upload_cmder_conemu_7z
+    - name: Upload artifact (cmder_conemu_full.7z)
+      id: upload_cmder_conemu_full_7z
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_conemu/cmder_conemu.7z
+        path: build/cmder_conemu/cmder_conemu_full.7z
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder_conemu.zip)
-      id: upload_cmder_conemu_zip
+    - name: Upload artifact (cmder_conemu_full.zip)
+      id: upload_cmder_conemu_full_zip
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_conemu/cmder_conemu.zip
+        path: build/cmder_conemu/cmder_conemu_full.zip
         if-no-files-found: error
         archive: false
 
-    - name: Upload artifact (cmder_conemu_mini.zip)
-      id: upload_cmder_conemu_mini_zip
+    - name: Upload artifact (cmder_conemu_nogit.zip)
+      id: upload_cmder_conemu_nogit_zip
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmder_conemu/cmder_conemu_mini.zip
+        path: build/cmder_conemu/cmder_conemu_nogit.zip
         if-no-files-found: error
         archive: false
 
@@ -252,13 +252,13 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         ARTIFACT_URL_CMDER_LAUNCHER_7Z: ${{ steps.upload_cmder_launcher_7z.outputs.artifact-url }}
         ARTIFACT_URL_CMDER_LAUNCHER_ZIP: ${{ steps.upload_cmder_launcher_zip.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_LAUNCHER_MINI_ZIP: ${{ steps.upload_cmder_launcher_mini_zip.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_7Z: ${{ steps.upload_cmder_7z.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_ZIP: ${{ steps.upload_cmder_zip.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_MINI_ZIP: ${{ steps.upload_cmder_mini_zip.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_CONEMU_7Z: ${{ steps.upload_cmder_conemu_7z.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_CONEMU_ZIP: ${{ steps.upload_cmder_conemu_zip.outputs.artifact-url }}
-        ARTIFACT_URL_CMDER_CONEMU_MINI_ZIP: ${{ steps.upload_cmder_conemu_mini_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_LAUNCHER_NOGIT_ZIP: ${{ steps.upload_cmder_launcher_nogit_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_FULL_7Z: ${{ steps.upload_cmder_full_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_FULL_ZIP: ${{ steps.upload_cmder_full_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_NOGIT_ZIP: ${{ steps.upload_cmder_nogit_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_FULL_7Z: ${{ steps.upload_cmder_conemu_full_7z.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_FULL_ZIP: ${{ steps.upload_cmder_conemu_full_zip.outputs.artifact-url }}
+        ARTIFACT_URL_CMDER_CONEMU_NOGIT_ZIP: ${{ steps.upload_cmder_conemu_nogit_zip.outputs.artifact-url }}
         ARTIFACT_URL_HASHES_TXT: ${{ steps.upload_hashes_txt.outputs.artifact-url }}
       run: |
         # Source utility functions
