@@ -36,6 +36,8 @@
 
 ### Fixes
 
+- Restore the TCC/TCCLE defaults that disable Clink and Cmder aliases when they have not been explicitly configured. See [discussion #3068](https://github.com/orgs/cmderdev/discussions/3068#discussioncomment-16529412).
+
 - Reject oversized launcher configuration paths before startup or registration writes, and check executable-path API errors and truncation. Fixes [#3119](https://github.com/cmderdev/cmder/issues/3119).
 - Reject missing or empty launcher option values, keep switches after a positional start folder, and stop invalid registration commands before registry writes. See [#2898](https://github.com/cmderdev/cmder/pull/2898).
 - Fix launcher option parsing so bundled terminals do not consume unrelated command-line switches as task names.
