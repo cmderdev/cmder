@@ -31,12 +31,12 @@ Cmder is moving to the following branch model:
 | --- | --- | --- |
 | `main` | Current code and the next release | Send normal PRs here from a separate feature branch. |
 | `legacy/1.x` | The preserved 1.x code and its maintenance releases | Send compatible 1.x bug fixes here. Link the related current-line fix when there is one. |
-| `development` | Historical integration branch for the existing release transition | Do not use it to collect new, unfinished work. |
-| `master` | Old default branch during the transition | Check [the migration issue](https://github.com/cmderdev/cmder/issues/3130) before targeting it. |
+| `development` | Integration branch replaced by feature PRs to `main` | Continue new and unfinished work through feature PRs to `main`. |
+| `master` | Default branch during the administrator handoff | Check [the migration issue](https://github.com/cmderdev/cmder/issues/3130) before targeting it. |
 
-The transition must preserve the old `master` commit and any existing `main`
-history. Creating a branch, merging the old integration PR, changing the default
-branch, and retiring old automation are separate steps. The `master` to `main`
+The transition must preserve the pre-integration `master` baseline and existing
+`main` history. Creating a branch, merging the integration PR, changing the default
+branch, and updating automation are separate steps. The `master` to `main`
 default-branch switch needs a maintainer with the required repository access.
 Until that handoff is complete, check the base branch on your PR and link the
 [migration issue](https://github.com/cmderdev/cmder/issues/3130) if the GitHub default still points to `master`.
@@ -53,8 +53,8 @@ git switch -c fix/describe-the-change upstream/main
 ```
 
 Before the release transition is complete, ask in the migration issue which base
-contains the integrated code you need. Do not merge an older branch over new
-work just to make a PR target match this table.
+contains the integrated code you need. Do not overwrite existing changes merely
+to make a PR target match this table.
 
 ## Keep changes easy to review
 
@@ -154,7 +154,7 @@ us ship finished work while keeping the remaining work visible.
 ## Maintain the backlog and project boards
 
 Use issues as the lasting record; boards help people see their status. Prefer
-an existing issue over a duplicate, and link historical discussions rather than
+an existing issue over a duplicate, and link source discussions rather than
 copying them without context.
 
 For each active item, record:
@@ -164,11 +164,17 @@ For each active item, record:
 - its state: **Backlog**, **Ready**, **In progress**, **In review**, or **Done**;
 - a specific dependency or required permission if the item is blocked.
 
-Keep current release blockers separate from 1.x maintenance and later ideas.
+Record release blockers and affected release lines explicitly. Keep every
+unfinished requirement active, with its source context and owner. Age or
+inactivity alone is never a reason to close, remove, archive, or lower an item's
+priority.
+
+Do not add dates or timestamps to issue/backlog status prose unless requested.
+
 Move an item to Done only when its stated outcome is delivered. A draft PR,
 an unanswered review, or a successful build with required manual testing left
-is still unfinished. Before closing a stale or replaced item, link the work
-that replaces it and preserve any remaining requirements.
+is still unfinished. Close an item only when its requirements are delivered or
+explicitly superseded by linked work. Keep any remaining requirements open.
 
 ## Backport a fix to 1.x
 
@@ -200,10 +206,11 @@ migration steps, known problems, and which package to download.
   packages and notes before publishing. A draft is not a public download;
   publish a tested pre-release when asking the community to try an RC.
 - Publish a final release only when its release checklist is complete. Record
-  deferred work in linked issues, without describing it as finished.
+  remaining work in linked issues, without describing it as finished.
 
 Keep 1.x maintenance and current releases distinct in their tags and notes.
-Do not hold a finished current release for unrelated maintenance work. Ask for
+When its release checklist is complete, publish finished work while continuing
+the remaining maintenance and feature work in linked issues and PRs. Ask for
 focused community testing and use the results to guide the next update.
 
 ## More help
