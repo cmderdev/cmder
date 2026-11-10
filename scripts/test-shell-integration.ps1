@@ -418,6 +418,44 @@ try {
         Assert-Equal $s.Added[0].Path '' 'Development does not install unsigned production MSIX'
     }
     Invoke-FixtureCase 'Deployment failure leaves preferences untouched' @{ AddFails = $true } ${function:Assert-RejectedWithoutMutation}
+    $sameVersionSetup = {
+        param($s)
+        Add-Member -InputObject $s.Owned -NotePropertyName Version -NotePropertyValue ([version]'2.0.0.0')
+        $s.Packages = @($s.Owned); $s.KeyExists = $true
+        $s.Settings.InstallRoot = $s.Root; $s.Settings.ConfigRoot = 'C:\Previous config'; $s.Settings.SingleInstance = 1
+        $s.Settings.PackageFamilyName = $s.Owned.PackageFamilyName
+        Write-FixturePreference $s.PreferencePath ([byte[]]@(255, 254, 91, 0, 42, 0, 13, 0, 10, 0))
+    }
+    Invoke-FixtureCase 'Same-version registration updates preferences without redeploying an in-use package' @{ UseConfig = $true; Single = $false; AddFails = $true; Before = $sameVersionSetup } {
+        param($s)
+        Assert-True (-not $s.Error) ('Same-version preference update failed: ' + $s.Error)
+        Assert-Equal $s.Added.Count 0 'The same registered version is not redeployed'
+        Assert-Equal $s.Removed.Count 0 'The registered package is retained'
+        Assert-Equal $s.Settings.ConfigRoot $s.Config 'Updated configuration metadata is saved'
+        Assert-Equal $s.Settings.SingleInstance 0 'Single-instance metadata can be disabled'
+        Assert-Equal ([IO.File]::ReadAllText($s.PreferencePath, [Text.Encoding]::Unicode)) ("[Cmder]`r`nConfigRoot=$($s.Config)`r`nSingleInstance=0`r`n") 'Preference file receives the new configuration and disabled single-instance flag'
+    }
+    Invoke-FixtureCase 'Same-version preference update still validates the production signature' @{ Signature = 'NotSigned'; Before = $sameVersionSetup } ${function:Assert-RejectedWithoutMutation}
+    Invoke-FixtureCase 'Same-version preference update still requires explicit enabled Developer Mode' @{ Development = $true; Before = $sameVersionSetup } ${function:Assert-RejectedWithoutMutation}
+    Invoke-FixtureCase 'A newer manifest version still deploys the package' @{ Before = {
+        param($s)
+        & $sameVersionSetup $s
+        Write-FixturePackage (Join-Path $s.Shell 'CmderContextMenu.msix') ($s.Manifest.Replace('Version="2.0.0.0"', 'Version="2.1.0.0"'))
+    } } {
+        param($s)
+        Assert-True (-not $s.Error) ('New-version registration failed: ' + $s.Error)
+        Assert-Equal $s.Added.Count 1 'A changed manifest version goes through deployment'
+        Assert-Equal $s.Added[0].Path (Join-Path $s.Shell 'CmderContextMenu.msix') 'The newer production package is deployed'
+    }
+    Invoke-FixtureCase 'Same-version preference failure restores previous bytes without package removal' @{ UseConfig = $true; AddFails = $true; FailWrite = 'SingleInstance'; Before = $sameVersionSetup } {
+        param($s)
+        Assert-True ($s.Error -like '*persistence failure*') 'Same-version persistence error is reported'
+        Assert-Equal $s.Added.Count 0 'A preference-only update performs no deployment'
+        Assert-Equal $s.Removed.Count 0 'Preference-only rollback retains the registered package'
+        Assert-Equal ([Convert]::ToBase64String([IO.File]::ReadAllBytes($s.PreferencePath))) $s.PreferenceBefore 'Preference-only rollback restores exact prior bytes'
+        Assert-Equal $s.Settings.ConfigRoot 'C:\Previous config' 'Preference-only rollback restores previous metadata'
+        Assert-Equal $s.Settings.SingleInstance 1 'Preference-only rollback restores the single-instance preference'
+    }
     Invoke-FixtureCase 'New registration rolls back package and partial preferences after persistence failure' @{ UseConfig = $true; FailWrite = 'SingleInstance' } {
         param($s)
         Assert-True ($s.Error -like '*persistence failure*') 'Persistence error is reported'

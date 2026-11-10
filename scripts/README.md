@@ -15,6 +15,7 @@ The scripts share a small library of helper functions located in `utils.ps1`.
 - **update.ps1**: Updates what will be bundled by `build.ps1`.
 - **build-shell-integration.ps1**: Builds the native Explorer command and sparse identity package. `build.ps1 -Compile` runs it automatically. See [Windows 11 setup and signing](../docs/WINDOWS-11-CONTEXT-MENU.md).
 - **test-shell-integration.ps1**: Runs isolated registration fixtures without changing host settings. Pass `-BuiltPackageRoot ..\bin\cmder-shell` to also validate the built package and assets.
+- **test-shell-integration-runtime.ps1**: Optional Windows 11 development-package activation test. It requires an interactive Explorer desktop, native Windows PowerShell 5.1, pre-existing Developer Mode, and no existing Cmder registration or package data. See the [runtime instructions](../docs/WINDOWS-11-CONTEXT-MENU.md).
 
 **Shared helpers**
 - **utils.ps1**: A shared library of helper functions used by the other scripts. Common utilities include:

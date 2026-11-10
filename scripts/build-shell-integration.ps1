@@ -1,7 +1,7 @@
 ﻿<# Build the opt-in Windows 11 Explorer command and its identity-only package. #>
 [CmdletBinding()]
 param(
-    [string]$CmderRoot = (Join-Path $PSScriptRoot '..'),
+    [string]$CmderRoot,
     [ValidatePattern('^\d+\.\d+\.\d+\.\d+$')][string]$Version = '2.0.0.0',
     [string]$CertificateThumbprint,
     [string]$Publisher = 'CN=Cmder Contributors',
@@ -9,6 +9,7 @@ param(
     [switch]$SkipCompile
 )
 $ErrorActionPreference = 'Stop'
+if (-not $CmderRoot) { $CmderRoot = Join-Path $PSScriptRoot '..' }
 foreach ($component in $Version.Split('.')) {
     if ([long]$component -gt [uint16]::MaxValue) { throw 'Each package version component must be between 0 and 65535.' }
 }

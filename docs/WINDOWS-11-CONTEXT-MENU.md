@@ -95,6 +95,20 @@ Actual Explorer rendering and trusted-signed deployment should also be checked
 on the target Windows installation; source/fixture success alone does not prove
 those behaviors.
 
+To reproduce the package activation, Unicode argument, preference update, and
+terminal identity checks on an interactive development machine:
+
+```powershell
+msbuild .\launcher\shell\tests\ExplorerCommandTests.vcxproj /p:Configuration=Release /p:Platform=x64
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-shell-integration-runtime.ps1
+```
+
+This optional test requires native Windows PowerShell 5.1 and Developer Mode
+already enabled. It refuses to replace existing Cmder registration or package
+data, uses capture executables in a temporary folder, and unregisters its fixture
+afterward. It retains diagnostic files in that folder. It does not enable
+Developer Mode, trust a certificate, restart Explorer, or claim visual acceptance.
+
 ## Implementation references
 
 The requirement is in [#2788](https://github.com/cmderdev/cmder/issues/2788).

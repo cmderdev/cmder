@@ -175,14 +175,21 @@ function Invoke-CmderContextMenuRegistration {
     if ($document.Package.Identity.Name -ne $identity -or $document.Package.Identity.Publisher -ne $expected.Publisher) {
         throw 'The package identity does not match this Cmder build. No registration was changed.'
     }
+    $manifestVersion = [version]$document.Package.Identity.Version
+    $preferenceOnlyUpdate = $previous -and $previous.InstallRoot -eq $root -and
+        @($registered | Where-Object { $_.Version -and [version]$_.Version -eq $manifestVersion }).Count -gt 0
     if (-not $PSCmdlet.ShouldProcess($root, 'Register the current-user Windows 11 Cmder menu')) { return }
     $hadPreferenceFile = [IO.File]::Exists($preferencePath)
     [byte[]]$previousPreferenceBytes = @()
     if ($hadPreferenceFile) { $previousPreferenceBytes = [IO.File]::ReadAllBytes($preferencePath) }
-    if ($Development) {
-        Add-AppxPackage -Register $manifest -ExternalLocation $root -ErrorAction Stop
-    } else {
-        Add-AppxPackage -Path $package -ExternalLocation $root -ErrorAction Stop
+    # Updating preferences must not redeploy the same package while Explorer uses it.
+    # Identity, install-root, manifest and trust/development checks still run first.
+    if (-not $preferenceOnlyUpdate) {
+        if ($Development) {
+            Add-AppxPackage -Register $manifest -ExternalLocation $root -ErrorAction Stop
+        } else {
+            Add-AppxPackage -Path $package -ExternalLocation $root -ErrorAction Stop
+        }
     }
     try {
         $entry = Get-AppxPackage -Name $identity | Where-Object { $_.Name -eq $identity -and $_.Publisher -eq $expected.Publisher } | Select-Object -First 1
