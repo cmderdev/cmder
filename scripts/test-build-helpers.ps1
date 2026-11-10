@@ -121,3 +121,5 @@ try {
 }
 
 Write-Output "Build helper regression tests passed ($cases cases)."
+# Expected native failures above must not become the Actions shell's exit code.
+exit 0
