@@ -1,7 +1,7 @@
+﻿# Keep this file as UTF-8 with BOM so Windows PowerShell 5.1 can parse literal emoji strings.
 function Ensure-Exists($path) {
     if (-not (Test-Path $path)) {
-        Write-Error "Missing required $path! Ensure it is installed"
-        exit 1
+        throw "Missing required $path! Ensure it is installed"
     }
     return $true > $null
 }
@@ -16,9 +16,47 @@ function Ensure-Executable($command) {
             Set-Alias -Name "7z" -Value "$env:programw6432\7-zip\7z.exe" -Scope script
         }
         else {
-            Write-Error "Missing $command! Ensure it is installed and on in the PATH"
-            exit 1
+            throw "Missing $command! Ensure it is installed and on in the PATH"
         }
+    }
+}
+
+function Write-ColorOutput {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        'PSAvoidUsingWriteHost',
+        '',
+        Justification = 'This helper intentionally writes user-facing host UI when scripts need colored console status messages.'
+    )]
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [AllowEmptyString()]
+        [string]$Message,
+
+        [System.ConsoleColor]$ForegroundColor,
+
+        [System.ConsoleColor]$BackgroundColor,
+
+        [switch]$NoNewline
+    )
+
+    process {
+        $parameters = @{
+            Object = $Message
+        }
+
+        if ($PSBoundParameters.ContainsKey('ForegroundColor')) {
+            $parameters.ForegroundColor = $ForegroundColor
+        }
+
+        if ($PSBoundParameters.ContainsKey('BackgroundColor')) {
+            $parameters.BackgroundColor = $BackgroundColor
+        }
+
+        if ($NoNewline) {
+            $parameters.NoNewline = $true
+        }
+
+        Microsoft.PowerShell.Utility\Write-Host @parameters
     }
 }
 
@@ -70,6 +108,11 @@ function Digest-Hash($path) {
 }
 
 function Set-GHVariable {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        'PSUseShouldProcessForStateChangingFunctions',
+        '',
+        Justification = 'Writes GitHub Actions environment files in non-interactive CI; WhatIf/Confirm would not be meaningful.'
+    )]
     param(
         [Parameter(Mandatory = $true)]
         [string]$Name,
@@ -255,17 +298,17 @@ function Format-FileSize {
     <#
     .SYNOPSIS
     Formats a file size in bytes to a human-readable string using binary units.
-    
+
     .DESCRIPTION
     Converts file sizes to appropriate binary units (B, KiB, MiB, GiB) for better readability.
-    
+
     .PARAMETER Bytes
     The file size in bytes to format.
-    
+
     .EXAMPLE
     Format-FileSize -Bytes 1024
     Returns "1.00 KiB"
-    
+
     .EXAMPLE
     Format-FileSize -Bytes 15728640
     Returns "15.00 MiB"
@@ -274,7 +317,7 @@ function Format-FileSize {
         [Parameter(Mandatory = $true)]
         [double]$Bytes
     )
-    
+
     if ($Bytes -ge 1GB) {
         return "{0:N2} GiB" -f ($Bytes / 1GB)
     } elseif ($Bytes -ge 1MB) {
@@ -286,31 +329,46 @@ function Format-FileSize {
     }
 }
 
+function Get-ArtifactTypeEmoji {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    if ($Name -match '\.txt$') {
+        return "📄"
+    } elseif ($Name -match '\.(zip|rar|7z)$') {
+        return "🗄️"
+    }
+
+    return "📦"
+}
+
 function Get-VersionChangeType {
     <#
     .SYNOPSIS
     Analyzes version changes using semantic versioning to determine the type of update and appropriate emoji.
-    
+
     .DESCRIPTION
     Parses old and new version strings, compares them using semantic versioning rules,
     and returns information about the change type, emoji indicator, and whether it's a major update.
-    
+
     .PARAMETER OldVersion
     The previous version string (e.g., "1.2.3" or "2.52.0.windows.1").
-    
+
     .PARAMETER NewVersion
     The new version string (e.g., "1.3.0" or "3.0.0.windows.1").
-    
+
     .OUTPUTS
     Returns a hashtable with the following keys:
     - ChangeType: "major", "minor", "patch", "downgrade", or "unknown"
     - Emoji: The corresponding emoji indicator (🔥, 🚀, ⬆️, or 🔄)
     - IsMajor: Boolean indicating if this is a major version update
-    
+
     .EXAMPLE
     $result = Get-VersionChangeType -OldVersion "1.2.3" -NewVersion "2.0.0"
     # Returns: @{ ChangeType = "major"; Emoji = "🔥"; IsMajor = $true }
-    
+
     .EXAMPLE
     $result = Get-VersionChangeType -OldVersion "1.2.3" -NewVersion "1.3.0"
     # Returns: @{ ChangeType = "minor"; Emoji = "🚀"; IsMajor = $false }
@@ -318,32 +376,32 @@ function Get-VersionChangeType {
     param(
         [Parameter(Mandatory = $true)]
         [string]$OldVersion,
-        
+
         [Parameter(Mandatory = $true)]
         [string]$NewVersion
     )
-    
+
     $changeType = "unknown"
     $emoji = "🔄"
     $isMajor = $false
-    
+
     try {
         # Handle versions with more than 4 parts and strip pre-release identifiers
         $oldVerStr = $OldVersion.Split('-')[0]
         $newVerStr = $NewVersion.Split('-')[0]
-        
+
         # Split by dots and take only numeric parts, first 4 max
         $oldParts = $oldVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
         $newParts = $newVerStr.Split('.') | Where-Object { $_ -match '^\d+$' } | Select-Object -First 4
-        
+
         # Ensure we have at least 2 parts (major.minor) for semantic versioning
         if ($oldParts.Count -ge 2 -and $newParts.Count -ge 2) {
             $oldVerParseable = $oldParts -join '.'
             $newVerParseable = $newParts -join '.'
-            
+
             $oldVer = [System.Version]::Parse($oldVerParseable)
             $newVer = [System.Version]::Parse($newVerParseable)
-            
+
             if ($newVer -lt $oldVer) {
                 $changeType = "downgrade"
                 # Don't set emoji for downgrades in this function - caller handles it
@@ -372,7 +430,7 @@ function Get-VersionChangeType {
         $emoji = "🔄"
         $isMajor = $false
     }
-    
+
     return @{
         ChangeType = $changeType
         Emoji = $emoji
@@ -384,51 +442,51 @@ function Get-ArtifactDownloadUrl {
     <#
     .SYNOPSIS
     Retrieves the download URL for a GitHub Actions artifact with retry logic.
-    
+
     .DESCRIPTION
     Uses the GitHub CLI to fetch artifact information from the GitHub API with automatic retries.
     Falls back to returning $null if all attempts fail.
-    
+
     .PARAMETER ArtifactName
     The name of the artifact to retrieve the download URL for.
-    
+
     .PARAMETER Repository
     The GitHub repository in the format "owner/repo".
-    
+
     .PARAMETER RunId
     The GitHub Actions workflow run ID.
-    
+
     .PARAMETER MaxRetries
     Maximum number of retry attempts. Default is 3.
-    
+
     .PARAMETER DelaySeconds
     Delay in seconds between retry attempts. Default is 2.
-    
+
     .EXAMPLE
     Get-ArtifactDownloadUrl -ArtifactName "cmder.zip" -Repository "cmderdev/cmder" -RunId "123456789"
-    
+
     .EXAMPLE
     Get-ArtifactDownloadUrl -ArtifactName "build-output" -Repository "owner/repo" -RunId "987654321" -MaxRetries 5 -DelaySeconds 3
     #>
     param(
         [Parameter(Mandatory = $true)]
         [string]$ArtifactName,
-        
+
         [Parameter(Mandatory = $true)]
         [string]$Repository,
-        
+
         [Parameter(Mandatory = $true)]
         [string]$RunId,
-        
+
         [int]$MaxRetries = 3,
         [int]$DelaySeconds = 2
     )
-    
+
     for ($i = 0; $i -lt $MaxRetries; $i++) {
         try {
             # Use GitHub CLI to get artifact information
             $artifactsJson = gh api "repos/$Repository/actions/runs/$RunId/artifacts" --jq ".artifacts[] | select(.name == `"$ArtifactName`")"
-            
+
             if ($artifactsJson) {
                 $artifact = $artifactsJson | ConvertFrom-Json
                 if ($artifact.id) {
@@ -438,13 +496,98 @@ function Get-ArtifactDownloadUrl {
                 }
             }
         } catch {
-            Write-Host "Attempt $($i + 1) failed to get artifact URL for $ArtifactName : $_"
+            Write-Warning "Attempt $($i + 1) failed to get artifact URL for $ArtifactName : $_"
         }
-        
+
         if ($i -lt ($MaxRetries - 1)) {
             Start-Sleep -Seconds $DelaySeconds
         }
     }
-    
+
     return $null
+}
+
+function Get-CmderPackageConfig {
+    $configPath = Join-Path $PSScriptRoot "package-profiles.json"
+    if (-not (Test-Path $configPath)) {
+        throw "Missing package configuration file: $configPath"
+    }
+
+    return Get-Content -Raw $configPath | ConvertFrom-Json
+}
+
+function Get-CmderVendorNames {
+    $sourcesPath = Join-Path $PSScriptRoot "..\vendor\sources.json"
+    if (-not (Test-Path $sourcesPath)) {
+        throw "Missing vendor sources file: $sourcesPath"
+    }
+
+    $sourceData = Get-Content -Raw $sourcesPath | ConvertFrom-Json
+    $sourceEntries = @($sourceData)
+
+    # Allow either a top-level array or an object wrapper with a "sources" property.
+    if (
+        $sourceEntries.Count -eq 1 -and
+        $sourceEntries[0] -and
+        $sourceEntries[0].PSObject.Properties.Name -contains "sources"
+    ) {
+        $sourceEntries = @($sourceEntries[0].sources)
+    }
+
+    $vendorNames = @(
+        $sourceEntries | ForEach-Object {
+            if ($_ -and $_.PSObject.Properties.Name -contains "name") {
+                $_.name
+            }
+        }
+    )
+
+    if (-not $vendorNames) {
+        throw "No vendor names could be read from $sourcesPath"
+    }
+
+    return $vendorNames
+}
+
+function Get-CmderPackageProfiles {
+    param(
+        [string]$Terminal = "all"
+    )
+
+    $config = Get-CmderPackageConfig
+    $profiles = @($config.profiles)
+
+    if ($Terminal -eq "all") {
+        return $profiles
+    }
+
+    $profile = $profiles | Where-Object { $_.terminal -eq $Terminal } | Select-Object -First 1
+    if (-not $profile) {
+        throw "Unknown Cmder terminal profile '$Terminal'"
+    }
+
+    return @($profile)
+}
+
+function Get-CmderTerminalIncludedVendors {
+    param(
+        [string]$Terminal = "all"
+    )
+
+    if ($Terminal -eq "all") {
+        return @(Get-CmderVendorNames)
+    }
+
+    $profile = Get-CmderPackageProfiles -Terminal $Terminal | Select-Object -First 1
+    $includedVendors = @($profile.includedVendors)
+
+    if ($profile.packages) {
+        foreach ($package in @($profile.packages)) {
+            if ($package -and $package.PSObject.Properties.Name -contains "includedVendors" -and $package.includedVendors) {
+                $includedVendors += @($package.includedVendors)
+            }
+        }
+    }
+
+    return @($includedVendors | Select-Object -Unique)
 }

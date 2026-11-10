@@ -104,7 +104,7 @@ if ($null -ne $ENV:GIT_INSTALL_ROOT) {
 
 # Create 'vi' alias for 'vim' if vim is available
 if (Get-Command -Name "vim" -ErrorAction SilentlyContinue) {
-    New-Alias -name "vi" -value vim
+    New-Alias -name "vi" -value vim -ErrorAction SilentlyContinue
 }
 
 # PSReadline configuration
@@ -125,7 +125,7 @@ if (Get-Module PSReadline -ErrorAction "SilentlyContinue") {
 
             # Emit OSC 133;C to mark start of command output
             # This is written directly to the console after the command is accepted
-            [Console]::Write("$([char]0x1B)]133;C$([char]7)")
+            $Host.UI.Write("$([char]0x1B)]133;C$([char]7)")
         }
     }
 }
@@ -210,8 +210,7 @@ if ($ENV:CMDER_USER_CONFIG) {
 
 if (-not (Test-Path $CmderUserProfilePath)) {
     $CmderUserProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($CmderUserProfilePath)
-    Write-Host -NoNewline "`r"
-    Write-Host -BackgroundColor Green -ForegroundColor Black "First Run: Creating user startup file: $CmderUserProfilePath"
+    Write-Information -InformationAction Continue -MessageData "`rFirst Run: Creating user startup file: $CmderUserProfilePath"
     Copy-Item "$env:CMDER_ROOT\vendor\user_profile.ps1.default" -Destination $CmderUserProfilePath
 }
 
@@ -291,5 +290,7 @@ if ( $(Get-Command prompt).Definition -match 'PS \$\(\$executionContext.SessionS
 $CMDER_INIT_END = Get-Date
 
 $ElapsedTime = New-TimeSpan -Start $CMDER_INIT_START -End $CMDER_INIT_END
+
+$env:Path = $env:Path -replace ';;', ';'
 
 Write-Verbose "Elapsed Time: $($ElapsedTime.TotalSeconds) seconds total"

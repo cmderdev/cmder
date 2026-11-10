@@ -2,9 +2,9 @@
 
 (echo.
 echo ------------------------------------
-echo set
+echo Get Cmder env variables...
 echo ------------------------------------
-set
+set | findstr -i -r "^aliases= architecture_bits ccall= cexec= ^clink_ ^cmder ^debug_output= fast_init= ^GIT_INSTALL_ROOT= ^git_locale= ^HOME= ^max_depth= ^nix_tools= ^path_position= ^path= ^PLINK_PROTOCOL= ^print_ ^SVN_SSH= ^time_init= ^user_aliases= ^verbose_output="
 
 echo.
 echo ------------------------------------

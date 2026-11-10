@@ -8,7 +8,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master", "development" ]
+    branches: [ "main", "master", "legacy/1.x" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -16,7 +16,7 @@ on:
       - '**/.gitignore'
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "master", "development" ]
+    branches: [ "main", "master", "legacy/1.x" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -49,9 +49,11 @@ jobs:
 
     - name: Summary - CodeQL analysis started
       shell: pwsh
+      env:
+        HEAD_REF: ${{ github.head_ref }}
       run: |
         $refName = "${{ github.ref_name }}"
-        $headRef = "${{ github.head_ref }}"
+        $headRef = $env:HEAD_REF
         $eventName = "${{ github.event_name }}"
         $prNumber = $null
         $actualBranchName = $refName
@@ -105,9 +107,10 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
+      uses: github/codeql-action/init@v4.39.3
       with:
         languages: ${{ matrix.language }}
+        build-mode: manual
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -121,7 +124,7 @@ jobs:
     - name: Build Cmder Launcher
       shell: pwsh
       working-directory: scripts
-      run: .\build.ps1 -Compile -verbose
+      run: .\build.ps1 -Compile -NoVendor -Verbose
 
     - name: Summary - Build status
       if: success()
@@ -137,7 +140,7 @@ jobs:
         $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
+      uses: github/codeql-action/analyze@v4.39.3
       with:
         category: "/language:${{matrix.language}}"
 

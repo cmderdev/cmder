@@ -1,0 +1,92 @@
+{
+  "profiles": [
+    {
+      "displayName": "Cmder Launcher",
+      "terminal": "none",
+      "outputFolder": "cmder_launcher",
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "clink-completions"
+      ],
+      "packages": [
+        {
+          "name": "cmder_launcher.7z",
+          "kind": "7z"
+        },
+        {
+          "name": "cmder_launcher.zip",
+          "kind": "zip"
+        },
+        {
+          "name": "cmder_launcher_nogit.zip",
+          "kind": "zip",
+          "includedVendors": [
+            "clink",
+            "clink-completions"
+          ]
+        }
+      ]
+    },
+    {
+      "displayName": "Windows Terminal",
+      "terminal": "windows-terminal",
+      "outputFolder": "cmder",
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "windows-terminal",
+        "clink-completions"
+      ],
+      "packages": [
+        {
+          "name": "cmder_full.7z",
+          "kind": "7z"
+        },
+        {
+          "name": "cmder_full.zip",
+          "kind": "zip"
+        },
+        {
+          "name": "cmder_nogit.zip",
+          "kind": "zip",
+          "includedVendors": [
+            "clink",
+            "windows-terminal",
+            "clink-completions"
+          ]
+        }
+      ]
+    },
+    {
+      "displayName": "ConEmu",
+      "terminal": "conemu-maximus5",
+      "outputFolder": "cmder_conemu",
+      "includedVendors": [
+        "git-for-windows",
+        "clink",
+        "conemu-maximus5",
+        "clink-completions"
+      ],
+      "packages": [
+        {
+          "name": "cmder_conemu_full.7z",
+          "kind": "7z"
+        },
+        {
+          "name": "cmder_conemu_full.zip",
+          "kind": "zip"
+        },
+        {
+          "name": "cmder_conemu_nogit.zip",
+          "kind": "zip",
+          "includedVendors": [
+            "clink",
+            "conemu-maximus5",
+            "clink-completions"
+          ]
+        }
+      ]
+    }
+  ]
+}

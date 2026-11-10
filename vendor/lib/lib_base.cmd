@@ -85,9 +85,13 @@ exit /b
     set CMDER_SHELL=%~n1
     if not defined CMDER_CLINK (
         set CMDER_CLINK=1
+        if /i "%CMDER_SHELL%" equ "tcc" set CMDER_CLINK=0
+        if /i "%CMDER_SHELL%" equ "tccle" set CMDER_CLINK=0
     )
     if not defined CMDER_ALIASES (
         set CMDER_ALIASES=1
+        if /i "%CMDER_SHELL%" equ "tcc" set CMDER_ALIASES=0
+        if /i "%CMDER_SHELL%" equ "tccle" set CMDER_ALIASES=0
     )
     exit /b
 
@@ -98,10 +102,9 @@ exit /b
 :::.
 :::       This function checks if the user_aliases file contains the marker
 :::       ";= Add aliases below here". If the marker is not found, it creates
-:::       an initial user_aliases store by copying the default user_aliases file
-:::       from the CMDER_ROOT directory. If the CMDER_USER_CONFIG environment
-:::       variable is defined, it creates a backup of the existing user_aliases
-:::       file before copying the default file.
+:::       an initial user_aliases store by backing up the existing file to
+:::       `*.old_format` and then copying the default user_aliases file from
+:::       the CMDER_ROOT directory.
 :::.
 :::include:
 :::.
@@ -116,12 +119,7 @@ exit /b
     type "%user_aliases%" | %WINDIR%\System32\findstr /i ";= Add aliases below here" >nul
     if "%errorlevel%" == "1" (
         echo Creating initial user_aliases store in "%user_aliases%"...
-        if defined CMDER_USER_CONFIG (
-            copy "%user_aliases%" "%user_aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
-        ) else (
-            copy "%user_aliases%" "%user_aliases%.old_format"
-            copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
-        )
+        copy "%user_aliases%" "%user_aliases%.old_format"
+        copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
     )
     exit /b

@@ -1,8 +1,8 @@
 # Cmder
 
-[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster)
+[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amain)
 
-Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul, comes with a Monokai color scheme, amazing [clink](https://chrisant996.github.io/clink/) (further enhanced by [clink-completions](https://github.com/vladimir-kotikov/clink-completions)) and a custom prompt layout.
+Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It offers Windows Terminal and [ConEmu](https://conemu.github.io/) packages, plus a launcher package for your chosen terminal. It comes with a Monokai color scheme, amazing [clink](https://chrisant996.github.io/clink/) (further enhanced by [clink-completions](https://github.com/vladimir-kotikov/clink-completions)) and a custom prompt layout.
 
 ![Cmder Screenshot](http://i.imgur.com/g1nNf0I.png)
 
@@ -25,7 +25,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 2. Extract the archive to a shared location.
 3. (optional) Place your own executable files and custom app folders into the `%cmder_root%\bin`. See: [bin/README.md](./bin/Readme.md)
    - This folder to be injected into your PATH by default.
-   - See `/max_depth [1-5]` in 'Command Line Arguments for `init.bat`' table to add subdirectories recursively.
+   - See `/max_depth [1-5]` in 'Command Line Arguments for `init.cmd`' table to add subdirectories recursively.
 4. (optional) Place your own custom app folders into the `%cmder_root%\opt`. See: [opt/README.md](./opt/Readme.md)
    - This folder will NOT be injected into your PATH so you have total control of what gets added.
 5. Run `Cmder.exe` with `/C` command line argument. Example: `cmder.exe /C %userprofile%\cmder_config`
@@ -41,12 +41,16 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
   - (optional) Place your own executable files and custom app folders into `%userprofile%\cmder_config\bin`.
     - This folder to be injected into your PATH by default.
-    - See `/max_depth [1-5]` in 'Command Line Arguments for `init.bat`' table to add subdirectories recursively.
+    - See `/max_depth [1-5]` in 'Command Line Arguments for `init.cmd`' table to add subdirectories recursively.
   - (optional) Place your own custom app folders into the `%user_profile%\cmder_config\opt`.
     - This folder will NOT be injected into your PATH so you have total control of what gets added.
 
 
 * Both the shared install and the individual user config locations can contain a full set of init and profile.d scripts enabling shared config with user overrides.  See below.
+
+  When using bundled Windows Terminal, `/C` applies to Cmder shell configuration
+  only. Windows Terminal settings are shared by the installation because Windows
+  Terminal does not support selecting a different settings file for each launch.
 
 ## Cmder.exe Command Line Arguments
 
@@ -60,7 +64,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/SINGLE`                 | Start Cmder in single mode.                                                              |
 | `/START [start_path]`     | Folder path to start in.                                                                 |
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
-| `/X [ConEmu extras pars]` | Forwards parameters to ConEmu                                                            |
+| `-- [ConEmu extras pars]` | Forwards ALL remaining parameters to ConEmu.                                             |
 
 ## Context Menu Integration
 
@@ -115,7 +119,7 @@ You can open multiple tabs each containing one of the following shells:
 
 Cmder, PowerShell, and Bash tabs all run on top of the Windows Console API and work as you might expect in Cmder with access to use ConEmu's color schemes, key bindings and other settings defined in the ConEmu Settings dialog.
 
-⚠ *Note:* Only the full edition of Cmder comes with a pre-installed bash, using a vendored [git-for-windows](https://gitforwindows.org/) installation. The pre-configured Bash tabs may not work on Cmder mini edition without additional configuration.
+⚠ *Note:* Only the full edition of Cmder comes with a pre-installed bash, using a vendored [git-for-windows](https://gitforwindows.org/) installation. The pre-configured Bash tabs may not work on Cmder no-Git edition without additional configuration.
 
 You may however, choose to use an external installation of bash, such as Microsoft's [Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (called WSL) or the [Cygwin](https://cygwin.com/) project which provides POSIX support on windows.
 
@@ -167,10 +171,10 @@ Documentation is in the file for each setting.
   *Note: Pay attention to the quotes!*
 
   ```
-  cmd /s /k ""%ConEmuDir%\..\init.bat" [ADD ARGS HERE]"
+  cmd /s /k ""%ConEmuDir%\..\init.cmd" [ADD ARGS HERE]"
   ```
 
-##### Command Line Arguments for `init.bat`
+##### Command Line Arguments for `init.cmd`
 
 | Argument                        | Description                                                                                                                                        | Default                                |
 | -----------------------------   | ----------------------------------------------------------------------------------------------                                                     | -------------------------------------  |
@@ -230,7 +234,7 @@ Aliases defined using the `alias.bat` command will automatically be saved in the
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.bat`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow Cmder to another machine.
+Note: These are loaded in this order by `$CMDER_ROOT/vendor/init.cmd`.  Anything stored in `%CMDER_ROOT%` will be a portable setting and will follow Cmder to another machine.
 
 * `%CMDER_ROOT%\config\profile.d\*.cmd` and `\*.bat`
 * `%CMDER_ROOT%\config\user_aliases.cmd`
@@ -298,12 +302,12 @@ Uncomment and edit the line below in the script to use Cmder config even when la
 # CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
 ```
 
-### Customizing user sessions using `init.bat` custom arguments.
+### Customizing user sessions using `init.cmd` custom arguments.
 
-You can pass custom arguments to `init.bat` and use `cexec.cmd` in your `user_profile.cmd` to evaluate these
+You can pass custom arguments to `init.cmd` and use `cexec.cmd` in your `user_profile.cmd` to evaluate these
 arguments then execute commands based on a particular flag being detected or not.
 
-`init.bat` creates two shortcuts for using `cexec.cmd` in your profile scripts.
+`init.cmd` creates two shortcuts for using `cexec.cmd` in your profile scripts.
 
 #### `%ccall%` - Evaluates flags, runs commands if found,  and returns to the calling script and continues.
 
@@ -332,7 +336,7 @@ To conditionally start `notepad.exe` when you start a specific `cmder` task:
 
   ```batch
 
-  cmd.exe /k ""%ConEmuDir%\..\init.bat" /startnotepad"
+  cmd.exe /k ""%ConEmuDir%\..\init.cmd" /startnotepad"
 
   ```
 
@@ -373,7 +377,7 @@ If you have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running a newer
    * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in `[cmder_root]/config` folder.
 
 3.  Delete the `[cmder_root]/vendor` folder.
-4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
+4.  Extract the new `cmder_full.zip` or `cmder_nogit.zip` into `[cmder_root]/` overwriting all files when prompted.
 
 If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running an older version of cmder, follow the below process:
 
@@ -384,16 +388,18 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
    * Editing files under `[cmder_root]/vendor` is not recommended since you will need to re-apply these changes after any upgrade.  All user customizations should go in `[cmder_root]/config` folder.
 
 3.  Delete the `[cmder_root]/vendor` folder.
-4.  Extract the new `cmder.zip` or `cmder_mini.zip` into `[cmder_root]/` overwriting all files when prompted.
+4.  Extract the new `cmder_full.zip` or `cmder_nogit.zip` into `[cmder_root]/` overwriting all files when prompted.
 
 ## Latest Builds
 
-You can download the latest successful builds of the current [`master`](https://github.com/cmderdev/cmder/tree/master) and [`development`](https://github.com/cmderdev/cmder/tree/development) branches from the **GitHub Actions > Artifacts** section following the links below:
+New contributions target [`main`](https://github.com/cmderdev/cmder/tree/main). The old 1.x line is preserved on [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x), and `development` is historical. The default-branch setting needs an admin handoff in [#3130](https://github.com/cmderdev/cmder/issues/3130).
+
+You can download the latest successful builds of `main` from the **GitHub Actions > Artifacts** section following the links below:
 
 | Branch | Build Status | Download Artifacts |
 |--------|-------------|-------------------|
-| 🔒 [`master`](https://github.com/cmderdev/cmder/tree/master) | [![master build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess) |
-| 🔧 [`development`](https://github.com/cmderdev/cmder/tree/development) | [![development build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) |
+| 🔒 [`main`](https://github.com/cmderdev/cmder/tree/main) | [![main build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amain+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amain+is%3Asuccess) |
+| 🛠 [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x) | Preserved 1.x maintenance line | Select compatible fixes and backport them by PR. |
 
 ## License
 
