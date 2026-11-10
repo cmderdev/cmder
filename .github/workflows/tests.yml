@@ -33,6 +33,20 @@ concurrency:
 
 jobs:
 
+  launcher-tests:
+    name: Launcher regression tests (${{ matrix.platform }})
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        platform: [Win32, x64]
+    steps:
+    - uses: actions/checkout@v7
+    - uses: microsoft/setup-msbuild@v3
+    - name: Build launcher regression tests
+      run: msbuild launcher\tests\CmderLauncherTests.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.platform }} /verbosity:minimal
+    - name: Run launcher regression tests
+      run: launcher\tests\bin\${{ matrix.platform }}\CmderLauncherTests.exe
+
   tests:
     runs-on: windows-latest
     continue-on-error: false

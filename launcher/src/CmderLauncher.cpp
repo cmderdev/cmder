@@ -67,19 +67,42 @@ void TaskDialogOpen( PCWSTR mainStr, PCWSTR contentStr )
 
 void ShowErrorAndExit(DWORD ec, const wchar_t * func, int line)
 {
-	wchar_t * buffer;
+	wchar_t * buffer = NULL;
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, ec, 0, (LPWSTR)&buffer, 0, NULL) == 0)
 	{
-		buffer = L"Unknown error. FormatMessage failed.";
+		buffer = NULL;
 	}
 
 	wchar_t message[1024];
-	swprintf_s(message, L"%s\nFunction: %s\nLine: %d", buffer, func, line);
-	LocalFree(buffer);
+	swprintf_s(message, L"%s\nFunction: %s\nLine: %d", buffer ? buffer : L"Unknown error. FormatMessage failed.", func, line);
+	if (buffer != NULL)
+	{
+		LocalFree(buffer);
+	}
 
 	MessageBox(NULL, message, MB_TITLE, MB_OK | MB_ICONERROR);
 	exit(1);
+}
+
+template <size_t N>
+void CopyPathOrExit(const std::wstring& source, wchar_t (&destination)[N])
+{
+	if (source.length() >= N)
+	{
+		ShowErrorAndExit(ERROR_FILENAME_EXCED_RANGE, __WFUNCTION__, __LINE__);
+	}
+	wcscpy_s(destination, source.c_str());
+}
+
+template <size_t N>
+void GetExecutablePath(wchar_t (&path)[N])
+{
+	const DWORD length = GetModuleFileName(NULL, path, static_cast<DWORD>(N));
+	if (length == 0 || length >= N)
+	{
+		ShowErrorAndExit(length == 0 ? GetLastError() : ERROR_FILENAME_EXCED_RANGE, __WFUNCTION__, __LINE__);
+	}
 }
 
 typedef struct _option
@@ -161,10 +184,9 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	std::wstring cmderTitle = title;
 	std::wstring cmderTerminalArgs = conemu_args;
 
-	std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
-	userConfigDirPath[cfgRoot.length()] = 0;
+	CopyPathOrExit(cfgRoot, userConfigDirPath);
 
-	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
+	GetExecutablePath(exeDir);
 
 	#if USE_TASKBAR_API
 		wcscpy_s(appId, exeDir);
@@ -174,8 +196,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 	if (PathFileExists(iconPath.c_str()))
 	{
-		std::copy(iconPath.begin(), iconPath.end(), icoPath);
-		icoPath[iconPath.length()] = 0;
+		CopyPathOrExit(iconPath, icoPath);
 	}
 	else
 	{
@@ -737,7 +758,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 	wchar_t exePath[MAX_PATH] = { 0 };
 	wchar_t icoPath[MAX_PATH] = { 0 };
 
-	GetModuleFileName(NULL, exePath, sizeof(exePath));
+	GetExecutablePath(exePath);
 
 	wchar_t commandStr[MAX_PATH + 20] = { 0 };
 	wchar_t baseCommandStr[MAX_PATH + 20] = { 0 };
@@ -753,8 +774,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 		swprintf_s(commandStr, L"%s \"%%V\"", baseCommandStr);
 	}
 	else {
-		std::copy(cfgRoot.begin(), cfgRoot.end(), userConfigDirPath);
-		userConfigDirPath[cfgRoot.length()] = 0;
+		CopyPathOrExit(cfgRoot, userConfigDirPath);
 		swprintf_s(commandStr, L"%s /c \"%s\" \"%%V\"", baseCommandStr, userConfigDirPath);
 	}
 
@@ -822,7 +842,7 @@ cmderOptions GetOption()
 	wchar_t vendorDir[MAX_PATH] = { 0 };
 	wchar_t exeDir[MAX_PATH] = { 0 };
 
-	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
+	GetExecutablePath(exeDir);
 	PathRemoveFileSpec(exeDir);
 
 	PathCombine(vendorDir, exeDir, L"vendor");
@@ -1005,7 +1025,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	wchar_t windowsTerminalDir[MAX_PATH] = { 0 };
 	wchar_t exeDir[MAX_PATH] = { 0 };
 
-	GetModuleFileName(NULL, exeDir, sizeof(exeDir));
+	GetExecutablePath(exeDir);
 	PathRemoveFileSpec(exeDir);
 	PathCombine(windowsTerminalDir, exeDir, L"vendor\\windows-terminal");
 
