@@ -42,9 +42,9 @@ $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
 $targets = @{
-    "cmder.7z"       = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on";
-    "cmder.zip"      = "-mm=Deflate -mfb=128 -mpass=3";
-    "cmder_mini.zip" = "-xr!`"vendor\git-for-windows`"";
+    "cmder.7z"       = @('-t7z', '-m0=lzma2', '-mx=9', '-mfb=64', '-md=32m', '-ms=on', '-myx=7', '-mqs=on', '-xr!vendor\windows-terminal');
+    "cmder.zip"      = @('-mm=Deflate', '-mfb=128', '-mpass=3', '-xr!vendor\windows-terminal');
+    "cmder_mini.zip" = @('-xr!vendor\git-for-windows', '-xr!vendor\windows-terminal');
 }
 
 Push-Location -Path $cmderRoot

@@ -4,14 +4,14 @@
 
 name: Build Cmder
 
-# Controls when the action will run. Triggers the workflow on push or pull request events but only for the main branch
+# Build the maintenance line independently of current Cmder development.
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "legacy/1.x" ]
     tags:
-      - "v*"
+      - "v1.*"
   pull_request:
-    branches: [ "master", "development" ]
+    branches: [ "legacy/1.x" ]
   workflow_dispatch:
 
 #---------------------------------#
@@ -42,6 +42,8 @@ jobs:
 
     - name: Summary - Repository checkout
       shell: pwsh
+      env:
+        HEAD_REF: ${{ github.head_ref }}
       run: |
         # Get Cmder version
         . scripts/utils.ps1
@@ -50,7 +52,7 @@ jobs:
 
         # Determine branch and PR information
         $refName = "${{ github.ref_name }}"
-        $headRef = "${{ github.head_ref }}"
+        $headRef = $env:HEAD_REF
         $eventName = "${{ github.event_name }}"
         $prNumber = $null
         $actualBranchName = $refName

@@ -323,16 +323,27 @@ if %nix_tools% equ 1 (
     set "path_position="
 )
 
+set "git_mingw_bin="
+set "git_native_64bit=1"
+if /i "%PROCESSOR_ARCHITECTURE%" == "x86" if not defined PROCESSOR_ARCHITEW6432 set "git_native_64bit=0"
+if "%git_native_64bit%" == "0" (
+    if exist "%GIT_INSTALL_ROOT%\mingw32\bin" set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
+) else if exist "%GIT_INSTALL_ROOT%\ucrt64\bin" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\ucrt64\bin"
+) else if exist "%GIT_INSTALL_ROOT%\mingw64\bin" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw64\bin"
+) else if exist "%GIT_INSTALL_ROOT%\mingw32\bin" (
+    set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
+)
+set "git_native_64bit="
+
 if %nix_tools% geq 1 (
-    if exist "%GIT_INSTALL_ROOT%\mingw32" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw32\bin" %path_position%
-    ) else if exist "%GIT_INSTALL_ROOT%\mingw64" (
-        %lib_path% enhance_path "%GIT_INSTALL_ROOT%\mingw64\bin" %path_position%
-    )
+    if defined git_mingw_bin %lib_path% enhance_path "%git_mingw_bin%" %path_position%
     if exist "%GIT_INSTALL_ROOT%\usr\bin" (
         %lib_path% enhance_path "%GIT_INSTALL_ROOT%\usr\bin" %path_position%
     )
 )
+set "git_mingw_bin="
 
 :SET_ENV
 

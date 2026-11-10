@@ -1,5 +1,52 @@
 # Change Log
 
+## [1.3.26](https://github.com/cmderdev/cmder/releases/tag/v1.3.26) (2026-11-10)
+
+### Maintenance scope
+
+- Keep the ConEmu launcher, `vendor\init.bat`, and existing archive names:
+  `cmder.zip`, `cmder.7z`, and `cmder_mini.zip`.
+- Continue maintenance on `legacy/1.x`. Current development continues on `main`;
+  fixes can be backported without merging the new launcher or initialization model.
+- Do not download or bundle Windows Terminal in this ConEmu-only maintenance line.
+
+### Fixes since 1.3.25
+
+- Reject missing launcher option values and oversized configuration, icon, or
+  executable paths. Preserve switches after a positional starting directory and
+  reject invalid arguments before attempting context-menu registration.
+- Restore the previous TCC and TCCLE shell-helper defaults for Clink and aliases,
+  preserving explicit user settings and the existing `init.bat` behavior.
+- Recognize the current Git UCRT64 layout in CMD and PowerShell while retaining
+  older MinGW layouts, native 32-bit and WoW64 selection, and external-Git preference.
+  Check the production helpers and `init.bat` selection with layout fixtures on
+  PowerShell 5.1 and 7, keeping the existing Bash initialization policy.
+- Support Git repositories that use reftables in the Clink prompt.
+- Make Mercurial prompt updates asynchronous and fix its branch handling.
+- Quote Git locale paths, avoid temporary-file name collisions, and respect
+  `PATHEXT` while building the command search path.
+- Improve PowerShell Git version comparisons, posh-git compatibility, and debug
+  output. Keep the existing terminal shell-integration sequences.
+- Filter prerelease and downgrade vendor candidates and fix the vendor update
+  helper command. Run legacy launcher, shell-default, and package-content checks
+  independently of current development.
+- Read pull-request branch names through the environment in workflow summaries.
+- Pass archive paths and exclusions as arguments instead of executable strings,
+  preserve inputs after extraction failures, and restore the working directory
+  after compression failures. Validate custom vendor names before touching any
+  vendor directory and consistently produce SHA256 hashes.
+
+### Components
+
+- Git for Windows 2.56.0.windows.4 supplies the selected upstream security fixes.
+  Clink 1.9.5, ConEmu 23.07.24, and clink-completions 0.6.7 retain their inherited pins.
+- The Full archives include Git. The Mini archive uses an external Git install.
+  Embedded components have their own Windows requirements; a 1.x archive does
+  not imply Windows 7 support. See the
+  [Git for Windows requirements](https://gitforwindows.org/requirements.html).
+- The release notes record the selected components and the independent checks
+  of the tagged archives, versioned launcher, and shell startup.
+
 ## [1.3.25](https://github.com/cmderdev/cmder/tree/v1.3.25) (2024-05-31)
 
 ### Changes

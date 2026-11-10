@@ -70,21 +70,23 @@ function Delete-Existing($path) {
 
 function Extract-Archive($source, $target) {
     Write-Verbose $("Extracting Archive '$cmder_root\vendor\" + $source.replace('/','\') + " to '$cmder_root\vendor\$target'")
-    Invoke-Expression "7z x -y -o`"$($target)`" `"$source`"  > `$null"
+    & 7z x -y "-o$target" $source > $null
     if ($LastExitCode -ne 0) {
-        Write-Error "Extracting of $source failed"
+        throw "Extracting of $source failed (7-Zip exit code $LastExitCode)"
     }
-    Remove-Item $source
+    Remove-Item -LiteralPath $source
 }
 
-function Create-Archive($source, $target, $params) {
-    $command = "7z a -x@`"$source\packignore`" $params `"$target`" `"*`"  > `$null"
+function Create-Archive($source, $target, [string[]]$params) {
     Write-Verbose "Creating Archive from '$source' in '$target' with parameters '$params'"
-    Push-Location $source
-    Invoke-Expression $command
-    Pop-Location
-    if ($LastExitCode -ne 0) {
-        Write-Error "Compressing $source failed"
+    Push-Location -LiteralPath $source
+    try {
+        & 7z a "-x@$source\packignore" @params $target '*' > $null
+        if ($LastExitCode -ne 0) {
+            throw "Compressing $source failed (7-Zip exit code $LastExitCode)"
+        }
+    } finally {
+        Pop-Location
     }
 }
 
@@ -101,11 +103,18 @@ function Flatten-Directory($name) {
 }
 
 function Digest-Hash($path) {
-    if (Get-Command Get-FileHash -ErrorAction SilentlyContinue) {
-        return (Get-FileHash -Algorithm SHA256 -Path $path).Hash
-    }
+    return (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash
+}
 
-    return Invoke-Expression "md5sum $path"
+function Assert-CmderVendorName([string]$Name) {
+    # A vendor is one ordinary Windows directory name, never a path or pattern.
+    if (
+        $Name -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*\z' -or
+        $Name.EndsWith('.') -or
+        $Name -match '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\.|$)'
+    ) {
+        throw "Invalid vendor name '$Name': expected one safe directory name."
+    }
 }
 
 function Set-GHVariable {
@@ -146,10 +155,21 @@ function Get-VersionStr {
     # Determine if git is available
     if (Get-Command "git.exe" -ErrorAction SilentlyContinue) {
         # Determine if the current directory is a git repository
-        $GitPresent = Invoke-Expression "git rev-parse --is-inside-work-tree" -ErrorAction SilentlyContinue
-
-        if ( $GitPresent -eq 'true' ) {
-            $string = Invoke-Expression "git describe --abbrev=0 --tags"
+        # Native stderr is an ErrorRecord on Windows PowerShell 5.1. A missing
+        # repository/tag is an expected fallback, even when the caller uses Stop.
+        $previousErrorActionPreference = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            $GitPresent = & git.exe rev-parse --is-inside-work-tree 2>$null
+            if ($LASTEXITCODE -eq 0 -and $GitPresent -eq 'true') {
+                # Preservation tags describe history, not the product version.
+                $candidate = & git.exe describe --abbrev=0 --tags --match 'v[0-9]*' 2>$null
+                if ($LASTEXITCODE -eq 0) {
+                    $string = $candidate
+                }
+            }
+        } finally {
+            $ErrorActionPreference = $previousErrorActionPreference
         }
     }
 

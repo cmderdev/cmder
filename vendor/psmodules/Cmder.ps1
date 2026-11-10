@@ -116,6 +116,40 @@ function Compare-GitVersion {
     return $VendorVersion
 }
 
+function Get-GitRoot {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$GitPath
+    )
+
+    $parent = Split-Path -Path $GitPath -Parent
+    $leaf = Split-Path -Path $GitPath -Leaf
+    if ($leaf -eq 'bin' -and (Split-Path -Path $parent -Leaf) -in @('ucrt64', 'mingw64', 'mingw32')) {
+        return Split-Path -Path $parent -Parent
+    }
+    if ($leaf -in @('cmd', 'bin')) {
+        return $parent
+    }
+    return $GitPath
+}
+
+function Get-GitNativeBin {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$GitRoot,
+        [bool]$Is64BitOperatingSystem = [Environment]::Is64BitOperatingSystem
+    )
+
+    $directories = if ($Is64BitOperatingSystem) { @('ucrt64', 'mingw64', 'mingw32') } else { @('mingw32') }
+    foreach ($directory in $directories) {
+        $nativeBin = Join-Path $GitRoot "$directory\bin"
+        if (Test-Path -LiteralPath $nativeBin -PathType Container) {
+            return $nativeBin
+        }
+    }
+    return $null
+}
+
 function Set-GitPath {
     param(
         [Parameter(Mandatory = $true)]
@@ -138,11 +172,16 @@ function Set-GitPath {
     }
 
     $newPath = $env:Path
+    $nativeBin = Get-GitNativeBin -GitRoot $GitRoot
 
     # Replace user Git path with vendored Git if user path exists
     if ($GitPathUser) {
         Write-Verbose "Cmder 'profile.ps1': Replacing older user Git path '$GitPathUser' with newer vendored Git path '$GitRoot' in the system path..."
         $newPath = $newPath -ireplace [regex]::Escape($GitPathUser), $GitRoot
+        if ($nativeBin) {
+            $nativePattern = [regex]::Escape($GitRoot) + '\\(?:ucrt64|mingw64|mingw32)\\bin(?=;|$)'
+            $newPath = [regex]::Replace($newPath, $nativePattern, { param($match) $nativeBin }, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+        }
     } else {
         # Add Git cmd directory to the path
         $gitCmd = Join-Path $GitRoot "cmd"
@@ -151,18 +190,10 @@ function Set-GitPath {
             $newPath = "$gitCmd;$newPath"
         }
 
-        # Add mingw[32|64]\bin directories to the path, if they exist and not already present
-        # Prefer mingw64 on 64-bit systems, mingw32 on 32-bit systems
-        $is64Bit = [Environment]::Is64BitOperatingSystem
-        $mingwDirs = if ($is64Bit) { @('mingw64', 'mingw32') } else { @('mingw32') }
-
-        foreach ($mingw in $mingwDirs) {
-            $mingwBin = Join-Path $GitRoot "$mingw\bin"
-            if ((Test-Path $mingwBin) -and -not ($newPath -match [regex]::Escape($mingwBin))) {
-                Write-Debug "Adding $mingwBin to the path"
-                $newPath = "$newPath;$mingwBin"
-                break
-            }
+        # Prefer the current UCRT64 directory, with older MinGW layouts as fallbacks.
+        if ($nativeBin -and -not ($newPath -match [regex]::Escape($nativeBin))) {
+            Write-Debug "Adding $nativeBin to the path"
+            $newPath = "$newPath;$nativeBin"
         }
 
         # Add usr\bin directory to the path
