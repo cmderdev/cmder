@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- Pass build-tool arguments directly instead of evaluating command strings, keep archive paths literal, preserve failed downloads for diagnosis, and reject unsafe vendor directory names before vendor changes. Completes the remaining script hygiene work in [#3118](https://github.com/cmderdev/cmder/issues/3118).
+
 
 ## [2.0.0-rc.1](https://github.com/cmderdev/cmder/releases/tag/v2.0.0-rc.1) (2026-11-10)
 
