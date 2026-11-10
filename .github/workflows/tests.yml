@@ -3,21 +3,17 @@ name: Run Tests
 on:
   push:
     branches:
-      - master
-      - development
+      - legacy/1.x
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
-      - '.github/**'
       - '**/.gitignore'
   pull_request:
     branches:
-      - master
-      - development
+      - legacy/1.x
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
-      - '.github/**'
       - '**/.gitignore'
 
 defaults:
@@ -50,15 +46,34 @@ jobs:
       shell: pwsh
       run: .\scripts\test-update.ps1
 
+    - name: Test historical shell defaults
+      shell: pwsh
+      run: .\scripts\test-shell-detection.ps1
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v3
+
+    - name: Test legacy launcher production source
+      shell: pwsh
+      run: |
+        foreach ($platform in @('Win32', 'x64')) {
+          msbuild launcher\tests\CmderLauncherTests.vcxproj /p:Configuration=Release /p:Platform=$platform /verbosity:minimal
+          if ($LASTEXITCODE -ne 0) { throw "Launcher test build failed: $platform" }
+          & ".\launcher\tests\bin\$platform\CmderLauncherTests.exe"
+          if ($LASTEXITCODE -ne 0) { throw "Launcher tests failed: $platform" }
+        }
+
     - name: Summary - Test execution started
       shell: pwsh
+      env:
+        PR_HEAD_REF: ${{ github.head_ref }}
       run: |
         # Get Cmder version
         . scripts/utils.ps1
         $cmderVersion = Get-VersionStr
 
         $refName = "${{ github.ref_name }}"
-        $headRef = "${{ github.head_ref }}"
+        $headRef = $env:PR_HEAD_REF
         $eventName = "${{ github.event_name }}"
         $prNumber = $null
         $actualBranchName = $refName
