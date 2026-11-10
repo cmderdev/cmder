@@ -7,7 +7,7 @@ $windows = [Environment]::GetFolderPath([Environment+SpecialFolder]::Windows)
 $cmd = Join-Path $windows 'System32\cmd.exe'
 $windowsPowerShell = Join-Path $windows 'System32\WindowsPowerShell\v1.0\powershell.exe'
 $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\')
-$fixture = Join-Path $tempRoot ("cmder-pwsh-" + [guid]::NewGuid().ToString('N') + " & O'Brien !")
+$fixture = Join-Path $tempRoot ("cmder-pwsh-" + [guid]::NewGuid().ToString('N') + " & O'Brien !CMDER_PWSH_TEST!")
 $vendor = Join-Path $fixture 'vendor'
 $null = New-Item -ItemType Directory -Path $vendor -Force
 $helper = Join-Path $vendor 'start_powershell.cmd'
@@ -45,6 +45,7 @@ function Invoke-Entry([string]$Command, [hashtable]$Environment, [switch]$Profil
         $info.EnvironmentVariables.Remove($name)
     }
     $info.EnvironmentVariables['CMDER_USER_CONFIG'] = Join-Path $fixture 'separate config'
+    $info.EnvironmentVariables['CMDER_PWSH_TEST'] = 'EXPANDED'
     foreach ($name in $Environment.Keys) { $info.EnvironmentVariables[$name] = $Environment[$name] }
     $process = New-Object Diagnostics.Process
     $process.StartInfo = $info
