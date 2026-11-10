@@ -4,7 +4,9 @@ This is the `legacy/1.x` maintenance line. Read the
 [maintenance guide](docs/MAINTENANCE-1.x.md) before preparing a backport.
 New features and normal current work follow the
 [current contribution guide](https://github.com/cmderdev/cmder/blob/main/CONTRIBUTING.md)
-and target `main`. `development` is historical.
+and target `main` through feature PRs. Continue unfinished work through those PRs;
+`development` must not collect ongoing work. Keep unfinished requirements active
+regardless of age, preserving their source links and contributor commitments.
 
 Unfortunately we all can't work on Cmder every day of the year, so I have decided to write some guidelines for contributing.
 
