@@ -55,15 +55,15 @@ function Get-ArchiveFlags {
     )
 
     if ($Kind -eq "7z") {
-        $flags = "-t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -myx=7 -mqs=on"
+        $flags = @('-t7z', '-m0=lzma2', '-mx=9', '-mfb=64', '-md=32m', '-ms=on', '-myx=7', '-mqs=on')
     } else {
-        $flags = "-mm=Deflate -mfb=128 -mpass=3"
+        $flags = @('-mm=Deflate', '-mfb=128', '-mpass=3')
     }
 
     $archiveExcludedVendors = @($AllVendors | Where-Object { $IncludedVendors -notcontains $_ })
 
     foreach ($vendor in $archiveExcludedVendors) {
-        $flags += " -xr!`"vendor\$vendor`""
+        $flags += "-xr!vendor\$vendor"
     }
 
     return $flags
@@ -117,7 +117,7 @@ foreach ($profile in $profiles) {
             $includedVendors = @($package.includedVendors)
         }
 
-        $flags = Get-ArchiveFlags -Kind $package.kind -IncludedVendors $includedVendors -AllVendors $allVendors
+        $flags = @(Get-ArchiveFlags -Kind $package.kind -IncludedVendors $includedVendors -AllVendors $allVendors)
         Create-Archive "$cmder_root" $outputPath $flags
         $hash = Digest-Hash $outputPath
         Add-Content -Path (Join-Path $saveTo "hashes.txt") -Value ($profile.outputFolder + "/" + $package.name + "`t" + $hash)

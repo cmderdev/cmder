@@ -49,13 +49,20 @@ if [[ ! "$PATH" =~ "${GIT_INSTALL_ROOT}/bin:" ]] ; then
   PATH="${GIT_INSTALL_ROOT}/bin:$PATH"
 fi
 
-if [ "$PROCESSOR_ARCHITECTURE" == "x86" ] &&  [ "$GIT_INSTALL_ROOT/mingw32" ] ; then
-  git_mingw_bin="$GIT_INSTALL_ROOT/mingw32/bin"
-elif [ "$PROCESSOR_ARCHITECTURE" == "AMD64" ] && [ -d "$GIT_INSTALL_ROOT/mingw64" ] ; then
-  git_mingw_bin="$GIT_INSTALL_ROOT/mingw64/bin"
+git_mingw_bin=""
+git_native_dirs="ucrt64 mingw64 mingw32"
+if [ "$PROCESSOR_ARCHITECTURE" = "x86" ] && [ -z "$PROCESSOR_ARCHITEW6432" ]; then
+  git_native_dirs="mingw32"
 fi
+for git_native_dir in $git_native_dirs; do
+  if [ -d "$GIT_INSTALL_ROOT/$git_native_dir/bin" ]; then
+    git_mingw_bin="$GIT_INSTALL_ROOT/$git_native_dir/bin"
+    break
+  fi
+done
+unset git_native_dir git_native_dirs
 
-if [[ ! "$PATH" =~ "${git_mingw_bin}:" ]] ; then
+if [ -n "$git_mingw_bin" ] && [[ ! "$PATH" =~ "${git_mingw_bin}:" ]] ; then
   PATH="${git_mingw_bin}:$PATH"
 fi
 

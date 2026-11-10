@@ -184,16 +184,130 @@ jobs:
             return Invoke-RestMethod @params
           }
 
+          function Set-UrlQueryParameter {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$Url,
+
+              [Parameter(Mandatory = $true)]
+              [string]$Name,
+
+              [AllowEmptyString()]
+              [string]$Value
+            )
+
+            $encodedName = [System.Uri]::EscapeDataString($Name)
+            $encodedValue = [System.Uri]::EscapeDataString($Value)
+            $fragment = ''
+            $fragmentIndex = $Url.IndexOf('#')
+            if ($fragmentIndex -ge 0) {
+              $fragment = $Url.Substring($fragmentIndex)
+              $Url = $Url.Substring(0, $fragmentIndex)
+            }
+            $pattern = "([?&])$([regex]::Escape($encodedName))=[^&]*"
+            $match = [regex]::Match($Url, $pattern)
+            if ($match.Success) {
+              return $Url.Substring(0, $match.Index) + $match.Groups[1].Value + "$encodedName=$encodedValue" + $Url.Substring($match.Index + $match.Length) + $fragment
+            }
+
+            $separator = if ($Url.Contains('?')) { '&' } else { '?' }
+            return "$Url$separator$encodedName=$encodedValue$fragment"
+          }
+
+          function ConvertTo-ReleaseBuildStatusBadge {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$BadgeMarkdown,
+
+              [Parameter(Mandatory = $true)]
+              [hashtable]$ReleaseInfo
+            )
+
+            $match = [regex]::Match($BadgeMarkdown, '\[!\[(?<alt>[^\]]*)\]\((?<image>[^)]*)\)\]\((?<target>[^)]*)\)')
+            if (-not $match.Success) {
+              return '—'
+            }
+
+            $image = $match.Groups['image'].Value
+            $target = $match.Groups['target'].Value
+            $tagName = $ReleaseInfo.TagName
+            $retargeted = $false
+
+            if ($image -match '(?i)^https://dev\.azure\.com/.+/_apis/build/status' -or $target -match '(?i)^https://dev\.azure\.com/.+/_build(?:[/?#]|$)') {
+              if ($image -match '(?i)^https://dev\.azure\.com/.+/_apis/build/status') {
+                $image = Set-UrlQueryParameter -Url $image -Name 'branchName' -Value "refs/tags/$tagName"
+                $retargeted = $true
+              }
+              if ($target -match '(?i)^https://dev\.azure\.com/.+/_build(?:[/?#]|$)') {
+                $target = Set-UrlQueryParameter -Url $target -Name 'branchName' -Value "refs/tags/$tagName"
+              } else {
+                return '—'
+              }
+            } elseif ($image -match '(?i)^https://github\.com/(?<repo>[^/]+/[^/]+)/actions/workflows/[^?#]+/badge\.svg') {
+              if ($Matches['repo'] -ne $ReleaseInfo.RepoPath) { return '—' }
+              $image = Set-UrlQueryParameter -Url $image -Name 'branch' -Value $tagName
+              if ($target -match '(?i)^https://github\.com/[^/]+/[^/]+/actions/workflows/[^?#]+') {
+                $target = Set-UrlQueryParameter -Url $target -Name 'query' -Value "branch:$tagName"
+              } else {
+                $target = Set-UrlQueryParameter -Url "$($ReleaseInfo.RepoUrl)/actions" -Name 'query' -Value "branch:$tagName"
+              }
+              $retargeted = $true
+            } elseif ($image -match '(?i)^https://github\.com/(?<repo>[^/]+/[^/]+)/workflows/[^/]+/badge\.svg') {
+              if ($Matches['repo'] -ne $ReleaseInfo.RepoPath) { return '—' }
+              $image = Set-UrlQueryParameter -Url $image -Name 'branch' -Value $tagName
+              if ($target -match '(?i)^https://github\.com/[^/]+/[^/]+/actions') {
+                $target = Set-UrlQueryParameter -Url $target -Name 'query' -Value "branch:$tagName"
+              } else {
+                $target = Set-UrlQueryParameter -Url "$($ReleaseInfo.RepoUrl)/actions" -Name 'query' -Value "branch:$tagName"
+              }
+              $retargeted = $true
+            }
+
+            if (-not $retargeted) {
+              return '—'
+            }
+
+            $alt = "Build status for release $tagName"
+            return "[![$alt]($image)]($target)"
+          }
+
+          function Test-BuildStatusBadgeHasReleaseStatus {
+            param(
+              [Parameter(Mandatory = $true)]
+              [string]$BadgeMarkdown
+            )
+
+            $match = [regex]::Match($BadgeMarkdown, '\[!\[(?<alt>[^\]]*)\]\((?<image>[^)]*)\)\]\((?<target>[^)]*)\)')
+            if (-not $match.Success) {
+              return $false
+            }
+
+            try {
+              $response = Invoke-WebRequest -Uri $match.Groups['image'].Value -UseBasicParsing -TimeoutSec 20
+              $svg = [xml]$response.Content
+              if ($svg.DocumentElement.LocalName -ne 'svg') {
+                return $false
+              }
+              $badgeText = $svg.DocumentElement.InnerText.ToLowerInvariant()
+              return -not [string]::IsNullOrWhiteSpace($badgeText) -and $badgeText -notmatch 'no status|no check runs|never built|not found|unknown|invalid|inaccessible|rate limit|internal error'
+            } catch {
+              Write-Verbose "Unable to verify release build badge $($match.Groups['image'].Value): $($_.Exception.Message)" -Verbose
+              return $false
+            }
+          }
+
           function Get-ReadmeBuildStatusBadge {
             param(
               [Parameter(Mandatory = $true)]
-              [string]$RepoPath
+              [hashtable]$ReleaseInfo
             )
+
+            $RepoPath = $ReleaseInfo.RepoPath
 
             try {
               $readme = Invoke-GitHubApi -Uri "https://api.github.com/repos/$RepoPath/readme"
               if ([string]::IsNullOrWhiteSpace($readme.content)) {
-                return '—'
+                throw 'The repository README has no content.'
               }
 
               $bytes = [System.Convert]::FromBase64String(($readme.content -replace '\s', ''))
@@ -229,10 +343,21 @@ jobs:
               }
 
               if ($bestScore -gt 0 -and -not [string]::IsNullOrWhiteSpace($bestBadge)) {
-                return $bestBadge
+                $releaseBadge = ConvertTo-ReleaseBuildStatusBadge -BadgeMarkdown $bestBadge -ReleaseInfo $ReleaseInfo
+                if ($releaseBadge -ne '—' -and (Test-BuildStatusBadgeHasReleaseStatus -BadgeMarkdown $releaseBadge)) {
+                  return $releaseBadge
+                }
               }
             } catch {
               Write-Verbose "Unable to fetch README build badge for ${RepoPath}: $($_.Exception.Message)" -Verbose
+            }
+
+            $tag = [System.Uri]::EscapeDataString($ReleaseInfo.TagName)
+            $image = "https://img.shields.io/github/check-runs/$RepoPath/$tag"
+            $target = Set-UrlQueryParameter -Url "$($ReleaseInfo.RepoUrl)/actions" -Name 'query' -Value "branch:$($ReleaseInfo.TagName)"
+            $fallback = "[![Build status for release $($ReleaseInfo.TagName)]($image)]($target)"
+            if (Test-BuildStatusBadgeHasReleaseStatus -BadgeMarkdown $fallback) {
+              return $fallback
             }
 
             return '—'
@@ -307,7 +432,7 @@ jobs:
                     } else {
                       $releaseBody = $release.body.Trim()
                       if ($releaseBody.Length -gt 1200) {
-                        $releaseBody = $releaseBody.Substring(0, 1200).TrimEnd() + "...`n`n_Release notes truncated; open the release link for the full text._"
+                        $releaseBody = $releaseBody.Substring(0, 1200).TrimEnd() + "...`n`n---`n`n[!TIP]`nRelease notes truncated; [open the release notes]($releaseUrl) for the full text."
                       }
 
                       $notes += $releaseBody + "`n"
@@ -315,7 +440,7 @@ jobs:
                   }
 
                   if ($omittedReleaseCount -gt 0) {
-                    $notes += "`n...and $omittedReleaseCount more releases. Open the compare link for the full range.`n"
+                    $notes += "`n...and $omittedReleaseCount more releases. [Compare changes]($($ReleaseInfo.CompareUrl)) for the full range.`n"
                   }
 
                   return $notes.Trim()
@@ -343,7 +468,9 @@ jobs:
               [AllowEmptyString()]
               [string]$Markdown,
 
-              [int]$MaxLength = 2500
+              [int]$MaxLength = 2500,
+
+              [string]$FullTextUrl
             )
 
             $text = if ([string]::IsNullOrWhiteSpace($Markdown)) {
@@ -353,7 +480,13 @@ jobs:
             }
 
             if ($text.Length -gt $MaxLength) {
-              $text = $text.Substring(0, $MaxLength).TrimEnd() + "...`n`n_Release notes truncated; open the release links for the full text._"
+              $linkedText = if ([string]::IsNullOrWhiteSpace($FullTextUrl)) {
+                "Release notes truncated."
+              } else {
+                "Release notes truncated; [open the release notes]($FullTextUrl) for the full text."
+              }
+
+              $text = $text.Substring(0, $MaxLength).TrimEnd() + "...`n`n---`n`n[!TIP]`n$linkedText"
             }
 
             return (($text -split "`r?`n") | ForEach-Object { "> $_" }) -join "`n"
@@ -404,7 +537,7 @@ jobs:
               if ($null -ne $releaseInfo) {
                 $repoUrl = $releaseInfo.ReleasesUrl
                 $releaseUrl = $releaseInfo.ReleaseUrl
-                $statusBadge = Get-ReadmeBuildStatusBadge -RepoPath $releaseInfo.RepoPath
+                $statusBadge = Get-ReadmeBuildStatusBadge -ReleaseInfo $releaseInfo
               } else {
                 $repoUrl = ($repoUrl = $s.Url.Replace("/archive/", "/releases/")).Substring(0, $repoUrl.IndexOf("/releases/")) + "/releases"
                 $releaseUrl = $repoUrl
@@ -445,7 +578,7 @@ jobs:
                 $changelogSection += "<details>`n"
                 $changelogSection += "<summary>$($s.name)</summary>`n`n"
                 $changelogSection += "[Release notes]($($releaseInfo.ReleaseUrl)) · [Compare changes]($($releaseInfo.CompareUrl))`n`n"
-                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes -MaxLength 6000) + "`n`n"
+                $changelogSection += (ConvertTo-BlockQuote -Markdown $releaseNotes -MaxLength 6000 -FullTextUrl $releaseInfo.ReleaseUrl) + "`n`n"
                 $changelogSection += "</details>`n`n"
               }
 
