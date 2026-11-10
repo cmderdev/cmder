@@ -6,7 +6,7 @@ STRINGTABLE
 {
 	IDS_TITLE             "Cmder Launcher"
 
-	IDS_SWITCHES          L"General options:\n    /c [Cmder user root path]\n    /start [folder], or [folder]\n    /task [profile or task name]\n    -- [terminal-emulator arguments] (last)\n\nConEmu options:\n    /title [window title]\n    /icon [icon path]\n    /single\n    /m (machine settings)\n\nShell integration:\n    /register [USER | ALL]\n    /unregister [USER | ALL]"
+	IDS_SWITCHES          L"General options:\n    /c [Cmder user root path]\n    /start [folder], or [folder]\n    /task [profile or task name]\n    -- [terminal-emulator arguments] (last)\n\nConEmu options:\n    /title [window title]\n    /icon [icon path]\n    /single\n    /m (machine settings)\n\nShell integration:\n    /register [USER | ALL | MODERN]\n    /unregister [USER | ALL | MODERN]"
 }
 
 /////////////////////////////////////////////////////////////////////////////

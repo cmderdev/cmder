@@ -61,6 +61,8 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/M`                      | Use `conemu-%computername%.xml` for ConEmu settings storage instead of `user_conemu.xml` |
 | `/REGISTER [ALL, USER]`   | Register a Windows Shell Menu shortcut.                                                  |
 | `/UNREGISTER [ALL, USER]` | Un-register a Windows Shell Menu shortcut.                                               |
+| `/REGISTER MODERN`        | Register the current-user Windows 11 context menu (trusted-signed identity package).     |
+| `/UNREGISTER MODERN`      | Remove the current-user Windows 11 context menu registration.                           |
 | `/SINGLE`                 | Start Cmder in single mode.                                                              |
 | `/START [start_path]`     | Folder path to start in.                                                                 |
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
@@ -78,6 +80,12 @@ So you've experimented with Cmder a little and want to give it a shot in a more 
    _If you get an "Access Denied" message, make sure you are executing the command in an **Administrator** prompt._
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
+
+For **Cmder Here in the Windows 11 menu without Show more options**, see
+[Windows 11 context-menu setup](docs/WINDOWS-11-CONTEXT-MENU.md). This opt-in
+integration supports x64 Windows 11 22H2 or later, using a small identity package
+while keeping Cmder portable. The `USER` and `ALL` commands above register the
+classic menu independently.
 
 ## Keyboard shortcuts
 

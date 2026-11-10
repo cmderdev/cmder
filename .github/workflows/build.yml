@@ -153,6 +153,10 @@ jobs:
       working-directory: scripts
       run: .\build.ps1 -Compile -Terminal all -Verbose
 
+    - name: Validate built Explorer identity package
+      shell: pwsh
+      run: .\scripts\test-shell-integration.ps1 -BuiltPackageRoot .\bin\cmder-shell
+
     - name: Summary - Build completed
       if: success()
       shell: pwsh

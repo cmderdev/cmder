@@ -48,6 +48,10 @@ jobs:
       run: msbuild launcher\tests\CmderLauncherTests.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.platform }} /verbosity:minimal
     - name: Run launcher regression tests
       run: launcher\tests\bin\${{ matrix.platform }}\CmderLauncherTests.exe
+    - name: Build Explorer command tests
+      run: msbuild launcher\shell\tests\ExplorerCommandTests.vcxproj /p:Configuration=Release /p:Platform=${{ matrix.platform }} /verbosity:minimal
+    - name: Run Explorer command tests
+      run: launcher\shell\tests\bin\${{ matrix.platform }}\Release\ExplorerCommandTests.exe "%CD%\launcher\shell\bin\${{ matrix.platform }}\Release\CmderExplorerCommand.dll"
 
   tests:
     runs-on: windows-latest
@@ -65,6 +69,14 @@ jobs:
     - name: Test vendor update helper
       shell: pwsh
       run: .\scripts\test-update.ps1
+
+    - name: Test shell integration registration fixtures
+      shell: pwsh
+      run: .\scripts\test-shell-integration.ps1
+
+    - name: Test shell integration registration on Windows PowerShell 5.1
+      shell: powershell
+      run: .\scripts\test-shell-integration.ps1
 
     - name: Test Git directory layouts
       shell: pwsh

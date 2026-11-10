@@ -16,11 +16,11 @@
 .EXAMPLE
     .\build.ps1 -Compile
 
-    Recompile the launcher executable if you have the requisite build tools for C++ installed.
+    Recompile the launcher and Windows 11 Explorer integration with the C++ build tools and Windows 11 SDK.
 .EXAMPLE
     .\build.ps1 -Compile -NoVendor
 
-    Skip all downloads and only build launcher.
+    Skip all downloads and build the launcher and Windows 11 Explorer integration.
 .EXAMPLE
     .\build.ps1 -Verbose
 
@@ -54,14 +54,14 @@ Param(
     # Config folder location
     [string]$config,
 
-    # Using this option will skip all downloads, if you only need to build launcher
+    # Skip vendor downloads when building the launcher and shell integration.
     [switch]$noVendor,
 
     # Select a terminal-emulator profile [none, all, conemu-maximus5, or windows-terminal].
     # Configure included vendors and package variants in scripts/package-profiles.json.
     [string]$Terminal = 'all',
 
-    # Build launcher if you have MSBuild tools installed
+    # Build the launcher and Explorer integration with MSBuild and the Windows 11 SDK.
     [switch]$Compile
 )
 
@@ -111,6 +111,9 @@ if ($Compile) {
         throw "MSBuild failed to build the launcher executable."
     }
     Pop-Location
+
+    # Explorer is a native x64 process even when the portable launcher is Win32.
+    & "$PSScriptRoot\build-shell-integration.ps1" -CmderRoot $cmder_root -Verbose:($VerbosePreference -eq 'Continue')
 }
 
 if (-not $noVendor) {
