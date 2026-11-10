@@ -303,7 +303,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	PathCombine(conEmuDir, vendorDir, L"conemu-maximus5");
 	GetEnvironmentVariable(L"WINDIR", winDir, MAX_PATH);
 	// Windows Terminal cannot select a settings file per launch, so `/c` roots
-	// must not enter the terminal settings copy or initialization flows below.
+	// must not enter the user-root terminal settings flows below.
 	const bool useSharedWindowsTerminalSettings = PathFileExists(windowsTerminalDir) && cfgRoot.length() != 0;
 
 	if (PathFileExists(windowsTerminalDir))
@@ -335,6 +335,16 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 
 		// Set path to Cmder user ConEmu config file
 		PathCombine(userCfgPath, userConfigDirPath, L"user-ConEmu.xml");
+	}
+
+	// A first launch with `/c` still needs the installation's default profiles.
+	// Never overwrite shared settings or import settings from the `/c` user root.
+	if (useSharedWindowsTerminalSettings && !PathFileExists(cfgPath))
+	{
+		if (!CopyFile(defaultCfgPath, cfgPath, TRUE) && GetLastError() != ERROR_FILE_EXISTS)
+		{
+			ShowErrorAndExit(GetLastError(), __WFUNCTION__, __LINE__);
+		}
 	}
 
 	if (!useSharedWindowsTerminalSettings && wcscmp(cpuCfgPath, L"") != 0 && (PathFileExists(cpuCfgPath) || use_user_cfg == false)) // Skip machine-specific terminal settings for `/c` Windows Terminal launches.

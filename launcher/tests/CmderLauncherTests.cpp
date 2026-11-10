@@ -16,6 +16,7 @@ static bool failModulePath = false;
 static DWORD modulePathCapacity = 0;
 static int helpDialogs = 0;
 static int registryWrites = 0;
+static int terminalLaunches = 0;
 
 [[noreturn]] static void TestExit(int code) { throw LauncherExit{code}; }
 static LPWSTR WINAPI TestGetCommandLineW() { return &testCommandLine[0]; }
@@ -45,6 +46,13 @@ static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
     ++registryWrites;
     return ERROR_ACCESS_DENIED;
 }
+static BOOL WINAPI TestCreateProcessW(LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES,
+    LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION)
+{
+    ++terminalLaunches;
+    SetLastError(ERROR_FILE_NOT_FOUND);
+    return FALSE;
+}
 
 #define exit TestExit
 #define GetCommandLineW TestGetCommandLineW
@@ -52,6 +60,7 @@ static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
 #define MessageBoxW TestMessageBoxW
 #define TaskDialogIndirect TestTaskDialogIndirect
 #define RegCreateKeyExW TestRegCreateKeyExW
+#define CreateProcessW TestCreateProcessW
 #include "../src/CmderLauncher.cpp"
 #undef exit
 #undef GetCommandLineW
@@ -59,6 +68,7 @@ static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
 #undef MessageBoxW
 #undef TaskDialogIndirect
 #undef RegCreateKeyExW
+#undef CreateProcessW
 
 static void Check(bool condition, const char* message)
 {
@@ -111,6 +121,28 @@ static cmderOptions Parse(const std::wstring& arguments)
 {
     testCommandLine = L"Cmder.exe " + arguments;
     return GetOption();
+}
+
+static void WriteFixture(const std::wstring& path, const std::string& content)
+{
+    HANDLE file = CreateFileW(path.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    Check(file != INVALID_HANDLE_VALUE, "Could not create fixture file");
+    DWORD written = 0;
+    const BOOL result = WriteFile(file, content.data(), static_cast<DWORD>(content.length()), &written, NULL);
+    CloseHandle(file);
+    Check(result && written == content.length(), "Could not write fixture file");
+}
+
+static std::string ReadFixture(const std::wstring& path)
+{
+    HANDLE file = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    Check(file != INVALID_HANDLE_VALUE, "Could not open fixture file");
+    char content[256] = {};
+    DWORD read = 0;
+    const BOOL result = ReadFile(file, content, sizeof(content), &read, NULL);
+    CloseHandle(file);
+    Check(result != 0, "Could not read fixture file");
+    return std::string(content, read);
 }
 
 static void TestArgumentParsing()
@@ -169,6 +201,34 @@ static void TestArgumentParsing()
         }
     }
 
+    const std::wstring settingsDirectory = windowsTerminal + L"\\settings";
+    const std::wstring settings = settingsDirectory + L"\\settings.json";
+    const std::wstring defaults = vendor + L"\\windows_terminal_default_settings.json";
+    const std::wstring userRoot = root + L"\\user";
+    const std::wstring userConfig = userRoot + L"\\config";
+    const std::wstring userSettings = userConfig + L"\\user_windows_terminal_settings.json";
+    Check(CreateDirectoryW(settingsDirectory.c_str(), NULL) != 0, "Could not create settings directory");
+    Check(CreateDirectoryW(userRoot.c_str(), NULL) != 0, "Could not create user root");
+    Check(CreateDirectoryW(userConfig.c_str(), NULL) != 0, "Could not create user config directory");
+    WriteFixture(defaults, "{\"source\":\"Cmder defaults\"}");
+    WriteFixture(userSettings, "{\"source\":\"user root\"}");
+    StartCmder(L"", false, L"", L"", L"", userRoot);
+    Check(ReadFixture(settings) == ReadFixture(defaults), "First /c launch did not initialize shared defaults");
+    Check(ReadFixture(userSettings) == "{\"source\":\"user root\"}", "First /c launch changed user terminal settings");
+    WriteFixture(settings, "{\"source\":\"edited shared settings\"}");
+    StartCmder(L"", false, L"", L"", L"", userRoot);
+    Check(ReadFixture(settings) == "{\"source\":\"edited shared settings\"}", "Subsequent /c launch overwrote shared settings");
+    Check(ReadFixture(userSettings) == "{\"source\":\"user root\"}", "Subsequent /c launch changed user terminal settings");
+    Check(terminalLaunches == 2, "Startup did not reach the terminal launch boundary");
+
+    Check(DeleteFileW(userSettings.c_str()) != 0, "Could not remove user settings fixture");
+    Check(DeleteFileW(settings.c_str()) != 0, "Could not remove shared settings fixture");
+    Check(DeleteFileW(defaults.c_str()) != 0, "Could not remove default settings fixture");
+    Check(RemoveDirectoryW((userConfig + L"\\profile.d").c_str()) != 0, "Could not remove user profile directory");
+    Check(RemoveDirectoryW((userRoot + L"\\bin").c_str()) != 0, "Could not remove user bin directory");
+    Check(RemoveDirectoryW(userConfig.c_str()) != 0, "Could not remove user config directory");
+    Check(RemoveDirectoryW(userRoot.c_str()) != 0, "Could not remove user root");
+    Check(RemoveDirectoryW(settingsDirectory.c_str()) != 0, "Could not remove settings directory");
     Check(RemoveDirectoryW(windowsTerminal.c_str()) != 0, "Could not remove Windows Terminal fixture");
     Check(RemoveDirectoryW(conemu.c_str()) != 0, "Could not remove ConEmu fixture");
     Check(RemoveDirectoryW(vendor.c_str()) != 0, "Could not remove vendor fixture");
