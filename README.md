@@ -1,6 +1,6 @@
 # Cmder
 
-[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster)
+[![Join the chat at https://gitter.im/cmderdev/cmder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmderdev/cmder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amain)
 
 Cmder is a **software package** created out of pure frustration over absence of usable console emulator on Windows. It is based on [ConEmu](https://conemu.github.io/) with *major* config overhaul, comes with a Monokai color scheme, amazing [clink](https://chrisant996.github.io/clink/) (further enhanced by [clink-completions](https://github.com/vladimir-kotikov/clink-completions)) and a custom prompt layout.
 
@@ -392,12 +392,14 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
 
 ## Latest Builds
 
-You can download the latest successful builds of the current [`master`](https://github.com/cmderdev/cmder/tree/master) and [`development`](https://github.com/cmderdev/cmder/tree/development) branches from the **GitHub Actions > Artifacts** section following the links below:
+New contributions target [`main`](https://github.com/cmderdev/cmder/tree/main). The old 1.x line is preserved on [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x), and `development` is historical. The default-branch setting needs an admin handoff in [#3130](https://github.com/cmderdev/cmder/issues/3130).
+
+You can download the latest successful builds of `main` from the **GitHub Actions > Artifacts** section following the links below:
 
 | Branch | Build Status | Download Artifacts |
 |--------|-------------|-------------------|
-| 🔒 [`master`](https://github.com/cmderdev/cmder/tree/master) | [![master build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amaster+is%3Asuccess) |
-| 🔧 [`development`](https://github.com/cmderdev/cmder/tree/development) | [![development build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) |
+| 🔒 [`main`](https://github.com/cmderdev/cmder/tree/main) | [![main build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amain+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amain+is%3Asuccess) |
+| 🛠 [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x) | Preserved 1.x maintenance line | Select compatible fixes and backport them by PR. |
 
 ## License
 

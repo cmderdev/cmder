@@ -7,11 +7,11 @@ name: Build Cmder
 # Controls when the action will run. Triggers the workflow on push or pull request events but only for the main branch
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main", "master", "legacy/1.x" ]
     tags:
       - "v*"
   pull_request:
-    branches: [ "master", "development" ]
+    branches: [ "main", "master", "legacy/1.x" ]
   workflow_dispatch:
 
 #---------------------------------#

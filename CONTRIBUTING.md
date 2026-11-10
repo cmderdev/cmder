@@ -32,14 +32,14 @@ Cmder is moving to the following branch model:
 | `main` | Current code and the next release | Send normal PRs here from a separate feature branch. |
 | `legacy/1.x` | The preserved 1.x code and its maintenance releases | Send compatible 1.x bug fixes here. Link the related current-line fix when there is one. |
 | `development` | Historical integration branch for the existing release transition | Do not use it to collect new, unfinished work. |
-| `master` | Old default branch during the transition | Check the migration issue before targeting it. |
+| `master` | Old default branch during the transition | Check [the migration issue](https://github.com/cmderdev/cmder/issues/3130) before targeting it. |
 
 The transition must preserve the old `master` commit and any existing `main`
 history. Creating a branch, merging the old integration PR, changing the default
 branch, and retiring old automation are separate steps. The `master` to `main`
 default-branch switch needs a maintainer with the required repository access.
 Until that handoff is complete, check the base branch on your PR and link the
-migration issue if the GitHub default still points to `master`.
+[migration issue](https://github.com/cmderdev/cmder/issues/3130) if the GitHub default still points to `master`.
 
 For a normal contribution, fork the repository, then create a short-lived branch
 from the current `main`:

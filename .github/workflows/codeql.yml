@@ -8,7 +8,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master", "development" ]
+    branches: [ "main", "master", "legacy/1.x" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -16,7 +16,7 @@ on:
       - '**/.gitignore'
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "master", "development" ]
+    branches: [ "main", "master", "legacy/1.x" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
