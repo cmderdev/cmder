@@ -66,6 +66,10 @@ jobs:
       shell: pwsh
       run: .\scripts\test-update.ps1
 
+    - name: Test vendor release badge helpers
+      shell: pwsh
+      run: .\scripts\test-vendor-badges.ps1
+
     - name: Test TCC shell compatibility defaults
       shell: pwsh
       run: .\scripts\test-shell-detection.ps1

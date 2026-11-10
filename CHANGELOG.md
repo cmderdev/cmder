@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Fixes
+
+- Show vendor build badges for the requested release ref, with a verified check-runs fallback when the README badge is unavailable. Fix missing README fallback and Azure build-link matching from [#3103](https://github.com/cmderdev/cmder/pull/3103), and link truncated release notes to their full text.
+
 
 ## [2.0.0-rc.1](https://github.com/cmderdev/cmder/releases/tag/v2.0.0-rc.1) (2026-11-10)
 

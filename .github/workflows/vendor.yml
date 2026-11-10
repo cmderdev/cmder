@@ -198,14 +198,20 @@ jobs:
 
             $encodedName = [System.Uri]::EscapeDataString($Name)
             $encodedValue = [System.Uri]::EscapeDataString($Value)
+            $fragment = ''
+            $fragmentIndex = $Url.IndexOf('#')
+            if ($fragmentIndex -ge 0) {
+              $fragment = $Url.Substring($fragmentIndex)
+              $Url = $Url.Substring(0, $fragmentIndex)
+            }
             $pattern = "([?&])$([regex]::Escape($encodedName))=[^&]*"
             $match = [regex]::Match($Url, $pattern)
             if ($match.Success) {
-              return $Url.Substring(0, $match.Index) + $match.Groups[1].Value + "$encodedName=$encodedValue" + $Url.Substring($match.Index + $match.Length)
+              return $Url.Substring(0, $match.Index) + $match.Groups[1].Value + "$encodedName=$encodedValue" + $Url.Substring($match.Index + $match.Length) + $fragment
             }
 
             $separator = if ($Url.Contains('?')) { '&' } else { '?' }
-            return "$Url$separator$encodedName=$encodedValue"
+            return "$Url$separator$encodedName=$encodedValue$fragment"
           }
 
           function ConvertTo-ReleaseBuildStatusBadge {
@@ -227,15 +233,18 @@ jobs:
             $tagName = $ReleaseInfo.TagName
             $retargeted = $false
 
-            if ($image -match '(?i)^https://dev\.azure\.com/.+/_apis/build/status' -or $target -match '(?i)^https://dev\.azure\.com/.+/_build/') {
+            if ($image -match '(?i)^https://dev\.azure\.com/.+/_apis/build/status' -or $target -match '(?i)^https://dev\.azure\.com/.+/_build(?:[/?#]|$)') {
               if ($image -match '(?i)^https://dev\.azure\.com/.+/_apis/build/status') {
-                $image = Set-UrlQueryParameter -Url $image -Name 'branchName' -Value $tagName
+                $image = Set-UrlQueryParameter -Url $image -Name 'branchName' -Value "refs/tags/$tagName"
                 $retargeted = $true
               }
-              if ($target -match '(?i)^https://dev\.azure\.com/.+/_build/') {
-                $target = Set-UrlQueryParameter -Url $target -Name 'branchName' -Value $tagName
+              if ($target -match '(?i)^https://dev\.azure\.com/.+/_build(?:[/?#]|$)') {
+                $target = Set-UrlQueryParameter -Url $target -Name 'branchName' -Value "refs/tags/$tagName"
+              } else {
+                return '—'
               }
-            } elseif ($image -match '(?i)^https://github\.com/[^/]+/[^/]+/actions/workflows/[^?#]+/badge\.svg') {
+            } elseif ($image -match '(?i)^https://github\.com/(?<repo>[^/]+/[^/]+)/actions/workflows/[^?#]+/badge\.svg') {
+              if ($Matches['repo'] -ne $ReleaseInfo.RepoPath) { return '—' }
               $image = Set-UrlQueryParameter -Url $image -Name 'branch' -Value $tagName
               if ($target -match '(?i)^https://github\.com/[^/]+/[^/]+/actions/workflows/[^?#]+') {
                 $target = Set-UrlQueryParameter -Url $target -Name 'query' -Value "branch:$tagName"
@@ -243,7 +252,8 @@ jobs:
                 $target = Set-UrlQueryParameter -Url "$($ReleaseInfo.RepoUrl)/actions" -Name 'query' -Value "branch:$tagName"
               }
               $retargeted = $true
-            } elseif ($image -match '(?i)^https://github\.com/[^/]+/[^/]+/workflows/[^/]+/badge\.svg') {
+            } elseif ($image -match '(?i)^https://github\.com/(?<repo>[^/]+/[^/]+)/workflows/[^/]+/badge\.svg') {
+              if ($Matches['repo'] -ne $ReleaseInfo.RepoPath) { return '—' }
               $image = Set-UrlQueryParameter -Url $image -Name 'branch' -Value $tagName
               if ($target -match '(?i)^https://github\.com/[^/]+/[^/]+/actions') {
                 $target = Set-UrlQueryParameter -Url $target -Name 'query' -Value "branch:$tagName"
@@ -274,8 +284,12 @@ jobs:
 
             try {
               $response = Invoke-WebRequest -Uri $match.Groups['image'].Value -UseBasicParsing -TimeoutSec 20
-              $badgeText = $response.Content.ToLowerInvariant()
-              return $badgeText -notmatch 'no status|never built|not found|unknown|invalid'
+              $svg = [xml]$response.Content
+              if ($svg.DocumentElement.LocalName -ne 'svg') {
+                return $false
+              }
+              $badgeText = $svg.DocumentElement.InnerText.ToLowerInvariant()
+              return -not [string]::IsNullOrWhiteSpace($badgeText) -and $badgeText -notmatch 'no status|no check runs|never built|not found|unknown|invalid|inaccessible|rate limit|internal error'
             } catch {
               Write-Verbose "Unable to verify release build badge $($match.Groups['image'].Value): $($_.Exception.Message)" -Verbose
               return $false
@@ -293,7 +307,7 @@ jobs:
             try {
               $readme = Invoke-GitHubApi -Uri "https://api.github.com/repos/$RepoPath/readme"
               if ([string]::IsNullOrWhiteSpace($readme.content)) {
-                return '—'
+                throw 'The repository README has no content.'
               }
 
               $bytes = [System.Convert]::FromBase64String(($readme.content -replace '\s', ''))
@@ -336,6 +350,14 @@ jobs:
               }
             } catch {
               Write-Verbose "Unable to fetch README build badge for ${RepoPath}: $($_.Exception.Message)" -Verbose
+            }
+
+            $tag = [System.Uri]::EscapeDataString($ReleaseInfo.TagName)
+            $image = "https://img.shields.io/github/check-runs/$RepoPath/$tag"
+            $target = Set-UrlQueryParameter -Url "$($ReleaseInfo.RepoUrl)/actions" -Name 'query' -Value "branch:$($ReleaseInfo.TagName)"
+            $fallback = "[![Build status for release $($ReleaseInfo.TagName)]($image)]($target)"
+            if (Test-BuildStatusBadgeHasReleaseStatus -BadgeMarkdown $fallback) {
+              return $fallback
             }
 
             return '—'
