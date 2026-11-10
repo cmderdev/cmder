@@ -50,6 +50,10 @@ jobs:
       shell: pwsh
       run: .\scripts\test-shell-detection.ps1
 
+    - name: Test legacy package contents
+      shell: pwsh
+      run: .\scripts\test-legacy-packaging.ps1
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v3
 
