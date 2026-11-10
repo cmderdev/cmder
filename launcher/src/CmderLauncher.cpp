@@ -647,7 +647,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		{
 			if (streqi(cmderTask.c_str(), L"powershell"))
 			{
-				swprintf_s(args, L"\"%s\" /d /s /c \"\"%s\" %s\"", terminalPath, initPowerShell, cmderTerminalArgs.c_str());
+				swprintf_s(args, L"\"%s\" /d /v:off /s /c \"\"%s\" %s\"", terminalPath, initPowerShell, cmderTerminalArgs.c_str());
 			}
 			else if (streqi(cmderTask.c_str(), L"bash"))
 			{

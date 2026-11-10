@@ -181,7 +181,7 @@ static void TestArgumentParsing()
             Check(GetWindowsDirectoryW(windows, MAX_PATH) != 0, "Cannot get Windows path");
             Check(_wcsicmp(lastTerminalPath.c_str(), (std::wstring(windows) + L"\\system32\\cmd.exe").c_str()) == 0,
                 "Terminal-free PowerShell task did not use the shared host selector");
-            Check(lastProcessArguments == L"\"" + lastTerminalPath + L"\" /d /s /c \"\"" + vendor + L"\\start_powershell.cmd\" \"",
+            Check(lastProcessArguments == L"\"" + lastTerminalPath + L"\" /d /v:off /s /c \"\"" + vendor + L"\\start_powershell.cmd\" \"",
                 "Terminal-free PowerShell selector command was not quoted correctly");
             terminalLaunches = 0;
         }

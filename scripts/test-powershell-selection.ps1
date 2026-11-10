@@ -27,7 +27,13 @@ function Invoke-Entry([string]$Command, [hashtable]$Environment, [switch]$Profil
         # Terminals use CreateProcess directly; do not add a second cmd parser.
         $prefix = '"%SystemRoot%\System32\cmd.exe"'
         if (!$Command.StartsWith($prefix)) { throw "Unexpected profile executable: $Command" }
-        $info.Arguments = $Command.Substring($prefix.Length)
+        # Terminals expand these variables before starting the command. Force an
+        # initially enabled setting; the production wrapper must override it.
+        $profileArguments = $Command.Substring($prefix.Length)
+        foreach ($name in $Environment.Keys) {
+            $profileArguments = $profileArguments.Replace(('%' + $name + '%'), [string]$Environment[$name])
+        }
+        $info.Arguments = '/v:on ' + $profileArguments
     }
     $info.WorkingDirectory = $fixture
     $info.UseShellExecute = $false
