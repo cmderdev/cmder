@@ -109,7 +109,7 @@ function Digest-Hash($path) {
 function Assert-CmderVendorName([string]$Name) {
     # A vendor is one ordinary Windows directory name, never a path or pattern.
     if (
-        $Name -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$' -or
+        $Name -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*\z' -or
         $Name.EndsWith('.') -or
         $Name -match '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\.|$)'
     ) {
