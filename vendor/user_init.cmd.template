@@ -82,13 +82,18 @@ goto :SKIP_CLINK
 
   :: Keep current UCRT64 and older MinGW Git layouts working.
   set "git_mingw_bin="
-  if exist "%GIT_INSTALL_ROOT%\ucrt64\bin" (
+  set "git_native_64bit=1"
+  if /i "%PROCESSOR_ARCHITECTURE%" == "x86" if not defined PROCESSOR_ARCHITEW6432 set "git_native_64bit=0"
+  if "%git_native_64bit%" == "0" (
+    if exist "%GIT_INSTALL_ROOT%\mingw32\bin" set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
+  ) else if exist "%GIT_INSTALL_ROOT%\ucrt64\bin" (
     set "git_mingw_bin=%GIT_INSTALL_ROOT%\ucrt64\bin"
   ) else if exist "%GIT_INSTALL_ROOT%\mingw64\bin" (
     set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw64\bin"
   ) else if exist "%GIT_INSTALL_ROOT%\mingw32\bin" (
     set "git_mingw_bin=%GIT_INSTALL_ROOT%\mingw32\bin"
   )
+  set "git_native_64bit="
 
   %lib_path% add_path_with_position "%git_mingw_bin%" "%path_position_nix_tools%"
   %lib_path% add_path_with_position "%GIT_INSTALL_ROOT%\usr\bin" "%path_position_nix_tools%"

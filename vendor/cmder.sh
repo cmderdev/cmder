@@ -50,13 +50,17 @@ if [[ ! "$PATH" =~ "${GIT_INSTALL_ROOT}/bin:" ]] ; then
 fi
 
 git_mingw_bin=""
-for git_native_dir in ucrt64 mingw64 mingw32; do
+git_native_dirs="ucrt64 mingw64 mingw32"
+if [ "$PROCESSOR_ARCHITECTURE" = "x86" ] && [ -z "$PROCESSOR_ARCHITEW6432" ]; then
+  git_native_dirs="mingw32"
+fi
+for git_native_dir in $git_native_dirs; do
   if [ -d "$GIT_INSTALL_ROOT/$git_native_dir/bin" ]; then
     git_mingw_bin="$GIT_INSTALL_ROOT/$git_native_dir/bin"
     break
   fi
 done
-unset git_native_dir
+unset git_native_dir git_native_dirs
 
 if [ -n "$git_mingw_bin" ] && [[ ! "$PATH" =~ "${git_mingw_bin}:" ]] ; then
   PATH="${git_mingw_bin}:$PATH"

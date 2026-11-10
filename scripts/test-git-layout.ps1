@@ -47,6 +47,7 @@ $fixtureRoot = Join-Path $tempParent ('cmder-git-layout-' + [guid]::NewGuid().To
 $savedPath = $env:Path
 $savedGitRoot = $env:GIT_INSTALL_ROOT
 $savedArchitecture = $env:PROCESSOR_ARCHITECTURE
+$savedWow64Architecture = $env:PROCESSOR_ARCHITEW6432
 try {
     $null = New-Item -ItemType Directory -Path $fixtureRoot
     $cases = @(
@@ -67,14 +68,18 @@ try {
         $null = New-Item -ItemType Directory -Path (Join-Path $gitRoot 'unused\bin') -Force
         if (!$case.Native) { $null = New-Item -ItemType Directory -Path (Join-Path $gitRoot 'mingw64') }
         $native = if ($case.Native) { Join-Path $gitRoot ($case.Native + '\bin') } else { '' }
-        Assert-Equal (Get-GitNativeBin -GitRoot $gitRoot) $native "$($case.Name) PowerShell native bin"
+        $native32 = if ($case.Dirs -contains 'mingw32') { Join-Path $gitRoot 'mingw32\bin' } else { '' }
+        Assert-Equal (Get-GitNativeBin -GitRoot $gitRoot -Is64BitOperatingSystem $true) $native "$($case.Name) PowerShell native bin on 64-bit OS"
+        Assert-Equal (Get-GitNativeBin -GitRoot $gitRoot -Is64BitOperatingSystem $false) $native32 "$($case.Name) PowerShell native bin on 32-bit OS"
+        $hostNative = if ([Environment]::Is64BitOperatingSystem) { $native } else { $native32 }
+        Assert-Equal (Get-GitNativeBin -GitRoot $gitRoot) $hostNative "$($case.Name) PowerShell native bin on current OS"
         foreach ($directory in @('cmd', 'bin') + @($case.Dirs | ForEach-Object { "$_\bin" })) {
             Assert-Equal (Get-GitRoot -GitPath (Join-Path $gitRoot $directory)) $gitRoot "$($case.Name) root from $directory"
         }
         Assert-Equal (Get-GitRoot -GitPath $gitRoot) $gitRoot "$($case.Name) root remains unchanged"
         $env:Path = $basePath
         $expected = (Join-Path $gitRoot 'cmd') + ';' + $basePath
-        if ($native) { $expected += ';' + $native }
+        if ($hostNative) { $expected += ';' + $hostNative }
         $expected += ';' + (Join-Path $gitRoot 'usr\bin')
         Assert-Equal (Set-GitPath -GitRoot $gitRoot -GitType 'VENDOR') $expected "$($case.Name) vendored PATH"
         $env:Path = $expected
@@ -86,31 +91,44 @@ try {
         $env:GIT_INSTALL_ROOT = $gitRoot
         foreach ($source in $cmdBlocks.Keys) {
             $cmdFile = Join-Path $fixtureRoot 'select-native.cmd'
-            $cmdText = "@echo off`r`n" + $cmdBlocks[$source] + "`r`necho LAYOUT[%git_mingw_bin%]`r`n"
-            [IO.File]::WriteAllText($cmdFile, $cmdText, [Text.Encoding]::ASCII)
-            foreach ($architecture in @('AMD64', 'x86')) {
-                $env:PROCESSOR_ARCHITECTURE = $architecture
+            $architectures = @(
+                @{ Name = 'native64'; Process = 'AMD64'; Wow64 = ''; Native = $native },
+                @{ Name = 'native32'; Process = 'x86'; Wow64 = ''; Native = $native32 },
+                @{ Name = 'WoW64'; Process = 'x86'; Wow64 = 'AMD64'; Native = $native }
+            )
+            foreach ($architecture in $architectures) {
+                $env:PROCESSOR_ARCHITECTURE = $architecture.Process
+                $env:PROCESSOR_ARCHITEW6432 = $architecture.Wow64
+                # cmd.exe restores its real architecture on launch; set the fixture inside the child.
+                $cmdText = "@echo off`r`nset `"PROCESSOR_ARCHITECTURE=$($architecture.Process)`"`r`nset `"PROCESSOR_ARCHITEW6432=$($architecture.Wow64)`"`r`n" + $cmdBlocks[$source] + "`r`necho LAYOUT[%git_mingw_bin%]`r`n"
+                [IO.File]::WriteAllText($cmdFile, $cmdText, [Text.Encoding]::ASCII)
                 $actual = & $env:ComSpec /d /c "`"$cmdFile`""
                 if ($LASTEXITCODE) { throw "CMD selection failed: $source" }
-                Assert-Equal $actual "LAYOUT[$native]" "$($case.Name) $source ($architecture)"
+                Assert-Equal $actual "LAYOUT[$($architecture.Native)]" "$($case.Name) $source ($($architecture.Name))"
             }
         }
         $bashFile = Join-Path $fixtureRoot 'select-native.sh'
-        $bashText = 'GIT_INSTALL_ROOT="$1"' + "`n" + 'PATH="/layout-test-base"' + "`n" + $bashMatch.Value + "`n" + 'printf ''%s\n'' "$PATH"' + "`n"
+        $bashText = 'GIT_INSTALL_ROOT="$1"' + "`n" + 'PROCESSOR_ARCHITECTURE="$2"' + "`n" + 'PROCESSOR_ARCHITEW6432="$3"' + "`n" + 'PATH="/layout-test-base"' + "`n" + $bashMatch.Value + "`n" + 'printf ''%s\n'' "$PATH"' + "`n"
         [IO.File]::WriteAllText($bashFile, ($bashText -replace "`r`n", "`n"), (New-Object Text.UTF8Encoding($false)))
         $posixGitRoot = & $cygpath -u $gitRoot
         $posixScript = & $cygpath -u $bashFile
-        $actual = & $BashExecutable --noprofile --norc $posixScript $posixGitRoot
-        if ($LASTEXITCODE) { throw 'Bash selection failed.' }
-        $expectedBash = if ($case.Native) { "$posixGitRoot/$($case.Native)/bin:/layout-test-base" } else { '/layout-test-base' }
-        Assert-Equal $actual $expectedBash "$($case.Name) Bash native bin and no empty PATH entry"
+        foreach ($architecture in $architectures) {
+            $env:PROCESSOR_ARCHITECTURE = $architecture.Process
+            $env:PROCESSOR_ARCHITEW6432 = $architecture.Wow64
+            $actual = & $BashExecutable --noprofile --norc $posixScript $posixGitRoot $architecture.Process $architecture.Wow64
+            if ($LASTEXITCODE) { throw 'Bash selection failed.' }
+            $expectedBash = if ($architecture.Native) { (& $cygpath -u $architecture.Native) + ':/layout-test-base' } else { '/layout-test-base' }
+            Assert-Equal $actual $expectedBash "$($case.Name) Bash native bin ($($architecture.Name)) and no empty PATH entry"
+        }
     }
 
     $newRoot = Join-Path $fixtureRoot 'UCRT64 only'
     $oldRoot = Join-Path $fixtureRoot 'Old Git'
     $env:Path = "$basePath;$oldRoot\cmd;$oldRoot\mingw64\bin;$oldRoot\usr\bin"
-    $expected = "$basePath;$newRoot\cmd;$newRoot\ucrt64\bin;$newRoot\usr\bin"
-    Assert-Equal (Set-GitPath -GitRoot $newRoot -GitType 'VENDOR' -GitPathUser $oldRoot) $expected 'Migrates an older MinGW PATH to UCRT64 in the same position'
+    if ([Environment]::Is64BitOperatingSystem) {
+        $expected = "$basePath;$newRoot\cmd;$newRoot\ucrt64\bin;$newRoot\usr\bin"
+        Assert-Equal (Set-GitPath -GitRoot $newRoot -GitType 'VENDOR' -GitPathUser $oldRoot) $expected 'Migrates an older MinGW PATH to UCRT64 in the same position'
+    }
 
     $env:Path = $savedPath
     $posixSource = & $cygpath -u (Join-Path $repoRoot 'vendor\cmder.sh')
@@ -120,6 +138,7 @@ try {
     $env:Path = $savedPath
     $env:GIT_INSTALL_ROOT = $savedGitRoot
     $env:PROCESSOR_ARCHITECTURE = $savedArchitecture
+    $env:PROCESSOR_ARCHITEW6432 = $savedWow64Architecture
     $resolved = [IO.Path]::GetFullPath($fixtureRoot)
     if (!$resolved.StartsWith($tempParent, [StringComparison]::OrdinalIgnoreCase) -or
         !(Split-Path $resolved -Leaf).StartsWith('cmder-git-layout-')) {

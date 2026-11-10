@@ -136,10 +136,12 @@ function Get-GitRoot {
 function Get-GitNativeBin {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$GitRoot
+        [string]$GitRoot,
+        [bool]$Is64BitOperatingSystem = [Environment]::Is64BitOperatingSystem
     )
 
-    foreach ($directory in @('ucrt64', 'mingw64', 'mingw32')) {
+    $directories = if ($Is64BitOperatingSystem) { @('ucrt64', 'mingw64', 'mingw32') } else { @('mingw32') }
+    foreach ($directory in $directories) {
         $nativeBin = Join-Path $GitRoot "$directory\bin"
         if (Test-Path -LiteralPath $nativeBin -PathType Container) {
             return $nativeBin
