@@ -6,6 +6,28 @@
 
     You will need to make this script executable by setting your Powershell Execution Policy to Remote signed
     Then unblock the script for execution with UnblockFile .\pack.ps1
+.PARAMETER cmderRoot
+    Path to the Cmder repository root that should be packaged.
+
+    Defaults to the parent directory of this script.
+.PARAMETER terminal
+    Select which terminal package set is included in generated archives:
+    - all: create all archive variants (default)
+    - none: exclude both ConEmu and Windows Terminal packages
+    - conemu-maximus5: include only ConEmu package
+    - windows-terminal: include only Windows Terminal package
+.PARAMETER saveTo
+    Output directory where archives and hashes.txt are written.
+
+    Defaults to the repository build directory.
+.PARAMETER Verbose
+    Built-in common parameter from CmdletBinding.
+
+    Prints detailed packaging progress and included files.
+.PARAMETER WhatIf
+    Built-in common parameter from CmdletBinding (SupportsShouldProcess).
+
+    Shows what actions would run without making changes.
 .EXAMPLE
     .\pack.ps1
 
@@ -14,6 +36,30 @@
     .\pack.ps1 -Verbose
 
     Creates default archives for Cmder with plenty of information
+.EXAMPLE
+    .\pack.ps1 -Terminal none
+
+    Create archives without bundled terminal emulator packages.
+.EXAMPLE
+    .\pack.ps1 -Terminal conemu-maximus5
+
+    Create archives that include ConEmu and exclude Windows Terminal.
+.EXAMPLE
+    .\pack.ps1 -Terminal windows-terminal
+
+    Create archives that include Windows Terminal and exclude ConEmu.
+.EXAMPLE
+    .\pack.ps1 -SaveTo 'C:\temp\cmder-artifacts'
+
+    Write release archives and hashes.txt to a custom output directory.
+.EXAMPLE
+    .\pack.ps1 -CmderRoot 'C:\src\cmder'
+
+    Package a Cmder checkout from a custom repository path.
+.EXAMPLE
+    .\pack.ps1 -WhatIf
+
+    Preview packaging actions without creating or deleting files.
 .NOTES
     AUTHORS
     Samuel Vasko, Jack Bennett, Martin Kemp

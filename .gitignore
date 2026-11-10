@@ -37,4 +37,4 @@ scripts/packer/iso/*.iso
 scripts/packer/packer_cache
 scripts/packer/output-*
 *.box
-
+*.code-workspace
