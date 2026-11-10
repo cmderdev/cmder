@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+### Fixes
+
+- Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
 
 ## [2.0.0-rc.1](https://github.com/cmderdev/cmder/releases/tag/v2.0.0-rc.1) (2026-11-10)
 
