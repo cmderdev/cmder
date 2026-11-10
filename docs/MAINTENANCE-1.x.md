@@ -7,7 +7,7 @@ Continue new and unfinished work through feature PRs to `main`;
 `development` must not collect ongoing work.
 
 The exact pre-integration master remains at
-[`legacy/1.x-baseline-2026-11-10`](https://github.com/cmderdev/cmder/tree/legacy/1.x-baseline-2026-11-10),
+[original baseline](https://github.com/cmderdev/cmder/tree/legacy/1.x-baseline-2026-11-10),
 commit `2b25c570a2b58c3c46b7f672a0a25677970aa9c7`. Maintenance changes advance
 `legacy/1.x` normally; do not force-push the baseline or merge the entire current
 line into it.
