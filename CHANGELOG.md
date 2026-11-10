@@ -17,6 +17,8 @@
   reject invalid arguments before attempting context-menu registration.
 - Restore the previous TCC and TCCLE shell-helper defaults for Clink and aliases,
   preserving explicit user settings and the existing `init.bat` behavior.
+- Recognize the current Git UCRT64 layout in CMD and PowerShell while retaining
+  older MinGW layouts, native 32-bit and WoW64 selection, and external-Git preference.
 - Support Git repositories that use reftables in the Clink prompt.
 - Make Mercurial prompt updates asynchronous and fix its branch handling.
 - Quote Git locale paths, avoid temporary-file name collisions, and respect
