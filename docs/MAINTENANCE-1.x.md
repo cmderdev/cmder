@@ -33,6 +33,7 @@ and historical shell defaults are checked on Windows PowerShell 5.1 and 7.
 .\scripts\check-trailing-whitespace.ps1
 .\scripts\test-update.ps1
 .\scripts\test-shell-detection.ps1
+.\scripts\test-git-layout.ps1
 .\scripts\test-build-helpers.ps1
 .\scripts\test-legacy-packaging.ps1
 .\scripts\build.ps1 -Compile -NoVendor -Verbose
