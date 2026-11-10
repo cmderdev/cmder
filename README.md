@@ -394,12 +394,11 @@ If you do not have a `[cmder_root]/config/user[-|_]conemu.xml`, you are running 
 
 ## Latest Builds
 
-You can download the latest successful builds of the current [`master`](https://github.com/cmderdev/cmder/tree/master) and [`development`](https://github.com/cmderdev/cmder/tree/development) branches from the **GitHub Actions > Artifacts** section following the links below:
+You can download successful `legacy/1.x` maintenance builds from **GitHub Actions > Artifacts** using the link below. Current 2.x development is on [`main`](https://github.com/cmderdev/cmder/tree/main); use its [build artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Amain+is%3Asuccess) for the new release line.
 
 | Branch | Build Status | Download Artifacts |
 |--------|-------------|-------------------|
-| 🔒 [`master`](https://github.com/cmderdev/cmder/tree/master) | [![master build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=legacy%2F1.x)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Alegacy%2F1.x+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Alegacy%2F1.x+is%3Asuccess) |
-| 🔧 [`development`](https://github.com/cmderdev/cmder/tree/development) | [![development build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apull_request+branch%3Adevelopment+is%3Asuccess) |
+| 🔒 [`legacy/1.x`](https://github.com/cmderdev/cmder/tree/legacy/1.x) | [![legacy build status](https://github.com/cmderdev/cmder/actions/workflows/build.yml/badge.svg?branch=legacy%2F1.x)](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Alegacy%2F1.x+is%3Asuccess) | [📦 Artifacts](https://github.com/cmderdev/cmder/actions/workflows/build.yml?query=event%3Apush+branch%3Alegacy%2F1.x+is%3Asuccess) |
 
 ## License
 
