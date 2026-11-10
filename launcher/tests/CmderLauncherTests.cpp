@@ -19,6 +19,12 @@ static int registryWrites = 0;
 static int terminalLaunches = 0;
 static WORD nativeArchitecture = PROCESSOR_ARCHITECTURE_AMD64;
 static std::wstring lastTerminalPath;
+static std::wstring lastProcessArguments;
+static std::wstring lastProcessDirectory;
+static DWORD lastProcessFlags = 0;
+static DWORD lastStartupFlags = 0;
+static DWORD lastStartupSize = 0;
+static BOOL lastInheritHandles = FALSE;
 
 [[noreturn]] static void TestExit(int code) { throw LauncherExit{code}; }
 static LPWSTR WINAPI TestGetCommandLineW() { return &testCommandLine[0]; }
@@ -48,11 +54,18 @@ static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
     ++registryWrites;
     return ERROR_ACCESS_DENIED;
 }
-static BOOL WINAPI TestCreateProcessW(LPCWSTR application, LPWSTR, LPSECURITY_ATTRIBUTES,
-    LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION)
+static BOOL WINAPI TestCreateProcessW(LPCWSTR application, LPWSTR arguments, LPSECURITY_ATTRIBUTES,
+    LPSECURITY_ATTRIBUTES, BOOL inheritHandles, DWORD flags, LPVOID, LPCWSTR directory,
+    LPSTARTUPINFOW startup, LPPROCESS_INFORMATION)
 {
     ++terminalLaunches;
     lastTerminalPath = application;
+    lastProcessArguments = arguments ? arguments : L"";
+    lastProcessDirectory = directory ? directory : L"";
+    lastProcessFlags = flags;
+    lastInheritHandles = inheritHandles;
+    lastStartupFlags = startup ? startup->dwFlags : 0;
+    lastStartupSize = startup ? startup->cb : 0;
     SetLastError(ERROR_FILE_NOT_FOUND);
     return FALSE;
 }
@@ -206,6 +219,23 @@ static void TestArgumentParsing()
             "Legacy terminal arguments changed");
         Check(!Parse(L"/register USER").error && !Parse(L"/unregister ALL").error,
             "Valid registration arguments changed");
+        options = Parse(L"/register MODERN");
+        Check(!options.error && options.registerApp && options.modernShellMenu,
+            "Modern per-user registration was not parsed");
+        options = Parse(L"/unregister modern");
+        Check(!options.error && options.unRegisterApp && options.modernShellMenu,
+            "Modern unregistration was not parsed");
+        options = Parse(L"/register MODERN /register USER");
+        Check(!options.error && !options.modernShellMenu, "Explicit classic mode retained modern registration");
+        for (const auto first : {L"/register MODERN", L"/unregister MODERN"}) {
+            for (const auto final : {L"/register", L"/unregister"}) {
+                options = Parse(std::wstring(first) + L" " + final);
+                Check(!options.error && !options.modernShellMenu &&
+                    options.registerApp == (wcscmp(final, L"/register") == 0) &&
+                    options.unRegisterApp == (wcscmp(final, L"/unregister") == 0),
+                    "A final bare registration verb retained earlier modern mode or action");
+            }
+        }
         Parse(L"/register /start");
         Check(_tWinMain(NULL, NULL, NULL, 0) == 1 && registryWrites == 0,
             "Invalid registration command reached registry writes");
@@ -258,11 +288,102 @@ static void TestArgumentParsing()
     Check(RemoveDirectoryW(root.c_str()) != 0, "Could not remove fixture directory");
 }
 
+static std::vector<std::wstring> ProcessArguments()
+{
+    int count = 0;
+    LPWSTR* values = CommandLineToArgvW(lastProcessArguments.c_str(), &count);
+    Check(values != nullptr, "Could not parse registration process arguments");
+    const std::vector<std::wstring> result(values, values + count);
+    LocalFree(values);
+    return result;
+}
+
+static void TestModernShellMenuDispatch()
+{
+    const std::wstring previousExecutable = testExecutable;
+    const std::wstring previousCommandLine = testCommandLine;
+    wchar_t temporaryPath[MAX_PATH] = {};
+    wchar_t fixturePath[MAX_PATH] = {};
+    Check(GetTempPathW(MAX_PATH, temporaryPath) != 0, "Could not get modern menu fixture path");
+    Check(GetTempFileNameW(temporaryPath, L"cms", 0, fixturePath) != 0, "Could not allocate modern menu fixture");
+    Check(DeleteFileW(fixturePath) != 0 && CreateDirectoryW(fixturePath, nullptr) != 0,
+        "Could not prepare modern menu fixture root");
+    const std::wstring base(fixturePath);
+    const std::wstring root = base + L"\\Cmder menu & \u03bb";
+    const std::wstring bin = root + L"\\bin";
+    const std::wstring shell = bin + L"\\cmder-shell";
+    const std::wstring script = shell + L"\\Register-CmderContextMenu.ps1";
+    const std::wstring vendor = root + L"\\vendor";
+    const std::wstring conemu = vendor + L"\\ConEmu-Maximus5";
+    for (const auto& directory : {root, bin, shell, vendor, conemu}) {
+        Check(CreateDirectoryW(directory.c_str(), nullptr) != 0, "Could not create modern menu fixture directory");
+    }
+    // This sentinel would fail if run. All process creation remains intercepted.
+    const std::string sentinel = "throw 'Registration fixture must never execute'\r\n";
+    WriteFixture(script, sentinel);
+    testExecutable = root + L"\\Cmder.exe";
+
+    wchar_t windows[MAX_PATH] = {};
+    BOOL wow64 = FALSE;
+    Check(GetWindowsDirectoryW(windows, MAX_PATH) != 0 && IsWow64Process(GetCurrentProcess(), &wow64),
+        "Could not determine native PowerShell fixture expectation");
+    const std::wstring powershell = std::wstring(windows) + (wow64 ? L"\\Sysnative" : L"\\System32") +
+        L"\\WindowsPowerShell\\v1.0\\powershell.exe";
+    const std::wstring config = L"D:\\Cmder config & %USERPROFILE% ^! (\u03bb\u4e2d)\\";
+    const int launches = terminalLaunches;
+    const int writes = registryWrites;
+    const int dialogs = helpDialogs;
+
+    auto options = Parse(L"/REGISTER MODERN /C " + CmderShell::QuoteArgument(config) + L" /single");
+    Check(!options.error && options.modernShellMenu && options.registerApp && options.cmderSingle &&
+        options.cmderCfgRoot == config, "Modern registration parser changed configuration or single-instance settings");
+    Check(_tWinMain(nullptr, nullptr, nullptr, 0) == 1, "Mocked registration process failure was not returned");
+    Check(terminalLaunches == launches + 1 && lastTerminalPath == powershell,
+        "Modern registration did not reach exactly one native PowerShell boundary");
+    Check(ProcessArguments() == std::vector<std::wstring>{powershell, L"-NoLogo", L"-NoProfile", L"-NonInteractive",
+        L"-ExecutionPolicy", L"Bypass", L"-File", script, L"-Action", L"Register", L"-ConfigRoot", config, L"-SingleInstance"},
+        "Modern registration lost Unicode, metacharacters, trailing backslash or exact PowerShell argv");
+    Check(lastProcessDirectory == root && lastProcessFlags == (CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT) &&
+        lastInheritHandles && lastStartupSize == sizeof(STARTUPINFOEXW) && (lastStartupFlags & STARTF_USESTDHANDLES),
+        "Registration process did not retain its isolated working directory and hidden redirected startup");
+
+    options = Parse(L"/UNREGISTER MODERN /C " + CmderShell::QuoteArgument(config) + L" /single");
+    Check(!options.error && options.modernShellMenu && options.unRegisterApp && options.cmderSingle,
+        "Modern unregistration parser changed valid options");
+    Check(_tWinMain(nullptr, nullptr, nullptr, 0) == 1 && terminalLaunches == launches + 2 && lastTerminalPath == powershell,
+        "Modern unregistration did not reach exactly one PowerShell boundary");
+    Check(ProcessArguments() == std::vector<std::wstring>{powershell, L"-NoLogo", L"-NoProfile", L"-NonInteractive",
+        L"-ExecutionPolicy", L"Bypass", L"-File", script, L"-Action", L"Unregister"},
+        "Modern unregistration passed configuration or single-instance registration preferences");
+
+    Check(RemoveDirectoryW(conemu.c_str()) != 0, "Could not remove modern ConEmu fixture");
+    Parse(L"/register MODERN");
+    Check(_tWinMain(nullptr, nullptr, nullptr, 0) == 1 && terminalLaunches == launches + 3,
+        "Modern registration depended on an installed terminal");
+    Check(ProcessArguments() == std::vector<std::wstring>{powershell, L"-NoLogo", L"-NoProfile", L"-NonInteractive",
+        L"-ExecutionPolicy", L"Bypass", L"-File", script, L"-Action", L"Register"},
+        "Default modern registration added unexpected preferences");
+    Check(ReadFixture(script) == sentinel, "Launcher changed or executed the registration fixture");
+    Check(DeleteFileW(script.c_str()) != 0, "Could not remove registration script fixture");
+    Parse(L"/register MODERN");
+    Check(_tWinMain(nullptr, nullptr, nullptr, 0) == 1 && terminalLaunches == launches + 3,
+        "Missing registration script reached process creation");
+    Check(registryWrites == writes && helpDialogs == dialogs,
+        "Modern dispatch reached classic registry registration or unexpected parser help");
+
+    for (const auto& directory : {vendor, shell, bin, root, base}) {
+        Check(RemoveDirectoryW(directory.c_str()) != 0, "Could not remove modern menu fixture directory");
+    }
+    testExecutable = previousExecutable;
+    testCommandLine = previousCommandLine;
+}
+
 int wmain()
 {
     try {
         TestPathBounds();
         TestArgumentParsing();
+        TestModernShellMenuDispatch();
         std::cout << "Launcher regression tests passed.\n";
         return 0;
     }

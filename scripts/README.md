@@ -3,7 +3,7 @@
 This folder contains helper scripts used to:
 
 - Update sources for vendor components.
-- Build the launcher and download vendor components.
+- Build the launcher and optional Windows 11 Explorer integration, and download vendor components.
 - Package release archives.
 
 The scripts share a small library of helper functions located in `utils.ps1`.
@@ -13,6 +13,9 @@ The scripts share a small library of helper functions located in `utils.ps1`.
 - **pack.ps1**: Packages the built distribution into the distributable archives declared in `package-profiles.json`. Output is grouped by terminal profile under `build/<profile>/`.
 - **package-profiles.json**: Central configuration for the terminal profiles, output folders, included vendors, and package variants used by `build.ps1`, `pack.ps1`, and the CI workflow.
 - **update.ps1**: Updates what will be bundled by `build.ps1`.
+- **build-shell-integration.ps1**: Builds the native Explorer command and sparse identity package. `build.ps1 -Compile` runs it automatically. See [Windows 11 setup and signing](../docs/WINDOWS-11-CONTEXT-MENU.md).
+- **test-shell-integration.ps1**: Runs isolated registration fixtures without changing host settings. Pass `-BuiltPackageRoot ..\bin\cmder-shell` to also validate the built package and assets.
+- **test-shell-integration-runtime.ps1**: Optional Windows 11 development-package activation test. It requires an interactive Explorer desktop, native Windows PowerShell 5.1, pre-existing Developer Mode, and no existing Cmder registration or package data. See the [runtime instructions](../docs/WINDOWS-11-CONTEXT-MENU.md).
 
 **Shared helpers**
 - **utils.ps1**: A shared library of helper functions used by the other scripts. Common utilities include:
@@ -38,13 +41,13 @@ The scripts dot-source `utils.ps1` at runtime to reuse the above functions and c
 .\build.ps1 -Verbose
 ```
 
-- Build and compile the launcher (requires `msbuild`/VS build tools):
+- Build and compile the launcher and Explorer integration (requires `msbuild`/VS build tools and the Windows 11 SDK):
 
 ```powershell
 .\build.ps1 -Compile -Verbose
 ```
 
-- Compile but skip vendor downloads (quick launcher build):
+- Compile the launcher and Explorer integration, skipping vendor downloads:
 
 ```powershell
 .\build.ps1 -Compile -NoVendor -Verbose

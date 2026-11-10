@@ -828,6 +828,8 @@ void UnregisterShellMenu(std::wstring opt, wchar_t* keyBaseName)
 	RegCloseKey(root);
 }
 
+#include "ModernShellMenu.h"
+
 struct cmderOptions
 {
 	std::wstring cmderCfgRoot = L"";
@@ -841,6 +843,7 @@ struct cmderOptions
 	bool cmderUserCfg = true;
 	bool registerApp = false;
 	bool unRegisterApp = false;
+	bool modernShellMenu = false;
 	bool error = false;
 };
 
@@ -960,12 +963,18 @@ cmderOptions GetOption()
 			}
 			else if (_wcsicmp(L"/register", szArgList[i]) == 0)
 			{
+				cmderOptions.modernShellMenu = false;
 				cmderOptions.registerApp = true;
 				cmderOptions.unRegisterApp = false;
 				if (szArgList[i + 1] != NULL)
 				{
-					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					if (_wcsicmp(L"modern", szArgList[i + 1]) == 0) {
+						cmderOptions.modernShellMenu = true;
+						i++;
+					}
+					else if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
 					{
+						cmderOptions.modernShellMenu = false;
 						cmderOptions.cmderRegScope = szArgList[i + 1];
 						i++;
 					}
@@ -973,12 +982,18 @@ cmderOptions GetOption()
 			}
 			else if (_wcsicmp(L"/unregister", szArgList[i]) == 0)
 			{
+				cmderOptions.modernShellMenu = false;
 				cmderOptions.unRegisterApp = true;
 				cmderOptions.registerApp = false;
 				if (szArgList[i + 1] != NULL)
 				{
-					if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
+					if (_wcsicmp(L"modern", szArgList[i + 1]) == 0) {
+						cmderOptions.modernShellMenu = true;
+						i++;
+					}
+					else if (_wcsicmp(L"all", szArgList[i + 1]) == 0 || _wcsicmp(L"user", szArgList[i + 1]) == 0)
 					{
+						cmderOptions.modernShellMenu = false;
 						cmderOptions.cmderRegScope = szArgList[i + 1];
 						i++;
 					}
@@ -1058,6 +1073,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	if (cmderOptions.error)
 	{
 		return 1;
+	}
+	if (cmderOptions.modernShellMenu) {
+		return RunModernShellMenu(cmderOptions.registerApp, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
 	}
 
 	wchar_t windowsTerminalDir[MAX_PATH] = { 0 };

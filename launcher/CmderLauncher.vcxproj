@@ -177,6 +177,9 @@
       <Command>copy $(TargetPath) $(SolutionDir)..\$(TargetFileName)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <ClCompile><LanguageStandard>stdcpp17</LanguageStandard></ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ResourceCompile Include="src\resource.rc">
       <FileType>RC</FileType>
@@ -184,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\resource.h" />
+    <ClInclude Include="src\ModernShellMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CmderLauncher.cpp" />

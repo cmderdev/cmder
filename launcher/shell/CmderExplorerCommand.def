@@ -1,0 +1,4 @@
+LIBRARY CmderExplorerCommand
+EXPORTS
+    DllGetClassObject PRIVATE
+    DllCanUnloadNow PRIVATE

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Adds
+
+- Add an opt-in `Cmder Here` command in the Windows 11 22H2+ x64 context menu for folders, folder backgrounds, and drives, through `/REGISTER MODERN` and `/UNREGISTER MODERN`. Keep the portable files external to a sparse identity package and retain classic USER/ALL registration. Source requirement: [#2788](https://github.com/cmderdev/cmder/issues/2788). See [setup and signing](docs/WINDOWS-11-CONTEXT-MENU.md).
+
 ### Fixes
 
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
