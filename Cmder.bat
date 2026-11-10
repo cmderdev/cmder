@@ -7,8 +7,11 @@ if exist "%CMDER_ROOT%\vendor\windows-terminal\windowsterminal.exe" (
   SET CMDER_TERMINAL=windows-terminal
 )
 
-if NOT "%~1" == "" (
-  SET CMDER_TERMINAL=%~1
+if /I "%~1" == "conemu" (
+  SET CMDER_TERMINAL=conemu
+  shift
+) else if /I "%~1" == "windows-terminal" (
+  SET CMDER_TERMINAL=windows-terminal
   shift
 )
 
@@ -17,7 +20,7 @@ if "%CMDER_ROOT:~-1%" == "\" SET CMDER_ROOT=%CMDER_ROOT:~0,-1%
 
 if not exist "%CMDER_ROOT%\config" md "%CMDER_ROOT%\config" 2>nul
 
-call :%CMDER_TERMINAL%
+call :%CMDER_TERMINAL% "%~1"
 exit /b
 
 :conemu

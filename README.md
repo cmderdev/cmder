@@ -48,6 +48,10 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
 * Both the shared install and the individual user config locations can contain a full set of init and profile.d scripts enabling shared config with user overrides.  See below.
 
+  When using bundled Windows Terminal, `/C` applies to Cmder shell configuration
+  only. Windows Terminal settings are shared by the installation because Windows
+  Terminal does not support selecting a different settings file for each launch.
+
 ## Cmder.exe Command Line Arguments
 
 

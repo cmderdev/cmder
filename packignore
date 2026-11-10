@@ -24,5 +24,6 @@ vendor\cmder.sh
 vendor\git-prompt.sh
 config\user-*
 config\user_*
+config\windows_terminal_settings.json
 clink_history*
 *.log
