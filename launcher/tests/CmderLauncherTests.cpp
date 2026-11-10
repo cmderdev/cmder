@@ -184,6 +184,22 @@ static void TestArgumentParsing()
     Check(!options.error && options.cmderTask == L"Custom" && options.cmderConEmuArgs == L"-foo bar" &&
         options.cmderSingle && !options.cmderUserCfg && options.cmderTitle == L"Custom" && options.cmderIcon == L"custom.ico",
         "Legacy ConEmu arguments changed");
+    options = Parse(L"/x \"/run cmd\"");
+    Check(!options.error && options.cmderConEmuArgs == L"/run cmd",
+        "Slash-prefixed ConEmu arguments were rejected");
+    const DWORD profileSize = GetEnvironmentVariableW(L"USERPROFILE", NULL, 0);
+    std::vector<wchar_t> savedProfile(profileSize);
+    if (profileSize != 0) { GetEnvironmentVariableW(L"USERPROFILE", savedProfile.data(), profileSize); }
+    Check(SetEnvironmentVariableW(L"USERPROFILE", NULL) != 0, "Could not clear fixture USERPROFILE");
+    options = Parse(L"/c \"" + root + L"\"");
+    Check(!options.error && options.cmderCfgRoot == root,
+        "Explicit configuration path depended on USERPROFILE");
+    Check(Parse(L"/c").error, "Missing default profile was accepted");
+    Check(SetEnvironmentVariableW(L"USERPROFILE", std::wstring(MAX_PATH - 1, L'a').c_str()) != 0,
+        "Could not set fixture USERPROFILE");
+    Check(Parse(L"/c").error, "Oversized combined default configuration path was accepted");
+    Check(SetEnvironmentVariableW(L"USERPROFILE", profileSize == 0 ? NULL : savedProfile.data()) != 0,
+        "Could not restore USERPROFILE");
     Check(!Parse(L"/register USER").error && !Parse(L"/unregister ALL").error,
         "Valid registration arguments changed");
     Parse(L"/register /start");

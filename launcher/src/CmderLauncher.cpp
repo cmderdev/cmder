@@ -645,23 +645,22 @@ cmderOptions GetOption()
 		if (cmderOptions.error == false) {
 			if (_wcsicmp(L"/c", szArgList[i]) == 0)
 			{
-				TCHAR userProfile[MAX_PATH] = { 0 };
-				const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
-				if (ret == 0 || ret >= MAX_PATH)
-				{
-					cmderOptions.error = true;
-					continue;
-				}
-
-				wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
-				PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg");
-
-				cmderOptions.cmderCfgRoot = cmderCfgRoot;
-
-				if (hasValue(i) && _wcsicmp(L"--", szArgList[i + 1]) != 0)
+				if (hasValue(i))
 				{
 					cmderOptions.cmderCfgRoot = szArgList[i + 1];
 					i++;
+				}
+				else
+				{
+					TCHAR userProfile[MAX_PATH] = { 0 };
+					const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
+					wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
+					if (ret == 0 || ret >= MAX_PATH || PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg") == NULL)
+					{
+						cmderOptions.error = true;
+						continue;
+					}
+					cmderOptions.cmderCfgRoot = cmderCfgRoot;
 				}
 			}
 			else if (_wcsicmp(L"/start", szArgList[i]) == 0)
@@ -742,7 +741,7 @@ cmderOptions GetOption()
 			/* Used for passing arguments to conemu prog */
 			else if (_wcsicmp(L"/x", szArgList[i]) == 0)
 			{
-				if (!hasValue(i)) { cmderOptions.error = true; continue; }
+				if (i + 1 >= argCount || szArgList[i + 1][0] == L'\0') { cmderOptions.error = true; continue; }
 				cmderOptions.cmderConEmuArgs = szArgList[i + 1];
 				i++;
 			}
