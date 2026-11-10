@@ -1,0 +1,304 @@
+name: Package Manager Publishing
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Cmder version without the leading v
+        required: true
+        type: string
+      release_tag:
+        description: GitHub release tag
+        required: true
+        type: string
+      release_date:
+        description: Release date for WinGet manifests (yyyy-MM-dd)
+        required: true
+        type: string
+      dry_run:
+        description: Generate, validate, and upload package files without publishing
+        required: true
+        default: true
+        type: boolean
+      publish_winget:
+        description: Submit WinGet manifests with WingetCreate
+        required: true
+        default: false
+        type: boolean
+      publish_chocolatey:
+        description: Push Chocolatey packages
+        required: true
+        default: false
+        type: boolean
+      publish_scoop:
+        description: Open or update a Scoop bucket pull request
+        required: true
+        default: false
+        type: boolean
+  release:
+    types: [published]
+
+defaults:
+  run:
+    shell: pwsh
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-managers-${{ github.event.release.tag_name || inputs.release_tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  configure:
+    name: Configure package-manager release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.config.outputs.version }}
+      release_tag: ${{ steps.config.outputs.release_tag }}
+      release_date: ${{ steps.config.outputs.release_date }}
+      dry_run: ${{ steps.config.outputs.dry_run }}
+      publish_winget: ${{ steps.config.outputs.publish_winget }}
+      publish_chocolatey: ${{ steps.config.outputs.publish_chocolatey }}
+      publish_scoop: ${{ steps.config.outputs.publish_scoop }}
+    steps:
+      - id: config
+        name: Resolve release inputs
+        run: |
+          function Convert-ToBoolString {
+            param(
+              [AllowEmptyString()][string]$Value,
+              [bool]$Default = $false
+            )
+
+            if ([string]::IsNullOrWhiteSpace($Value)) {
+              return $Default.ToString().ToLowerInvariant()
+            }
+
+            return ($Value.Trim().ToLowerInvariant() -in @("true", "1", "yes", "on")).ToString().ToLowerInvariant()
+          }
+
+          $eventName = "${{ github.event_name }}"
+          $version = "${{ inputs.version }}"
+          $releaseTag = "${{ inputs.release_tag }}"
+          $releaseDate = "${{ inputs.release_date }}"
+          $dryRun = Convert-ToBoolString "${{ inputs.dry_run }}" $true
+          $publishWinget = Convert-ToBoolString "${{ inputs.publish_winget }}" $false
+          $publishChocolatey = Convert-ToBoolString "${{ inputs.publish_chocolatey }}" $false
+          $publishScoop = Convert-ToBoolString "${{ inputs.publish_scoop }}" $false
+
+          if ($eventName -eq "release") {
+            $releaseTag = "${{ github.event.release.tag_name }}"
+            $version = $releaseTag -replace "^v+", ""
+            $publishedAt = "${{ github.event.release.published_at }}"
+            $releaseDate = if ($publishedAt) { ([datetime]$publishedAt).ToUniversalTime().ToString("yyyy-MM-dd") } else { (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd") }
+            $dryRun = (-not ("${{ vars.PACKAGE_MANAGERS_AUTO_PUBLISH }}".Trim().ToLowerInvariant() -in @("true", "1", "yes", "on"))).ToString().ToLowerInvariant()
+            $publishWinget = Convert-ToBoolString "${{ vars.PACKAGE_MANAGERS_PUBLISH_WINGET }}" $false
+            $publishChocolatey = Convert-ToBoolString "${{ vars.PACKAGE_MANAGERS_PUBLISH_CHOCOLATEY }}" $false
+            $publishScoop = Convert-ToBoolString "${{ vars.PACKAGE_MANAGERS_PUBLISH_SCOOP }}" $false
+          }
+
+          if (-not $version) {
+            throw "Version is required."
+          }
+          if (-not $releaseTag) {
+            $releaseTag = "v$version"
+          }
+          if (-not $releaseDate) {
+            $releaseDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
+          "release_date=$releaseDate" >> $env:GITHUB_OUTPUT
+          "dry_run=$dryRun" >> $env:GITHUB_OUTPUT
+          "publish_winget=$publishWinget" >> $env:GITHUB_OUTPUT
+          "publish_chocolatey=$publishChocolatey" >> $env:GITHUB_OUTPUT
+          "publish_scoop=$publishScoop" >> $env:GITHUB_OUTPUT
+
+          $summary = @"
+          ## 📦 Package Manager Publishing
+
+          | Setting | Value |
+          | --- | --- |
+          | Version | ``$version`` |
+          | Release tag | ``$releaseTag`` |
+          | Release date | ``$releaseDate`` |
+          | Dry run | ``$dryRun`` |
+          | WinGet publish requested | ``$publishWinget`` |
+          | Chocolatey publish requested | ``$publishChocolatey`` |
+          | Scoop publish requested | ``$publishScoop`` |
+
+          "@
+
+          $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+  generate:
+    name: Generate and validate package files
+    needs: configure
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Generate package-manager files
+        run: |
+          .\scripts\package-managers.ps1 `
+            -Version '${{ needs.configure.outputs.version }}' `
+            -ReleaseTag '${{ needs.configure.outputs.release_tag }}' `
+            -ReleaseDate '${{ needs.configure.outputs.release_date }}' `
+            -Clean
+
+      - name: Validate WinGet manifests when winget is available
+        run: |
+          if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
+            Write-Warning "winget.exe is not available on this runner; skipping WinGet CLI validation."
+            "### ⚠️ WinGet validation skipped`n`n``winget.exe`` was not available on the runner." | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+            return
+          }
+
+          winget validate --manifest .\build\package-managers\winget\manifests\c\Cmder\Cmder\${{ needs.configure.outputs.version }}
+          winget validate --manifest .\build\package-managers\winget\manifests\c\Cmder\CmderMini\${{ needs.configure.outputs.version }}
+          "### ✅ WinGet manifests validated" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+      - name: Pack Chocolatey packages
+        run: |
+          choco pack .\build\package-managers\chocolatey\Cmder\Cmder.nuspec --out .\build\package-managers\chocolatey
+          choco pack .\build\package-managers\chocolatey\cmdermini\cmdermini.nuspec --out .\build\package-managers\chocolatey
+          "### ✅ Chocolatey packages packed" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+      - name: Validate Scoop manifests as JSON
+        run: |
+          Get-ChildItem .\build\package-managers\scoop\bucket\*.json | ForEach-Object {
+            Get-Content -Raw $_.FullName | ConvertFrom-Json | Out-Null
+          }
+          "### ✅ Scoop manifests parsed as JSON" | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+      - name: Upload package-manager files
+        uses: actions/upload-artifact@v7
+        with:
+          name: package-manager-files
+          path: build/package-managers
+          if-no-files-found: error
+
+  publish-winget:
+    name: Submit WinGet manifests
+    needs: [configure, generate]
+    if: needs.configure.outputs.publish_winget == 'true' && needs.configure.outputs.dry_run != 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: package-manager-files
+          path: package-manager-files
+
+      - name: Download WingetCreate
+        run: Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+
+      - name: Submit WinGet pull requests
+        env:
+          WINGETCREATE_GITHUB_TOKEN: ${{ secrets.WINGETCREATE_GITHUB_TOKEN }}
+        run: |
+          if (-not $env:WINGETCREATE_GITHUB_TOKEN) {
+            throw "Missing WINGETCREATE_GITHUB_TOKEN secret."
+          }
+
+          $version = '${{ needs.configure.outputs.version }}'
+          $fullManifest = Resolve-Path "package-manager-files\winget\manifests\c\Cmder\Cmder\$version"
+          $miniManifest = Resolve-Path "package-manager-files\winget\manifests\c\Cmder\CmderMini\$version"
+
+          .\wingetcreate.exe submit --prtitle "Add Cmder.Cmder $version" --token $env:WINGETCREATE_GITHUB_TOKEN --no-open $fullManifest
+          .\wingetcreate.exe submit --prtitle "Add Cmder.CmderMini $version" --token $env:WINGETCREATE_GITHUB_TOKEN --no-open $miniManifest
+
+  publish-chocolatey:
+    name: Push Chocolatey packages
+    needs: [configure, generate]
+    if: needs.configure.outputs.publish_chocolatey == 'true' && needs.configure.outputs.dry_run != 'true'
+    runs-on: windows-latest
+    env:
+      CHOCOLATEY_PUSH_SOURCE: ${{ vars.CHOCOLATEY_PUSH_SOURCE || 'https://push.chocolatey.org/' }}
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: package-manager-files
+          path: package-manager-files
+
+      - name: Push packages
+        env:
+          CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+        run: |
+          if (-not $env:CHOCOLATEY_API_KEY) {
+            throw "Missing CHOCOLATEY_API_KEY secret."
+          }
+
+          Get-ChildItem package-manager-files\chocolatey\*.nupkg | ForEach-Object {
+            choco push $_.FullName --source $env:CHOCOLATEY_PUSH_SOURCE --key $env:CHOCOLATEY_API_KEY
+          }
+
+  publish-scoop:
+    name: Open Scoop bucket PR
+    needs: [configure, generate]
+    if: needs.configure.outputs.publish_scoop == 'true' && needs.configure.outputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    env:
+      SCOOP_BUCKET_REPOSITORY: ${{ vars.SCOOP_BUCKET_REPOSITORY || 'ScoopInstaller/Main' }}
+      SCOOP_BUCKET_PUSH_REPOSITORY: ${{ vars.SCOOP_BUCKET_PUSH_REPOSITORY }}
+      SCOOP_BUCKET_BASE_BRANCH: ${{ vars.SCOOP_BUCKET_BASE_BRANCH || 'master' }}
+      SCOOP_BUCKET_MANIFEST_DIR: ${{ vars.SCOOP_BUCKET_MANIFEST_DIR || 'bucket' }}
+      GH_TOKEN: ${{ secrets.SCOOP_GITHUB_TOKEN }}
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: package-manager-files
+          path: package-manager-files
+
+      - name: Create or update Scoop bucket pull request
+        run: |
+          if (-not $env:GH_TOKEN) {
+            throw "Missing SCOOP_GITHUB_TOKEN secret."
+          }
+
+          $targetRepo = $env:SCOOP_BUCKET_REPOSITORY
+          $pushRepo = if ($env:SCOOP_BUCKET_PUSH_REPOSITORY) { $env:SCOOP_BUCKET_PUSH_REPOSITORY } else { $targetRepo }
+          $baseBranch = $env:SCOOP_BUCKET_BASE_BRANCH
+          $manifestDir = $env:SCOOP_BUCKET_MANIFEST_DIR
+          $version = '${{ needs.configure.outputs.version }}'
+          $branch = "cmder-$version"
+
+          gh repo clone $pushRepo scoop-bucket -- --depth 1
+          Set-Location scoop-bucket
+
+          if ($pushRepo -ne $targetRepo) {
+            git remote add upstream "https://github.com/$targetRepo.git"
+            git fetch upstream $baseBranch --depth 1
+            git checkout -B $branch "upstream/$baseBranch"
+          } else {
+            git fetch origin $baseBranch --depth 1
+            git checkout -B $branch "origin/$baseBranch"
+          }
+
+          New-Item -ItemType Directory -Force -Path $manifestDir | Out-Null
+          Copy-Item ../package-manager-files/scoop/bucket/cmder.json "$manifestDir/cmder.json" -Force
+          Copy-Item ../package-manager-files/scoop/bucket/cmder-full.json "$manifestDir/cmder-full.json" -Force
+
+          if (-not (git status --porcelain)) {
+            "No Scoop manifest changes to publish." | Add-Content -Path $env:GITHUB_STEP_SUMMARY -Encoding utf8
+            return
+          }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$manifestDir/cmder.json" "$manifestDir/cmder-full.json"
+          git commit -m "Update Cmder manifests to $version"
+          git push origin $branch --force
+
+          $pushOwner = ($pushRepo -split "/")[0]
+          $head = if ($pushRepo -ne $targetRepo) { "$pushOwner`:$branch" } else { $branch }
+          $body = @"
+          Updates the Cmder Scoop manifests from the official Cmder release assets.
+
+          Source release: https://github.com/cmderdev/cmder/releases/tag/${{ needs.configure.outputs.release_tag }}
+          "@
+
+          gh pr create --repo $targetRepo --base $baseBranch --head $head --title "Update Cmder to $version" --body $body
