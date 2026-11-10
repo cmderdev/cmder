@@ -95,6 +95,10 @@ if (-not $noVendor) {
 
     # Get the vendor sources
     $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
+    # Validate the entire custom manifest before any vendor backup or deletion.
+    foreach ($source in $sources) {
+        Assert-CmderVendorName $source.name
+    }
 
     Push-Location -Path $saveTo
     New-Item -Type Directory -Path (Join-Path $saveTo "/tmp/") -ErrorAction SilentlyContinue >$null

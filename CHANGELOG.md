@@ -27,6 +27,10 @@
   helper command. Run legacy launcher, shell-default, and package-content checks
   independently of current development.
 - Read pull-request branch names through the environment in workflow summaries.
+- Pass archive paths and exclusions as arguments instead of executable strings,
+  preserve inputs after extraction failures, and restore the working directory
+  after compression failures. Validate custom vendor names before touching any
+  vendor directory and consistently produce SHA256 hashes.
 
 ### Components
 
