@@ -64,7 +64,7 @@ try {
         $cases++
     }
     foreach ($name in @('', '.', '..', '..\outside', '../outside', 'C:\outside', '\\server\share',
-        'vendor*', 'vendor?', 'name.', 'space name', '$(throw INJECTION)', 'CON', 'aux.txt', 'LPT1', 'com9.zip')) {
+        ('clink' + [char]10), 'vendor*', 'vendor?', 'name.', 'space name', '$(throw INJECTION)', 'CON', 'aux.txt', 'LPT1', 'com9.zip')) {
         $failed = $false
         try { Assert-CmderVendorName $name } catch { $failed = $true }
         if (-not $failed) { throw "Unsafe vendor name was accepted: $name" }
