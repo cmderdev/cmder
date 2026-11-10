@@ -34,8 +34,8 @@
 
 ### Components
 
-- Git for Windows 2.52.0.windows.1, Clink 1.9.5, ConEmu 23.07.24, and
-  clink-completions 0.6.7 are the inherited maintenance pins.
+- Git for Windows 2.56.0.windows.4 supplies the selected upstream security fixes.
+  Clink 1.9.5, ConEmu 23.07.24, and clink-completions 0.6.7 retain their inherited pins.
 - The Full archives include Git. The Mini archive uses an external Git install.
   Embedded components have their own Windows requirements; a 1.x archive does
   not imply Windows 7 support. See the
