@@ -103,6 +103,26 @@ try {
         if ($version -notmatch '^\d+\.\d+' -or $ErrorActionPreference -ne 'Stop') {
             throw 'Version fallback in an untagged Git repository failed or changed error handling.'
         }
+
+        # An archival tag on a newer commit must not replace the release version.
+        # Keep identity and hooks local to these commands; never change user config.
+        $emptyHooks = Join-Path $testRoot 'empty-hooks'
+        $null = New-Item -ItemType Directory -Path $emptyHooks
+        $fixtureConfig = @('-c', 'user.name=Cmder Test Fixture', '-c', 'user.email=fixture@example.invalid',
+            '-c', "core.hooksPath=$emptyHooks", '-c', 'tag.gpgSign=false')
+        $null = & git.exe @fixtureConfig commit --allow-empty --no-gpg-sign --quiet -m 'Release fixture'
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to create the release-version fixture.' }
+        $null = & git.exe @fixtureConfig tag v9.8.7
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to tag the release-version fixture.' }
+        $null = & git.exe @fixtureConfig commit --allow-empty --no-gpg-sign --quiet -m 'Archival fixture'
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to create the archival-version fixture.' }
+        $null = & git.exe @fixtureConfig tag archive-fixture
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to tag the archival-version fixture.' }
+        $version = Get-VersionStr
+        if ($version -notmatch '^9\.8\.7(?:\.|\z)' -or $ErrorActionPreference -ne 'Stop') {
+            throw "A closer archival tag replaced the earlier release version: $version"
+        }
+        $cases++
     } finally {
         Pop-Location
     }
