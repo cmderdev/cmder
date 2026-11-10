@@ -110,8 +110,8 @@ You can open multiple tabs each containing one of the following shells:
 | ----                | -----            | -----------                                                                                                  |
 | Cmder               | `cmd.exe`        | Windows `cmd.exe` shell enhanced with Git, Git aware prompt, Clink (GNU Readline), and Aliases.              |
 | Cmder as Admin      | `cmd.exe`        | Administrative Windows `cmd.exe` Cmder shell.                                                                |
-| PowerShell          | `powershell.exe` | Windows PowerShell enhanced with Git and Git aware prompt .                                                  |
-| PowerShell as Admin | `powershell.exe` | Administrative Windows `powershell.exe` Cmder shell.                                                         |
+| PowerShell          | `pwsh.exe` / `powershell.exe` | PowerShell 7 when available, otherwise Windows PowerShell, with Cmder's Git aware prompt.            |
+| PowerShell as Admin | `pwsh.exe` / `powershell.exe` | The same shell selection with administrative privileges.                                              |
 | Bash                | `bash.exe`       | Unix/Linux like bash shell running on Windows.                                                               |
 | Bash as Admin       | `bash.exe`       | Administrative Unix/Linux like bash shell running on Windows.                                                |
 | Mintty              | `bash.exe`       | Unix/Linux like bash shell running on Windows. See below for Mintty configuration differences                |
@@ -254,6 +254,28 @@ Note: These are loaded in this order by `$CMDER_ROOT/vendor/git-for-windows/etc/
 If you add bash aliases to `$CMDER_ROOT/config/user_profile.sh` they will be portable and follow your Cmder folder if you copy it to another machine.  `$HOME/.bashrc` defined aliases are not portable.
 
 #### PowerShell.exe Aliases
+
+The default Cmder PowerShell profiles and the `pwsh` command alias prefer a stable
+PowerShell 7 installation in Program Files, then PowerShell 7 or later on `PATH`
+(including portable installs and enabled Store execution aliases). Windows
+PowerShell is the fallback. Both shells load Cmder's `vendor/profile.ps1` and use
+the selected `CMDER_USER_CONFIG`. The plain `Windows PowerShell` terminal profile
+continues to open that specific shell.
+
+Run `pwsh` without arguments for a Cmder PowerShell session. Explicit arguments,
+such as `pwsh -Version` or `pwsh -File script.ps1`, go directly to the selected
+host with its normal CLI behavior. You can always use `powershell.exe` explicitly.
+
+Existing user settings and aliases are preserved during upgrades. To opt an
+existing PowerShell task/profile into this selection, use the matching command
+from `vendor/ConEmu.xml.default` or `vendor/windows_terminal_default_settings.json`.
+To update the existing command alias, replace only its `pwsh=` line in
+`config/user_aliases.cmd` (or your separate user configuration) with:
+
+```cmd
+pwsh="%CMDER_ROOT%\vendor\start_powershell.cmd" $*
+```
+
 PowerShell has native simple alias support, for example `[new-alias | set-alias] alias command`, so complex aliases with optional parameters are not supported in PowerShell sessions.  Type `get-help [new-alias|set-alias] -full` for help on PowerShell aliases.
 
 To make an alias and/or any other profile settings permanent add it to one of the following:

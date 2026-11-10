@@ -577,10 +577,6 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	{
 		PathCombine(terminalPath, winDir, L"system32\\cmd.exe");
 
-		if (streqi(cmderTask.c_str(), L"powershell"))
-		{
-			PathCombine(terminalPath, winDir, L"System32\\WindowsPowerShell\\v1.0\\powershell.exe");
-		}
 		/*
 		else if (streqi(cmderTask.c_str(), L"mintty"))
 		{
@@ -634,7 +630,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	// see : https://conemu.github.io/en/ConEmuArgs.html
 	// > This must be the last used switch (excepting -new_console and -cur_console)
 	PathCombine(initCmd, vendorDir, L"init.cmd");
-	PathCombine(initPowerShell, vendorDir, L"profile.ps1");
+	PathCombine(initPowerShell, vendorDir, L"start_powershell.cmd");
 	PathCombine(initBash, vendorDir, L"start_git_bash.cmd");
 	PathCombine(initMintty, vendorDir, L"start_git_mintty.cmd");
 
@@ -651,7 +647,7 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		{
 			if (streqi(cmderTask.c_str(), L"powershell"))
 			{
-				swprintf_s(args, L"%s -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%s'''\"", args, initPowerShell);
+				swprintf_s(args, L"\"%s\" /d /v:off /s /c \"\"%s\" %s\"", terminalPath, initPowerShell, cmderTerminalArgs.c_str());
 			}
 			else if (streqi(cmderTask.c_str(), L"bash"))
 			{

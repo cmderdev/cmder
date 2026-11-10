@@ -13,6 +13,7 @@ The scripts share a small library of helper functions located in `utils.ps1`.
 - **pack.ps1**: Packages the built distribution into the distributable archives declared in `package-profiles.json`. Output is grouped by terminal profile under `build/<profile>/`.
 - **package-profiles.json**: Central configuration for the terminal profiles, output folders, included vendors, and package variants used by `build.ps1`, `pack.ps1`, and the CI workflow.
 - **update.ps1**: Updates what will be bundled by `build.ps1`.
+- **test-powershell-selection.ps1**: Tests PowerShell 7 discovery, Windows PowerShell fallback, native CLI arguments, and the shipped terminal profiles and command alias without changing user settings. Run it in both Windows PowerShell 5.1 and PowerShell 7.
 
 **Shared helpers**
 - **utils.ps1**: A shared library of helper functions used by the other scripts. Common utilities include:

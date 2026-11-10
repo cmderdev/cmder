@@ -19,6 +19,7 @@ static int registryWrites = 0;
 static int terminalLaunches = 0;
 static WORD nativeArchitecture = PROCESSOR_ARCHITECTURE_AMD64;
 static std::wstring lastTerminalPath;
+static std::wstring lastProcessArguments;
 
 [[noreturn]] static void TestExit(int code) { throw LauncherExit{code}; }
 static LPWSTR WINAPI TestGetCommandLineW() { return &testCommandLine[0]; }
@@ -48,11 +49,12 @@ static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
     ++registryWrites;
     return ERROR_ACCESS_DENIED;
 }
-static BOOL WINAPI TestCreateProcessW(LPCWSTR application, LPWSTR, LPSECURITY_ATTRIBUTES,
+static BOOL WINAPI TestCreateProcessW(LPCWSTR application, LPWSTR arguments, LPSECURITY_ATTRIBUTES,
     LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION)
 {
     ++terminalLaunches;
     lastTerminalPath = application;
+    lastProcessArguments = arguments ? arguments : L"";
     SetLastError(ERROR_FILE_NOT_FOUND);
     return FALSE;
 }
@@ -173,6 +175,16 @@ static void TestArgumentParsing()
     testExecutable = root + L"\\Cmder.exe";
 
     for (int terminal = 0; terminal < 3; ++terminal) {
+        if (terminal == 0) {
+            StartCmder(L"", false, L"powershell");
+            wchar_t windows[MAX_PATH] = {};
+            Check(GetWindowsDirectoryW(windows, MAX_PATH) != 0, "Cannot get Windows path");
+            Check(_wcsicmp(lastTerminalPath.c_str(), (std::wstring(windows) + L"\\system32\\cmd.exe").c_str()) == 0,
+                "Terminal-free PowerShell task did not use the shared host selector");
+            Check(lastProcessArguments == L"\"" + lastTerminalPath + L"\" /d /v:off /s /c \"\"" + vendor + L"\\start_powershell.cmd\" \"",
+                "Terminal-free PowerShell selector command was not quoted correctly");
+            terminalLaunches = 0;
+        }
         if (terminal == 1) {
             Check(CreateDirectoryW(conemu.c_str(), NULL) != 0, "Could not create ConEmu fixture");
             WriteFixture(vendor + L"\\ConEmu.xml.default", "<settings />");
