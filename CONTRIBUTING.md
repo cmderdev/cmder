@@ -169,6 +169,8 @@ unfinished requirement active, with its source context and owner. Age or
 inactivity alone is never a reason to close, remove, archive, or lower an item's
 priority.
 
+Do not add dates or timestamps to issue/backlog status prose unless requested.
+
 Move an item to Done only when its stated outcome is delivered. A draft PR,
 an unanswered review, or a successful build with required manual testing left
 is still unfinished. Close an item only when its requirements are delivered or

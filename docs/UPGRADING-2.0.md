@@ -109,7 +109,7 @@ must not collect ongoing work. An admin must finish the
 default-branch/protection handoff in
 [#3130](https://github.com/cmderdev/cmder/issues/3130).
 
-- [Compare legacy/1.x with main, hiding whitespace](https://github.com/cmderdev/cmder/compare/legacy%2F1.x...main?w=1).
+- [Compare legacy/1.x with main, hiding whitespace](https://github.com/cmderdev/cmder/compare/legacy%2F1.x..main?w=1).
 - [David's recovered execution backlog](https://github.com/cmderdev/cmder/issues/3133).
 - [Independent final 1.x checklist](https://github.com/cmderdev/cmder/issues/3131).
 
