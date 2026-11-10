@@ -850,30 +850,51 @@ cmderOptions GetOption()
 	PathCombine(conEmuDir, vendorDir, L"ConEmu-Maximus5");
 
 	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
+	if (szArgList == NULL)
+	{
+		cmderOptions.error = true;
+		return cmderOptions;
+	}
 
 	for (int i = 1; i < argCount; i++)
 	{
 		// MessageBox(NULL, szArgList[i], L"Arglist contents", MB_OK);
 		if (cmderOptions.error == false) {
+			const bool conEmuOptions = !PathFileExists(windowsTerminalDir) && PathFileExists(conEmuDir);
+			const bool needsValue = streqi(szArgList[i], L"/start") || streqi(szArgList[i], L"/task") ||
+				streqi(szArgList[i], L"/x") || (conEmuOptions &&
+				(streqi(szArgList[i], L"/title") || streqi(szArgList[i], L"/icon")));
+			if (szArgList[i][0] == L'\0' ||
+				(needsValue && (i + 1 >= argCount || szArgList[i + 1][0] == L'\0')))
+			{
+				cmderOptions.error = true;
+				break;
+			}
+
 			if (_wcsicmp(L"/c", szArgList[i]) == 0)
 			{
-				TCHAR userProfile[MAX_PATH];
-				const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, MAX_PATH);
-
-				wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
-				PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg");
-
-				cmderOptions.cmderCfgRoot = cmderCfgRoot;
-
-				if (szArgList[i + 1] != NULL && szArgList[i + 1][0] != '/')
+				if (i + 1 < argCount && szArgList[i + 1][0] != '/' && szArgList[i + 1][0] != L'\0' &&
+					wcscmp(szArgList[i + 1], L"--") != 0)
 				{
 					cmderOptions.cmderCfgRoot = szArgList[i + 1];
 					i++;
 				}
+				else
+				{
+					TCHAR userProfile[MAX_PATH] = { 0 };
+					const DWORD ret = GetEnvironmentVariable(L"USERPROFILE", userProfile, _countof(userProfile));
+					wchar_t cmderCfgRoot[MAX_PATH] = { 0 };
+					if (ret == 0 || ret >= _countof(userProfile) || PathCombine(cmderCfgRoot, userProfile, L"cmder_cfg") == NULL)
+					{
+						cmderOptions.error = true;
+						break;
+					}
+					cmderOptions.cmderCfgRoot = cmderCfgRoot;
+				}
 			}
 			else if (_wcsicmp(L"/start", szArgList[i]) == 0)
 			{
-				int len = wcslen(szArgList[i + 1]);
+				size_t len = wcslen(szArgList[i + 1]);
 				if (wcscmp(&szArgList[i + 1][len - 1], L"\"") == 0)
 				{
 					szArgList[i + 1][len - 1] = '\0';
@@ -886,12 +907,13 @@ cmderOptions GetOption()
 				}
 				else
 				{
+					cmderOptions.error = true;
 					MessageBox(NULL, szArgList[i + 1], L"/START - Folder does not exist!", MB_OK);
 				}
 			}
 			else if (_wcsicmp(L"/task", szArgList[i]) == 0)
 			{
-				if (i + 1 < argCount && szArgList[i + 1][0] != '/')
+				if (i + 1 < argCount && szArgList[i + 1][0] != '/' && wcscmp(szArgList[i + 1], L"--") != 0)
 				{
 					cmderOptions.cmderTask = szArgList[i + 1];
 					i++;
@@ -968,7 +990,7 @@ cmderOptions GetOption()
 			}
 			else if (cmderOptions.cmderStart == L"")
 			{
-				int len = wcslen(szArgList[i]);
+				size_t len = wcslen(szArgList[i]);
 				if (wcscmp(&szArgList[i][len - 1], L"\"") == 0)
 				{
 					szArgList[i][len - 1] = '\0';
@@ -977,7 +999,6 @@ cmderOptions GetOption()
 				if (PathFileExists(szArgList[i]))
 				{
 					cmderOptions.cmderStart = szArgList[i];
-					i++;
 				}
 				else
 				{
@@ -1021,6 +1042,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(nCmdShow);
 
 	cmderOptions cmderOptions = GetOption();
+	if (cmderOptions.error)
+	{
+		return 1;
+	}
 
 	wchar_t windowsTerminalDir[MAX_PATH] = { 0 };
 	wchar_t exeDir[MAX_PATH] = { 0 };
@@ -1052,10 +1077,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM);
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND);
 		UnregisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM);
-	}
-	else if (cmderOptions.error == true)
-	{
-		return 1;
 	}
 	else
 	{

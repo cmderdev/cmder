@@ -15,6 +15,7 @@ static std::wstring testExecutable = L"C:\\Cmder\\Cmder.exe";
 static bool failModulePath = false;
 static DWORD modulePathCapacity = 0;
 static int helpDialogs = 0;
+static int registryWrites = 0;
 
 [[noreturn]] static void TestExit(int code) { throw LauncherExit{code}; }
 static LPWSTR WINAPI TestGetCommandLineW() { return &testCommandLine[0]; }
@@ -38,18 +39,26 @@ static HRESULT WINAPI TestTaskDialogIndirect(const TASKDIALOGCONFIG*, int*, int*
     ++helpDialogs;
     return S_OK;
 }
+static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
+    REGSAM, const LPSECURITY_ATTRIBUTES, PHKEY, LPDWORD)
+{
+    ++registryWrites;
+    return ERROR_ACCESS_DENIED;
+}
 
 #define exit TestExit
 #define GetCommandLineW TestGetCommandLineW
 #define GetModuleFileNameW TestGetModuleFileNameW
 #define MessageBoxW TestMessageBoxW
 #define TaskDialogIndirect TestTaskDialogIndirect
+#define RegCreateKeyExW TestRegCreateKeyExW
 #include "../src/CmderLauncher.cpp"
 #undef exit
 #undef GetCommandLineW
 #undef GetModuleFileNameW
 #undef MessageBoxW
 #undef TaskDialogIndirect
+#undef RegCreateKeyExW
 
 static void Check(bool condition, const char* message)
 {
@@ -95,12 +104,82 @@ static void TestPathBounds()
     failModulePath = true;
     ExpectControlledExit([&]() { GetExecutablePath(path); });
     failModulePath = false;
+    Check(registryWrites == 0, "Rejected configuration path reached registry writes");
+}
+
+static cmderOptions Parse(const std::wstring& arguments)
+{
+    testCommandLine = L"Cmder.exe " + arguments;
+    return GetOption();
+}
+
+static void TestArgumentParsing()
+{
+    wchar_t temporaryPath[MAX_PATH] = {};
+    wchar_t fixturePath[MAX_PATH] = {};
+    Check(GetTempPathW(MAX_PATH, temporaryPath) != 0, "Could not get temporary path");
+    Check(GetTempFileNameW(temporaryPath, L"cmd", 0, fixturePath) != 0, "Could not allocate fixture path");
+    Check(DeleteFileW(fixturePath) != 0, "Could not prepare fixture directory");
+    Check(CreateDirectoryW(fixturePath, NULL) != 0, "Could not create fixture directory");
+    const std::wstring root(fixturePath);
+    const std::wstring vendor = root + L"\\vendor";
+    const std::wstring conemu = vendor + L"\\conemu-maximus5";
+    const std::wstring windowsTerminal = vendor + L"\\windows-terminal";
+    Check(CreateDirectoryW(vendor.c_str(), NULL) != 0, "Could not create vendor fixture");
+    testExecutable = root + L"\\Cmder.exe";
+
+    for (int terminal = 0; terminal < 3; ++terminal) {
+        if (terminal == 1) {
+            Check(CreateDirectoryW(conemu.c_str(), NULL) != 0, "Could not create ConEmu fixture");
+        }
+        if (terminal == 2) {
+            Check(CreateDirectoryW(windowsTerminal.c_str(), NULL) != 0, "Could not create Windows Terminal fixture");
+        }
+        for (const wchar_t* arguments : {L"/start", L"/start \"\"", L"/task", L"/task \"\"",
+                L"/task --", L"/x", L"/x \"\"", L"\"\""}) {
+            const int dialogs = helpDialogs;
+            Check(Parse(arguments).error, "Malformed arguments did not produce an error");
+            Check(helpDialogs == dialogs + 1, "Malformed arguments did not display help");
+        }
+        auto options = Parse(L"\"" + root + L"\" /task Custom");
+        Check(!options.error && options.cmderStart == root && options.cmderTask == L"Custom",
+            "A positional folder consumed the next switch");
+        options = Parse(L"/start \"" + root + L"\" /task Custom");
+        Check(!options.error && options.cmderStart == root && options.cmderTask == L"Custom",
+            "Explicit start folder or task changed");
+        options = Parse(L"/c -- new-tab");
+        Check(!options.error && !options.cmderCfgRoot.empty() && options.cmderTerminalArgs == L"new-tab",
+            "Optional configuration root consumed the argument separator");
+        options = Parse(L"/task Custom /x \"-foo bar\"");
+        Check(!options.error && options.cmderTask == L"Custom" && options.cmderTerminalArgs == L"-foo bar",
+            "Legacy terminal arguments changed");
+        Check(!Parse(L"/register USER").error && !Parse(L"/unregister ALL").error,
+            "Valid registration arguments changed");
+        Parse(L"/register /start");
+        Check(_tWinMain(NULL, NULL, NULL, 0) == 1 && registryWrites == 0,
+            "Invalid registration command reached registry writes");
+        if (terminal == 1) {
+            for (const wchar_t* arguments : {L"/title", L"/title \"\"", L"/icon", L"/icon \"\""}) {
+                Check(Parse(arguments).error, "Missing ConEmu option value did not produce an error");
+            }
+            options = Parse(L"bash /single /m /title Custom /icon custom.ico");
+            Check(!options.error && options.cmderTask == L"bash" && options.cmderSingle &&
+                !options.cmderUserCfg && options.cmderTitle == L"Custom" && options.cmderIcon == L"custom.ico",
+                "ConEmu arguments or shorthand task consumed another option");
+        }
+    }
+
+    Check(RemoveDirectoryW(windowsTerminal.c_str()) != 0, "Could not remove Windows Terminal fixture");
+    Check(RemoveDirectoryW(conemu.c_str()) != 0, "Could not remove ConEmu fixture");
+    Check(RemoveDirectoryW(vendor.c_str()) != 0, "Could not remove vendor fixture");
+    Check(RemoveDirectoryW(root.c_str()) != 0, "Could not remove fixture directory");
 }
 
 int wmain()
 {
     try {
         TestPathBounds();
+        TestArgumentParsing();
         std::cout << "Launcher regression tests passed.\n";
         return 0;
     }
