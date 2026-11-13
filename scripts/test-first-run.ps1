@@ -61,8 +61,8 @@ try {
     }
 
     $patch = Get-Content -LiteralPath "$PSScriptRoot\patches\portable-git-post-install.diff"
-    $preimage = ($patch | Select-Object -Skip 5 | Where-Object { $_ -eq '' -or $_ -match '^[ -]' } |
-        ForEach-Object { if ($_) { $_.Substring(1) } else { '' } }) -join [Environment]::NewLine
+    $preimage = ($patch | Select-Object -Skip 5 | Where-Object { $_ -match '^[ -]' } |
+        ForEach-Object { $_.Substring(1) }) -join [Environment]::NewLine
     [IO.File]::WriteAllText($postInstall, $preimage + [Environment]::NewLine)
     Update-CmderPortableGitPostInstall $gitRoot
     $patched = [IO.File]::ReadAllText($postInstall)
