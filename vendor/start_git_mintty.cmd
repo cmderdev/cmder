@@ -13,6 +13,9 @@ if not defined CMDER_ROOT (
 )
 
 if exist "%CMDER_ROOT%\vendor\git-for-windows" (
+  if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
+    "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%CMDER_ROOT%\vendor\bin\first-run.ps1" -Action Git -Target "%CMDER_ROOT%\vendor\git-for-windows"
+  )
   set "PATH=%CMDER_ROOT%\vendor\git-for-windows\usr\bin;%PATH%"
   set "gitCmd=%CMDER_ROOT%\vendor\git-for-windows\usr\bin\mintty.exe"
 ) else if exist "%ProgramFiles%\git" (

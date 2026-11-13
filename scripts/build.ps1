@@ -192,6 +192,10 @@ if (-not $noVendor) {
             Flatten-Directory($s.name)
         }
 
+        if ($s.name -eq 'git-for-windows') {
+            Update-CmderPortableGitPostInstall (Join-Path $saveTo $s.name)
+        }
+
         # Write current version to .cmderver file, for later.
         "$($s.version)" | Out-File "$($s.name)/.cmderver"
     }

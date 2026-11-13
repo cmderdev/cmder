@@ -1,0 +1,18 @@
+diff --git a/post-install.bat b/post-install.bat
+index cb31152..34eef5b 100644
+--- a/post-install.bat
++++ b/post-install.bat
+@@ -44,10 +44,10 @@
+
+ @echo "running post-install"
+ @REM Run the post-install scripts
+-@usr\bin\bash.exe --norc -c "export PATH=/usr/bin:$PATH; export SYSCONFDIR=/etc; for p in $(export LC_COLLATE=C; echo /etc/post-install/*.post); do test -e \"$p\" && . \"$p\"; done"
++@usr\bin\bash.exe --norc -c "export PATH=/usr/bin:$PATH; export SYSCONFDIR=/etc; for p in $(export LC_COLLATE=C; echo /etc/post-install/*.post); do if test -e \"$p\"; then . \"$p\"; fi; done"
+
+ @REM Unset environment variables set by this script
+ @SET "version="
+
+-@REM Remove this script
+-@DEL post-install.bat
++@REM Cmder handles post-install cleanup
++@EXIT /B %ERRORLEVEL%

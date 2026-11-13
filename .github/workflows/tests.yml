@@ -86,6 +86,10 @@ jobs:
       shell: powershell
       run: .\scripts\test-build-helpers.ps1
 
+    - name: Test first-run setup and Portable Git cleanup
+      shell: powershell
+      run: .\scripts\test-first-run.ps1
+
     - name: Test TCC shell compatibility defaults
       shell: pwsh
       run: .\scripts\test-shell-detection.ps1

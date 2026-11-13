@@ -33,13 +33,14 @@ exit /b
 
 :run_profile_d
     if not exist "%~1" (
-        mkdir "%~1"
+        "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%CMDER_ROOT%\vendor\bin\first-run.ps1" -Action ProfileDirectory -Target "%~1"
+        if errorlevel 1 exit /b 1
     )
 
-    pushd "%~1"
+    pushd "%~1" || exit /b 1
     for /f "usebackq" %%x in ( `dir /b *.bat *.cmd 2^>nul` ) do (
         %print_verbose% "Calling '%~1\%%x'..."
         call "%~1\%%x"
     )
     popd
-    exit /b
+    exit /b 0

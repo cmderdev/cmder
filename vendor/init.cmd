@@ -1,6 +1,7 @@
 @echo off
 
 set CMDER_INIT_START=%time%
+set "cmder_setup_failed="
 
 :: Init Script for cmd.exe shell
 :: Created as part of cmder project
@@ -75,7 +76,7 @@ call "%cmder_root%\vendor\lib\lib_profile"
         if exist "%~2" (
             if not exist "%~2\bin" mkdir "%~2\bin"
             set "cmder_user_bin=%~2\bin"
-            if not exist "%~2\config\profile.d" mkdir "%~2\config\profile.d"
+            if not exist "%~2\config\profile.d" call :first_run ProfileDirectory "%~2\config\profile.d"
             set "cmder_user_config=%~2\config"
             shift
         )
@@ -169,14 +170,17 @@ if "%PROCESSOR_ARCHITECTURE%"=="x86" (
 set "cmder_root_user_init=%CMDER_ROOT%\config\user_init.cmd"
 if defined CMDER_USER_CONFIG set "cmder_user_init=%CMDER_USER_CONFIG%\user_init.cmd"
 
+:: An existing cache can outlive a vendor update that supplies fresh Portable Git.
 if exist "%cmder_root_user_init%" (
+  call :setup_bundled_git
   call "%cmder_root_user_init%"
-  exit /b
+  goto :setup_exit
 )
 
 if defined CMDER_USER_CONFIG if exist "%cmder_user_init%" (
+  call :setup_bundled_git
   call "%cmder_user_init%"
-  exit /b
+  goto :setup_exit
 )
 
 if "%CMDER_CLINK%" == "1" (
@@ -198,15 +202,10 @@ goto :SKIP_CLINK
     )
 
     :: Run Clink
-    if not exist "%CMDER_CONFIG_DIR%\settings" if not exist "%CMDER_CONFIG_DIR%\clink_settings" (
-        echo Generating Clink initial settings in "%CMDER_CONFIG_DIR%\clink_settings"
-        copy "%CMDER_ROOT%\vendor\clink_settings.default" "%CMDER_CONFIG_DIR%\clink_settings"
-        echo Additional *.lua files in "%CMDER_CONFIG_DIR%" are loaded on startup.
-    )
-
     if not exist "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua" (
-        echo Creating Cmder prompt config file: "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
-        copy "%CMDER_ROOT%\vendor\cmder_prompt_config.lua.default" "%CMDER_CONFIG_DIR%\cmder_prompt_config.lua"
+        call :first_run Clink "%CMDER_CONFIG_DIR%"
+    ) else if not exist "%CMDER_CONFIG_DIR%\settings" if not exist "%CMDER_CONFIG_DIR%\clink_settings" (
+        call :first_run Clink "%CMDER_CONFIG_DIR%"
     )
 
     :: Cleanup legacy Clink Settings file
@@ -432,9 +431,9 @@ set "path=%path%;%CMDER_ROOT%"
 
 :: Drop *.bat and *.cmd files into "%CMDER_ROOT%\config\profile.d"
 :: to run them at startup.
-%lib_profile% run_profile_d "%CMDER_ROOT%\config\profile.d"
+%lib_profile% run_profile_d "%CMDER_ROOT%\config\profile.d" || set "cmder_setup_failed=1"
 if defined CMDER_USER_CONFIG (
-    %lib_profile% run_profile_d "%CMDER_USER_CONFIG%\profile.d"
+    %lib_profile% run_profile_d "%CMDER_USER_CONFIG%\profile.d" || set "cmder_setup_failed=1"
 )
 
 :USER_ALIASES
@@ -457,8 +456,9 @@ if "%CMDER_ALIASES%" == "1" (
 
     REM Make sure we have a self-extracting user_aliases.cmd file
     if not exist "%user_aliases%" (
-        echo Creating initial user_aliases store in "%user_aliases%"...
-        copy "%CMDER_ROOT%\vendor\user_aliases.cmd.default" "%user_aliases%"
+        call :first_run Aliases "%user_aliases%"
+    ) else if exist "%user_aliases%\." (
+        call :first_run Aliases "%user_aliases%"
     ) else (
         %lib_base% update_legacy_aliases
     )
@@ -476,25 +476,22 @@ if "%CMDER_ALIASES%" == "1" (
 )
 
 :: Add aliases to the environment
-type "%user_aliases%" | %WINDIR%\System32\findstr /b /l /i "history=cat " >nul
-if "%ERRORLEVEL%" == "0" (
-    echo Migrating alias 'history' to new Clink 1.x.x...
-    call "%CMDER_ROOT%\vendor\bin\alias.cmd" /d history
-    echo Restart the session to activate changes!
+if exist "%user_aliases%" if not exist "%user_aliases%\." (
+    type "%user_aliases%" | %WINDIR%\System32\findstr /b /l /i "history=cat " >nul
+    if not errorlevel 1 (
+        echo Migrating alias 'history' to new Clink 1.x.x...
+        call "%CMDER_ROOT%\vendor\bin\alias.cmd" /d history
+        echo Restart the session to activate changes!
+    )
+    call "%user_aliases%"
 )
-
-call "%user_aliases%"
 
 if "%CMDER_CONFIGURED%" gtr "1" goto :CMDER_CONFIGURED
 
-:: See vendor\git-for-windows\README.portable for why we do this
-:: Basically we need to execute this post-install.bat because we are
-:: manually extracting the archive rather than executing the 7z sfx
-if exist "%GIT_INSTALL_ROOT%\post-install.bat" (
-    echo Running Git for Windows one time Post Install....
-    pushd "%GIT_INSTALL_ROOT%\"
-    "%GIT_INSTALL_ROOT%\git-cmd.exe" --no-needs-console --no-cd --command=post-install.bat
-    popd
+:: Bundled Git also needs setup when an external Git is preferred on PATH.
+call :setup_bundled_git
+if defined GIT_INSTALL_ROOT if /i not "%GIT_INSTALL_ROOT%"=="%CMDER_ROOT%\vendor\git-for-windows" (
+    if exist "%GIT_INSTALL_ROOT%\post-install.bat" call :first_run Git "%GIT_INSTALL_ROOT%"
 )
 
 :: Set home path
@@ -502,7 +499,7 @@ if not defined HOME set "HOME=%USERPROFILE%"
 %print_debug% init.cmd "Env Var - HOME=%HOME%"
 
 set "initialConfig=%CMDER_ROOT%\config\user_profile.cmd"
-if exist "%CMDER_ROOT%\config\user_profile.cmd" (
+if exist "%CMDER_ROOT%\config\user_profile.cmd" if not exist "%CMDER_ROOT%\config\user_profile.cmd\." (
     REM Create this file and place your own command in there
     %print_debug% init.cmd "Calling - %CMDER_ROOT%\config\user_profile.cmd"
     call "%CMDER_ROOT%\config\user_profile.cmd"
@@ -510,17 +507,15 @@ if exist "%CMDER_ROOT%\config\user_profile.cmd" (
 
 if defined CMDER_USER_CONFIG (
     set "initialConfig=%CMDER_USER_CONFIG%\user_profile.cmd"
-    if exist "%CMDER_USER_CONFIG%\user_profile.cmd" (
+    if exist "%CMDER_USER_CONFIG%\user_profile.cmd" if not exist "%CMDER_USER_CONFIG%\user_profile.cmd\." (
         REM Create this file and place your own command in there
         %print_debug% init.cmd "Calling - %CMDER_USER_CONFIG%\user_profile.cmd"
         call "%CMDER_USER_CONFIG%\user_profile.cmd"
     )
 )
 
-if not exist "%initialConfig%" (
-    echo Creating user startup file: "%initialConfig%"
-    copy "%CMDER_ROOT%\vendor\user_profile.cmd.default" "%initialConfig%"
-)
+if not exist "%initialConfig%" call :first_run Profile "%initialConfig%"
+if exist "%initialConfig%\." call :first_run Profile "%initialConfig%"
 
 if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMDER_ROOT%\vendor\bin\alias.cmd" (
     echo Cmder's 'alias' command has been moved into "%CMDER_ROOT%\vendor\bin\alias.cmd"
@@ -537,12 +532,9 @@ if "%CMDER_ALIASES%" == "1" if exist "%CMDER_ROOT%\bin\alias.bat" if exist "%CMD
 
 set initialConfig=
 
-if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
-  powershell -executionpolicy bypass -f "%cmder_root%\vendor\bin\create-cmdercfg.ps1" -shell cmd -outfile "%CMDER_CONFIG_DIR%\user_init.cmd"
-
-  if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
-    %print_error% "Failed to generate Cmder config"
-  )
+if not defined cmder_setup_failed if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
+  "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%cmder_root%\vendor\bin\create-cmdercfg.ps1" -Shell cmd -OutFile "%CMDER_CONFIG_DIR%\user_init.cmd" -FirstRun
+  if errorlevel 1 set "cmder_setup_failed=1"
 )
 
 :CMDER_CONFIGURED
@@ -579,4 +571,20 @@ if not exist "%CMDER_CONFIG_DIR%\user_init.cmd" (
   set verbose_output=
   set user_aliases=
 
+:setup_exit
+if defined cmder_setup_failed (
+    set "cmder_setup_failed="
+    exit /b 1
+)
+exit /b
+
+:setup_bundled_git
+if exist "%CMDER_ROOT%\vendor\git-for-windows\post-install.bat" (
+    call :first_run Git "%CMDER_ROOT%\vendor\git-for-windows"
+)
+exit /b
+
+:first_run
+"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%CMDER_ROOT%\vendor\bin\first-run.ps1" -Action "%~1" -Target "%~2"
+if errorlevel 1 set "cmder_setup_failed=1"
 exit /b

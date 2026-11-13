@@ -290,10 +290,23 @@ function yOrn( $question ) {
     return $Answer
 }
 
-function TemplateExpand($template_filename, $outfile) {
-    $template = Get-Content "$template_filename" -Raw -Encoding UTF8
+function TemplateExpand($template_filename, $outfile, [switch]$CreateNew) {
+    $template = Get-Content -LiteralPath $template_filename -Raw -Encoding UTF8 -ErrorAction Stop
 
     $expanded = Invoke-Expression "@`"`r`n$template`r`n`"@"
+
+    if ($CreateNew) {
+        # The cache becomes executable on the next launch. Publish only the complete file.
+        $temporary = Join-Path ([IO.Path]::GetDirectoryName($outfile)) ([IO.Path]::GetRandomFileName())
+        try {
+            $expanded = $expanded -replace '\r?\n', "`r`n"
+            [IO.File]::WriteAllText($temporary, $expanded)
+            [IO.File]::Move($temporary, $outfile)
+        } finally {
+            [IO.File]::Delete($temporary)
+        }
+        return
+    }
 
     $overwrite = 'y'
     if ((test-path "$outfile")) {
