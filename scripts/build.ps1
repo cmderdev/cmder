@@ -176,6 +176,9 @@ if (-not $noVendor) {
         Delete-Existing $s.name
 
         Download-File -Url $s.url -File $vend\$tempArchive -ErrorAction Stop
+        if ($s.sha256 -and (Digest-Hash $tempArchive) -ne $s.sha256) {
+            throw "SHA-256 mismatch for $($s.name) $($s.version)."
+        }
         Extract-Archive $tempArchive $s.name
 
         # Make Embedded Windows Terminal Portable

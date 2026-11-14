@@ -267,6 +267,12 @@ $updateDetails = @()
 $sources = Get-Content $sourcesPath | Out-String | ConvertFrom-Json
 
 foreach ($s in $sources) {
+    # Update checksum-pinned vendors explicitly alongside their version and URL.
+    if ($s.sha256) {
+        Write-Verbose "Skipping checksum-pinned vendor $($s.name)."
+        continue
+    }
+
     Write-Verbose "Updating sources link for $($s.name)..."
 
     Write-Verbose "Old Link: $($s.url)"
