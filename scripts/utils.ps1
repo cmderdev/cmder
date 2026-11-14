@@ -76,6 +76,24 @@ function Extract-Archive($source, $target) {
     Remove-Item -LiteralPath $source
 }
 
+function Update-CmderPortableGitPostInstall([string]$GitRoot) {
+    $script = Join-Path $GitRoot 'post-install.bat'
+    if (-not (Test-Path -LiteralPath $script -PathType Leaf)) {
+        # Custom sources can be pre-initialized or omit the portable setup script.
+        return
+    }
+
+    Ensure-Executable 'git'
+    $patch = Join-Path $PSScriptRoot 'patches/portable-git-post-install.diff'
+    Write-Verbose "Applying Cmder's Portable Git post-install patch"
+    # Disable parent repository discovery so git apply uses the extracted Git directory.
+    $gitDir = Join-Path $GitRoot '.git'
+    & git "--git-dir=$gitDir" -C $GitRoot apply --ignore-space-change --whitespace=nowarn $patch
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not patch '$script'. Review the Portable Git post-install changes and update '$patch'."
+    }
+}
+
 function Create-Archive($source, $target, [string[]]$params) {
     Write-Verbose "Creating Archive from '$source' in '$target' with parameters '$params'"
     Push-Location -LiteralPath $source

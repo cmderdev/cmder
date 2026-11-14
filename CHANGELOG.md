@@ -2,7 +2,13 @@
 
 ## Unreleased
 
+### Changes
+
+- Show matching first-run setup sections and file creation diagnostics in Command Prompt and PowerShell. Track the broader first-launch work in [#2788](https://github.com/cmderdev/cmder/issues/2788).
+
 ### Fixes
+
+- Patch the bundled Portable Git setup during the build and let Cmder remove the script after it returns successfully. Git diagnostics stay visible and failed setup can be retried. See [#2980](https://github.com/cmderdev/cmder/issues/2980).
 
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
 - Show vendor build badges for the requested release ref, with a verified check-runs fallback when the README badge is unavailable. Fix missing README fallback and Azure build-link matching from [#3103](https://github.com/cmderdev/cmder/pull/3103), and link truncated release notes to their full text.

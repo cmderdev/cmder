@@ -5,3 +5,4 @@
 *.ps1 text eol=crlf
 *.md text eol=lf
 *.sh text eol=lf
+scripts/patches/*.diff text eol=lf whitespace=-blank-at-eol

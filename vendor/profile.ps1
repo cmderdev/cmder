@@ -39,6 +39,7 @@ $CmderModulePath = Join-path $PSScriptRoot "psmodules/"
 # Import Cmder functions
 $CmderFunctions  = Join-Path $CmderModulePath "Cmder.ps1"
 . $CmderFunctions
+. (Join-Path $CmderModulePath 'FirstRun.ps1')
 
 # Configure PSModulePath to include Cmder modules if not already present
 if (-not $moduleInstallerAvailable -and -not $env:PSModulePath.Contains($CmderModulePath) ) {
@@ -50,7 +51,9 @@ if ($env:CMDER_USER_CONFIG) {
 }
 
 # Read vendored Git Version
-$gitVendorPath = Join-Path $ENV:CMDER_ROOT 'vendor\git-for-windows\cmd'
+$gitVendorRoot = Join-Path $ENV:CMDER_ROOT 'vendor\git-for-windows'
+$null = Initialize-CmderPortableGit $gitVendorRoot
+$gitVendorPath = Join-Path $gitVendorRoot 'cmd'
 $gitVersionVendor = Get-GitVersion -GitPath $gitVendorPath
 if (-not [string]::IsNullOrEmpty($gitVersionVendor)) {
     Write-Debug "GIT VENDOR: ${gitVersionVendor}"
@@ -149,20 +152,19 @@ $env:Path = "$Env:CMDER_ROOT\bin;$Env:CMDER_ROOT\vendor\bin;$env:Path;$Env:CMDER
 
 # Drop *.ps1 files into "$ENV:CMDER_ROOT\config\profile.d"
 # to source them at startup.
-if (-not (Test-Path -PathType container "$ENV:CMDER_ROOT\config\profile.d")) {
-    New-Item -ItemType Directory -Path "$ENV:CMDER_ROOT\config\profile.d"
+$profileDirectory = Join-Path $ENV:CMDER_ROOT 'config/profile.d'
+if (Initialize-CmderConfig 'Startup scripts' $profileDirectory -Directory) {
+    Push-Location -LiteralPath $profileDirectory
+    foreach ($x in Get-ChildItem *.psm1) {
+        Write-Verbose "Sourcing $x"
+        Import-Module $x
+    }
+    foreach ($x in Get-ChildItem *.ps1) {
+        Write-Verbose "Sourcing $x"
+        . $x
+    }
+    Pop-Location
 }
-
-Push-Location $ENV:CMDER_ROOT\config\profile.d
-foreach ($x in Get-ChildItem *.psm1) {
-    Write-Verbose "Sourcing $x"
-    Import-Module $x
-}
-foreach ($x in Get-ChildItem *.ps1) {
-    Write-Verbose "Sourcing $x"
-    . $x
-}
-Pop-Location
 
 # Drop *.ps1 files into "$ENV:CMDER_USER_CONFIG\config\profile.d"
 # to source them at startup.  Requires using cmder.exe /C [cmder_user_root_path] argument
@@ -185,7 +187,7 @@ if (Test-Path "$env:CMDER_ROOT\config\user-profile.ps1") {
 }
 
 $CmderUserProfilePath = Join-Path $env:CMDER_ROOT "config\user_profile.ps1"
-if (Test-Path $CmderUserProfilePath) {
+if (Test-Path -LiteralPath $CmderUserProfilePath -PathType Leaf) {
     # Create this file and place your own command in there.
     . "$CmderUserProfilePath" # user_profile.ps1 is not a module DO NOT USE import-module
 }
@@ -199,16 +201,12 @@ if ($ENV:CMDER_USER_CONFIG) {
     $env:Path = "$Env:CMDER_USER_CONFIG\bin;$env:Path"
 
     $CmderUserProfilePath = Join-Path $ENV:CMDER_USER_CONFIG "user_profile.ps1"
-    if (Test-Path $CmderUserProfilePath) {
+    if (Test-Path -LiteralPath $CmderUserProfilePath -PathType Leaf) {
         . "$CmderUserProfilePath" # user_profile.ps1 is not a module DO NOT USE import-module
     }
 }
 
-if (-not (Test-Path $CmderUserProfilePath)) {
-    $CmderUserProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($CmderUserProfilePath)
-    Write-Information -InformationAction Continue -MessageData "`rFirst Run: Creating user startup file: $CmderUserProfilePath"
-    Copy-Item "$env:CMDER_ROOT\vendor\user_profile.ps1.default" -Destination $CmderUserProfilePath
-}
+$null = Initialize-CmderConfig 'Startup profile' $CmderUserProfilePath
 
 #
 # Prompt Section
