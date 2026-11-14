@@ -11,8 +11,9 @@
   },
   {
     "name": "conemu-maximus5",
-    "version": "23.07.24",
-    "url": "https://github.com/ConEmu/ConEmu/releases/download/v23.07.24/ConEmuPack.230724.7z"
+    "version": "23.07.24-cmder-preview.1",
+    "url": "https://github.com/DRSDavidSoft/ConEmu/releases/download/v23.07.24-cmder-preview.1/ConEmu-7add1bff-intel.zip",
+    "sha256": "817aed2f8ee9aa0d4f2c7bf5fef14c5fb9d52c043b2c5031623eb112b0aaf0c5"
   },
   {
     "name": "windows-terminal",

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Adds
+
+- Experimentally bundle the reconciled Sim-md ConEmu build in ConEmu packages. Fresh profiles start the Cmder CMD shell through ConPTY and use palette-tinted Acrylic where Windows supports it. The classic task remains available and existing startup selections are preserved. See [discussion #3145](https://github.com/orgs/cmderdev/discussions/3145).
+
 ### Fixes
 
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).

@@ -56,7 +56,7 @@
 			<value name="ClipboardClickPromptPosition" type="hex" data="00"/>
 			<value name="ClipboardDeleteLeftWord" type="hex" data="01"/>
 			<value name="TrueColorerSupport" type="hex" data="01"/>
-			<value name="FadeInactive" type="hex" data="01"/>
+			<value name="FadeInactive" type="hex" data="00"/>
 			<value name="FadeInactiveLow" type="hex" data="00"/>
 			<value name="FadeInactiveHigh" type="hex" data="C8"/>
 			<value name="ComSpec.UncPaths" type="hex" data="01"/>
@@ -73,7 +73,7 @@
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
 			<value name="StartTasksFile" type="string" data=""/>
-			<value name="StartTasksName" type="string" data="{cmd::Cmder}"/>
+			<value name="StartTasksName" type="string" data="{cmd::Cmder (ConPTY)}"/>
 			<value name="StartFarFolders" type="hex" data="00"/>
 			<value name="StartFarEditors" type="hex" data="00"/>
 			<value name="StoreTaskbarkTasks" type="hex" data="00"/>
@@ -116,10 +116,11 @@
 			<value name="bgImageColors" type="dword" data="ffffffff"/>
 			<value name="bgOperation" type="hex" data="00"/>
 			<value name="bgPluginAllowed" type="hex" data="01"/>
-			<value name="AlphaValue" type="hex" data="F8"/>
-			<value name="AlphaValueSeparate" type="hex" data="01"/>
-			<value name="AlphaValueInactive" type="hex" data="EE"/>
+			<value name="AlphaValue" type="hex" data="FF"/>
+			<value name="AlphaValueSeparate" type="hex" data="00"/>
+			<value name="AlphaValueInactive" type="hex" data="FF"/>
 			<value name="UserScreenTransparent" type="hex" data="00"/>
+			<value name="WindowBackdrop" type="hex" data="02"/>
 			<value name="ColorKeyTransparent" type="hex" data="00"/>
 			<value name="ColorKeyValue" type="dword" data="00010101"/>
 			<value name="UseCurrentSizePos" type="hex" data="01"/>
@@ -326,7 +327,7 @@
 			<value name="PanView.UsePicView2" type="hex" data="01"/>
 			<value name="PanView.RestoreOnStartup" type="hex" data="00"/>
 			<value name="Update.VerLocation" type="string" data=""/>
-			<value name="Update.CheckOnStartup" type="hex" data="01"/>
+			<value name="Update.CheckOnStartup" type="hex" data="00"/>
 			<value name="Update.CheckHourly" type="hex" data="00"/>
 			<value name="Update.ConfirmDownload" type="hex" data="01"/>
 			<value name="Update.UseBuilds" type="hex" data="01"/>
@@ -484,7 +485,7 @@
 			<value name="DndRKey" type="hex" data="a2"/>
 			<value name="WndDragKey" type="dword" data="00121101"/>
 			<key name="Tasks" modified="2023-06-05 13:14:44" build="221218">
-				<value name="Count" type="long" data="11"/>
+				<value name="Count" type="long" data="12"/>
 				<key name="Task1" modified="2018-02-22 06:02:12" build="171109">
 					<value name="Name" type="string" data="{cmd::Cmder as Admin}"/>
 					<value name="GuiArgs" type="string" data=' /icon "%CMDER_ROOT%\icons\cmder.ico"'/>
@@ -585,6 +586,14 @@
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 					<value name="Cmd1" type="string" data='set "PATH=%ConEmuBaseDirShort%\wsl;%PATH%" &amp; %ConEmuBaseDirShort%\conemu-cyg-64.exe --wsl -cur_console:pm:/mnt'/>
+				</key>
+				<key name="Task12">
+					<value name="Name" type="string" data="{cmd::Cmder (ConPTY)}"/>
+					<value name="GuiArgs" type="string" data=' /icon "%CMDER_ROOT%\icons\cmder.ico"'/>
+					<value name="Cmd1" type="string" data='cmd /d /c ""%ConEmuDir%\..\start_cmder_conpty.cmd""'/>
+					<value name="Active" type="long" data="0"/>
+					<value name="Count" type="long" data="1"/>
+					<value name="Flags" type="dword" data="00000000"/>
 				</key>
 			</key>
 			<key name="Apps" modified="2018-02-22 06:05:13" build="171109">
