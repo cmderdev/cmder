@@ -211,7 +211,9 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	wchar_t userConfigDirPath[MAX_PATH] = { 0 };
 	wchar_t userBinDirPath[MAX_PATH] = { 0 };
 	wchar_t userProfiledDirPath[MAX_PATH] = { 0 };
-	wchar_t args[MAX_PATH * 2 + 256] = { 0 };
+	// Avoid overlapping source/destination calls such as swprintf_s(args, L"%s ...", args).
+	// std::wstring grows for long paths and terminal arguments instead of silently failing at a fixed buffer size.
+	std::wstring args;
 	wchar_t selectedTerminalConfigPath[MAX_PATH] = { 0 };
 	wchar_t windowsTerminalDir[MAX_PATH] = { 0 };
 	wchar_t conEmuDir[MAX_PATH] = { 0 };
@@ -548,8 +550,11 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	}
 	else if (isConEmu)
 	{
-		swprintf_s(args, L"%s /Icon \"%s\"", args, icoPath);
-		swprintf_s(args, L"%s /title \"%s\"", args, cmderTitle.c_str());
+		args += L" /Icon \"";
+		args += icoPath;
+		args += L"\" /title \"";
+		args += cmderTitle;
+		args += L"\"";
 		PathCombine(terminalPath, exeDir,
 			sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
 				? L"vendor\\conemu-maximus5\\ConEmu64.exe"
@@ -585,18 +590,22 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	if (!streqi(cmderStart.c_str(), L""))
 	{
 		if (isWindowsTerminal) {
-			swprintf_s(args, L"%s -d \"%s\"", args, cmderStart.c_str());
+			args += L" -d \"";
+			args += cmderStart;
+			args += L"\"";
 		}
 		else
 		{
-			swprintf_s(args, L"%s /dir \"%s\"", args, cmderStart.c_str());
+			args += L" /dir \"";
+			args += cmderStart;
+			args += L"\"";
 		}
 	}
 
 	if (is_single_mode)
 	{
 		if (!isWindowsTerminal) {
-			swprintf_s(args, L"%s /single", args);
+			args += L" /single";
 		}
 	}
 
@@ -619,13 +628,16 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 				wcscpy_s(selectedTerminalConfigPath, cfgPath);
 			}
 
-			swprintf_s(args, L"%s  -loadcfgfile \"%s\"", args, selectedTerminalConfigPath);
+			args += L"  -loadcfgfile \"";
+			args += selectedTerminalConfigPath;
+			args += L"\"";
 		}
 	}
 
 	if (!streqi(cmderTerminalArgs.c_str(), L""))
 	{
-		swprintf_s(args, L"%s %s", args, cmderTerminalArgs.c_str());
+		args += L" ";
+		args += cmderTerminalArgs;
 	}
 
 	// The `/run` arg and its value MUST be the last arg of ConEmu
@@ -639,29 +651,41 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	if (!streqi(cmderTask.c_str(), L""))
 	{
 		if (isWindowsTerminal) {
-			swprintf_s(args, L"%s -p \"%s\"", args, cmderTask.c_str());
+			args += L" -p \"";
+			args += cmderTask;
+			args += L"\"";
 		}
 		else if (isConEmu)
 		{
-			swprintf_s(args, L"%s /run {%s}", args, cmderTask.c_str());
+			args += L" /run {";
+			args += cmderTask;
+			args += L"}";
 		}
 		else
 		{
 			if (streqi(cmderTask.c_str(), L"powershell"))
 			{
-				swprintf_s(args, L"%s -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''%s'''\"", args, initPowerShell);
+				args += L" -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command \"Invoke-Expression 'Import-Module ''";
+				args += initPowerShell;
+				args += L"'''\"";
 			}
 			else if (streqi(cmderTask.c_str(), L"bash"))
 			{
-				swprintf_s(args, L"%s /c \"%s\"", args, initBash);
+				args += L" /c \"";
+				args += initBash;
+				args += L"\"";
 			}
 			else if (streqi(cmderTask.c_str(), L"mintty"))
 			{
-				swprintf_s(args, L"%s /c \"%s\"", args, initMintty);
+				args += L" /c \"";
+				args += initMintty;
+				args += L"\"";
 			}
 			else if (streqi(cmderTask.c_str(), L"cmder"))
 			{
-				swprintf_s(args, L"%s /k \"%s\"", args, initCmd);
+				args += L" /k \"";
+				args += initCmd;
+				args += L"\"";
 			}
 		}
 	}
@@ -702,8 +726,12 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 		si.dwFlags = STARTF_TITLEISAPPID;
 	#endif
 	PROCESS_INFORMATION pi;
+	// CreateProcess may write into its command-line argument. A vector supplies mutable,
+	// NUL-terminated storage without relying on the C++ standard-library version for mutable string data.
+	std::vector<wchar_t> commandLine(args.begin(), args.end());
+	commandLine.push_back(L'\0');
 
-	if (!CreateProcess(terminalPath, args, NULL, NULL, false, 0, NULL, NULL, &si, &pi))
+	if (!CreateProcess(terminalPath, commandLine.data(), NULL, NULL, false, 0, NULL, NULL, &si, &pi))
 	{
 		if (isWindowsTerminal)
 		{
