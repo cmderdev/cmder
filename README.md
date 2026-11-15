@@ -57,8 +57,8 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
 | Argument                  | Description                                                                              |
 | ------------------------- | -----------------------------------------------------------------------                  |
-| `conemu`                  | Force the bundled ConEmu terminal when it is the first argument.                        |
-| `windows-terminal`        | Force the bundled Windows Terminal when it is the first argument.                       |
+| `conemu`                  | Force ConEmu when it is the first argument and bundled under Cmder's `vendor` folder.   |
+| `windows-terminal`        | Force Windows Terminal when it is the first argument and bundled under Cmder's `vendor` folder. |
 | `/C [user_root_path]`     | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config`                |
 | `/M`                      | Use `conemu-%computername%.xml` for ConEmu settings storage instead of `user_conemu.xml` |
 | `/REGISTER [ALL, USER]`   | Register a Windows Shell Menu shortcut.                                                  |
