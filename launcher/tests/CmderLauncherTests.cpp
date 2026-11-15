@@ -248,6 +248,12 @@ static void TestArgumentParsing()
             StartCmder(L"", false, L"", L"", L"", userRoot);
             Check(lastTerminalArguments.find(L"-loadcfgfile \"" + machineConfig + L"\"") != std::wstring::npos,
                 "ConEmu /c launch did not select machine-specific settings");
+            StartCmder(root, true, L"Custom", L"Custom Title", L"", userRoot);
+            const std::wstring expectedConEmuArguments =
+                L" /Icon \"" + root + L"\\icons\\cmder.ico\" /title \"Custom Title\" /dir \"" + root +
+                L"\" /single  -loadcfgfile \"" + machineConfig + L"\" /run {Custom}";
+            Check(lastTerminalArguments == expectedConEmuArguments,
+                "ConEmu command-line construction changed");
         }
         if (terminal == 2) {
             Check(CreateDirectoryW(windowsTerminal.c_str(), NULL) != 0, "Could not create Windows Terminal fixture");
@@ -326,7 +332,7 @@ static void TestArgumentParsing()
     StartCmder(L"", false, L"", L"", L"", userRoot);
     Check(ReadFixture(settings) == "{\"source\":\"edited shared settings\"}", "Subsequent /c launch overwrote shared settings");
     Check(ReadFixture(userSettings) == "{\"source\":\"user root\"}", "Subsequent /c launch changed user terminal settings");
-    Check(terminalLaunches == 8, "Startup did not reach the terminal launch boundary");
+    Check(terminalLaunches == 9, "Startup did not reach the terminal launch boundary");
 
     Check(DeleteFileW(userSettings.c_str()) != 0, "Could not remove user settings fixture");
     Check(DeleteFileW(machineConfig.c_str()) != 0,
