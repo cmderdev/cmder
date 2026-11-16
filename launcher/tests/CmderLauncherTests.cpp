@@ -389,7 +389,7 @@ static void TestArgumentParsing()
 
     struct ProfileCase { const wchar_t* arguments; const wchar_t* profile; };
     const ProfileCase profileCases[] = {
-        {L"", L"Cmder"},
+        {L"", L""},
         {L"cmd", L"Cmder"},
         {L"bash", L"Cmder - Bash"},
         {L"powershell", L"Cmder - PowerShell"},
@@ -406,10 +406,21 @@ static void TestArgumentParsing()
             const int launches = terminalLaunches;
             Check(_tWinMain(NULL, NULL, NULL, 0) == 0 && terminalLaunches == launches + 1,
                 "Windows Terminal profile selection did not launch");
+            const std::wstring expectedArguments = *profileCase.profile
+                ? std::wstring(L" -p \"") + profileCase.profile + L"\"" : L"";
             Check(lastTerminalPath == windowsTerminal + L"\\WindowsTerminal.exe" &&
-                lastTerminalArguments == std::wstring(L" -p \"") + profileCase.profile + L"\"",
+                lastTerminalArguments == expectedArguments,
                 "Windows Terminal did not receive the selected profile");
         }
+    }
+
+    for (const wchar_t* arguments : {L"-- new-tab cmd.exe /k echo hello", L"/x \"-p Custom\""}) {
+        const auto options = Parse(arguments);
+        Check(!options.error && options.cmderTask.empty(),
+            "Raw terminal arguments selected an implicit profile");
+        Check(_tWinMain(NULL, NULL, NULL, 0) == 0 &&
+            lastTerminalArguments == L" " + options.cmderTerminalArgs,
+            "Raw terminal arguments were changed by profile selection");
     }
 
     Check(DeleteFileW(userSettings.c_str()) != 0, "Could not remove user settings fixture");
