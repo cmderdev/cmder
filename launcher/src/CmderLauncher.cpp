@@ -1001,13 +1001,17 @@ cmderOptions GetOption()
 				}
 			}
 			else if (_wcsicmp(L"bash", szArgList[i]) == 0 || _wcsicmp(L"powershell", szArgList[i]) == 0 ||
-				(terminal == TerminalKind::WindowsTerminal && _wcsicmp(L"cmd", szArgList[i]) == 0))
+				(terminal != TerminalKind::Console && _wcsicmp(L"cmd", szArgList[i]) == 0))
 			{
 				cmderOptions.cmderTask = szArgList[i];
 				if (terminal == TerminalKind::WindowsTerminal)
 				{
 					cmderOptions.cmderTask = streqi(szArgList[i], L"bash") ? L"Cmder - Bash" :
 						streqi(szArgList[i], L"powershell") ? L"Cmder - PowerShell" : L"Cmder";
+				}
+				else if (isConEmu && streqi(szArgList[i], L"cmd"))
+				{
+					cmderOptions.cmderTask = L"Cmder";
 				}
 			}
 			else if (_wcsicmp(L"/title", szArgList[i]) == 0 || _wcsicmp(L"/icon", szArgList[i]) == 0 ||
