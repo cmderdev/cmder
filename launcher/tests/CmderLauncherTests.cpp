@@ -333,6 +333,29 @@ static void TestArgumentParsing()
                 L"\" /single  -loadcfgfile \"" + machineConfig + L"\" /run {Custom}";
             Check(lastTerminalArguments == expectedConEmuArguments,
                 "ConEmu command-line construction changed");
+
+            struct TaskCase { const wchar_t* arguments; const wchar_t* task; };
+            const TaskCase taskCases[] = {
+                {L"cmd", L"Cmder"},
+                {L"CmD", L"Cmder"},
+                {L"conemu cmd", L"Cmder"},
+                {L"/TASK cmd", L"cmd"},
+                {L"/TASK \"Profile Name\"", L"Profile Name"}
+            };
+            for (const auto& taskCase : taskCases) {
+                const auto options = Parse(taskCase.arguments);
+                Check(!options.error && options.cmderTask == taskCase.task,
+                    "ConEmu cmd shorthand or literal task did not parse");
+                const int launches = terminalLaunches;
+                Check(_tWinMain(NULL, NULL, NULL, 0) == 0 && terminalLaunches == launches + 1,
+                    "ConEmu task selection did not launch");
+                const std::wstring expectedArguments =
+                    L" /Icon \"" + root + L"\\icons\\cmder.ico\" /title \"Cmder\" /run {" +
+                    taskCase.task + L"}";
+                Check(lastTerminalPath == conemu + L"\\ConEmu64.exe" &&
+                    lastTerminalArguments == expectedArguments,
+                    "ConEmu did not receive the selected task");
+            }
         }
         if (terminal == 2) {
             Check(CreateDirectoryW(windowsTerminal.c_str(), NULL) != 0, "Could not create Windows Terminal fixture");
@@ -411,7 +434,7 @@ static void TestArgumentParsing()
     StartCmder(L"", false, L"", L"", L"", userRoot);
     Check(ReadFixture(settings) == "{\"source\":\"edited shared settings\"}", "Subsequent /c launch overwrote shared settings");
     Check(ReadFixture(userSettings) == "{\"source\":\"user root\"}", "Subsequent /c launch changed user terminal settings");
-    Check(terminalLaunches == 9, "Startup did not reach the terminal launch boundary");
+    Check(terminalLaunches == 14, "Startup did not reach the terminal launch boundary");
 
     struct ProfileCase { const wchar_t* arguments; const wchar_t* profile; };
     const ProfileCase profileCases[] = {
