@@ -38,4 +38,4 @@ scripts/packer/packer_cache
 scripts/packer/output-*
 *.box
 
-code_review_findigs.md
+code_review_findings.md
