@@ -2,13 +2,19 @@
 
 ## Unreleased
 
+### Changes
+
+- Launch bundled Windows Terminal with the `Cmder` profile by default or with `cmd`; map `bash` and `powershell` to `Cmder - Bash` and `Cmder - PowerShell`. Preserve explicit `/TASK` profile names and existing ConEmu and console behavior.
+- Improve terminal selection with explicit `conemu` and `windows-terminal` launch selectors, executable-based terminal detection, and clear errors for ConEmu-only options when Windows Terminal is selected. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
+
 ### Fixes
 
+- Expand machine-specific ConEmu and Windows Terminal settings paths without overlapping buffers, and report expansion failures or oversized paths. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
+- Load machine-specific ConEmu settings from the `/C` user configuration root without overlapping path buffers. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
+- Build launcher command lines without overlapping fixed-buffer formatting, preserving terminal arguments for long paths and option combinations. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
 - Show vendor build badges for the requested release ref, with a verified check-runs fallback when the README badge is unavailable. Fix missing README fallback and Azure build-link matching from [#3103](https://github.com/cmderdev/cmder/pull/3103), and link truncated release notes to their full text.
-
 - Pass build-tool arguments directly instead of evaluating command strings, keep archive paths literal, preserve failed downloads for diagnosis, and reject unsafe vendor directory names before vendor changes. Completes the remaining script hygiene work in [#3118](https://github.com/cmderdev/cmder/issues/3118).
-
 
 ## [2.0.0-rc.1](https://github.com/cmderdev/cmder/releases/tag/v2.0.0-rc.1) (2026-11-10)
 
