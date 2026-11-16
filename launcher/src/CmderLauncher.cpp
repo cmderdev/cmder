@@ -1113,10 +1113,6 @@ cmderOptions GetOption()
 		{
 			cmderOptions.cmderTask = L"cmder";
 		}
-		else if (terminal == TerminalKind::WindowsTerminal)
-		{
-			cmderOptions.cmderTask = L"Cmder";
-		}
 	}
 
 	if (cmderOptions.error == true)
