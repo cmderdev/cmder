@@ -9,6 +9,7 @@
 
 ### Fixes
 
+- Preserve explicit terminal selection and ConEmu `/single` when registering the Explorer context menu. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
 - Expand machine-specific ConEmu and Windows Terminal settings paths without overlapping buffers, and report expansion failures or oversized paths. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
 - Load machine-specific ConEmu settings from the `/C` user configuration root without overlapping path buffers. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
 - Build launcher command lines without overlapping fixed-buffer formatting, preserving terminal arguments for long paths and option combinations. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
