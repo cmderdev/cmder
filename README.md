@@ -68,12 +68,28 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
 | `-- [ConEmu extras pars]` | Forwards ALL remaining parameters to ConEmu.                                             |
 
-When bundled Windows Terminal is selected, no shell argument launches the
-terminal without selecting a profile. `cmd` launches the `Cmder` profile,
-`bash` launches `Cmder - Bash`, and `powershell` launches
-`Cmder - PowerShell`. Use `/TASK "Profile Name"` to select a custom profile
-without translating its name. ConEmu and launches without a bundled terminal
-retain their existing behavior.
+### Command Line Examples
+
+Depending on the distribution you have, bundled `Windows Terminal`, bundled `ConEmu`, or no emulator.
+
+- Running `.\cmder` launches:
+  - `Windows Terminal` default profile.  Default: `Cmder`
+  - `ConEmu`  default task.  Default: `cmd::Cmder` or `{Cmder}`
+  - Windows default terminal emulator with `cmd` with `Cmder` settings.
+- `.\cmder bash` launches:
+  - `Windows Terminal` profile `Cmder - Bash`.
+  - `ConEmu` task `bash::bash` or `{bash}`.
+  - `No Emulator` uses Windows default terminal emulator with `Git Bash` with `Cmder` settings.
+- `.\cmder cmd` launches:
+  - `Windows Terminal` profile `Cmder`.
+  - `ConEmu`  task `cmd::Cmder` or `{Cmder}`.
+  - `No Emulator` uses Windows default terminal emulator with `Cmd.exe` with `Cmder` settings.
+- `.\cmder powershell` launches:
+  - `Windows Terminal` profile `Cmder - PowerShell`.
+  - `ConEmu`  task `PowerShell::PowerShell` or `{PowerShell}`.
+  - `No Emulator` uses Windows default terminal emulator with `PowerShell` and `Cmder` setings.
+
+Use `/TASK "Profile Name"` to select a custom profile without translating its name.
 
 ## Context Menu Integration
 

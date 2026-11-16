@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Launch bundled Windows Terminal without selecting a profile when no shell is specified; map `cmd`, `bash`, and `powershell` to `Cmder`, `Cmder - Bash`, and `Cmder - PowerShell`. Preserve explicit `/TASK` profile names, forwarded terminal arguments, and existing ConEmu and console behavior.
+- Standardize command line behavior of `Cmder.exe` position one arguments `cmd`, `bash`, and `powershell`.  See `Command Line Examples` section in `README.md` 
 - Improve terminal selection with explicit `conemu` and `windows-terminal` launch selectors, executable-based terminal detection, and clear errors for ConEmu-only options when Windows Terminal is selected. See [#3148](https://github.com/cmderdev/cmder/pull/3148).
 
 ### Fixes
