@@ -88,6 +88,11 @@ So you've experimented with Cmder a little and want to give it a shot in a more 
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
 
+To keep a specific bundled terminal in the context menu, register it explicitly,
+for example `.\cmder.exe conemu /REGISTER USER` or
+`.\cmder.exe windows-terminal /REGISTER USER`. Without a terminal selector,
+the menu command uses automatic terminal detection when launched.
+
 ## Keyboard shortcuts
 
 ### Tab manipulation
