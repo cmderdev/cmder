@@ -75,7 +75,7 @@ Prior to starting a review ensure there are no uncommitted changes.
 - Required uncommitted changes should be committed with relevant commit messages.
 - If there are unreleated changes in the same commit, split them into separate commits.
 
-Create an untracked code_review_findigs.md file to document any issues found during the review.  Include
+Create an untracked code_review_findings.md file to document any issues found during the review.  Include
 the following information for each issue:
 
 - Status: Open, Fixed, or Won't Fix
