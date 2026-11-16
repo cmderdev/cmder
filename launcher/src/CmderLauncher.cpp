@@ -805,7 +805,7 @@ HKEY GetRootKey(std::wstring opt)
 	return root;
 }
 
-void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgRoot, bool single)
+void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgRoot, bool single, TerminalSelection terminalSelection = TerminalSelection::Auto)
 {
 	wchar_t userConfigDirPath[MAX_PATH] = { 0 };
 
@@ -816,23 +816,25 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 
 	GetExecutablePath(exePath);
 
-	wchar_t commandStr[MAX_PATH + 20] = { 0 };
-	wchar_t baseCommandStr[MAX_PATH + 20] = { 0 };
+	std::wstring commandStr = L"\"";
+	commandStr += exePath;
+	commandStr += L"\"";
+	if (terminalSelection == TerminalSelection::ConEmu) {
+		commandStr += L" conemu";
+	}
+	else if (terminalSelection == TerminalSelection::WindowsTerminal) {
+		commandStr += L" windows-terminal";
+	}
 	if (single) {
-		swprintf_s(baseCommandStr, L"\"%s\" /single", exePath);
+		commandStr += L" /single";
 	}
-	else {
-		swprintf_s(baseCommandStr, L"\"%s\"", exePath);
-	}
-
-	if (cfgRoot.length() == 0) // '/c [path]' was NOT specified
-	{
-		swprintf_s(commandStr, L"%s \"%%V\"", baseCommandStr);
-	}
-	else {
+	if (!cfgRoot.empty()) {
 		CopyPathOrExit(cfgRoot, userConfigDirPath);
-		swprintf_s(commandStr, L"%s /c \"%s\" \"%%V\"", baseCommandStr, userConfigDirPath);
+		commandStr += L" /c \"";
+		commandStr += userConfigDirPath;
+		commandStr += L"\"";
 	}
+	commandStr += L" \"%V\"";
 
 	// Now that we have `commandStr`, it's OK to change `exePath`...
 	PathRemoveFileSpec(exePath);
@@ -853,7 +855,7 @@ void RegisterShellMenu(std::wstring opt, wchar_t* keyBaseName, std::wstring cfgR
 	HKEY command;
 	FAIL_ON_ERROR(RegCreateKeyEx(cmderKey, L"command", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &command, NULL));
 
-	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr, NULL));
+	FAIL_ON_ERROR(RegSetValue(command, L"", REG_SZ, commandStr.c_str(), NULL));
 
 	RegCloseKey(command);
 	RegCloseKey(cmderKey);
@@ -1160,20 +1162,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	if (cmderOptions.registerApp == true)
 	{
-		if (terminal == TerminalKind::WindowsTerminal)
-		{
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM, cmderOptions.cmderCfgRoot, cmderOptions.cmderSingle);
-		}
-		else
-		{
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, false);
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, false);
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, false);
-			RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM, cmderOptions.cmderCfgRoot, false);
-		}
+		const bool single = terminal == TerminalKind::ConEmu && cmderOptions.cmderSingle;
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, single, cmderOptions.terminalSelection);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_PATH_LISTITEM, cmderOptions.cmderCfgRoot, single, cmderOptions.terminalSelection);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_BACKGROUND, cmderOptions.cmderCfgRoot, single, cmderOptions.terminalSelection);
+		RegisterShellMenu(cmderOptions.cmderRegScope, SHELL_MENU_REGISTRY_DRIVE_PATH_LISTITEM, cmderOptions.cmderCfgRoot, single, cmderOptions.terminalSelection);
 	}
 	else if (cmderOptions.unRegisterApp == true)
 	{
