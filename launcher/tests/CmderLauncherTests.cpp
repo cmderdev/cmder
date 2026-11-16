@@ -7,8 +7,7 @@
 #include <iostream>
 #include <stdexcept>
 
-// Exercise the production launcher without dialogs, shell launches, or registry
-// writes. Only process input and the executable-path API are replaced.
+// Exercise the production launcher without dialogs, shell launches, or registry writes.
 struct LauncherExit { int code; };
 static std::wstring testCommandLine = L"Cmder.exe";
 static std::wstring testExecutable = L"C:\\Cmder\\Cmder.exe";
@@ -18,6 +17,10 @@ static bool overlappingEnvironmentExpansion = false;
 static DWORD modulePathCapacity = 0;
 static int helpDialogs = 0;
 static int registryWrites = 0;
+static bool allowRegistryWrites = false;
+static int fakeRegistryKey;
+static int fakeCommandKey;
+static std::vector<std::wstring> registeredCommands;
 static int terminalLaunches = 0;
 static WORD nativeArchitecture = PROCESSOR_ARCHITECTURE_AMD64;
 static std::wstring lastTerminalPath;
@@ -59,11 +62,28 @@ static HRESULT WINAPI TestTaskDialogIndirect(const TASKDIALOGCONFIG*, int*, int*
     ++helpDialogs;
     return S_OK;
 }
-static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR, DWORD, LPWSTR, DWORD,
-    REGSAM, const LPSECURITY_ATTRIBUTES, PHKEY, LPDWORD)
+static LSTATUS WINAPI TestRegCreateKeyExW(HKEY, LPCWSTR name, DWORD, LPWSTR, DWORD,
+    REGSAM, const LPSECURITY_ATTRIBUTES, PHKEY key, LPDWORD)
 {
     ++registryWrites;
-    return ERROR_ACCESS_DENIED;
+    if (!allowRegistryWrites) { return ERROR_ACCESS_DENIED; }
+    *key = reinterpret_cast<HKEY>(wcscmp(name, L"command") == 0 ? &fakeCommandKey : &fakeRegistryKey);
+    return ERROR_SUCCESS;
+}
+static LSTATUS WINAPI TestRegSetValueW(HKEY key, LPCWSTR, DWORD, LPCWSTR value, DWORD)
+{
+    if (key == reinterpret_cast<HKEY>(&fakeCommandKey)) {
+        registeredCommands.emplace_back(value);
+    }
+    return ERROR_SUCCESS;
+}
+static LSTATUS WINAPI TestRegSetValueExW(HKEY, LPCWSTR, DWORD, DWORD, const BYTE*, DWORD)
+{
+    return ERROR_SUCCESS;
+}
+static LSTATUS WINAPI TestRegCloseKey(HKEY)
+{
+    return ERROR_SUCCESS;
 }
 static BOOL WINAPI TestCreateProcessW(LPCWSTR application, LPWSTR arguments, LPSECURITY_ATTRIBUTES,
     LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION)
@@ -87,6 +107,9 @@ static void WINAPI TestGetNativeSystemInfo(LPSYSTEM_INFO info)
 #define MessageBoxW TestMessageBoxW
 #define TaskDialogIndirect TestTaskDialogIndirect
 #define RegCreateKeyExW TestRegCreateKeyExW
+#define RegSetValueW TestRegSetValueW
+#define RegSetValueExW TestRegSetValueExW
+#define RegCloseKey TestRegCloseKey
 #define CreateProcessW TestCreateProcessW
 #define GetNativeSystemInfo TestGetNativeSystemInfo
 #include "../src/CmderLauncher.cpp"
@@ -97,6 +120,9 @@ static void WINAPI TestGetNativeSystemInfo(LPSYSTEM_INFO info)
 #undef MessageBoxW
 #undef TaskDialogIndirect
 #undef RegCreateKeyExW
+#undef RegSetValueW
+#undef RegSetValueExW
+#undef RegCloseKey
 #undef CreateProcessW
 #undef GetNativeSystemInfo
 
@@ -422,6 +448,32 @@ static void TestArgumentParsing()
             lastTerminalArguments == L" " + options.cmderTerminalArgs,
             "Raw terminal arguments were changed by profile selection");
     }
+
+    struct RegistrationCase { const wchar_t* arguments; const wchar_t* selector; bool single; bool userRoot; };
+    const RegistrationCase registrationCases[] = {
+        {L"/REGISTER USER", L"", false, false},
+        {L"conemu /REGISTER USER", L" conemu", false, false},
+        {L"windows-terminal /REGISTER USER", L" windows-terminal", false, false},
+        {L"conemu /single /REGISTER USER", L" conemu", true, false},
+        {L"conemu /REGISTER USER /c", L" conemu", false, true}
+    };
+    allowRegistryWrites = true;
+    for (const auto& registration : registrationCases) {
+        registeredCommands.clear();
+        const std::wstring arguments = std::wstring(registration.arguments) +
+            (registration.userRoot ? L" \"" + userRoot + L"\"" : L"");
+        Check(!Parse(arguments).error && _tWinMain(NULL, NULL, NULL, 0) == 0,
+            "Terminal-specific registration failed");
+        std::wstring expected = L"\"" + testExecutable + L"\"" + registration.selector;
+        if (registration.single) { expected += L" /single"; }
+        if (registration.userRoot) { expected += L" /c \"" + userRoot + L"\""; }
+        expected += L" \"%V\"";
+        Check(registeredCommands.size() == 4, "Not all Explorer menu commands were registered");
+        for (const auto& command : registeredCommands) {
+            Check(command == expected, "Registered command lost the selected terminal or launcher options");
+        }
+    }
+    allowRegistryWrites = false;
 
     Check(DeleteFileW(userSettings.c_str()) != 0, "Could not remove user settings fixture");
     Check(DeleteFileW(machineConfig.c_str()) != 0,
