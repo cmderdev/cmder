@@ -6,10 +6,10 @@
 
 - Standardize command line behavior of `Cmder.exe` position one arguments `cmd`, `bash`, and `powershell`.  See `Command Line Examples` section in `README.md` 
 - Improve terminal selection with explicit `conemu` and `windows-terminal` launch selectors, executable-based terminal detection, and clear errors for ConEmu-only options when Windows Terminal is selected.
+- Allow forcing a launch of bundled `ConEmu` when both `ConEmu` and `Windows Terminal` binaries are present in the `vendor` folder.  See: `Cmder.exe Command Line Arguments` section in `README.md`
 
 ### Fixes
 
-- Preserve explicit terminal selection and ConEmu `/single` when registering the Explorer context menu.
 - Expand machine-specific ConEmu and Windows Terminal settings paths without overlapping buffers, and report expansion failures or oversized paths.
 - Load machine-specific ConEmu settings from the `/C` user configuration root without overlapping path buffers.
 - Build launcher command lines without overlapping fixed-buffer formatting, preserving terminal arguments for long paths and option combinations.
