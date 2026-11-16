@@ -250,7 +250,6 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	std::wstring cmderTerminalArgs = conemu_args;
 
 	CopyPathOrExit(cfgRoot, userConfigRootPath);
-	CopyPathOrExit(cfgRoot, userConfigDirPath);
 
 	GetExecutablePath(exeDir);
 
@@ -274,17 +273,14 @@ void StartCmder(std::wstring  path = L"", bool is_single_mode = false, std::wstr
 	MigrateLegacyConfigFile(configDirPath, L"user-profile.cmd", L"user_profile.cmd");
 	MigrateLegacyConfigFile(configDirPath, L"user-aliases.cmd", L"user_aliases.cmd");
 
-	/*
-	Was /c [path] specified?
-	*/
-	if (wcscmp(userConfigDirPath, L"") == 0)
+	if (cfgRoot.empty())
 	{
-		// No - It wasn't.
+		// No /c [path] specified; use the default config directory next to the executable.
 		PathCombine(userConfigDirPath, exeDir, L"config");
 	}
 	else
 	{
-		// Yes - cfgRoot is the `/c` root; Cmder configuration remains in its `config` child directory.
+		// /c [path] specified; cfgRoot is the `/c` root and Cmder configuration lives in its `config` child directory.
 		PathCombine(userBinDirPath, userConfigRootPath, L"bin");
 		SHCreateDirectoryEx(0, userBinDirPath, 0);
 

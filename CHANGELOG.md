@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Standardize command line behavior of `Cmder.exe` position one arguments `cmd`, `bash`, and `powershell`.  See `Command Line Examples` section in `README.md` 
+- Standardize command line behavior of `Cmder.exe` position one arguments `cmd`, `bash`, and `powershell`.  See `Command Line Examples` section in `README.md`
 - Improve terminal selection with explicit `conemu` and `windows-terminal` launch selectors, executable-based terminal detection, and clear errors for ConEmu-only options when Windows Terminal is selected.
 - Allow forcing a launch of bundled `ConEmu` when both `ConEmu` and `Windows Terminal` binaries are present in the `vendor` folder.  See: `Cmder.exe Command Line Arguments` section in `README.md`
 
