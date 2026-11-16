@@ -57,6 +57,8 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
 | Argument                  | Description                                                                              |
 | ------------------------- | -----------------------------------------------------------------------                  |
+| `conemu`                  | Force the bundled ConEmu terminal when it is the first argument.                        |
+| `windows-terminal`        | Force the bundled Windows Terminal when it is the first argument.                       |
 | `/C [user_root_path]`     | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config`                |
 | `/M`                      | Use `conemu-%computername%.xml` for ConEmu settings storage instead of `user_conemu.xml` |
 | `/REGISTER [ALL, USER]`   | Register a Windows Shell Menu shortcut.                                                  |
@@ -65,6 +67,12 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/START [start_path]`     | Folder path to start in.                                                                 |
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
 | `-- [ConEmu extras pars]` | Forwards ALL remaining parameters to ConEmu.                                             |
+
+When bundled Windows Terminal is selected, no shell argument or `cmd` launches
+the `Cmder` profile, `bash` launches `Cmder - Bash`, and `powershell` launches
+`Cmder - PowerShell`. Use `/TASK "Profile Name"` to select a custom profile
+without translating its name. ConEmu and launches without a bundled terminal
+retain their existing behavior.
 
 ## Context Menu Integration
 
