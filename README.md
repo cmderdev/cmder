@@ -68,8 +68,9 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
 | `-- [ConEmu extras pars]` | Forwards ALL remaining parameters to ConEmu.                                             |
 
-When bundled Windows Terminal is selected, no shell argument or `cmd` launches
-the `Cmder` profile, `bash` launches `Cmder - Bash`, and `powershell` launches
+When bundled Windows Terminal is selected, no shell argument launches the
+terminal without selecting a profile. `cmd` launches the `Cmder` profile,
+`bash` launches `Cmder - Bash`, and `powershell` launches
 `Cmder - PowerShell`. Use `/TASK "Profile Name"` to select a custom profile
 without translating its name. ConEmu and launches without a bundled terminal
 retain their existing behavior.
