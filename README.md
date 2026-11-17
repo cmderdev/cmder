@@ -57,6 +57,7 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 
 | Argument                  | Description                                                                              |
 | ------------------------- | -----------------------------------------------------------------------                  |
+| `conemu`                  | Force a bundled ConEmu terminal when it is the first argument.                           |
 | `/C [user_root_path]`     | Individual user Cmder root folder.  Example: `%userprofile%\cmder_config`                |
 | `/M`                      | Use `conemu-%computername%.xml` for ConEmu settings storage instead of `user_conemu.xml` |
 | `/REGISTER [ALL, USER]`   | Register a Windows Shell Menu shortcut.                                                  |
@@ -65,6 +66,29 @@ The Cmder's user interface is also designed to be more eye pleasing, and you can
 | `/START [start_path]`     | Folder path to start in.                                                                 |
 | `/TASK [task_name]`       | Task to start after launch.                                                              |
 | `-- [ConEmu extras pars]` | Forwards ALL remaining parameters to ConEmu.                                             |
+
+### Command Line Examples
+
+Depending on the distribution you have, bundled `Windows Terminal`, bundled `ConEmu`, or no emulator.
+
+- Running `.\cmder` launches:
+  - `Windows Terminal` default profile.  Default: `Cmder`
+  - `ConEmu`  default task.  Default: `cmd::Cmder` or `{Cmder}`
+  - Windows default terminal emulator with `cmd` with `Cmder` settings.
+- `.\cmder bash` launches:
+  - `Windows Terminal` profile `Cmder - Bash`.
+  - `ConEmu` task `bash::bash` or `{bash}`.
+  - `No Emulator` uses Windows default terminal emulator with `Git Bash` with `Cmder` settings.
+- `.\cmder cmd` launches:
+  - `Windows Terminal` profile `Cmder`.
+  - `ConEmu`  task `cmd::Cmder` or `{Cmder}`.
+  - `No Emulator` uses Windows default terminal emulator with `Cmd.exe` with `Cmder` settings.
+- `.\cmder powershell` launches:
+  - `Windows Terminal` profile `Cmder - PowerShell`.
+  - `ConEmu`  task `PowerShell::PowerShell` or `{PowerShell}`.
+  - `No Emulator` uses Windows default terminal emulator with `PowerShell` and `Cmder` setings.
+
+Use `/TASK "Profile Name"` to select a custom profile without translating its name.
 
 ## Context Menu Integration
 
@@ -78,6 +102,11 @@ So you've experimented with Cmder a little and want to give it a shot in a more 
    _If you get an "Access Denied" message, make sure you are executing the command in an **Administrator** prompt._
 
 In a file explorer window right click in or on a directory to see "Cmder Here" in the context menu.
+
+To keep a specific bundled terminal in the context menu, register it explicitly,
+for example `.\cmder.exe conemu /REGISTER USER` or
+`.\cmder.exe windows-terminal /REGISTER USER`. Without a terminal selector,
+the menu command uses automatic terminal detection when launched.
 
 ## Keyboard shortcuts
 
