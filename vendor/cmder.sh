@@ -7,66 +7,90 @@
 # Add system specific users customizations to $HOME/.bashrc, these
 # customizations will not follow Cmder to another machine.
 
-function runProfiled {
-  unset profile_d_scripts
-  pushd "${1}" >/dev/null
-  profile_d_scripts=$(ls *.sh 2>/dev/null)
+if [ -z "${CMDER_ROOT:-}" ] || [ -n "${CMDER_EXINIT:-}" ]; then
+  return 0 2>/dev/null || exit 0
+fi
 
-  if [ ! "x${profile_d_scripts}" = "x" ] ; then
-    for x in ${profile_d_scripts} ; do
-      # echo Sourcing "${1}/${x}"...
-      . "${1}/${x}"
-    done
+if [ ! -r "$CMDER_ROOT/vendor/lib/lib_console.sh" ]; then
+  printf '[cmder] Cannot read console library: %s\n' "$CMDER_ROOT/vendor/lib/lib_console.sh" >&2
+  return 1 2>/dev/null || exit 1
+fi
+. "$CMDER_ROOT/vendor/lib/lib_console.sh" || return 1
+CMDER_EXINIT=1
+
+function runProfiled {
+  local script extension=sh
+  if [ -n "${ZSH_VERSION:-}" ]; then
+    setopt localoptions nonomatch
+    extension=zsh
   fi
+  pushd "$1" >/dev/null || return
+  for script in ./*."$extension"; do
+    [ -f "$script" ] || continue
+    debug_output cmder.sh "Sourcing profile script: $1/${script#./}"
+    . "$script"
+  done
   popd >/dev/null
 }
 
-# We do this for bash as admin sessions since $CMDER_ROOT is not being set
-if [ -z "$CMDER_ROOT" ] && [ -n "$cmder_root" ] ; then
-  export CMDER_ROOT=$(cygpath -u $cmder_root)
-fi
-
-if [ -z "$CMDER_ROOT" ] ; then
-    case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
-else
-    case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
-fi
-
 # Remove any trailing '/'
-CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
+CMDER_ROOT=$(printf '%s\n' "$CMDER_ROOT" | sed 's:/*$::')
 
 export CMDER_ROOT
+debug_output cmder.sh "Cmder root: ${CMDER_ROOT}"
 
-if [ -f "/c/Program Files/Git/cmd/git.exe" ] ; then
+__cmder_find_git_root() {
+  if [ -f "/c/Program Files/Git/cmd/git.exe" ] ; then
     GIT_INSTALL_ROOT="/c/Program Files/Git"
-elif [ -f "/c/Program Files(x86)/Git/cmd/git.exe" ] ; then
-    GIT_INSTALL_ROOT="/c/Program Files(x86)/Git"
-elif [ -f "${CMDER_ROOT}/vendor/git-for-windows/cmd/git.exe" ] ; then
+  elif [ -f "/c/Program Files (x86)/Git/cmd/git.exe" ] ; then
+    GIT_INSTALL_ROOT="/c/Program Files (x86)/Git"
+  elif [ -f "${CMDER_ROOT}/vendor/git-for-windows/cmd/git.exe" ] ; then
     GIT_INSTALL_ROOT=${CMDER_ROOT}/vendor/git-for-windows
-fi
+  fi
+}
 
-if [[ ! "$PATH" =~ "${GIT_INSTALL_ROOT}/bin:" ]] ; then
-  PATH="${GIT_INSTALL_ROOT}/bin:$PATH"
-fi
+__cmder_add_git_native_bin() {
+  if [ -n "$git_mingw_bin" ] ; then
+    case ":$PATH:" in
+      *":${git_mingw_bin}:"*)
+        debug_output cmder.sh "Git native bin directory is already on PATH: ${git_mingw_bin}"
+        ;;
+      *)
+        PATH="${git_mingw_bin}${PATH:+:$PATH}"
+        debug_output cmder.sh "Added Git native bin directory to PATH: ${git_mingw_bin}"
+        ;;
+    esac
+  fi
+}
 
 git_mingw_bin=""
-git_native_dirs="ucrt64 mingw64 mingw32"
-if [ "$PROCESSOR_ARCHITECTURE" = "x86" ] && [ -z "$PROCESSOR_ARCHITEW6432" ]; then
-  git_native_dirs="mingw32"
-fi
-for git_native_dir in $git_native_dirs; do
-  if [ -d "$GIT_INSTALL_ROOT/$git_native_dir/bin" ]; then
-    git_mingw_bin="$GIT_INSTALL_ROOT/$git_native_dir/bin"
-    break
+if [ -n "${MINGW_PREFIX:-}" ] && [ -d "$MINGW_PREFIX/bin" ] ; then
+  git_mingw_bin="$MINGW_PREFIX/bin"
+elif [ -f /cmd/git.exe ] || [ -n "${GIT_INSTALL_ROOT:-}" ]; then
+  __cmder_find_git_root
+  debug_output cmder.sh "Fallback Git installation root: ${GIT_INSTALL_ROOT:-not found}"
+  if [ -n "$GIT_INSTALL_ROOT" ] ; then
+    case ":$PATH:" in
+      *":${GIT_INSTALL_ROOT%/}/bin:"*) ;;
+      *) PATH="${GIT_INSTALL_ROOT%/}/bin${PATH:+:$PATH}" ;;
+    esac
+    git_native_dirs="ucrt64 mingw64 mingw32"
+    if [ "$PROCESSOR_ARCHITECTURE" = "x86" ] && [ -z "$PROCESSOR_ARCHITEW6432" ]; then
+      git_native_dirs="mingw32"
+    fi
+    for git_native_dir in $git_native_dirs; do
+      if [ -d "${GIT_INSTALL_ROOT%/}/$git_native_dir/bin" ]; then
+        git_mingw_bin="${GIT_INSTALL_ROOT%/}/$git_native_dir/bin"
+        break
+      fi
+    done
+    unset git_native_dir git_native_dirs
   fi
-done
-unset git_native_dir git_native_dirs
-
-if [ -n "$git_mingw_bin" ] && [[ ! "$PATH" =~ "${git_mingw_bin}:" ]] ; then
-  PATH="${git_mingw_bin}:$PATH"
 fi
+debug_output cmder.sh "Git native bin directory: ${git_mingw_bin:-not found}"
+__cmder_add_git_native_bin
 
-PATH="${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}"
+PATH="${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin${PATH:+:$PATH}"
 
 export PATH
 
@@ -77,27 +101,33 @@ if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
 fi
 
 if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
+  debug_output cmder.sh "Loading Cmder profile directory: ${CMDER_ROOT}/config/profile.d"
   runProfiled  "${CMDER_ROOT}/config/profile.d"
 fi
 
-if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
+case "${CMDER_USER_CONFIG:-}" in
+  [A-Za-z]:*|*\\*) CMDER_USER_CONFIG=$(cygpath -u "$CMDER_USER_CONFIG") || return 1 ;;
+esac
+if [ -n "${CMDER_USER_CONFIG:-}" ] && [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
+  debug_output cmder.sh "Loading user profile directory: ${CMDER_USER_CONFIG}/profile.d"
   runProfiled  "${CMDER_USER_CONFIG}/profile.d"
 fi
 
 
 # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
-if [ -f "$CMDER_ROOT/config/user-profile.sh" ] ; then
+if [ -f "$CMDER_ROOT/config/user-profile.sh" ] && [ ! -e "$CMDER_ROOT/config/user_profile.sh" ] ; then
   mv "$CMDER_ROOT/config/user-profile.sh" "$CMDER_ROOT/config/user_profile.sh"
 fi
 
 CmderUserProfilePath="${CMDER_ROOT}/config/user_profile.sh"
 if [ -f "${CMDER_ROOT}/config/user_profile.sh" ] ; then
+    debug_output cmder.sh "Sourcing user profile: ${CMDER_ROOT}/config/user_profile.sh"
     . "${CMDER_ROOT}/config/user_profile.sh"
 fi
 
-if [ "${CMDER_USER_CONFIG}" != "" ] ; then
+if [ -n "${CMDER_USER_CONFIG:-}" ] ; then
   # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
-  if [ -f "$CMDER_USER_CONFIG/user-profile.sh" ] ; then
+  if [ -f "$CMDER_USER_CONFIG/user-profile.sh" ] && [ ! -e "$CMDER_USER_CONFIG/user_profile.sh" ] ; then
     mv "$CMDER_USER_CONFIG/user-profile.sh" "$CMDER_USER_CONFIG/user_profile.sh"
   fi
 
@@ -105,16 +135,17 @@ if [ "${CMDER_USER_CONFIG}" != "" ] ; then
 
   CmderUserProfilePath="${CMDER_USER_CONFIG}/user_profile.sh"
   if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ] ; then
+    debug_output cmder.sh "Sourcing user profile: ${CMDER_USER_CONFIG}/user_profile.sh"
     . "${CMDER_USER_CONFIG}/user_profile.sh"
   fi
 fi
 
 if [ ! -f "${CmderUserProfilePath}" ] ; then
+    debug_output cmder.sh "Creating user startup file: ${CmderUserProfilePath}"
     echo Creating user startup file: "${CmderUserProfilePath}"
     cp "${CMDER_ROOT}/vendor/user_profile.sh.default" "${CmderUserProfilePath}"
 fi
 
-# Source the users .bashrc file if it exists
-if [ -f "${HOME}/.bashrc" ] ; then
-    . "${HOME}/.bashrc"
-fi
+# Cmder profiles may have rebuilt PATH. Bash runs personal login files later.
+__cmder_add_git_native_bin
+debug_output cmder.sh "Final PATH: ${PATH}"
