@@ -202,6 +202,8 @@ Single user portable configuration is possible using the Cmder specific shell co
 
 **Note:** Bash and Mintty sessions will also source the `$HOME/.bashrc` file if it exists after it sources `$CMDER_ROOT/config/user_profile.sh`.
 
+To see Bash or Mintty startup debug messages, set `debug_output` to a positive integer in the environment before launching the shell (for example, `set debug_output=1` in Command Prompt). The bundled and external Git Bash hooks use the same setting.
+
 You can write `*.cmd|*.bat`, `*.ps1`, and `*.sh` scripts and just drop them in the `%CMDER_ROOT%\config\profile.d` folder to add startup config to Cmder.
 
 | Shell         | Cmder `Profile.d` Scripts                          |
@@ -245,7 +247,7 @@ Bash shells support simple and complex aliases with optional parameters natively
 
 To make an alias and/or any other profile settings permanent add it to one of the following:
 
-Note: These are loaded in this order by `$CMDER_ROOT/vendor/git-for-windows/etc/profile.d/cmder.sh`.  Anything stored in `$CMDER_ROOT` will be a portable setting and will follow Cmder to another machine.
+Bundled Git Bash sets up its normal PATH first, then `zz-cmder.sh` in `etc/profile.d` adds Cmder's bin directories at the front and loads its portable settings. The Git Bash launcher removes the older `cmder.sh` hook only if `zz-cmder.sh` is present. Bash handles personal login files normally; source `~/.bashrc` from your login profile if needed.
 
 * `$CMDER_ROOT/config/profile.d/*.sh`
 * `$CMDER_ROOT/config/user_profile.sh`
@@ -287,19 +289,29 @@ You may run bash (the default shell used on Linux, macOS and GNU/Hurd) externall
 
 **Recommended Optional Steps:**
 
+When Cmder uses external Git for Windows, the Git Bash launcher offers to install `/etc/profile.d/zz-cmder_exinit.sh` if no Cmder hook exists. This hook and the bundled `zz-cmder.sh` load [`vendor/cmder.sh`](vendor/cmder.sh), included in full and no-Git packages.
+
+- At the prompt:
+  - `Y` Integrates `Cmder` into the external `Git` Install.
+  - `N` Skips integration this launch.
+  - `never` Suppresses future offers for that Git path on this computer.
+- Opt-outs are stored as tab-separated computer name and Git path pairs under `[external-git-bash-opt-outs]` in `config/user_cmder_state.txt`.
+  - Remove an entry to allow the offer again.
+  - Repeated section headers let Cmder append entries without rewriting existing state.
+
 Copy the `vendor/cmder_exinit` file to the Cygwin/Babun, MSys2, or Git for Windows SDK environments `/etc/profile.d/` folder to use portable settings in the `$CMDER_ROOT/config` folder.
 
 Note: MinGW could work if the init scripts include `profile.d` but this has not been tested.
 
 The destination file extension depends on the shell you use in that environment.  For example:
 
-* bash - Copy to `/etc/profile.d/cmder_exinit.sh`
-* zsh  - Copy to `/etc/profile.d/cmder_exinit.zsh`
+* bash - Copy to `/etc/profile.d/zz-cmder_exinit.sh`
+* zsh  - Copy to `/etc/profile.d/zz-cmder_exinit.zsh`
 
 Uncomment and edit the line below in the script to use Cmder config even when launched from outside Cmder.
 
 ```
-# CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
+# CMDER_ROOT="${USERPROFILE}/cmder"  # Not required when launched from Cmder.
 ```
 
 ### Customizing user sessions using `init.cmd` custom arguments.
