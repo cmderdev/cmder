@@ -208,10 +208,20 @@ if (-not $noVendor) {
         Copy-Item $WinTermSettingsJsonSave $WinTermSettingsJson
     }
 
-    # Put vendor\cmder.sh in /etc/profile.d so it runs when we start bash or mintty
+    # Run after Git Bash's standard PATH hooks, including env.sh.
     if ( (Test-Path $($saveTo + "git-for-windows/etc/profile.d") ) ) {
-        Write-Verbose "Adding cmder.sh /etc/profile.d"
-        Copy-Item $($saveTo + "cmder.sh") $($saveTo + "git-for-windows/etc/profile.d/cmder.sh")
+        $bashProfileDir = Join-Path $saveTo 'git-for-windows\etc\profile.d'
+        Write-Verbose "Installing zz-cmder.sh in $bashProfileDir"
+        $bundledRootFallback = @'
+if [ -z "${CMDER_ROOT:-}" ] && [ -z "${cmder_root:-}" ] && [ -z "${ConEmuDir:-}" ]; then
+  CMDER_ROOT=$(cd "$(cygpath -am /)/../.." && pwd) || return 1
+fi
+'@
+        $shim = [IO.File]::ReadAllText((Join-Path $cmder_root 'vendor\cmder_exinit'))
+        $hook = "$bundledRootFallback`n`n$shim" -replace "`r`n", "`n"
+        [IO.File]::WriteAllText((Join-Path $bashProfileDir 'zz-cmder.sh'), $hook)
+        # Replace the old hook on in-place upgrades so Cmder does not initialize twice.
+        Set-Content -LiteralPath (Join-Path $bashProfileDir 'cmder.sh') -Value "# Cmder startup now runs from zz-cmder.sh.`n" -Encoding ASCII -NoNewline
     }
 
     # Replace /etc/profile.d/git-prompt.sh with cmder lambda prompt so it runs when we start bash or mintty
