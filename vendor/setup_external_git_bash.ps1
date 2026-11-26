@@ -9,12 +9,30 @@ function Write-CmderExternalGitHook {
     param([string]$ProfileDir, [string]$Content)
 
     $hook = Join-Path $ProfileDir 'zz-cmder_exinit.sh'
-    foreach ($name in @('zz-cmder_exinit.sh', 'cmder_exinit.sh', 'zz-cmder.sh', 'cmder.sh')) {
+    $legacyHook = Join-Path $ProfileDir 'cmder_exinit.sh'
+    $backupPath = $null
+    if ([IO.File]::Exists($legacyHook)) {
+        $backupBase = 'cmder_exinit.sh.' + (Get-Date -Format 'yyyyMMdd-HHmmss')
+        $backupPath = Join-Path $ProfileDir "$backupBase.bak"
+        for ($suffix = 1; (Test-Path -LiteralPath $backupPath); $suffix++) {
+            $backupPath = Join-Path $ProfileDir "$backupBase-$suffix.bak"
+        }
+    }
+
+    if ([IO.File]::Exists($hook)) {
+        if ($backupPath) {
+            [IO.File]::Move($legacyHook, $backupPath)
+            Write-Host "Backed up the old Cmder hook to '$backupPath'."
+        }
+        return
+    }
+    foreach ($name in @('zz-cmder.sh', 'cmder.sh')) {
         if (Test-Path -LiteralPath (Join-Path $ProfileDir $name)) { return }
     }
 
     $temp = Join-Path $ProfileDir ('.cmder-exinit-' + [guid]::NewGuid().ToString('N') + '.tmp')
     $created = $false
+    $installed = $false
     try {
         $stream = [IO.File]::Open($temp, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
         $created = $true
@@ -24,8 +42,17 @@ function Write-CmderExternalGitHook {
         } finally {
             $stream.Dispose()
         }
+        if ($backupPath) {
+            [IO.File]::Move($legacyHook, $backupPath)
+            Write-Host "Backed up the old Cmder hook to '$backupPath'."
+        }
         [IO.File]::Move($temp, $hook)
+        $installed = $true
     } finally {
+        if (!$installed -and $backupPath -and [IO.File]::Exists($backupPath) -and
+            ![IO.File]::Exists($legacyHook) -and ![IO.File]::Exists($hook)) {
+            [IO.File]::Move($backupPath, $legacyHook)
+        }
         if ($created -and [IO.File]::Exists($temp)) { [IO.File]::Delete($temp) }
     }
 }
@@ -110,48 +137,12 @@ function Save-CmderExternalGitOptOut {
     }
 }
 
-function Install-CmderExternalGitHook {
-    param([string]$GitRoot, [string]$CmderRoot, [string]$UserProfile, [string]$ComputerName = [Environment]::MachineName)
+function Get-CmderExternalGitHookContent {
+    param([string]$CmderRoot, [string]$UserProfile)
 
-    $profileDir = Join-Path $GitRoot 'etc\profile.d'
-    $hook = Join-Path $profileDir 'zz-cmder_exinit.sh'
-    if (!(Test-Path -LiteralPath $profileDir -PathType Container)) {
-        Write-Warning "Git Bash has no profile directory at '$profileDir'. Set up the Cmder hook manually if needed."
-        return
-    }
-    foreach ($name in @('zz-cmder_exinit.sh', 'cmder_exinit.sh', 'zz-cmder.sh', 'cmder.sh')) {
-        if (Test-Path -LiteralPath (Join-Path $profileDir $name)) { return }
-    }
-
-    $configDirectory = Join-Path $CmderRoot 'config'
-    $optOut = Join-Path $configDirectory 'user_cmder_state.txt'
-    $entry = "$ComputerName`t$GitRoot"
-    if (Test-Path -LiteralPath $optOut) {
-        if (Test-CmderExternalGitOptOut -Content ([IO.File]::ReadAllText($optOut)) -Entry $entry) {
-            if ($env:debug_output -match '^[1-9]') {
-                Write-Host "[setup_external_git_bash] Skipping the setup offer: '$GitRoot' is opted out in '$optOut'."
-            }
-            return
-        }
-    }
     $startup = Join-Path $CmderRoot 'vendor\cmder.sh'
     if (!(Test-Path -LiteralPath $startup -PathType Leaf)) {
         throw "Cannot install the Git Bash hook: Cmder startup script '$startup' is missing."
-    }
-
-    Write-Host "External Git Bash at '$GitRoot' is not configured to load Cmder's startup files."
-    Write-Host "Installing '$hook' will also enable Cmder in standalone Git Bash for this Windows profile, using '$CmderRoot' when CMDER_ROOT is unset."
-    do {
-        $answer = ([string](Read-Host 'Install the Cmder hook? [y/N/never] (N = not now)')).Trim()
-    } until ($answer -match '^(y|yes|n|no|never)?$')
-
-    if ($answer -eq 'never') {
-        Save-CmderExternalGitOptOut -ConfigDirectory $configDirectory -GitRoot $GitRoot -ComputerName $ComputerName
-        Write-Host "Saved the opt-out in '$optOut'. Remove this computer and Git path entry to allow the offer again."
-        return
-    }
-    if ($answer -notmatch '^y(es)?$') {
-        return
     }
 
     $source = Join-Path $CmderRoot 'vendor\cmder_exinit'
@@ -165,12 +156,78 @@ if [ -z "`${CMDER_ROOT:-}" ]; then
   CMDER_ROOT=$quotedRoot
 fi
 "@ -replace "`r`n", "`n"
-    $content = "$assignment`n$shim"
+    return "$assignment`n$shim"
+}
+
+function Install-CmderExternalGitHook {
+    param([string]$GitRoot, [string]$CmderRoot, [string]$UserProfile, [string]$ComputerName = [Environment]::MachineName)
+
+    $profileDir = Join-Path $GitRoot 'etc\profile.d'
+    $hook = Join-Path $profileDir 'zz-cmder_exinit.sh'
+    $legacyHook = Join-Path $profileDir 'cmder_exinit.sh'
+    if (!(Test-Path -LiteralPath $profileDir -PathType Container)) {
+        Write-Warning "Git Bash has no profile directory at '$profileDir'. Set up the Cmder hook manually if needed."
+        return
+    }
+    foreach ($name in @('zz-cmder.sh', 'cmder.sh')) {
+        if (Test-Path -LiteralPath (Join-Path $profileDir $name)) { return }
+    }
+    $hasLegacyHook = [IO.File]::Exists($legacyHook)
+    if ((Test-Path -LiteralPath $legacyHook) -and !$hasLegacyHook) {
+        Write-Warning "Cannot migrate the old Cmder hook because '$legacyHook' is not a file."
+        return
+    }
+    if ((Test-Path -LiteralPath $hook) -and $hasLegacyHook) {
+        $content = Get-CmderExternalGitHookContent -CmderRoot $CmderRoot -UserProfile $UserProfile
+        try {
+            Write-CmderExternalGitHook -ProfileDir $profileDir -Content $content
+        } catch [UnauthorizedAccessException] {
+            Write-Host "Administrator permission is required to back up the old Cmder hook in '$profileDir'."
+            Request-CmderExternalGitHookElevation -ProfileDir $profileDir -Content $content
+        }
+        return
+    }
+    if (Test-Path -LiteralPath $hook) { return }
+
+    $configDirectory = Join-Path $CmderRoot 'config'
+    $optOut = Join-Path $configDirectory 'user_cmder_state.txt'
+    $entry = "$ComputerName`t$GitRoot"
+    if (!$hasLegacyHook -and (Test-Path -LiteralPath $optOut)) {
+        if (Test-CmderExternalGitOptOut -Content ([IO.File]::ReadAllText($optOut)) -Entry $entry) {
+            if ($env:debug_output -match '^[1-9]') {
+                Write-Host "[setup_external_git_bash] Skipping the setup offer: '$GitRoot' is opted out in '$optOut'."
+            }
+            return
+        }
+    }
+    if (!$hasLegacyHook) {
+        Write-Host "External Git Bash at '$GitRoot' is not configured to load Cmder's startup files."
+        Write-Host "Installing '$hook' will also enable Cmder in standalone Git Bash for this Windows profile, using '$CmderRoot' when CMDER_ROOT is unset."
+        do {
+            $answer = ([string](Read-Host 'Install the Cmder hook? [y/N/never] (N = not now)')).Trim()
+        } until ($answer -match '^(y|yes|n|no|never)?$')
+
+        if ($answer -eq 'never') {
+            Save-CmderExternalGitOptOut -ConfigDirectory $configDirectory -GitRoot $GitRoot -ComputerName $ComputerName
+            Write-Host "Saved the opt-out in '$optOut'. Remove this computer and Git path entry to allow the offer again."
+            return
+        }
+        if ($answer -notmatch '^y(es)?$') {
+            return
+        }
+    } else {
+        Write-Host "Migrating the existing Cmder hook in '$profileDir' without prompting."
+    }
+
+    $content = Get-CmderExternalGitHookContent -CmderRoot $CmderRoot -UserProfile $UserProfile
     try {
         Write-CmderExternalGitHook -ProfileDir $profileDir -Content $content
     } catch [UnauthorizedAccessException] {
-        Write-Host "Administrator permission is required to install the Cmder hook in '$profileDir'."
+        Write-Host "Administrator permission is required to update the Cmder hook in '$profileDir'."
         Request-CmderExternalGitHookElevation -ProfileDir $profileDir -Content $content
+    }
+    if ($hasLegacyHook) {
+        Write-Host "The old Cmder hook was renamed to a dated .bak file."
     }
     Write-Host "The Cmder hook is configured in '$profileDir'."
 }
