@@ -284,21 +284,28 @@ PATH="/layout-test-base"
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\lib\lib_console.sh') -Destination $externalLib
     [IO.File]::WriteAllText((Join-Path $externalCmder 'config\profile.d\with spaces.sh'), "printf '%s\n' fragment`n")
     [IO.File]::WriteAllText((Join-Path $externalCmder 'config\user_profile.sh'), "printf '%s\n' profile`n")
-    [IO.File]::WriteAllText($legacyHook, 'existing')
+    [IO.File]::WriteAllText($legacyHook, 'existing legacy hook')
     $fixtureProfile = "C:\Fixture Users\O'Neil"
     $installArgs = @{ GitRoot = $externalRoot; CmderRoot = $externalCmder; UserProfile = $fixtureProfile; ComputerName = 'HOST-A' }
     $optOut = Join-Path $externalCmder 'config\user_cmder_state.txt'
     & {
-        function Read-Host { throw 'Existing hooks must suppress the setup offer.' }
+        function Read-Host { throw 'Migrating an existing hook must not prompt.' }
         Install-CmderExternalGitHook @installArgs
     }
-    Assert-Equal ([IO.File]::ReadAllText($legacyHook)) 'existing' 'Existing external hook is left in place'
-    Assert-Equal (Test-Path -LiteralPath $externalHook) $false 'Existing external hook prevents installing a second hook'
-    Remove-Item -LiteralPath $legacyHook
+    $legacyBackups = @(Get-ChildItem -LiteralPath $externalProfiles -Filter 'cmder_exinit.sh.*.bak' -File)
+    Assert-Equal (Test-Path -LiteralPath $legacyHook) $false 'Legacy external hook is removed from the active profile'
+    Assert-Equal $legacyBackups.Count 1 'Legacy external hook is preserved in a dated backup'
+    Assert-Equal ([IO.File]::ReadAllText($legacyBackups[0].FullName)) 'existing legacy hook' 'Dated backup preserves the old hook contents'
+    Assert-Equal ($legacyBackups[0].Name -match '\.sh$') $false 'Dated backup is not sourced as a shell hook'
+    Assert-Equal (Test-Path -LiteralPath $externalHook) $true 'Legacy external hook is automatically replaced with the late-running hook'
+    [IO.File]::WriteAllText($legacyHook, 'duplicate legacy hook')
     & {
-        function Read-Host { 'y' }
+        function Read-Host { throw 'Cleaning up a duplicate legacy hook must not prompt.' }
         Install-CmderExternalGitHook @installArgs
     }
+    $legacyBackups = @(Get-ChildItem -LiteralPath $externalProfiles -Filter 'cmder_exinit.sh.*.bak' -File)
+    Assert-Equal (Test-Path -LiteralPath $legacyHook) $false 'Legacy external hook is backed up when the new hook already exists'
+    Assert-Equal $legacyBackups.Count 2 'Repeated legacy-hook cleanup uses a distinct dated backup'
     $posixExternalHook = & $cygpath -u $externalHook
     $posixExternalCmder = & $cygpath -u $externalCmder
     $externalStartup = Join-Path $fixtureRoot 'external-startup.sh'
