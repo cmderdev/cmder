@@ -8,15 +8,15 @@
 
 ### Changes 
 
-- Bundled and external Cmder hexitooks load the same `vendor\cmder.sh` startup script.
+- Bundled and external Cmder hooks load the same `vendor\cmder.sh` startup script.
 - Enable Bash and Mintty startup debug messages with a positive `debug_output` value, matching the command-script debug setting.
 - Use a shared shell console helper for Bash startup debug messages, including the external Git Bash hook.
 - Store external Git Bash setup opt-outs by computer name and Git path in the portable `config/user_cmder_state.txt` file.
 
 ### Fixes
 
-- Make the Git Mintty launcher use the same bundled and external Git discovery, PATH setup, MSYSTEM selection, and Cmder startup hook handling as Git Bash.
-- Fix no Git in path when launching `Cmder - Bash`.
+- Make the Git Bash/MinTTY launchers use the same bundled and external Git discovery, PATH setup, MSYSTEM selection, and Cmder startup hook as the running `bash.exe`.
+- Fix no Git in path when launching `Cmder - Bash` from the unreleased `main` branch.
 - Preserve Git Bash's normal startup PATH, including native tools and entries with spaces, with Cmder's bin directories at the front.
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
 - Show vendor build badges for the requested release ref, with a verified check-runs fallback when the README badge is unavailable. Fix missing README fallback and Azure build-link matching from [#3103](https://github.com/cmderdev/cmder/pull/3103), and link truncated release notes to their full text.
