@@ -289,7 +289,7 @@ You may run bash (the default shell used on Linux, macOS and GNU/Hurd) externall
 
 **Recommended Optional Steps:**
 
-When Cmder uses external Git for Windows, the Git Bash launcher offers to install `/etc/profile.d/zz-cmder_exinit.sh` if no Cmder hook exists. This hook and the bundled `zz-cmder.sh` load [`vendor/cmder.sh`](vendor/cmder.sh), included in full and no-Git packages.
+When Cmder uses external Git for Windows, the Git Bash launcher offers to install `/etc/profile.d/zz-cmder_exinit.sh` if no Cmder hook exists. If the older `cmder_exinit.sh` hook is present, Cmder automatically renames it to a dated `.bak` file and installs the new hook without prompting. The backup is not a `.sh` file, so Git Bash will not source it. This hook and the bundled `zz-cmder.sh` load [`vendor/cmder.sh`](vendor/cmder.sh), included in full and no-Git packages. For bundled Git, the launcher removes the older `cmder.sh` hook at startup only when `zz-cmder.sh` is present.
 
 - At the prompt:
   - `Y` Integrates `Cmder` into the external `Git` Install.
