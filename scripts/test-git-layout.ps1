@@ -10,7 +10,7 @@ $parseErrors = $null
 $modulePath = Join-Path $repoRoot 'vendor\psmodules\Cmder.ps1'
 $ast = [System.Management.Automation.Language.Parser]::ParseFile($modulePath, [ref]$tokens, [ref]$parseErrors)
 if ($parseErrors.Count) { throw $parseErrors[0].Message }
-foreach ($name in @('Get-GitRoot', 'Get-GitNativeBin', 'Set-GitPath')) {
+foreach ($name in @('Get-GitVersion', 'Get-GitShimPath', 'Compare-Version', 'Get-GitRoot', 'Select-GitInstallation', 'Get-GitNativeBin', 'Set-GitPath')) {
     $definition = $ast.Find({
         $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $args[0].Name -eq $name
     }, $true)
@@ -26,12 +26,27 @@ function Assert-Equal($Actual, $Expected, [string]$Label) {
     $script:assertionCount++
 }
 
+function Get-GitVersion {
+    param([string]$GitPath)
+    $versionFile = Join-Path $GitPath 'version.txt'
+    if (Test-Path -LiteralPath $versionFile -PathType Leaf) {
+        return [IO.File]::ReadAllText($versionFile)
+    }
+    return $null
+}
+
 $minttyLauncher = [IO.File]::ReadAllText((Join-Path $repoRoot 'vendor\start_git_mintty.cmd'))
 $bashLauncher = [IO.File]::ReadAllText((Join-Path $repoRoot 'vendor\start_git_bash.cmd'))
 $gitShellLibrary = [IO.File]::ReadAllText((Join-Path $repoRoot 'vendor\lib\lib_git_shell.cmd'))
+$initScript = [IO.File]::ReadAllText((Join-Path $repoRoot 'vendor\init.cmd'))
+$powershellProfile = [IO.File]::ReadAllText((Join-Path $repoRoot 'vendor\profile.ps1'))
+$bashStartup = [IO.File]::ReadAllText((Join-Path $repoRoot 'vendor\cmder.sh'))
 Assert-Equal $bashLauncher.Contains('lib_git_shell.cmd') $true 'Bash launcher uses shared Git shell setup'
 Assert-Equal $minttyLauncher.Contains('lib_git_shell.cmd') $true 'Mintty launcher uses shared Git shell setup'
 Assert-Equal $gitShellLibrary.Contains('setup_external_git_bash.ps1') $true 'Shared Git shell setup uses external Git setup'
+Assert-Equal $initScript.Contains('select-git-installation.ps1') $true 'CMD init uses shared Git selection'
+Assert-Equal $powershellProfile.Contains('Select-GitInstallation') $true 'PowerShell profile uses shared Git selection'
+Assert-Equal $bashStartup.Contains('select-git-installation.ps1') $true 'Bash startup uses shared Git selection'
 Assert-Equal $gitShellLibrary.Contains('ucrt64') $true 'Shared setup supports UCRT64'
 Assert-Equal $gitShellLibrary.Contains('mingw64') $true 'Shared setup supports MinGW64'
 Assert-Equal $gitShellLibrary.Contains('mingw32') $true 'Shared setup supports MinGW32'
@@ -62,6 +77,61 @@ $savedArchitecture = $env:PROCESSOR_ARCHITECTURE
 $savedWow64Architecture = $env:PROCESSOR_ARCHITEW6432
 try {
     $null = New-Item -ItemType Directory -Path $fixtureRoot
+    $launcherVendorGit = Join-Path $fixtureRoot 'vendor\git-for-windows'
+    $null = New-Item -ItemType Directory -Path (Join-Path $launcherVendorGit 'cmd') -Force
+    [IO.File]::WriteAllText((Join-Path $launcherVendorGit 'cmd\git.exe'), '')
+    $selectorCmderRoot = Join-Path $fixtureRoot 'Selector Cmder'
+    $selectorVendorRoot = Join-Path $selectorCmderRoot 'vendor\git-for-windows'
+    $selectorUserRoot = Join-Path $fixtureRoot 'Selector User Git'
+    $selectorOtherRoot = Join-Path $fixtureRoot 'Selector Other Git'
+    foreach ($gitRoot in @($selectorVendorRoot, $selectorUserRoot, $selectorOtherRoot)) {
+        $commandDirectory = Join-Path $gitRoot 'cmd'
+        $null = New-Item -ItemType Directory -Path $commandDirectory -Force
+        [IO.File]::WriteAllText((Join-Path $commandDirectory 'git.exe'), '')
+    }
+    $null = New-Item -ItemType Directory -Path (Join-Path $selectorUserRoot 'bin'), (Join-Path $selectorUserRoot 'ucrt64\bin') -Force
+    [IO.File]::WriteAllText((Join-Path $selectorVendorRoot 'cmd\version.txt'), '2.50.0.windows.1')
+    [IO.File]::WriteAllText((Join-Path $selectorUserRoot 'cmd\version.txt'), '2.52.0.windows.1')
+    [IO.File]::WriteAllText((Join-Path $selectorOtherRoot 'cmd\version.txt'), '2.40.0.windows.1')
+    $systemPath = 'C:\Windows\System32;C:\Windows\System32\WindowsPowerShell\v1.0'
+    $env:Path = "$($selectorUserRoot)\cmd;$($selectorOtherRoot)\cmd;$systemPath"
+    $env:GIT_INSTALL_ROOT = ''
+    $selection = Select-GitInstallation -CmderRoot $selectorCmderRoot
+    Assert-Equal $selection.GitRoot $selectorUserRoot 'Selection prefers a PATH Git at least as new as bundled Git'
+    Assert-Equal $selection.GitType 'USER' 'PATH Git selection is classified as user Git'
+    Assert-Equal $selection.GitPathUser $selectorUserRoot 'Selected PATH Git is reported for PATH replacement'
+
+    $env:GIT_INSTALL_ROOT = $selectorOtherRoot
+    $selection = Select-GitInstallation -CmderRoot $selectorCmderRoot
+    Assert-Equal $selection.GitRoot $selectorOtherRoot 'A valid explicit Git root takes precedence'
+    Assert-Equal $selection.GitType 'USER' 'Explicit Git root is classified as user Git'
+
+    $env:GIT_INSTALL_ROOT = ''
+    $env:Path = "$($selectorOtherRoot)\cmd;$systemPath"
+    $selection = Select-GitInstallation -CmderRoot $selectorCmderRoot
+    Assert-Equal $selection.GitRoot $selectorVendorRoot 'Older PATH Git falls back to bundled Git'
+    Assert-Equal $selection.GitPathUser $selectorOtherRoot 'Older PATH Git is returned for PATH replacement'
+
+    $env:Path = "$($selectorUserRoot)\cmd;$systemPath"
+    $selection = Select-GitInstallation -CmderRoot $selectorCmderRoot -FastInit $true
+    Assert-Equal $selection.GitRoot $selectorVendorRoot 'Fast init prefers bundled Git without version scanning'
+
+    $env:Path = $systemPath
+    $selection = Select-GitInstallation -CmderRoot (Join-Path $fixtureRoot 'No Git Cmder')
+    Assert-Equal $selection.GitRoot $null 'Selection returns no Git when neither PATH nor bundled Git is available'
+
+    $env:Path = "$($selectorUserRoot)\cmd;$systemPath"
+    $selection = Select-GitInstallation -CmderRoot (Join-Path $fixtureRoot 'No Git Cmder')
+    Assert-Equal $selection.GitRoot $selectorUserRoot 'PATH Git is selected when no bundled Git is available'
+
+    $shimDirectory = Join-Path $fixtureRoot 'Selector Shim'
+    $null = New-Item -ItemType Directory -Path $shimDirectory -Force
+    [IO.File]::WriteAllText((Join-Path $shimDirectory 'git.exe'), '')
+    [IO.File]::WriteAllText((Join-Path $shimDirectory 'git.shim'), "path = $(Join-Path $selectorUserRoot 'cmd\git.exe')")
+    $env:Path = "$shimDirectory;$systemPath"
+    $selection = Select-GitInstallation -CmderRoot $selectorCmderRoot
+    Assert-Equal $selection.GitRoot $selectorUserRoot 'Selection resolves Git shims to their installation root'
+
     foreach ($shell in @('bash', 'mintty')) {
         foreach ($debug in @('0', '1')) {
             $launcher = Join-Path $repoRoot "vendor\start_git_$shell.cmd"
@@ -74,7 +144,7 @@ try {
                 'set "ConEmuDir="'
                 'set "DEBUG=1"'
                 "set `"debug_output=$debug`""
-                'set "fast_init=0"'
+                'set "fast_init=1"'
                 'set "verbose_output=0"'
                 "call `"$launcher`""
             ) -join "`r`n"
@@ -86,9 +156,42 @@ try {
         }
     }
 
+    $selectedShellGit = Join-Path $fixtureRoot 'Selected Shell Git'
+    $selectedShellProfiles = Join-Path $selectedShellGit 'etc\profile.d'
+    $null = New-Item -ItemType Directory -Path (Join-Path $selectedShellGit 'cmd'), (Join-Path $selectedShellGit 'usr\bin'), (Join-Path $selectedShellGit 'ucrt64\bin'), $selectedShellProfiles -Force
+    foreach ($executable in @('git.exe', 'bash.exe', 'mintty.exe')) {
+        $directory = if ($executable -eq 'git.exe') { Join-Path $selectedShellGit 'cmd' } else { Join-Path $selectedShellGit 'usr\bin' }
+        [IO.File]::WriteAllText((Join-Path $directory $executable), '')
+    }
+    [IO.File]::WriteAllText((Join-Path $selectedShellGit 'ucrt64\bin\git.exe'), '')
+    [IO.File]::WriteAllText((Join-Path $selectedShellProfiles 'zz-cmder_exinit.sh'), '')
+    foreach ($shell in @('bash', 'mintty')) {
+        $helper = Join-Path $repoRoot 'vendor\lib\lib_git_shell.cmd'
+        $cmdText = @(
+            '@echo off'
+            "set `"CMDER_ROOT=$fixtureRoot`""
+            "set `"GIT_INSTALL_ROOT=$selectedShellGit`""
+            'set "fast_init=0"'
+            'set "MSYSTEM="'
+            'set "debug_output=1"'
+            'set "verbose_output=0"'
+            "call `"$helper`" initialize $shell start_git_$shell"
+            'echo SELECTED_ROOT=%GIT_INSTALL_ROOT%'
+            'echo SELECTED_SHELL=%shellCmd%'
+            'echo SELECTED_MSYSTEM=%MSYSTEM%'
+        ) -join "`r`n"
+        [IO.File]::WriteAllText($cmdFile, $cmdText + "`r`n", [Text.Encoding]::ASCII)
+        $output = & $env:ComSpec /d /c "`"$cmdFile`""
+        Assert-Equal $LASTEXITCODE 0 "$shell launcher selects the explicit Git root"
+        Assert-Equal (@($output | Where-Object { $_ -eq "SELECTED_ROOT=$selectedShellGit" }).Count) 1 "$shell launcher uses selected Git root"
+        Assert-Equal (@($output | Where-Object { $_ -eq "SELECTED_SHELL=$(Join-Path $selectedShellGit "usr\bin\$shell.exe")" }).Count) 1 "$shell launcher uses shell executable from selected Git"
+        Assert-Equal (@($output | Where-Object { $_ -eq 'SELECTED_MSYSTEM=UCRT64' }).Count) 1 "$shell launcher derives MSYSTEM from selected Git"
+    }
+
     $bundledRoot = Join-Path $fixtureRoot 'Cmder (test)'
     $bundledGit = Join-Path $bundledRoot 'vendor\git-for-windows'
-    $null = New-Item -ItemType Directory -Path (Join-Path $bundledGit 'usr\bin'), (Join-Path $bundledGit 'etc\profile.d') -Force
+    $null = New-Item -ItemType Directory -Path (Join-Path $bundledGit 'cmd'), (Join-Path $bundledGit 'usr\bin'), (Join-Path $bundledGit 'etc\profile.d') -Force
+    [IO.File]::WriteAllText((Join-Path $bundledGit 'cmd\git.exe'), '')
     [IO.File]::WriteAllText((Join-Path $bundledGit 'usr\bin\bash.exe'), '')
     $legacyHook = Join-Path $bundledGit 'etc\profile.d\cmder.sh'
     [IO.File]::WriteAllText($legacyHook, '')
@@ -98,7 +201,7 @@ try {
         '@echo off'
         "set `"CMDER_ROOT=$bundledRoot`""
         'set "debug_output=1"'
-        'set "fast_init=0"'
+        'set "fast_init=1"'
         'set "verbose_output=0"'
         "call `"$helper`" initialize bash start_git_bash"
     ) -join "`r`n"
@@ -116,7 +219,7 @@ try {
         @{ Name = 'Older mixed layouts'; Dirs = @('mingw64', 'mingw32'); Native = 'mingw64' },
         @{ Name = 'No native directory'; Dirs = @(); Native = '' }
     )
-    $basePath = 'C:\Windows\System32'
+    $basePath = $systemPath
     foreach ($case in $cases) {
         $gitRoot = Join-Path $fixtureRoot $case.Name
         foreach ($directory in @('cmd', 'bin', 'usr\bin') + @($case.Dirs | ForEach-Object { "$_\bin" })) {
@@ -207,34 +310,38 @@ PATH="/layout-test-base"
     $startupVendor = Join-Path $startupRoot 'vendor'
     $startupLib = Join-Path $startupVendor 'lib'
     $null = New-Item -ItemType Directory -Path $startupLib -Force
+    $startupGitRoot = Join-Path $startupRoot 'Selected Git'
+    $null = New-Item -ItemType Directory -Path (Join-Path $startupGitRoot 'cmd'), (Join-Path $startupGitRoot 'bin'), (Join-Path $startupGitRoot 'ucrt64\bin') -Force
+    [IO.File]::WriteAllText((Join-Path $startupGitRoot 'cmd\git.exe'), '')
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\cmder.sh') -Destination $startupVendor
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\lib\lib_console.sh') -Destination $startupLib
     $startupProfile = Join-Path $startupRoot 'config\user_profile.sh'
     [IO.File]::WriteAllText($startupProfile, '')
     [IO.File]::WriteAllText((Join-Path $startupRoot '.bashrc'), "export PATH='/unexpected-bashrc'`n")
     $posixStartupRoot = & $cygpath -u $startupRoot
+    $posixStartupGitRoot = & $cygpath -u $startupGitRoot
     $mountedBins = & $BashExecutable --noprofile --norc -c 'for dir in /ucrt64/bin /mingw64/bin /clangarm64/bin /mingw32/bin; do if [ -d $dir ]; then echo $dir; fi; done'
     $mountedBin = @($mountedBins)[0]
     if (!$mountedBin) { throw 'No native bin found in the Git Bash runtime.' }
     $startupScript = Join-Path $fixtureRoot 'bundled-startup.sh'
-    [IO.File]::WriteAllText($startupScript, 'export CMDER_ROOT="$1" HOME="$1" MINGW_PREFIX="${3%/bin}" PATH="$4"; unset CMDER_USER_CONFIG DEBUG debug_output; GIT_INSTALL_ROOT=/untouched; . "$2"; [ "$GIT_INSTALL_ROOT" = /untouched ] || exit 1; printf "%s\n" "$PATH"' + "`n")
+    [IO.File]::WriteAllText($startupScript, 'export CMDER_ROOT="$1" HOME="$1" MINGW_PREFIX="${3%/bin}" PATH="$4" GIT_INSTALL_ROOT="$5" PROCESSOR_ARCHITECTURE=AMD64 PROCESSOR_ARCHITEW6432=; unset CMDER_USER_CONFIG DEBUG debug_output; . "$2"; printf "%s\n" "$PATH"' + "`n")
     $posixStartupScript = & $cygpath -u $startupScript
     $baseline = "${posixStartupRoot}/bin:${mountedBin}:/usr/bin:/c/Program Files/Custom/bin:/usr/bin/core_perl"
-    $actual = & $BashExecutable --noprofile --norc $posixStartupScript $posixStartupRoot $posixSource $mountedBin $baseline
+    $actual = & $BashExecutable --noprofile --norc $posixStartupScript $posixStartupRoot $posixSource $mountedBin $baseline $posixStartupGitRoot
     Assert-Equal $LASTEXITCODE 0 'Bash startup with the standard Git Bash PATH'
-    Assert-Equal $actual "${posixStartupRoot}/bin:${posixStartupRoot}/vendor/bin:${baseline}" 'Cmder prepends its bins without changing inherited PATH entries or forcing .bashrc'
+    Assert-Equal $actual "${posixStartupRoot}/bin:${posixStartupRoot}/vendor/bin:${posixStartupGitRoot}/ucrt64/bin:${posixStartupGitRoot}/bin:${baseline}" 'Cmder uses selected Git tools and prepends its own bins without forcing .bashrc'
 
     $posixShim = & $cygpath -u (Join-Path $repoRoot 'vendor\cmder_exinit')
     $debugScript = Join-Path $fixtureRoot 'test-bash-debug.sh'
     $debugLog = Join-Path $fixtureRoot 'bash-debug.log'
-    [IO.File]::WriteAllText($debugScript, 'export CMDER_ROOT="$1" HOME="$1" MINGW_PREFIX="${3%/bin}" PATH="$4" DEBUG=1; unset CMDER_USER_CONFIG CMDER_EXINIT debug_output; if [ "$5" != unset ]; then export debug_output="$5"; fi; . "$2" 2>"$6"; printf "%s\n" "$PATH"' + "`n")
+    [IO.File]::WriteAllText($debugScript, 'export CMDER_ROOT="$1" HOME="$1" MINGW_PREFIX="${3%/bin}" PATH="$4" GIT_INSTALL_ROOT="$7" PROCESSOR_ARCHITECTURE=AMD64 PROCESSOR_ARCHITEW6432= DEBUG=1; unset CMDER_USER_CONFIG CMDER_EXINIT debug_output; if [ "$5" != unset ]; then export debug_output="$5"; fi; . "$2" 2>"$6"; printf "%s\n" "$PATH"' + "`n")
     $posixDebugScript = & $cygpath -u $debugScript
     $posixDebugLog = & $cygpath -u $debugLog
     foreach ($entry in @($posixSource, $posixShim)) {
         foreach ($debug in @('unset', '0', '-1', '1', '2')) {
-            $actual = & $BashExecutable --noprofile --norc $posixDebugScript $posixStartupRoot $entry $mountedBin $baseline $debug $posixDebugLog
+            $actual = & $BashExecutable --noprofile --norc $posixDebugScript $posixStartupRoot $entry $mountedBin $baseline $debug $posixDebugLog $posixStartupGitRoot
             Assert-Equal $LASTEXITCODE 0 "Bash startup via $entry with debug_output=$debug"
-            Assert-Equal $actual "${posixStartupRoot}/bin:${posixStartupRoot}/vendor/bin:${baseline}" "Debug output preserves startup PATH via $entry"
+            Assert-Equal $actual "${posixStartupRoot}/bin:${posixStartupRoot}/vendor/bin:${posixStartupGitRoot}/ucrt64/bin:${posixStartupGitRoot}/bin:${baseline}" "Debug output preserves startup PATH via $entry"
             $debugText = [IO.File]::ReadAllText($debugLog)
             Assert-Equal ($debugText -match '(?m)^\d{2}:\d{2}:\d{2} DEBUG\(cmder\.sh\): Cmder root:') ($debug -in @('1', '2')) "Bash debug output follows debug_output=$debug via $entry"
             if ($entry -eq $posixShim) {
@@ -247,9 +354,9 @@ PATH="/layout-test-base"
     $hiddenConsole = Join-Path $startupLib 'lib_console.hidden'
     Rename-Item -LiteralPath $startupConsole -NewName 'lib_console.hidden'
     try {
-        [IO.File]::WriteAllText($debugScript, 'export CMDER_ROOT="$1"; unset CMDER_EXINIT; . "$2" 2>"$3"' + "`n")
+        [IO.File]::WriteAllText($debugScript, 'export CMDER_ROOT="$1" GIT_INSTALL_ROOT="$4"; unset CMDER_EXINIT; . "$2" 2>"$3"' + "`n")
         foreach ($entry in @($posixSource, $posixShim)) {
-            & $BashExecutable --noprofile --norc $posixDebugScript $posixStartupRoot $entry $posixDebugLog
+            & $BashExecutable --noprofile --norc $posixDebugScript $posixStartupRoot $entry $posixDebugLog $posixStartupGitRoot
             Assert-Equal $LASTEXITCODE 1 "Missing console library fails via $entry"
             Assert-Equal ([IO.File]::ReadAllText($debugLog).Contains('Cannot read console library:')) $true "Missing console library reports an error via $entry"
         }
@@ -258,9 +365,9 @@ PATH="/layout-test-base"
     }
 
     [IO.File]::WriteAllText($startupProfile, "export PATH='/usr/bin:/custom/bin'`n")
-    $actual = & $BashExecutable --noprofile --norc $posixStartupScript $posixStartupRoot $posixSource $mountedBin $baseline
+    $actual = & $BashExecutable --noprofile --norc $posixStartupScript $posixStartupRoot $posixSource $mountedBin $baseline $posixStartupGitRoot
     Assert-Equal $LASTEXITCODE 0 'Bash startup with a Cmder profile PATH reset'
-    Assert-Equal $actual "${mountedBin}:/usr/bin:/custom/bin" 'Native bin is restored after a Cmder profile resets PATH'
+    Assert-Equal $actual "${posixStartupGitRoot}/ucrt64/bin:/usr/bin:/custom/bin" 'Selected Git native bin is restored after a Cmder profile resets PATH'
 
     $installer = Join-Path $repoRoot 'vendor\setup_external_git_bash.ps1'
     $installerAst = [System.Management.Automation.Language.Parser]::ParseFile($installer, [ref]$null, [ref]$parseErrors)
@@ -277,6 +384,10 @@ PATH="/layout-test-base"
     $legacyHook = Join-Path $externalProfiles 'cmder_exinit.sh'
     $externalCmder = Join-Path $fixtureRoot "External Cmder's root"
     $null = New-Item -ItemType Directory -Path $externalProfiles, (Join-Path $externalCmder 'vendor'), (Join-Path $externalCmder 'config\profile.d')
+    $externalVendor = Join-Path $externalCmder 'vendor'
+    $null = New-Item -ItemType Directory -Path (Join-Path $externalVendor 'bin'), (Join-Path $externalVendor 'psmodules')
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\bin\select-git-installation.ps1') -Destination (Join-Path $externalVendor 'bin')
+    Copy-Item -LiteralPath $modulePath -Destination (Join-Path $externalVendor 'psmodules\Cmder.ps1')
     $sharedStartup = Join-Path $externalCmder 'vendor\cmder.sh'
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\cmder_exinit'), (Join-Path $repoRoot 'vendor\cmder.sh') -Destination (Join-Path $externalCmder 'vendor')
     $externalLib = Join-Path $externalCmder 'vendor\lib'
@@ -284,33 +395,41 @@ PATH="/layout-test-base"
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\lib\lib_console.sh') -Destination $externalLib
     [IO.File]::WriteAllText((Join-Path $externalCmder 'config\profile.d\with spaces.sh'), "printf '%s\n' fragment`n")
     [IO.File]::WriteAllText((Join-Path $externalCmder 'config\user_profile.sh'), "printf '%s\n' profile`n")
-    [IO.File]::WriteAllText($legacyHook, 'existing')
+    [IO.File]::WriteAllText($legacyHook, 'existing legacy hook')
     $fixtureProfile = "C:\Fixture Users\O'Neil"
     $installArgs = @{ GitRoot = $externalRoot; CmderRoot = $externalCmder; UserProfile = $fixtureProfile; ComputerName = 'HOST-A' }
     $optOut = Join-Path $externalCmder 'config\user_cmder_state.txt'
     & {
-        function Read-Host { throw 'Existing hooks must suppress the setup offer.' }
+        function Read-Host { throw 'Migrating an existing hook must not prompt.' }
         Install-CmderExternalGitHook @installArgs
     }
-    Assert-Equal ([IO.File]::ReadAllText($legacyHook)) 'existing' 'Existing external hook is left in place'
-    Assert-Equal (Test-Path -LiteralPath $externalHook) $false 'Existing external hook prevents installing a second hook'
-    Remove-Item -LiteralPath $legacyHook
+    $legacyBackups = @(Get-ChildItem -LiteralPath $externalProfiles -Filter 'cmder_exinit.sh.*.bak' -File)
+    Assert-Equal (Test-Path -LiteralPath $legacyHook) $false 'Legacy external hook is removed from the active profile'
+    Assert-Equal $legacyBackups.Count 1 'Legacy external hook is preserved in a dated backup'
+    Assert-Equal ([IO.File]::ReadAllText($legacyBackups[0].FullName)) 'existing legacy hook' 'Dated backup preserves the old hook contents'
+    Assert-Equal ($legacyBackups[0].Name -match '\.sh$') $false 'Dated backup is not sourced as a shell hook'
+    Assert-Equal (Test-Path -LiteralPath $externalHook) $true 'Legacy external hook is automatically replaced with the late-running hook'
+    [IO.File]::WriteAllText($legacyHook, 'duplicate legacy hook')
     & {
-        function Read-Host { 'y' }
+        function Read-Host { throw 'Cleaning up a duplicate legacy hook must not prompt.' }
         Install-CmderExternalGitHook @installArgs
     }
+    $legacyBackups = @(Get-ChildItem -LiteralPath $externalProfiles -Filter 'cmder_exinit.sh.*.bak' -File)
+    Assert-Equal (Test-Path -LiteralPath $legacyHook) $false 'Legacy external hook is backed up when the new hook already exists'
+    Assert-Equal $legacyBackups.Count 2 'Repeated legacy-hook cleanup uses a distinct dated backup'
     $posixExternalHook = & $cygpath -u $externalHook
     $posixExternalCmder = & $cygpath -u $externalCmder
+    $posixSelectorUserRoot = & $cygpath -u $selectorUserRoot
     $externalStartup = Join-Path $fixtureRoot 'external-startup.sh'
-    [IO.File]::WriteAllText($externalStartup, 'unset CMDER_ROOT CMDER_USER_CONFIG CMDER_EXINIT DEBUG debug_output; export USERPROFILE="$2" PATH="$3" MINGW_PREFIX="${4%/bin}"; . "$1"; . "$1"; printf "%s\n" "$PATH"' + "`n")
+    [IO.File]::WriteAllText($externalStartup, 'unset CMDER_ROOT CMDER_USER_CONFIG CMDER_EXINIT DEBUG debug_output; export USERPROFILE="$2" PATH="$3" MINGW_PREFIX="${4%/bin}" GIT_INSTALL_ROOT="$5"; . "$1"; . "$1"; printf "%s\n" "$PATH"' + "`n")
     $posixExternalStartup = & $cygpath -u $externalStartup
-    $actual = & $BashExecutable --noprofile --norc $posixExternalStartup $posixExternalHook $fixtureProfile $baseline $mountedBin
+    $actual = & $BashExecutable --noprofile --norc $posixExternalStartup $posixExternalHook $fixtureProfile $baseline $mountedBin $posixSelectorUserRoot
     Assert-Equal $LASTEXITCODE 0 'Generated external hook is valid Bash'
-    Assert-Equal ($actual -join "`n") "fragment`nprofile`n${posixExternalCmder}/bin:${posixExternalCmder}/vendor/bin:${baseline}" 'External hook preserves PATH, supports spaces and apostrophes, and runs once'
-    $actual = & $BashExecutable --noprofile --norc $posixExternalStartup $posixExternalHook 'C:\Other User' $baseline $mountedBin
+    Assert-Equal ($actual -join "`n") "fragment`nprofile`n${posixExternalCmder}/bin:${posixExternalCmder}/vendor/bin:${posixSelectorUserRoot}/ucrt64/bin:${posixSelectorUserRoot}/bin:${baseline}" 'External hook uses the selected Git root, preserves PATH, and runs once'
+    $actual = & $BashExecutable --noprofile --norc $posixExternalStartup $posixExternalHook 'C:\Other User' $baseline $mountedBin $posixSelectorUserRoot
     Assert-Equal $actual $baseline 'Generated hook does not enable Cmder for another Windows profile'
     [IO.File]::AppendAllText($sharedStartup, "printf '%s\n' updated`n")
-    $actual = & $BashExecutable --noprofile --norc $posixExternalStartup $posixExternalHook $fixtureProfile $baseline $mountedBin
+    $actual = & $BashExecutable --noprofile --norc $posixExternalStartup $posixExternalHook $fixtureProfile $baseline $mountedBin $posixSelectorUserRoot
     Assert-Equal (@($actual)[2]) 'updated' 'Installed external shim sees edits to the shared startup without reinstalling'
     Remove-Item -LiteralPath $externalHook
     & {
