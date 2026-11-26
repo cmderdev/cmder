@@ -8,8 +8,8 @@
 
 ### Changes 
 
-- Bundled and external Cmder hooks load the same `vendor\cmder.sh` startup script.
 - Use one Git selection policy across CMD, PowerShell, Bash, and Mintty: honor a valid `GIT_INSTALL_ROOT`; otherwise choose a PATH Git at least as new as vendored Git, falling back to vendored Git. With `fast_init`, prefer vendored Git without version scanning when available, or the first valid PATH Git when it is not. Bash and Mintty launch from the selected installation and use its shell, PATH, and MSYSTEM setup.
+- Bundled and external Cmder hooks load the same `vendor\cmder.sh` startup script.
 - Enable Bash and Mintty startup debug messages with a positive `debug_output` value, matching the command-script debug setting.
 - Use a shared shell console helper for Bash startup debug messages, including the external Git Bash hook.
 - Store external Git Bash setup opt-outs by computer name and Git path in the portable `config/user_cmder_state.txt` file.
