@@ -5,3 +5,4 @@
 *.ps1 text eol=crlf
 *.md text eol=lf
 *.sh text eol=lf
+/vendor/cmder_exinit text eol=lf

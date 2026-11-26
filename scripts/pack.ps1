@@ -44,6 +44,12 @@ $cmder_root = Resolve-Path $cmderRoot
 $ErrorActionPreference = "Stop"
 Ensure-Executable "7z"
 
+foreach ($file in @('vendor\cmder.sh', 'vendor\cmder_exinit', 'vendor\lib\lib_console.sh', 'vendor\setup_external_git_bash.ps1')) {
+    if (-not (Test-Path -LiteralPath (Join-Path $cmder_root $file) -PathType Leaf)) {
+        throw "Cannot package Cmder: missing required Bash startup file '$file'."
+    }
+}
+
 function Get-ArchiveFlags {
     param(
         [Parameter(Mandatory = $true)]

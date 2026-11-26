@@ -49,47 +49,11 @@ if ($env:CMDER_USER_CONFIG) {
     Write-Verbose "CMDER IS ALSO USING INDIVIDUAL USER CONFIG FROM '$ENV:CMDER_USER_CONFIG'!"
 }
 
-# Read vendored Git Version
-$gitVendorPath = Join-Path $ENV:CMDER_ROOT 'vendor\git-for-windows\cmd'
-$gitVersionVendor = Get-GitVersion -GitPath $gitVendorPath
-if (-not [string]::IsNullOrEmpty($gitVersionVendor)) {
-    Write-Debug "GIT VENDOR: ${gitVersionVendor}"
-} else {
-    Write-Debug "GIT VENDOR is not present at '$gitVendorPath'"
-}
-
-# Get user installed Git version(s) if found, and compare them with vendored version.
-foreach ($git in (Get-Command -ErrorAction SilentlyContinue 'git')) {
-    Write-Debug "GIT USER PATH: $($git.Path)"
-    $gitDir = Split-Path -Path $git.Path
-    $gitDir = Get-GitShimPath -GitPath $gitDir
-    $gitVersionUser = Get-GitVersion -GitPath $gitDir
-    Write-Debug "GIT USER VERSION: ${gitVersionUser}"
-
-    $useGitVersion = Compare-GitVersion -UserVersion $gitVersionUser -VendorVersion $gitVersionVendor
-    Write-Debug "Using Git Version: ${useGitVersion}"
-
-    # Use user installed Git
-    if ($null -eq $gitPathUser) {
-        Write-Debug "Detected Git from PATH"
-        Write-Debug "Git Dir: ${gitDir}"
-        $gitPathUser = Get-GitRoot -GitPath $gitDir
-        Write-Debug "Git Path User: ${gitDir}"
-    }
-
-    if ($useGitVersion -eq $gitVersionUser) {
-        Write-Debug "Using Git Dir: ${gitDir}"
-        $ENV:GIT_INSTALL_ROOT = $gitPathUser
-        $ENV:GIT_INSTALL_TYPE = 'USER'
-        break
-    }
-}
-
-# Use vendored Git if no user Git found or user Git is older than vendored Git
-if ($null -eq $ENV:GIT_INSTALL_ROOT -and $null -ne $gitVersionVendor) {
-    $ENV:GIT_INSTALL_ROOT = "$ENV:CMDER_ROOT\vendor\git-for-windows"
-    $ENV:GIT_INSTALL_TYPE = 'VENDOR'
-}
+# Select the same Git installation used by CMD and the Bash launchers.
+$gitSelection = Select-GitInstallation -CmderRoot $ENV:CMDER_ROOT -GitInstallRoot $ENV:GIT_INSTALL_ROOT -FastInit ($env:fast_init -eq '1')
+$ENV:GIT_INSTALL_ROOT = $gitSelection.GitRoot
+$ENV:GIT_INSTALL_TYPE = $gitSelection.GitType
+$gitPathUser = $gitSelection.GitPathUser
 
 Write-Debug "GIT_INSTALL_ROOT: ${ENV:GIT_INSTALL_ROOT}"
 Write-Debug "GIT_INSTALL_TYPE: ${ENV:GIT_INSTALL_TYPE}"

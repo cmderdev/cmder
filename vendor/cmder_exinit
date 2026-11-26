@@ -1,112 +1,31 @@
-# Copy this file to your non integrated *nix-like environment,
-# Cygwin/MSys2/Git for Windows SDK, installs '/etc/profile.d/'
-# folder to integrate the externally installed Unix like environment
-# into Cmder so it has access to settings stored in Cmder/config
-# folder when launched.
-#
-# The destination file extension depends on the shell you use.  For example:
-#
-# bash - Copy to /etc/profile.d/cmder_exinit.sh
-# zsh  - Copy to /etc/profile.d/cmder_exinit.zsh
-# Add portable user customizations ${CMDER_ROOT}/config/user-profile.sh or
-# add whole config scripts to ${CMDER_ROOT}/config/profile.d both will be sourced
-# from this file and be applied to the environment at startup.
-#
-# These customizations will follow Cmder if $CMDER_ROOT is copied
-# to another machine.
-#
-# Add system specific users customizations to $HOME/.bashrc, these
-# customizations will not follow Cmder to another machine.
+# Source from /etc/profile.d/zz-cmder_exinit.sh (Bash) or .zsh (Zsh).
+# Set CMDER_ROOT to enable Cmder settings when launching outside Cmder.
+# CMDER_ROOT="${USERPROFILE}/cmder"
 
-# # Uncomment and edit the CMDER_ROOT line to use Cmder/config even when launched
-# # from outside Cmder.
-# CMDER_ROOT=${USERPROFILE}/cmder  # This is not required if launched from Cmder.
-
-function runProfiled {
-  unset profile_d_scripts
-  pushd "${1}" >/dev/null
-
-  if [ -n "${ZSH_VERSION}"  ]; then
-    profile_d_scripts=$(ls *.zsh 2>/dev/null)
-  elif [ -n "${BASH_VERSION}"  ]; then
-    profile_d_scripts=$(ls *.sh 2>/dev/null)
-  fi
-
-  if [ -n "${profile_d_scripts}" ] ; then
-    for x in ${profile_d_scripts} ; do
-      . "${1}/${x}"
-    done
-  fi
-  popd >/dev/null
-}
-
-# Check that we haven't already been sourced.
-[[ -z ${CMDER_EXINIT} ]] && CMDER_EXINIT="1" || return
-
-if [ -z "$CMDER_ROOT" ] && [ -n "$cmder_root" ] ; then
-  export CMDER_ROOT=$(cygpath -u $cmder_root)
+if [ -z "${CMDER_ROOT:-}" ]; then
+  CMDER_ROOT="${cmder_root:-}"
 fi
 
-# We do this for bash as admin sessions since $CMDER_ROOT is not being set
-if [ "$CMDER_ROOT" = "" -a "$ConEmuDir" != "" ] ; then
-  if [ -d "${ConEmuDir}/../../vendor" ] ; then
-    case "$ConEmuDir" in *\\*) CMDER_ROOT=$( cd "$(cygpath -u "$ConEmuDir")/../.." ; pwd );; esac
-  fi
-elif [ "$CMDER_ROOT" != "" ] ; then
-  case "$CMDER_ROOT" in *\\*) CMDER_ROOT="$(cygpath -u "$CMDER_ROOT")";; esac
+if [ -z "$CMDER_ROOT" ]; then
+  case "${ConEmuDir:-}" in
+    [A-Za-z]:*|*\\*) CMDER_ROOT=$(cd "$(cygpath -u "$ConEmuDir")/../.." && pwd) || return 1 ;;
+  esac
 fi
 
-if [ -n "$CMDER_ROOT" ] ; then
-  # Remove any trailing '/'
-  CMDER_ROOT=$(echo $CMDER_ROOT | sed 's:/*$::')
+[ -n "$CMDER_ROOT" ] || return 0
+case "$CMDER_ROOT" in
+  [A-Za-z]:*|*\\*) CMDER_ROOT=$(cygpath -u "$CMDER_ROOT") || return 1 ;;
+esac
 
-  export CMDER_ROOT
-
-  PATH=${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin:$PATH:${CMDER_ROOT}
-
-  export PATH
-
-  # Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
-  # to source them at startup.
-  if [ ! -d "${CMDER_ROOT}/config/profile.d" ] ; then
-    mkdir -p "${CMDER_ROOT}/config/profile.d"
-  fi
-
-  if [ -d "${CMDER_ROOT}/config/profile.d" ] ; then
-    runProfiled  "${CMDER_ROOT}/config/profile.d"
-  fi
-
-  if [ -d "${CMDER_USER_CONFIG}/profile.d" ] ; then
-    runProfiled  "${CMDER_USER_CONFIG}/profile.d"
-  fi
-
-
-  # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
-  if [ -f "$CMDER_ROOT/config/user-profile.sh" ] ; then
-    mv "$CMDER_ROOT/config/user-profile.sh" "$CMDER_ROOT/config/user_profile.sh"
-  fi
-
-  CmderUserProfilePath="${CMDER_ROOT}/config/user_profile.sh"
-  if [ -f "${CMDER_ROOT}/config/user_profile.sh" ] ; then
-      . "${CMDER_ROOT}/config/user_profile.sh"
-  fi
-
-  if [ "${CMDER_USER_CONFIG}" != "" ] ; then
-    # Renaming to "config\user_profile.sh" to "user_profile.sh" for consistency.
-    if [ -f "$CMDER_USER_CONFIG/user-profile.sh" ] ; then
-      mv "$CMDER_USER_CONFIG/user-profile.sh" "$CMDER_USER_CONFIG/user_profile.sh"
-    fi
-
-    export PATH=${CMDER_USER_CONFIG}/bin:$PATH
-
-    CmderUserProfilePath="${CMDER_USER_CONFIG}/user_profile.sh"
-    if [ -f "${CMDER_USER_CONFIG}/user_profile.sh" ] ; then
-      . "${CMDER_USER_CONFIG}/user_profile.sh"
-    fi
-  fi
-
-  if [ ! -f "${CmderUserProfilePath}" ] ; then
-      echo Creating user startup file: "${CmderUserProfilePath}"
-      cp "${CMDER_ROOT}/vendor/user_profile.sh.default" "${CmderUserProfilePath}"
-  fi
+if [ ! -r "$CMDER_ROOT/vendor/lib/lib_console.sh" ]; then
+  printf '[cmder] Cannot read console library: %s\n' "$CMDER_ROOT/vendor/lib/lib_console.sh" >&2
+  return 1
 fi
+. "$CMDER_ROOT/vendor/lib/lib_console.sh" || return 1
+
+if [ ! -r "$CMDER_ROOT/vendor/cmder.sh" ]; then
+  printf '[cmder] Cannot read startup script: %s\n' "$CMDER_ROOT/vendor/cmder.sh" >&2
+  return 1
+fi
+debug_output cmder_exinit "Sourcing startup script: $CMDER_ROOT/vendor/cmder.sh"
+. "$CMDER_ROOT/vendor/cmder.sh"

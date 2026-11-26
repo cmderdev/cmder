@@ -91,6 +91,57 @@ try {
     }
     $cases++
 
+    $packageSource = Join-Path $testRoot 'package source'
+    $packageVendor = Join-Path $packageSource 'vendor'
+    $profileDir = Join-Path $packageVendor 'git-for-windows\etc\profile.d'
+    $null = New-Item -ItemType Directory -Path $profileDir
+    $legacyBundledHook = Join-Path $profileDir 'cmder.sh'
+    [IO.File]::WriteAllText($legacyBundledHook, 'legacy bundled hook')
+    $repo = Split-Path $PSScriptRoot -Parent
+    $startupFiles = @('cmder.sh', 'cmder_exinit', 'lib\lib_console.sh', 'setup_external_git_bash.ps1')
+    foreach ($file in $startupFiles) {
+        $destination = Join-Path $packageVendor $file
+        $null = New-Item -ItemType Directory -Path (Split-Path $destination -Parent) -Force
+        Copy-Item -LiteralPath (Join-Path $repo "vendor\$file") -Destination $destination
+    }
+    $packageConfig = Join-Path $packageSource 'config'
+    $null = New-Item -ItemType Directory -Path $packageConfig -Force
+    [IO.File]::WriteAllText((Join-Path $packageConfig 'user_cmder_state.txt'), 'private Git path')
+    Copy-Item -LiteralPath (Join-Path $repo 'packignore') -Destination $packageSource
+    $emptyManifest = Join-Path $testRoot 'empty-sources.json'
+    Set-Content -LiteralPath $emptyManifest -Value '[]' -Encoding ascii
+    Set-Content -LiteralPath (Join-Path $profileDir 'git-prompt.sh.bak') -Value '' -Encoding ascii
+    & (Join-Path $PSScriptRoot 'build.ps1') -SourcesPath $emptyManifest -SaveTo $packageVendor -Config $packageSource
+    $hook = Get-Content -Raw -LiteralPath (Join-Path $profileDir 'zz-cmder.sh')
+    if (!$hook.Contains('. "$CMDER_ROOT/vendor/cmder.sh"') -or $hook.Contains('__cmder_find_git_root')) {
+        throw 'Bundled profile hook must source the shared startup rather than copy it.'
+    }
+    if ([IO.File]::ReadAllText($legacyBundledHook) -ne 'legacy bundled hook') {
+        throw 'Package building must not rewrite the legacy bundled hook.'
+    }
+    $packageOutput = Join-Path $testRoot 'archives'
+    & (Join-Path $PSScriptRoot 'pack.ps1') -CmderRoot $packageSource -SaveTo $packageOutput
+    foreach ($profile in Get-CmderPackageProfiles) {
+        foreach ($package in $profile.packages) {
+            $archive = Join-Path $packageOutput "$($profile.outputFolder)\$($package.name)"
+            $listing = & 7z l -slt -ba $archive
+            if ($LASTEXITCODE) { throw "Cannot list $archive." }
+            if ($listing -contains 'Path = config\user_cmder_state.txt') {
+                throw "$($package.name) contains user-owned Cmder state."
+            }
+            foreach ($file in $startupFiles) {
+                if ($listing -notcontains "Path = vendor\$file") {
+                    throw "$($package.name) is missing vendor\$file."
+                }
+            }
+            $hasBundledHook = $listing -contains 'Path = vendor\git-for-windows\etc\profile.d\zz-cmder.sh'
+            if ($hasBundledHook -ne ($package.name -notlike '*_nogit.zip')) {
+                throw "$($package.name) has incorrect bundled hook inclusion."
+            }
+            $cases++
+        }
+    }
+
     Push-Location -LiteralPath $testRoot
     try {
         $version = Get-VersionStr
