@@ -256,73 +256,21 @@ if "%CMDER_CONFIGURED%" GTR "1" (
     goto :USER_CONFIG_START
 )
 
-:: Prepare for git-for-windows
-
-:: Detect which git.exe version to use
-:: * if the user points to a specific git, use that
-:: * test if git is in path and if yes, use that
-:: * last, use our vendored git
-:: also check that we have a recent enough version of git by examining the version string
-if defined GIT_INSTALL_ROOT (
-    if exist "%GIT_INSTALL_ROOT%\cmd\git.exe" goto :SPECIFIED_GIT
-    set GIT_INSTALL_ROOT=
-) else if "%fast_init%" == "1" (
-    if exist "%CMDER_ROOT%\vendor\git-for-windows\cmd\git.exe" (
-        %print_debug% init.cmd "Skipping Git Auto-Detect!"
-        goto :VENDORED_GIT
-    )
-
-    %print_debug% init.cmd "Fast init is enabled, vendored Git does not exist"
-    for /F "delims=" %%F in ('where git.exe 2^>nul') do (
-	set "EXT_GIT_EXE=%%~fF"
-        %print_debug% init.cmd "Found User installed Git at '%%~fF'. Skipping Git Auto-Detect!"
-        goto :SET_ENV
-    )
-)
-
-%print_debug% init.cmd "Looking for Git install root..."
-
-:: Get the version information for vendored git binary
-%lib_git% read_version VENDORED "%CMDER_ROOT%\vendor\git-for-windows\cmd" 2>nul
-%lib_git% validate_version VENDORED %GIT_VERSION_VENDORED%
-
-:: Check if git is in path
-for /F "delims=" %%F in ('where git.exe 2^>nul') do call :check_git "%%~fF"
-
-if defined GIT_INSTALL_ROOT (
-    goto :FOUND_GIT
+:: Select Git through the shared helper so every shell uses the same installation.
+set "cmderSelectedGitRoot="
+for /f "usebackq delims=" %%F in (`powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "%CMDER_ROOT%\vendor\bin\select-git-installation.ps1"`) do set "cmderSelectedGitRoot=%%F"
+set "GIT_INSTALL_ROOT=%cmderSelectedGitRoot%"
+set "cmderSelectedGitRoot="
+if not defined GIT_INSTALL_ROOT goto :NO_GIT
+for %%i in ("%CMDER_ROOT%\vendor\git-for-windows") do set "vendoredGitRoot=%%~fi"
+if /i "%GIT_INSTALL_ROOT%"=="%vendoredGitRoot%" (
+    set "GIT_INSTALL_TYPE=VENDOR"
 ) else (
-    goto :VENDORED_GIT
+    set "GIT_INSTALL_TYPE=USER"
 )
+set "vendoredGitRoot="
+%print_debug% init.cmd "Using %GIT_INSTALL_TYPE% Git from '%GIT_INSTALL_ROOT%'..."
 
-:check_git
-    set full_path="%~f1"
-    if not defined GIT_INSTALL_ROOT (
-        if not [\%full_path:\cmd\git.exe=:%]==[\%full_path%] (
-            :: Get the absolute path to the user provided git binary
-            %lib_git% is_git_shim "%~dp1"
-            %lib_git% get_user_git_version
-            %lib_git% compare_git_versions
-        )
-    )
-    exit /b
-
-:: Our last hope: use vendored git
-:VENDORED_GIT
-if exist "%CMDER_ROOT%\vendor\git-for-windows" (
-    set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
-    %print_debug% init.cmd "Using vendored Git '%GIT_VERSION_VENDORED%'..."
-    goto :CONFIGURE_GIT
-) else (
-    goto :NO_GIT
-)
-
-:SPECIFIED_GIT
-%print_debug% init.cmd "Using specified GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%...."
-goto :CONFIGURE_GIT
-
-:FOUND_GIT
-%print_debug% init.cmd "Using found Git '%GIT_VERSION_USER%' from '%GIT_INSTALL_ROOT%..."
 goto :CONFIGURE_GIT
 
 :CONFIGURE_GIT
@@ -372,12 +320,6 @@ set PLINK_PROTOCOL=ssh
 if not defined SVN_SSH set "SVN_SSH=%GIT_INSTALL_ROOT:\=\\%\\bin\\ssh.exe"
 
 :: Find locale.exe: From the git install root, from the path, using the git installed env, or fallback using the env from the path.
-setlocal enabledelayedexpansion
-if not defined git_locale if defined EXT_GIT_EXE (
-    set "GIT_INSTALL_ROOT=!EXT_GIT_EXE:\cmd\git.exe=!"
-)
-endlocal && set GIT_INSTALL_ROOT=%GIT_INSTALL_ROOT%
-
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\locale.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\locale.exe"
 if not defined git_locale for /F "tokens=* delims=" %%F in ('where locale.exe 2^>nul') do ( if not defined git_locale set git_locale="%%F" )
 if not defined git_locale if exist "%GIT_INSTALL_ROOT%\usr\bin\env.exe" set git_locale="%GIT_INSTALL_ROOT%\usr\bin\env.exe" /usr/bin/locale
