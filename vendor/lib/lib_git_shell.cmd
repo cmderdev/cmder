@@ -69,7 +69,13 @@ set "cmderExternalGitRoot=%ProgramFiles(x86)%\git"
 
 :setup_external
 if not defined cmderExternalGitRoot goto set_msystem
-if exist "%cmderExternalGitRoot%\etc\profile.d\zz-cmder_exinit.sh" goto set_msystem
+if exist "%cmderExternalGitRoot%\etc\profile.d\zz-cmder_exinit.sh" goto existing_external_hook
+goto install_external_hook
+
+:existing_external_hook
+if not exist "%cmderExternalGitRoot%\etc\profile.d\cmder_exinit.sh" goto set_msystem
+
+:install_external_hook
 "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -File "%~dp0..\setup_external_git_bash.ps1" -GitRoot "%cmderExternalGitRoot%"
 if errorlevel 1 echo [%git_shell_label%] External Git setup did not complete. Continuing to %git_shell_type%. 1>&2
 
