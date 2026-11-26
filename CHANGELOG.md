@@ -9,13 +9,15 @@
 ### Changes 
 
 - Bundled and external Cmder hooks load the same `vendor\cmder.sh` startup script.
+- Use one Git selection policy across CMD, PowerShell, Bash, and Mintty: honor a valid `GIT_INSTALL_ROOT`; otherwise choose a PATH Git at least as new as vendored Git, falling back to vendored Git. With `fast_init`, prefer vendored Git without version scanning when available, or the first valid PATH Git when it is not. Bash and Mintty launch from the selected installation and use its shell, PATH, and MSYSTEM setup.
 - Enable Bash and Mintty startup debug messages with a positive `debug_output` value, matching the command-script debug setting.
 - Use a shared shell console helper for Bash startup debug messages, including the external Git Bash hook.
 - Store external Git Bash setup opt-outs by computer name and Git path in the portable `config/user_cmder_state.txt` file.
+- Automatically migrate an existing external `cmder_exinit.sh` hook to `zz-cmder_exinit.sh`, preserving the old hook in a dated `.bak` file without an installation-confirmation prompt. UAC approval may still be required if the Git profile directory is not writable.
 
 ### Fixes
 
-- Make the Git Bash/MinTTY launchers use the same bundled and external Git discovery, PATH setup, MSYSTEM selection, and Cmder startup hook as the running `bash.exe`.
+- Remove the legacy bundled `cmder.sh` hook at shell startup only when `zz-cmder.sh` exists, rather than rewriting it during package builds.
 - Fix no Git in path when launching `Cmder - Bash` from the unreleased `main` branch.
 - Preserve Git Bash's normal startup PATH, including native tools and entries with spaces, with Cmder's bin directories at the front.
 - Support Git for Windows' `ucrt64` directory in fresh and cached command startup, PowerShell Git discovery, and Git Bash, while retaining older `mingw64` and `mingw32` layouts. This prepares the Git security update in [#3093](https://github.com/cmderdev/cmder/pull/3093).
