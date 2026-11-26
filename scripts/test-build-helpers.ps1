@@ -95,6 +95,8 @@ try {
     $packageVendor = Join-Path $packageSource 'vendor'
     $profileDir = Join-Path $packageVendor 'git-for-windows\etc\profile.d'
     $null = New-Item -ItemType Directory -Path $profileDir
+    $legacyBundledHook = Join-Path $profileDir 'cmder.sh'
+    [IO.File]::WriteAllText($legacyBundledHook, 'legacy bundled hook')
     $repo = Split-Path $PSScriptRoot -Parent
     $startupFiles = @('cmder.sh', 'cmder_exinit', 'lib\lib_console.sh', 'setup_external_git_bash.ps1')
     foreach ($file in $startupFiles) {
@@ -113,6 +115,9 @@ try {
     $hook = Get-Content -Raw -LiteralPath (Join-Path $profileDir 'zz-cmder.sh')
     if (!$hook.Contains('. "$CMDER_ROOT/vendor/cmder.sh"') -or $hook.Contains('__cmder_find_git_root')) {
         throw 'Bundled profile hook must source the shared startup rather than copy it.'
+    }
+    if ([IO.File]::ReadAllText($legacyBundledHook) -ne 'legacy bundled hook') {
+        throw 'Package building must not rewrite the legacy bundled hook.'
     }
     $packageOutput = Join-Path $testRoot 'archives'
     & (Join-Path $PSScriptRoot 'pack.ps1') -CmderRoot $packageSource -SaveTo $packageOutput
