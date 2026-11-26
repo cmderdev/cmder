@@ -40,12 +40,26 @@ export CMDER_ROOT
 debug_output cmder.sh "Cmder root: ${CMDER_ROOT}"
 
 __cmder_find_git_root() {
-  if [ -f "/c/Program Files/Git/cmd/git.exe" ] ; then
-    GIT_INSTALL_ROOT="/c/Program Files/Git"
-  elif [ -f "/c/Program Files (x86)/Git/cmd/git.exe" ] ; then
-    GIT_INSTALL_ROOT="/c/Program Files (x86)/Git"
-  elif [ -f "${CMDER_ROOT}/vendor/git-for-windows/cmd/git.exe" ] ; then
-    GIT_INSTALL_ROOT=${CMDER_ROOT}/vendor/git-for-windows
+  local windows_cmder_root windows_powershell selector selected_root
+  GIT_INSTALL_ROOT=${GIT_INSTALL_ROOT:-}
+  if [ -n "${GIT_INSTALL_ROOT:-}" ] ; then
+    GIT_INSTALL_ROOT=$(cygpath -u "$GIT_INSTALL_ROOT") || return 1
+    if [ -f "${GIT_INSTALL_ROOT%/}/cmd/git.exe" ] ; then
+      return 0
+    fi
+    GIT_INSTALL_ROOT=""
+  fi
+
+  windows_cmder_root=$(cygpath -aw "$CMDER_ROOT") || return 1
+  windows_powershell="${WINDIR:-C:\\Windows}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+  windows_powershell=$(cygpath -u "$windows_powershell") || return 1
+  selector=$(cygpath -aw "$CMDER_ROOT/vendor/bin/select-git-installation.ps1") || return 1
+  selected_root=$(CMDER_ROOT="$windows_cmder_root" fast_init="${fast_init:-0}" "$windows_powershell" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$selector") || {
+    printf '[cmder] Git installation selection failed.\n' >&2
+    return 1
+  }
+  if [ -n "$selected_root" ] ; then
+    GIT_INSTALL_ROOT=$(cygpath -u "$selected_root") || return 1
   fi
 }
 
@@ -64,35 +78,33 @@ __cmder_add_git_native_bin() {
 }
 
 git_mingw_bin=""
-if [ -n "${MINGW_PREFIX:-}" ] && [ -d "$MINGW_PREFIX/bin" ] ; then
-  git_mingw_bin="$MINGW_PREFIX/bin"
-elif [ -f /cmd/git.exe ] || [ -n "${GIT_INSTALL_ROOT:-}" ]; then
-  __cmder_find_git_root
+__cmder_find_git_root || return 1
+if [ -n "$GIT_INSTALL_ROOT" ] ; then
   debug_output cmder.sh "Fallback Git installation root: ${GIT_INSTALL_ROOT:-not found}"
-  if [ -n "$GIT_INSTALL_ROOT" ] ; then
-    case ":$PATH:" in
-      *":${GIT_INSTALL_ROOT%/}/bin:"*) ;;
-      *) PATH="${GIT_INSTALL_ROOT%/}/bin${PATH:+:$PATH}" ;;
-    esac
-    git_native_dirs="ucrt64 mingw64 mingw32"
-    if [ "$PROCESSOR_ARCHITECTURE" = "x86" ] && [ -z "$PROCESSOR_ARCHITEW6432" ]; then
-      git_native_dirs="mingw32"
-    fi
-    for git_native_dir in $git_native_dirs; do
-      if [ -d "${GIT_INSTALL_ROOT%/}/$git_native_dir/bin" ]; then
-        git_mingw_bin="${GIT_INSTALL_ROOT%/}/$git_native_dir/bin"
-        break
-      fi
-    done
-    unset git_native_dir git_native_dirs
+  case ":$PATH:" in
+    *":${GIT_INSTALL_ROOT%/}/bin:"*) ;;
+    *) PATH="${GIT_INSTALL_ROOT%/}/bin${PATH:+:$PATH}" ;;
+  esac
+  git_native_dirs="ucrt64 mingw64 mingw32"
+  if [ "$PROCESSOR_ARCHITECTURE" = "x86" ] && [ -z "$PROCESSOR_ARCHITEW6432" ]; then
+    git_native_dirs="mingw32"
   fi
+  for git_native_dir in $git_native_dirs; do
+    if [ -d "${GIT_INSTALL_ROOT%/}/$git_native_dir/bin" ]; then
+      git_mingw_bin="${GIT_INSTALL_ROOT%/}/$git_native_dir/bin"
+      break
+    fi
+  done
+  unset git_native_dir git_native_dirs
+elif [ -n "${MINGW_PREFIX:-}" ] && [ -d "$MINGW_PREFIX/bin" ] ; then
+  git_mingw_bin="$MINGW_PREFIX/bin"
 fi
 debug_output cmder.sh "Git native bin directory: ${git_mingw_bin:-not found}"
 __cmder_add_git_native_bin
 
 PATH="${CMDER_ROOT}/bin:${CMDER_ROOT}/vendor/bin${PATH:+:$PATH}"
 
-export PATH
+export GIT_INSTALL_ROOT PATH
 
 # Drop *.sh or *.zsh files into "${CMDER_ROOT}\config\profile.d"
 # to source them at startup.
