@@ -32,15 +32,34 @@ set "cmderExternalGitRoot="
 set "gitCmd="
 set "shellCmd="
 
-if exist "%CMDER_ROOT%\vendor\git-for-windows\usr\bin\%git_shell_type%.exe" goto bundled
-if exist "%ProgramFiles%\git\usr\bin\%git_shell_type%.exe" goto external_program_files
-if exist "%ProgramFiles(x86)%\git\usr\bin\%git_shell_type%.exe" goto external_program_files_x86
-goto set_msystem
+set "cmderSelectedGitRoot="
+for /f "usebackq delims=" %%F in (`powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "%~dp0..\bin\select-git-installation.ps1"`) do set "cmderSelectedGitRoot=%%F"
+set "GIT_INSTALL_ROOT=%cmderSelectedGitRoot%"
+set "cmderSelectedGitRoot="
+if not defined GIT_INSTALL_ROOT (
+    echo [%git_shell_label%] No usable Git for Windows installation was found. 1>&2
+    goto cleanup
+)
+if exist "%GIT_INSTALL_ROOT%\usr\bin\%git_shell_type%.exe" goto selected_shell_exists
+echo [%git_shell_label%] Selected Git '%GIT_INSTALL_ROOT%' does not contain %git_shell_type%.exe. 1>&2
+goto cleanup
+
+:selected_shell_exists
+for %%i in ("%CMDER_ROOT%\vendor\git-for-windows") do set "vendoredGitRoot=%%~fi"
+if /i "%GIT_INSTALL_ROOT%"=="%vendoredGitRoot%" goto bundled
+set "vendoredGitRoot="
+set "cmderExternalGitRoot=%GIT_INSTALL_ROOT%"
+set "PATH=%GIT_INSTALL_ROOT%\usr\bin;%PATH%"
+set "gitCmd=%GIT_INSTALL_ROOT%\git-cmd.exe"
+set "shellCmd=%GIT_INSTALL_ROOT%\usr\bin\%git_shell_type%.exe"
+%print_debug% %git_shell_label% "Using selected external Git '%GIT_INSTALL_ROOT%'."
+goto setup_external
 
 :bundled
 set "PATH=%CMDER_ROOT%\vendor\git-for-windows\usr\bin;%PATH%"
 set "gitCmd=%CMDER_ROOT%\vendor\git-for-windows\git-cmd.exe"
 set "shellCmd=%CMDER_ROOT%\vendor\git-for-windows\usr\bin\%git_shell_type%.exe"
+set "GIT_INSTALL_ROOT=%CMDER_ROOT%\vendor\git-for-windows"
 %print_debug% %git_shell_label% "Using bundled Git for Windows."
 for %%i in ("%CMDER_ROOT%\vendor\git-for-windows\etc\profile.d") do (
     if exist "%%~i\zz-cmder.sh" if not exist "%%~i\zz-cmder.sh\" (
@@ -52,24 +71,15 @@ for %%i in ("%CMDER_ROOT%\vendor\git-for-windows\etc\profile.d") do (
 )
 goto set_msystem
 
-:external_program_files
-set "PATH=%ProgramFiles%\git\usr\bin;%PATH%"
-set "gitCmd=%ProgramFiles%\git\git-cmd.exe"
-set "shellCmd=%ProgramFiles%\git\usr\bin\%git_shell_type%.exe"
-set "cmderExternalGitRoot=%ProgramFiles%\git"
-%print_debug% %git_shell_label% "Using Git for Windows under Program Files."
-goto setup_external
-
-:external_program_files_x86
-set "PATH=%ProgramFiles(x86)%\git\usr\bin;%PATH%"
-set "gitCmd=%ProgramFiles(x86)%\git\git-cmd.exe"
-set "shellCmd=%ProgramFiles(x86)%\git\usr\bin\%git_shell_type%.exe"
-set "cmderExternalGitRoot=%ProgramFiles(x86)%\git"
-%print_debug% %git_shell_label% "Using Git for Windows under Program Files x86."
-
 :setup_external
 if not defined cmderExternalGitRoot goto set_msystem
-if exist "%cmderExternalGitRoot%\etc\profile.d\zz-cmder_exinit.sh" goto set_msystem
+if exist "%cmderExternalGitRoot%\etc\profile.d\zz-cmder_exinit.sh" goto existing_external_hook
+goto install_external_hook
+
+:existing_external_hook
+if not exist "%cmderExternalGitRoot%\etc\profile.d\cmder_exinit.sh" goto set_msystem
+
+:install_external_hook
 "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -File "%~dp0..\setup_external_git_bash.ps1" -GitRoot "%cmderExternalGitRoot%"
 if errorlevel 1 echo [%git_shell_label%] External Git setup did not complete. Continuing to %git_shell_type%. 1>&2
 
@@ -89,6 +99,8 @@ for %%i in ("%gitCmd%") do if not defined MSYSTEM if exist "%%~dpimingw32\bin\gi
 
 :cleanup
 set "cmderExternalGitRoot="
+set "cmderSelectedGitRoot="
+set "vendoredGitRoot="
 set "git_shell_type="
 set "git_shell_label="
 exit /b
