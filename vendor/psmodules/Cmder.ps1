@@ -133,6 +133,78 @@ function Get-GitRoot {
     return $GitPath
 }
 
+function Select-GitInstallation {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$CmderRoot,
+        [string]$GitInstallRoot = $env:GIT_INSTALL_ROOT,
+        [bool]$FastInit = ($env:fast_init -eq '1')
+    )
+
+    $vendorRoot = Join-Path $CmderRoot 'vendor\git-for-windows'
+    $vendorGit = Join-Path $vendorRoot 'cmd\git.exe'
+    if ($GitInstallRoot -and (Test-Path -LiteralPath (Join-Path $GitInstallRoot 'cmd\git.exe') -PathType Leaf)) {
+        $selectedRoot = [IO.Path]::GetFullPath($GitInstallRoot)
+        $selectedType = if ($selectedRoot.TrimEnd('\') -ieq [IO.Path]::GetFullPath($vendorRoot).TrimEnd('\')) { 'VENDOR' } else { 'USER' }
+        return [pscustomobject]@{
+            GitRoot = $selectedRoot
+            GitType = $selectedType
+            GitPathUser = $null
+        }
+    }
+
+    if ($FastInit -and (Test-Path -LiteralPath $vendorGit -PathType Leaf)) {
+        return [pscustomobject]@{
+            GitRoot = [IO.Path]::GetFullPath($vendorRoot)
+            GitType = 'VENDOR'
+            GitPathUser = $null
+        }
+    }
+
+    $vendorVersion = if (!$FastInit -and (Test-Path -LiteralPath $vendorGit -PathType Leaf)) {
+        Get-GitVersion -GitPath (Split-Path -Path $vendorGit -Parent)
+    }
+
+    $firstUserRoot = $null
+    foreach ($git in (Get-Command -Name 'git.exe' -CommandType Application -All -ErrorAction SilentlyContinue)) {
+        if ($git.Path -notmatch '^(?:[A-Za-z]:[\\/]|\\\\)') {
+            continue
+        }
+        $gitPath = Get-GitShimPath -GitPath (Split-Path -Path $git.Path -Parent)
+        $userRoot = Get-GitRoot -GitPath $gitPath
+        $userGit = Join-Path $userRoot 'cmd\git.exe'
+        if (!(Test-Path -LiteralPath $userGit -PathType Leaf)) {
+            continue
+        }
+
+        if (!$firstUserRoot) {
+            $firstUserRoot = $userRoot
+        }
+        $userVersion = if ($FastInit) { $null } else { Get-GitVersion -GitPath (Split-Path -Path $userGit -Parent) }
+        if ($FastInit -or !$vendorVersion -or (Compare-Version -UserVersion $userVersion -VendorVersion $vendorVersion) -ge 0) {
+            return [pscustomobject]@{
+                GitRoot = [IO.Path]::GetFullPath($userRoot)
+                GitType = 'USER'
+                GitPathUser = $firstUserRoot
+            }
+        }
+    }
+
+    if (Test-Path -LiteralPath $vendorGit -PathType Leaf) {
+        return [pscustomobject]@{
+            GitRoot = [IO.Path]::GetFullPath($vendorRoot)
+            GitType = 'VENDOR'
+            GitPathUser = $firstUserRoot
+        }
+    }
+
+    return [pscustomobject]@{
+        GitRoot = $null
+        GitType = $null
+        GitPathUser = $firstUserRoot
+    }
+}
+
 function Get-GitNativeBin {
     param(
         [Parameter(Mandatory = $true)]
